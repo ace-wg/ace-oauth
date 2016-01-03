@@ -22,6 +22,7 @@
 <!-- <!ENTITY RFC7250 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7250.xml"> -->
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
+<!ENTITY RFC7515 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7515.xml">
 <!-- <!ENTITY I-D.ietf-ace-usecases SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-usecases.xml"> -->
 <!ENTITY I-D.ietf-oauth-introspection SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-introspection.xml">
 <!ENTITY I-D.somaraju-ace-multicast SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.somaraju-ace-multicast.xml">
@@ -154,7 +155,7 @@
         <!-- uri and facsimile elements may also be added -->
       </address>
     </author>
-    <date year="2015" />
+    <date year="2016" />
 
 
 
@@ -208,15 +209,15 @@ servers are used.</t>
 <t>Managing authorization of users, services and their devices with the help of
 dedicated authorization servers (AS) is a common task, found in enterprise
 networks as well as on the Web.  In its simplest form the authorization task can
-be described as granting access to a resource hosted on a device, the resource 
-server (RS).  This exchange is mediated by one or multiple authorization
-servers.</t>
+be described as granting access to a requesting client, for a resource hosted on 
+a device, the resource server (RS).  This exchange is mediated by one or multiple 
+authorization servers.</t>
 
-<t>We envision that end consumers and enterprises will want to manage their
+<t>We envision that end consumers and enterprises will want to manage access-control and authorization for their
 Internet of Things (IoT) devices in the same style and this desire will increase
 with the number of exposed services and capabilities provided by applications 
 hosted on the IoT devices.  The IoT devices may be constrained in various ways 
-including processing, memory, code, energy, etc., as defined in
+including processing, memory, code-size, energy, etc., as defined in
 <xref target="RFC7228"/>, and the different IoT deployments present a continuous
 range of device and network capabilities.  Taking energy consumption as an
 example: At one end there are energy-harvesting or battery powered devices which 
@@ -228,11 +229,11 @@ processing and message exchange capabilities.
 
 <t>This memo describes how to re-use OAuth 2.0 <xref target="RFC6749"/> to
 extend authorization to Internet of Things devices with different kinds of
-constrainedness.  At the time of writing, OAuth 2.0 is already used with certain
+constraints.  At the time of writing, OAuth 2.0 is already used with certain
 types of IoT devices and this document will provide implementers additional
 guidance for using it in a secure and privacy-friendly way.  Where possible the
 basic OAuth 2.0 mechanisms are used; in some circumstances profiles are defined,
-for example to support lower the over-the-wire message size and
+for example to support smaller the over-the-wire message size and
 smaller code size.</t>
 </section>
 
@@ -463,7 +464,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     of packets can occur.  A security solution need to take the latter aspects
     into account.</t>
 
-    <t>Where HTTP uses headers and query-strings to convey additional
+    <t>While HTTP uses headers and query-strings to convey additional
     information about a request, CoAP encodes such information in so-called
     'options'.</t>
 
@@ -508,7 +509,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     <vspace blankLines="1"/>
     In this case, the message is not
     bound to the underlying application layer protocol and can therefore be used
-    with HTTP, CoAP, Bluetooth Smart, etc.  Whereas OSCOAP integrity protects
+    with HTTP, CoAP, Bluetooth Smart, etc.  While OSCOAP integrity protects
     specific CoAP message meta-data like request/response code, and binds a
     response to a specific request, OSCON protects only payload/content,
     therefore those security features are lost.  The advantages are that an 
@@ -614,8 +615,9 @@ needed, that the content is confidentiality protected.</t>
       which security protocol the client should use with the resource server(s)
       that it has just been authorized to access.  Communication security
       between client and RS may be based on pre-provisioned keys/security
-      contexts or dynamically established to the RS via the PoP token; and to
-      the client via the client information as described in
+      contexts or dynamically established. The RS authenticates the client via 
+      the PoP token; and the client authenticates the RS via the client 
+      information as described in
       <xref target="oauth2ProfilesCSP"/>.
     </t>
 
@@ -631,7 +633,7 @@ needed, that the content is confidentiality protected.</t>
 <list style="empty">
 <t>(1) the client sends the access token
       to a newly defined authorization endpoint at the RS (see <xref target="oauth2ProfilesAuthzInfo"/>)
-      , which conveys authorization information to the RS that may be used for
+      , which conveys authorization information to the RS that may be used by the client for
       subsequent resource requests, and </t> 
 <t>(2) the client makes the resource access request, using the communication security protocol and other
     client information obtained from the AS.</t>
@@ -723,7 +725,7 @@ needed, that the content is confidentiality protected.</t>
     and Certificate.  In case of PreSharedKey and RawPublicKey DTLS is based on
     the use keys distributed in the PoP token and via the client 
     information.  Additional certificate information may also be added, for 
-    example using the parameter x5c, x5t or x5t#S256.</t>
+    example using the parameter x5c, x5t or x5t#S256. (see <xref target="RFC7515"/>)</t>
 
     <t>To use OSCOAP and OSCON requires security context to be established,
     which can be provisioned with PoP token and client information, or
@@ -890,7 +892,7 @@ needed, that the content is confidentiality protected.</t>
 
       <t>The client sends the POST request to /token at AS.  The request
       contains the public key of the client and the Audience parameter set to
-      "tempSensorInLivingRoom", a value the that the temperature sensor
+      "tempSensorInLivingRoom", a value that the temperature sensor
       identifies itself with.  The AS evaluates the request and authorizes the
       client to access the resource.</t>
 
@@ -1079,9 +1081,9 @@ F:  |<--------+ Header: 2.05 Content
           </t>
 
             <t>The following example shows interactions between a client
-            (AC control unit), an offline resource server (temperature sensor)
-            and an authorization server.  The message exchanges A and B are
-            shown in <xref target="fig:rsOffline"/>.
+            (air-conditioning control unit), an offline resource server 
+            (temperature sensor)and an authorization server.  The message 
+            exchanges A and B are shown in <xref target="fig:rsOffline"/>.
             </t>
 
             <t>
@@ -1871,6 +1873,8 @@ considerations we refer the reader to
 
       &RFC7519;
 
+      &RFC7515;
+
     </references>
 
     <section title="Design Justification" anchor="constraints">
@@ -1891,10 +1895,10 @@ considerations we refer the reader to
           highest energy cost is associated to transmitting or receiving
           messages.  It is therefore important to keep the total communication
           overhead low, including minimizing the number and size of messages
-          sent and received, which has an impact of choice of message format
+          sent and received, which has an impact of choice on the message format
           and protocol.  By using CoAP over UDP, and CBOR encoded messages
           some of these aspects are addressed.  Security protocols contribute
-          to the communication overhead and can in some cases can be
+          to the communication overhead and can in some cases be
           optimized.  For example authentication and key establishment may in
           certain cases where security requirements so allows be replaced by
           provisioning of security context by a trusted third party, using
@@ -1973,7 +1977,7 @@ considerations we refer the reader to
       <xref target="RFC4680"/> for transferring the access token.</t>
 
      <t hangText="Reference token and introspection"><vspace blankLines="1"/>
-     In case of introspection it may be useful with access tokens
+     In case of introspection it may be beneficial to utilize access tokens
      which are not self-contained (also known as "reference tokens")
      that are used to lookup detailed information about the authorization.
      The RS uses the introspection message exchange not only for validating
