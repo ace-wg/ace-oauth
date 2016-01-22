@@ -5,13 +5,13 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                      SICS
 Intended status: Standards Track                             G. Selander
-Expires: July 6, 2016                                           Ericsson
+Expires: July 25, 2016                                          Ericsson
                                                            E. Wahlstroem
                                                               S. Erdtman
                                                         Nexus Technology
                                                            H. Tschofenig
                                                                 ARM Ltd.
-                                                         January 3, 2016
+                                                        January 22, 2016
 
 
         Authorization for the Internet of Things using OAuth 2.0
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on July 6, 2016.
+   This Internet-Draft will expire on July 25, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 1]
+Seitz, et al.             Expires July 25, 2016                 [Page 1]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -77,31 +77,31 @@ Table of Contents
    5.  OAuth 2.0 Profiling . . . . . . . . . . . . . . . . . . . . .  12
      5.1.  Communication Security Protocol . . . . . . . . . . . . .  12
      5.2.  Authorization Information Resource at the Resource Server  13
-     5.3.  Authorization Information Format  . . . . . . . . . . . .  13
-     5.4.  CBOR Data Formats . . . . . . . . . . . . . . . . . . . .  13
-   6.  Deployment Scenarios  . . . . . . . . . . . . . . . . . . . .  13
-     6.1.  Client and Resource Server are Offline  . . . . . . . . .  14
-     6.2.  Resource Server Offline . . . . . . . . . . . . . . . . .  17
-     6.3.  Token Introspection with an Offline Client  . . . . . . .  21
-     6.4.  Always-On Connectivity  . . . . . . . . . . . . . . . . .  25
-     6.5.  Token-less Authorization  . . . . . . . . . . . . . . . .  26
-     6.6.  Securing Group Communication  . . . . . . . . . . . . . .  29
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  30
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  30
-   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  30
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  30
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  30
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  32
-   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  33
-   Appendix B.  Optimizations  . . . . . . . . . . . . . . . . . . .  35
-   Appendix C.  CoAP and CBOR profiles for OAuth 2.0 . . . . . . . .  36
-     C.1.  Profile for Token resource  . . . . . . . . . . . . . . .  36
-       C.1.1.  Token Request . . . . . . . . . . . . . . . . . . . .  37
-       C.1.2.  Token Response  . . . . . . . . . . . . . . . . . . .  38
-     C.2.  CoAP Profile for OAuth Introspection  . . . . . . . . . .  39
-       C.2.1.  Introspection Request . . . . . . . . . . . . . . . .  39
-       C.2.2.  Introspection Response  . . . . . . . . . . . . . . .  40
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  42
+     5.3.  Authorization Information Format  . . . . . . . . . . . .  14
+     5.4.  CBOR Data Formats . . . . . . . . . . . . . . . . . . . .  14
+   6.  Deployment Scenarios  . . . . . . . . . . . . . . . . . . . .  14
+     6.1.  Client and Resource Server are Offline  . . . . . . . . .  15
+     6.2.  Resource Server Offline . . . . . . . . . . . . . . . . .  18
+     6.3.  Token Introspection with an Offline Client  . . . . . . .  22
+     6.4.  Always-On Connectivity  . . . . . . . . . . . . . . . . .  26
+     6.5.  Token-less Authorization  . . . . . . . . . . . . . . . .  27
+     6.6.  Securing Group Communication  . . . . . . . . . . . . . .  30
+   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  31
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  31
+   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  31
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  31
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  31
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  33
+   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  35
+   Appendix B.  Optimizations  . . . . . . . . . . . . . . . . . . .  36
+   Appendix C.  CoAP and CBOR profiles for OAuth 2.0 . . . . . . . .  38
+     C.1.  Profile for Token resource  . . . . . . . . . . . . . . .  38
+       C.1.1.  Token Request . . . . . . . . . . . . . . . . . . . .  38
+       C.1.2.  Token Response  . . . . . . . . . . . . . . . . . . .  39
+     C.2.  CoAP Profile for OAuth Introspection  . . . . . . . . . .  40
+       C.2.1.  Introspection Request . . . . . . . . . . . . . . . .  40
+       C.2.2.  Introspection Response  . . . . . . . . . . . . . . .  41
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  43
 
 
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 2]
+Seitz, et al.             Expires July 25, 2016                 [Page 2]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -165,7 +165,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 3]
+Seitz, et al.             Expires July 25, 2016                 [Page 3]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -221,7 +221,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 4]
+Seitz, et al.             Expires July 25, 2016                 [Page 4]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -277,7 +277,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 5]
+Seitz, et al.             Expires July 25, 2016                 [Page 5]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -333,7 +333,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 6]
+Seitz, et al.             Expires July 25, 2016                 [Page 6]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -389,7 +389,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 7]
+Seitz, et al.             Expires July 25, 2016                 [Page 7]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -445,7 +445,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 8]
+Seitz, et al.             Expires July 25, 2016                 [Page 8]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -501,7 +501,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                  [Page 9]
+Seitz, et al.             Expires July 25, 2016                 [Page 9]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -557,7 +557,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 10]
+Seitz, et al.             Expires July 25, 2016                [Page 10]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -613,7 +613,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 11]
+Seitz, et al.             Expires July 25, 2016                [Page 11]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -627,10 +627,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 5.1.  Communication Security Protocol
 
-   OAuth 2.0 using bearer tokens, as described in RFC 6749 and in RFC
-   6750, requires TLS for all communication interactions between client,
-   authorization server, and resource server.  This is possible in the
-   scope where OAuth 2.0 was originally developed, web and mobile
+   OAuth 2.0 using bearer tokens, as described in [RFC6749] and in
+   [RFC6750], requires TLS for all communication interactions between
+   client, authorization server, and resource server.  This is possible
+   in the scope where OAuth 2.0 was originally developed: web and mobile
    applications.  In these environments resources like computational
    power and bandwidth are not scarce and operating systems as well as
    browser platforms are pre-provisioned with trust anchors that enable
@@ -638,7 +638,14 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
    heterogeneous IoT environment a wider range of use cases needs to be
    supported.  Therefore, this document suggests extensions to OAuth 2.0
    that enable the AS to inform the client on how to communicate
-   securely with a RS.
+   securely with a RS and that allow the client to indicate
+   communication security preferences to the AS.
+
+   The client may be a constrained device and could therefore be limited
+   in the communication security protocols it supports.  It can
+   therefore signal to the AS which protocols it can support for
+   securing their mutual communication.  This is done by using the "csp"
+   parameter in the Token Request message to the AS.
 
    The client and the RS might not have any prior knowledge about each
    other, therefore the AS needs to help them to establish a security
@@ -648,31 +655,60 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
    The "csp" parameter specifies how client and RS communication is
    going to be secured based on returned keys.  Currently defined values
-   are "TLS", "DTLS", "OSCOAP" and "OSCON".  Depending on the value
-   different additional parameters become mandatory.
+   are "TLS", "DTLS", "OSCOAP" and "OSCON" with the encodings specified
+   in table FIXME.  Depending on the value different additional
+   parameters become mandatory.
 
-   TLS with certificates may make use of pre-established trust anchors
+   TLS with certificates MAY make use of pre-established trust anchors
    or configured more tightly with additional client information
-   parameters, like x5c, x5t or x5t#S256.
+   parameters, such as x5c, x5t, or x5t#S256 (see JWK [RFC7517]).
 
-   CoAP specifies three security "modes" of DTLS: PreSharedKey,
-   RawPublicKey and Certificate.  In case of PreSharedKey and
-   RawPublicKey DTLS is based on the use keys distributed in the PoP
-   token and via the client information.  Additional certificate
-   information may also be added, for example using the parameter x5c,
-   x5t or x5t#S256. (see [RFC7515])
+   CoAP specifies three security modes of DTLS: PreSharedKey,
+   RawPublicKey and Certificate.  For Certificate mode, additional
+   information MAY be provided in the same way as for TLS.
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 12]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
+   For RawPublicKey mode, the RS key SHOULD be provided in the client
+   information using the "rpk" parameter defined below.  If PoP tokens
+   with asymmetric keys are used (see section 5 of
+   [I-D.ietf-oauth-pop-key-distribution]) , the client MUST use the PoP
+   key for client authentication in DTLS.
+
+   For PreSharedKey mode, the AS MUST provide the client with the
+   corresponding key used by the RS.  If PoP tokens with symmetric keys
+   are used (see section 4 of [I-D.ietf-oauth-pop-key-distribution]),
+   the client MUST use the PoP key as DTLS pre-shared key.  If PoP
+   tokens are not used or if the PoP token is based on an asymmetric
+   key, the AS MUST provide the client with the DTLS pre-shared key in
+   the client information, using the "psk" parameter defined below.
 
    To use OSCOAP and OSCON requires security context to be established,
    which can be provisioned with PoP token and client information, or
    derived from that information.
 
+   For when communication security is based on certificates this
+   attribute can be used to define the server certificate or CA
+   certificate.  Semantics for this attribute is defined by [RFC7517] or
+   CWK (FIXME, future reference).
 
+   For when communication security is based on certificates this
+   attribute can be used to define the specific server certificate to
+   expect or the CA certificate.  Semantics for this attribute is
+   defined by JWK/CWK.
 
+   When using DTLS, OSCOAP or OSCON the communication security may be
+   based on raw public keys.  This attribute is a JWK/CWK representation
+   of the public key that the RS will use to protect communication.  The
+   alg parameter of the JWK/CWK is used to indicate how the key should
+   be used.
 
-Seitz, et al.             Expires July 6, 2016                 [Page 12]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
+   FIXME
 
 5.2.  Authorization Information Resource at the Resource Server
 
@@ -685,6 +721,15 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
    For conveying authorization information to the RS we therefore
    introduce a new resource to which the PoP tokens can be sent to
    convey authorization information before the first resource request is
+
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 13]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
    made by the client.  This specification calls this resource "/authz-
    info"; the URI may, however, vary in deployments.
 
@@ -723,13 +768,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
    performed.  This requires us to also consider how these requests and
    responses between the clients and the resource servers are secured.
 
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 13]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
-
    The security protocols between other pairs of nodes in the
    architecture, namely client-to-AS and RS-to-AS, are not detailed in
    these examples.  Different security protocols may be used on
@@ -737,6 +775,16 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
    Note: We use the CBOR diagnostic notation for examples of requests
    and responses.
+
+
+
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 14]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
 
 6.1.  Client and Resource Server are Offline
 
@@ -781,7 +829,15 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 14]
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 15]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -837,7 +893,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 15]
+Seitz, et al.             Expires July 25, 2016                [Page 16]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -893,7 +949,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 16]
+Seitz, et al.             Expires July 25, 2016                [Page 17]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -949,7 +1005,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 17]
+Seitz, et al.             Expires July 25, 2016                [Page 18]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1005,7 +1061,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 18]
+Seitz, et al.             Expires July 25, 2016                [Page 19]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1061,7 +1117,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 19]
+Seitz, et al.             Expires July 25, 2016                [Page 20]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1117,7 +1173,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 20]
+Seitz, et al.             Expires July 25, 2016                [Page 21]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1173,7 +1229,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 21]
+Seitz, et al.             Expires July 25, 2016                [Page 22]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1229,7 +1285,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 22]
+Seitz, et al.             Expires July 25, 2016                [Page 23]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1285,7 +1341,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 23]
+Seitz, et al.             Expires July 25, 2016                [Page 24]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1341,7 +1397,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 24]
+Seitz, et al.             Expires July 25, 2016                [Page 25]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1397,7 +1453,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 25]
+Seitz, et al.             Expires July 25, 2016                [Page 26]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1453,7 +1509,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 26]
+Seitz, et al.             Expires July 25, 2016                [Page 27]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1509,7 +1565,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 27]
+Seitz, et al.             Expires July 25, 2016                [Page 28]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1565,7 +1621,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 28]
+Seitz, et al.             Expires July 25, 2016                [Page 29]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1621,7 +1677,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 29]
+Seitz, et al.             Expires July 25, 2016                [Page 30]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1677,7 +1733,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 30]
+Seitz, et al.             Expires July 25, 2016                [Page 31]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1733,7 +1789,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-Seitz, et al.             Expires July 6, 2016                 [Page 31]
+Seitz, et al.             Expires July 25, 2016                [Page 32]
 
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
@@ -1742,6 +1798,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
               Application Protocol (CoAP)", RFC 7252,
               DOI 10.17487/RFC7252, June 2014,
               <http://www.rfc-editor.org/info/rfc7252>.
+
+   [RFC7517]  Jones, M., "JSON Web Key (JWK)", RFC 7517,
+              DOI 10.17487/RFC7517, May 2015,
+              <http://www.rfc-editor.org/info/rfc7517>.
 
 10.2.  Informative References
 
@@ -1762,9 +1822,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
               core-authz-00 (work in progress), June 2015.
 
    [I-D.somaraju-ace-multicast]
-              Somaraju, A., Kumar, S., and H. Tschofenig, "Multicast
-              Security for the Lighting Domain", draft-somaraju-ace-
-              multicast-00 (work in progress), July 2015.
+              Somaraju, A., Kumar, S., Tschofenig, H., and W. Werner,
+              "Security for Low-Latency Group Communication", draft-
+              somaraju-ace-multicast-01 (work in progress), January
+              2016.
 
    [RFC4680]  Santesson, S., "TLS Handshake Message for Supplemental
               Data", RFC 4680, DOI 10.17487/RFC4680, October 2006,
@@ -1779,6 +1840,16 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
               DOI 10.17487/RFC5246, August 2008,
               <http://www.rfc-editor.org/info/rfc5246>.
 
+
+
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 33]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
    [RFC6690]  Shelby, Z., "Constrained RESTful Environments (CoRE) Link
               Format", RFC 6690, DOI 10.17487/RFC6690, August 2012,
               <http://www.rfc-editor.org/info/rfc6690>.
@@ -1787,12 +1858,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <http://www.rfc-editor.org/info/rfc6749>.
 
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 32]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
+   [RFC6750]  Jones, M. and D. Hardt, "The OAuth 2.0 Authorization
+              Framework: Bearer Token Usage", RFC 6750,
+              DOI 10.17487/RFC6750, October 2012,
+              <http://www.rfc-editor.org/info/rfc6750>.
 
    [RFC6819]  Lodderstedt, T., Ed., McGloin, M., and P. Hunt, "OAuth 2.0
               Threat Model and Security Considerations", RFC 6819,
@@ -1825,6 +1894,18 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
               (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
               <http://www.rfc-editor.org/info/rfc7519>.
 
+
+
+
+
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 34]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
 Appendix A.  Design Justification
 
    This section provides further insight into the design decisions of
@@ -1842,14 +1923,6 @@ Appendix A.  Design Justification
       highest energy cost is associated to transmitting or receiving
       messages.  It is therefore important to keep the total
       communication overhead low, including minimizing the number and
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 33]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
-
       size of messages sent and received, which has an impact of choice
       on the message format and protocol.  By using CoAP over UDP, and
       CBOR encoded messages some of these aspects are addressed.
@@ -1881,6 +1954,14 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
       put on those devices.  To reduce code size fewer and smaller
       protocol implementations can be put on the firmware of such a
       device.  In this case, CoAP may be used instead of HTTP, symmetric
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 35]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
       key cryptography instead of public key cryptography, and CBOR
       instead of JSON.  Authentication and key establishment protocol,
       e.g. the DTLS handshake, in comparison with assisted key
@@ -1897,14 +1978,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
       these functions need to be delegated to user controlled devices
       that are better suitable for such tasks, such as smart phones and
       tablets.
-
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 34]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
    Communication Constraints:
 
@@ -1938,6 +2011,13 @@ Appendix B.  Optimizations
       standardized method would be the use of the TLS supplemental data
       extension [RFC4680] for transferring the access token.
 
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 36]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
    Reference token and introspection
 
       In case of introspection it may be beneficial to utilize access
@@ -1954,13 +2034,6 @@ Appendix B.  Optimizations
       the client is constrained and offline most of the time.
 
    Reference token in CoAP option
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 35]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
       While large access tokens must be sent in CoAP payload, if the
       access token is known to be of a certain limited size, for example
@@ -1993,6 +2066,14 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
                  Figure 23: Reference Token in CoAP Option
 
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 37]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
 Appendix C.  CoAP and CBOR profiles for OAuth 2.0
 
    Many IoT devices can support OAuth 2.0 without any additional
@@ -2007,16 +2088,6 @@ C.1.  Profile for Token resource
    The token resource is used by the client to obtain an access token by
    presenting its authorization grant or client credentials to the
    /token resource the AS.
-
-
-
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 36]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
 C.1.1.  Token Request
 
@@ -2050,6 +2121,15 @@ C.1.1.  Token Request
 
    alg:
 
+
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 38]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
       OPTIONAL.  The value in the 'alg' parameter together with value
       from the 'token_type' parameter allow the client to indicate the
       supported algorithms for a given token type.
@@ -2061,18 +2141,6 @@ C.1.1.  Token Request
       Structure format.
 
    The parameters defined above use the following CBOR major types.
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 37]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
         /-----------+--------------+-----------------------\
         | Value     | Major Type   | Key                   |
@@ -2110,6 +2178,14 @@ C.1.2.  Token Response
 
    csp:
 
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 39]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
       REQUIRED.  Information on what communication protocol to use in
       the communication between the client and the RS.  Details on
       possible values can be found in Section 5.1.
@@ -2120,15 +2196,6 @@ C.1.2.  Token Response
       otherwise, REQUIRED.
 
    alg:
-
-
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 38]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
       OPTIONAL.  The 'alg' parameter provides further information about
       the algorithm, such as whether a symmetric or an asymmetric
@@ -2167,6 +2234,14 @@ C.2.1.  Introspection Request
 
    token:
 
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 40]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
       REQUIRED.  The string value of the token.
 
    resource_id:
@@ -2178,13 +2253,6 @@ C.2.1.  Introspection Request
 
       OPTIONAL.  The client identifier issued to the holder of the token
       (client or RS) during the registration process.
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 39]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
    client_secret:
 
@@ -2222,6 +2290,14 @@ C.2.2.  Introspection Response
 
    active:
 
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 41]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
       REQUIRED.  The active key is an indicator of whether or not the
       presented token is currently active.  The specifics of a token's
       "active" state will vary depending on the implementation of the
@@ -2233,14 +2309,6 @@ C.2.2.  Introspection Response
       issuance time and before its expiration time).
 
    scope:
-
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 40]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
       OPTIONAL.  A string containing a space-separated list of scopes
       associated with this token, in the format described in Section 3.3
@@ -2279,6 +2347,13 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
       since January 1 1970 UTC, indicating when this token will expire,
       as defined in CWT [I-D.wahlstroem-ace-cbor-web-token].
 
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 42]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
    sub:
 
       OPTIONAL.  Subject of the token, as defined in CWT
@@ -2290,13 +2365,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
       OPTIONAL.  Service-specific string identifier or list of string
       identifiers representing the intended audience for this token, as
       defined in CWT [I-D.wahlstroem-ace-cbor-web-token].
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 41]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
-
 
    iss:
 
@@ -2331,6 +2399,17 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 Authors' Addresses
 
+
+
+
+
+
+
+Seitz, et al.             Expires July 25, 2016                [Page 43]
+
+Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
+
+
    Ludwig Seitz
    SICS
    Scheelevaegen 17
@@ -2338,20 +2417,6 @@ Authors' Addresses
    SWEDEN
 
    Email: ludwig@sics.se
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 42]
-
-Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
    Goeran Selander
@@ -2396,13 +2461,4 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
 
-
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires July 6, 2016                 [Page 43]
+Seitz, et al.             Expires July 25, 2016                [Page 44]

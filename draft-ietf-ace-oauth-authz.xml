@@ -14,6 +14,7 @@
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6690 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6690.xml">
 <!ENTITY RFC6749 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6749.xml">
+<!ENTITY RFC6750 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6750.xml">
 <!ENTITY RFC6819 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6819.xml">
 <!ENTITY RFC7049 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7049.xml">
 <!ENTITY RFC7159 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7159.xml">
@@ -23,6 +24,7 @@
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
 <!ENTITY RFC7515 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7515.xml">
+<!ENTITY RFC7517 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7517.xml">
 <!-- <!ENTITY I-D.ietf-ace-usecases SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-usecases.xml"> -->
 <!ENTITY I-D.ietf-oauth-introspection SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-introspection.xml">
 <!ENTITY I-D.somaraju-ace-multicast SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.somaraju-ace-multicast.xml">
@@ -695,18 +697,26 @@ needed, that the content is confidentiality protected.</t>
 
 <section anchor="oauth2ProfilesCSP" title="Communication Security Protocol">
     
-    <t>OAuth 2.0 using bearer tokens, as described in RFC 6749 and in RFC 6750, 
+    <t>OAuth 2.0 using bearer tokens, as described in <xref
+    target="RFC6749"/> and in <xref target="RFC6750"/>, 
     requires TLS for all communication interactions between client, authorization
     server, and resource server.  This is possible in the scope where OAuth 2.0
-    was originally developed, web and mobile applications.  In these environments
+    was originally developed: web and mobile applications.  In these environments
     resources like computational power and bandwidth are not scarce and operating
     systems as well as browser platforms are pre-provisioned with trust anchors
     that enable clients to authenticate servers based on the Web PKI.  In a
     more heterogeneous IoT environment a wider range of use cases needs to be
     supported.  Therefore, this document suggests extensions to OAuth 2.0 that
     enable the AS to inform the client on how to communicate securely with a 
-    RS.</t>
+    RS and that allow the client to indicate communication security
+    preferences to the AS.</t>
     
+    <t>The client may be a constrained device and could therefore be limited
+    in the communication security protocols it supports.  It can therefore
+    signal to the AS which protocols it can support for securing their 
+    mutual communication.  This is done by using the "csp" parameter in the
+    Token Request message to the AS.</t>
+
     <t>The client and the RS might not have any prior knowledge about each 
     other, therefore the AS needs to help them to establish a security context 
     or at least a key.  The AS does this by indicating communication security 
@@ -714,22 +724,61 @@ needed, that the content is confidentiality protected.</t>
     
     <t>The "csp" parameter specifies how client and RS communication is going to
     be secured based on returned keys.  Currently defined values are "TLS", 
-    "DTLS", "OSCOAP" and "OSCON".  Depending on the value different additional 
-    parameters become mandatory.</t>
+    "DTLS", "OSCOAP" and "OSCON" with the encodings specified in table 
+    FIXME.  Depending on the value different additional parameters become 
+    mandatory.</t>
  
-    <t>TLS with certificates may make use of pre-established trust anchors or
-    configured more tightly with additional client information parameters, like 
-    x5c, x5t or x5t#S256.</t>
+    <t>TLS with certificates MAY make use of pre-established trust anchors or
+    configured more tightly with additional client information parameters,
+    such as x5c, x5t, or x5t#S256 (see JWK <xref target="RFC7517"/>).</t>
                 
-    <t>CoAP specifies three security "modes" of DTLS: PreSharedKey, RawPublicKey
-    and Certificate.  In case of PreSharedKey and RawPublicKey DTLS is based on
-    the use keys distributed in the PoP token and via the client 
-    information.  Additional certificate information may also be added, for 
-    example using the parameter x5c, x5t or x5t#S256. (see <xref target="RFC7515"/>)</t>
+    <t>CoAP specifies three security modes of DTLS: PreSharedKey, RawPublicKey
+    and Certificate.  For Certificate mode, additional information MAY be
+    provided in the same way as for TLS.</t>
+    
+    <t>For RawPublicKey mode, the RS key SHOULD be provided in the client 
+    information using the "rpk" parameter defined below.  If PoP tokens with
+    asymmetric keys are used (see section 5 of 
+    <xref target="I-D.ietf-oauth-pop-key-distribution"/>) , the client MUST
+    use the PoP key for client authentication in DTLS.</t>
+
+    <t>For PreSharedKey mode, the AS MUST provide the client with the 
+    corresponding key used by the RS.  If PoP tokens with symmetric keys are
+    used (see section 4 of <xref
+    target="I-D.ietf-oauth-pop-key-distribution"/>), the client MUST use the
+    PoP key as DTLS pre-shared key. If PoP tokens are not used or if the PoP
+    token is based on an asymmetric key, the AS MUST provide the client with 
+    the DTLS pre-shared key in the client information, using the "psk"
+    parameter defined below.</t>
 
     <t>To use OSCOAP and OSCON requires security context to be established,
     which can be provisioned with PoP token and client information, or
     derived from that information.</t>
+
+    <t hangText="X.509 Certificate Chain (x5c)"><vspace blankLines="1"/>
+    For when communication security is based on certificates this attribute
+    can be used to define the server certificate or CA certificate.
+    Semantics for this attribute is defined by <xref target="RFC7517"/> or
+    CWK (FIXME, future reference).</t>
+   
+    <t hangText="X.509 Certificate Thumbprint (x5t and x5t#S256)">
+    <vspace blankLines="1"/>
+    For when communication security is based on certificates this attribute
+    can be used to define the specific server certificate to expect or the CA
+    certificate.  Semantics for this attribute is defined by JWK/CWK.</t>
+               
+    <t hangText="RS public key (rpk)"><vspace blankLines="1"/>
+    When using DTLS, OSCOAP or OSCON the communication security may
+    be based on raw public keys.  This attribute is a JWK/CWK representation
+    of the public key that the RS will use to protect communication.  The alg
+    parameter of the JWK/CWK is used to indicate how the key should be used.
+    </t>
+               
+    <t hangText="RS public key (psk)"><vspace blankLines="1"/>
+    FIXME
+    </t>
+
+    <!--FIXME: Derived how? -->
                 
     <!--FIXME: maybe we should say something about response validation too 
       here  -->
@@ -746,28 +795,6 @@ needed, that the content is confidentiality protected.</t>
          encapsulation could use but is not limited to JOSE or COSE primitives
          to sign, MAC or encrypting the payload data.
     -->
-           
-    <!--<t hangText="X.509 Certificate Thumbprint (x5t and x5t#S256)">
-      <vspace blankLines="1"/>
-      For when communication security is based on certificates this attribute
-      can be used to define the specific server certificate to expect or the CA
-      certificate.  Semantics for this attribute is defined by JWK.</t>
-             
-      <t hangText="X.509 Certificate Chain (x5c)"><vspace blankLines="1"/>
-      For when communication security is based on certificates this attribute
-      can be used to define the server certificate or CA certificate.
-      Semantics for this attribute is defined by JWK.</t>
-             
-      <t hangText="RS public key (rpk)"><vspace blankLines="1"/>
-      When using DTLS, OSCOAP or OSCON the communication security may
-      be based on raw public keys.  This attribute is a JWK/CWK representation
-      of the public key that the RS will use to protect communication.  The alg
-      parameter of the JWK/CWK is used to indicate how the key should be used.
-      </t>
-            
-      <t hangText="Cipher suite (cs)"><vspace blankLines="1"/>
-      When using TLS or DTLS AS can indicate to client what cipher suite to
-      use in the communication with the RS.</t>-->
 </section>
 
 
@@ -1833,6 +1860,8 @@ considerations we refer the reader to
       &RFC6347;
 
       &RFC7252;
+           
+      &RFC7517;
 
     </references>
 
@@ -1860,6 +1889,8 @@ considerations we refer the reader to
       &RFC6690;
 
       &RFC6749;
+
+      &RFC6750;
       
       &RFC6819;
 
