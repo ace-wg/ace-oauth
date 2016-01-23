@@ -797,26 +797,59 @@ needed, that the content is confidentiality protected.</t>
     -->
 </section>
 
-
-
-
   <section anchor="oauth2ProfilesAuthzInfo"
            title="Authorization Information Resource at the Resource Server">
-    <t hangText="RS resource: /authz-info"><vspace blankLines="1"/>
-      A consequence of allowing the use of CoAP as web transfer protocol
+    <t>A consequence of allowing the use of CoAP as web transfer protocol
       is that we cannot rely on HTTP specific mechanisms, such as
       transferring information elements in HTTP headers since those are not
       necessarily gracefully mapped to CoAP.  In case the access token is
       larger than 255 bytes it should not be sent as a CoAP option.
-  <vspace blankLines="1"/>
-      For conveying authorization information to the RS we therefore
+    </t>
+    <t>For conveying authorization information to the RS we therefore
       introduce a new resource to which the PoP tokens can be sent to
       convey authorization information before the first resource request is made
       by the client.  This specification calls this resource "/authz-info"; the 
-      URI may, however, vary in deployments. 
+      URI may, however, vary in deployments.
     </t>
-  </section>
+    <t>The RS needs to store the PoP token for when later
+      authorising requests from the client. The RS is not mandated 
+      to be able to manage multiple client at once. how the RS manages 
+      clients is out of scope for this specification.
+    </t>
 
+    <section anchor="authzInfoResourceRequest" 
+             title="Authorization Information Request">
+    <t>The client makes a POST request to the authorisation information
+      resource by sending its PoP token as request data.</t>
+    <t>Client MUST send the Content-Format option indicate token format</t>
+    <!-- TODO insert Content-Format -->
+
+    </section>
+      <section anchor="authzInfoResourceResponse" 
+               title="Authorization Information Response">
+        <t>The RS may select to not respond to save resources, 
+          no response may indicate success or error the client 
+          can only know by doing an access request after having 
+          passed the token. If it responds it MUST respond 
+          according to success or error response section</t>
+
+      <section anchor="authzInfoResourceSuccessResponse"
+               title="Success Response">
+        <t>Successful responses SHOULD respond with 2.01 
+          Created to indicate that a "session" for the PoP 
+          Token has been created. No location path is 
+          required to be returned.
+        </t>
+      </section>
+
+      <section anchor="authzInfoResourceErrorResponse"
+               title="Error Response">
+        <t>The resource server MUST user appropriate CoAP 
+          response code to convey the error to the Client.
+        </t>
+      </section>
+    </section>
+  </section>
 
 <section anchor="aifsection"
     title="Authorization Information Format">
