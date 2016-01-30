@@ -76,13 +76,14 @@ Table of Contents
    4.  Protocol Interactions . . . . . . . . . . . . . . . . . . . .   9
    5.  OAuth 2.0 Profiling . . . . . . . . . . . . . . . . . . . . .  12
      5.1.  Communication Security Protocol . . . . . . . . . . . . .  12
-     5.2.  Authorization Information Resource at the Resource Server  14
-       5.2.1.  Authorization Information Request . . . . . . . . . .  14
-       5.2.2.  Authorization Information Response  . . . . . . . . .  15
-         5.2.2.1.  Success Response  . . . . . . . . . . . . . . . .  15
-         5.2.2.2.  Error Response  . . . . . . . . . . . . . . . . .  15
-     5.3.  Authorization Information Format  . . . . . . . . . . . .  16
-     5.4.  CBOR Data Formats . . . . . . . . . . . . . . . . . . . .  16
+     5.2.  CoAP Access-Token Option  . . . . . . . . . . . . . . . .  14
+     5.3.  Authorization Information Resource at the Resource Server  14
+       5.3.1.  Authorization Information Request . . . . . . . . . .  15
+       5.3.2.  Authorization Information Response  . . . . . . . . .  15
+         5.3.2.1.  Success Response  . . . . . . . . . . . . . . . .  15
+         5.3.2.2.  Error Response  . . . . . . . . . . . . . . . . .  15
+     5.4.  Authorization Information Format  . . . . . . . . . . . .  16
+     5.5.  CBOR Data Formats . . . . . . . . . . . . . . . . . . . .  16
    6.  Deployment Scenarios  . . . . . . . . . . . . . . . . . . . .  16
      6.1.  Client and Resource Server are Offline  . . . . . . . . .  17
      6.2.  Resource Server Offline . . . . . . . . . . . . . . . . .  20
@@ -105,7 +106,6 @@ Table of Contents
        C.1.2.  Token Response  . . . . . . . . . . . . . . . . . . .  42
      C.2.  CoAP Profile for OAuth Introspection  . . . . . . . . . .  43
        C.2.1.  Introspection Request . . . . . . . . . . . . . . . .  43
-       C.2.2.  Introspection Response  . . . . . . . . . . . . . . .  44
 
 
 
@@ -114,6 +114,7 @@ Seitz, et al.            Expires August 2, 2016                 [Page 2]
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
+       C.2.2.  Introspection Response  . . . . . . . . . . . . . . .  44
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  46
 
 1.  Introduction
@@ -160,7 +161,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
-
 
 
 
@@ -566,7 +566,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
       exchange may be split up into two phases:
 
          (1) the client sends the access token to a newly defined
-         authorization endpoint at the RS (see Section 5.2) , which
+         authorization endpoint at the RS (see Section 5.3) , which
          conveys authorization information to the RS that may be used by
          the client for subsequent resource requests, and
 
@@ -748,7 +748,16 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
    FIXME
 
-5.2.  Authorization Information Resource at the Resource Server
+5.2.  CoAP Access-Token Option
+
+   OAuth 2.0 access tokens are usually transferred as authorisation
+   header.  CoAP has no authorisation header equivalence.  This document
+   therefor register the option Access-Token.  The Access-Token option
+   is an alternative for transferring the access token when it is
+   smaller then 255 bytes.  If token is larger the 255 bytes lager
+   authorisation information resources MUST at the RS be user when CoAP.
+
+5.3.  Authorization Information Resource at the Resource Server
 
    A consequence of allowing the use of CoAP as web transfer protocol is
    that we cannot rely on HTTP specific mechanisms, such as transferring
@@ -767,15 +776,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
    manage multiple client at once. how the RS manages clients is out of
    scope for this specification.
 
-5.2.1.  Authorization Information Request
-
-   The client makes a POST request to the authorisation information
-   resource by sending its PoP token as request data.
-
-   Client MUST send the Content-Format option indicate token format
-
-
-
 
 
 
@@ -786,14 +786,21 @@ Seitz, et al.            Expires August 2, 2016                [Page 14]
 Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
 
-5.2.2.  Authorization Information Response
+5.3.1.  Authorization Information Request
+
+   The client makes a POST request to the authorisation information
+   resource by sending its PoP token as request data.
+
+   Client MUST send the Content-Format option indicate token format
+
+5.3.2.  Authorization Information Response
 
    The RS may select to not respond to save resources, no response may
    indicate success or error the client can only know by doing an access
    request after having passed the token.  If it responds it MUST
    respond according to success or error response section
 
-5.2.2.1.  Success Response
+5.3.2.1.  Success Response
 
    Successful responses SHOULD respond with 2.01 Created to indicate
    that a "session" for the PoP Token has been created.  No location
@@ -815,17 +822,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
        Figure 3: Authorization Information Resource Success Response
 
-5.2.2.2.  Error Response
+5.3.2.2.  Error Response
 
    The resource server MUST user appropriate CoAP response code to
    convey the error to the Client.
-
-
-
-
-
-
-
 
 
 
@@ -858,7 +858,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
 
         Figure 4: Authorization Information Resource Error Response
 
-5.3.  Authorization Information Format
+5.4.  Authorization Information Format
 
    We introduce a new claim for describing access rights with a specific
    format, the "aif" claim.  In this memo we propose to use the compact
@@ -868,7 +868,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization          January 2016
    mandated by specific applications or requirements (e.g. specifying
    local conditions on access).
 
-5.4.  CBOR Data Formats
+5.5.  CBOR Data Formats
 
    The /token resource (called "endpoint" in OAuth 2.0), defined in
    Section 3.2 of [RFC6749], is used by the client to obtain an access
