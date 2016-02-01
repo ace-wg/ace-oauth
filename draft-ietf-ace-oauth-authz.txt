@@ -100,12 +100,12 @@ Table of Contents
      10.2.  Informative References . . . . . . . . . . . . . . . . .  36
    Appendix A.  Design Justification . . . . . . . . . . . . . . . .  37
    Appendix B.  Roles and       Responsibilites -- a Checklist . . .  39
-   Appendix C.  Optimizations  . . . . . . . . . . . . . . . . . . .  41
-   Appendix D.  CoAP and CBOR profiles for OAuth 2.0 . . . . . . . .  42
-     D.1.  Profile for Token resource  . . . . . . . . . . . . . . .  42
-       D.1.1.  Token Request . . . . . . . . . . . . . . . . . . . .  42
-       D.1.2.  Token Response  . . . . . . . . . . . . . . . . . . .  43
-     D.2.  CoAP Profile for OAuth Introspection  . . . . . . . . . .  45
+   Appendix C.  Optimizations  . . . . . . . . . . . . . . . . . . .  42
+   Appendix D.  CoAP and CBOR profiles for OAuth 2.0 . . . . . . . .  43
+     D.1.  Profile for Token resource  . . . . . . . . . . . . . . .  43
+       D.1.1.  Token Request . . . . . . . . . . . . . . . . . . . .  43
+       D.1.2.  Token Response  . . . . . . . . . . . . . . . . . . .  44
+     D.2.  CoAP Profile for OAuth Introspection  . . . . . . . . . .  46
 
 
 
@@ -114,9 +114,9 @@ Seitz, et al.            Expires August 4, 2016                 [Page 2]
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
-       D.2.1.  Introspection Request . . . . . . . . . . . . . . . .  45
-       D.2.2.  Introspection Response  . . . . . . . . . . . . . . .  46
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  48
+       D.2.1.  Introspection Request . . . . . . . . . . . . . . . .  46
+       D.2.2.  Introspection Response  . . . . . . . . . . . . . . .  47
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  49
 
 1.  Introduction
 
@@ -2158,25 +2158,25 @@ Appendix B.  Roles and Responsibilites -- a Checklist
 
    Resource Owner
 
-         Make sure that the RS is registered at the AS.
+      *  Make sure that the RS is registered at the AS.
 
-         Make sure that clients can discover the AS which is in charge
+      *  Make sure that clients can discover the AS which is in charge
          of the RS.
 
-         Make sure that the AS has the necessary, up-to-date, access
+      *  Make sure that the AS has the necessary, up-to-date, access
          control policies for the RS.
 
    Requesting Party
 
-         Make sure that the client is provisioned the necessary
+      *  Make sure that the client is provisioned the necessary
          credentials to authenticate to the AS.
 
-         Make sure that the client is configured to follow the security
+      *  Make sure that the client is configured to follow the security
          requirements of the Requesting Party, when issuing requests
          (e.g. minimum communication security requirements, trust
          anchors).
 
-         Register the client at the AS.
+      *  Register the client at the AS.
 
 
 
@@ -2186,53 +2186,53 @@ Seitz, et al.            Expires August 4, 2016                [Page 39]
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
-   AS
+   Authorization Server
 
-   client
+      *  Register RS and manage corresponding security contexts.
 
-         Discover the AS in charge of the RS that is to be targeted with
+      *  Register clients and including authentication credentials.
+
+      *  Allow Resource Onwers to configure and update access control
+         policies related to their registered RS'
+
+      *  Expose a service that allows clients to request tokens.
+
+      *  Authenticate clients that whish to request a token.
+
+      *  Process a token requests against the authorization policies
+         configured for the RS.
+
+      *  Expose a service that allows RS's to submit token introspection
+         requests.
+
+      *  Authenticate RS's that whish to get an introspection response.
+
+      *  Process token introspection requests.
+
+      *  Optionally: Handle token revokation.
+
+   Client
+
+      *  Discover the AS in charge of the RS that is to be targeted with
          a request.
 
-         Submit the token request (A).
+      *  Submit the token request (A).
 
-            Authenticate towards the AS.
+         +  Authenticate towards the AS.
 
-            Specify which RS, which resource(s), and which action(s) the
+         +  Specify which RS, which resource(s), and which action(s) the
             request(s) will target.
 
-            Specify preferences for communication security
+         +  Specify preferences for communication security
 
-            If raw public key (rpk) is used, make sure the AS has the
+         +  If raw public key (rpk) is used, make sure the AS has the
             right rpk for this client.
 
-         Process the access token and client information (B)
+      *  Process the access token and client information (B)
 
-            Check that the token has the right format (e.g.  CWT).
+         +  Check that the token has the right format (e.g.  CWT).
 
-            Check that the client information provides the necessary
-            security parameters (e.g.  PoP key, information on
-            communication security protocols supported by the RS).
 
-         Send the token and request to the RS (C)
-
-            Authenticate towards the RS (this could coincide with the
-            proof of possession process).
-
-            Transmit the token as specified by the AS (default is to an
-            authorization information resource, alternative options are
-            as a CoAP option or in the DTLS handshake).
-
-            Perform the proof-of-possession procedure as specified for
-            the type of used token (this may already have been taken
-            care of through the authentication procedure).
-
-         Process the RS response (F) requirements of the Requesting
-         Party, when issuing requests (e.g. minimum communication
-         security requirements, trust anchors).
-
-         Register the client at the AS.
-
-   RS
 
 
 
@@ -2241,6 +2241,71 @@ Seitz, et al.            Expires August 4, 2016                [Page 40]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
+
+         +  Check that the client information provides the necessary
+            security parameters (e.g.  PoP key, information on
+            communication security protocols supported by the RS).
+
+      *  Send the token and request to the RS (C)
+
+         +  Authenticate towards the RS (this could coincide with the
+            proof of possession process).
+
+         +  Transmit the token as specified by the AS (default is to an
+            authorization information resource, alternative options are
+            as a CoAP option or in the DTLS handshake).
+
+         +  Perform the proof-of-possession procedure as specified for
+            the type of used token (this may already have been taken
+            care of through the authentication procedure).
+
+      *  Process the RS response (F) requirements of the Requesting
+         Party, when issuing requests (e.g. minimum communication
+         security requirements, trust anchors).
+
+      *  Register the client at the AS.
+
+   Resource Server
+
+      *  Expose a way to submit authorization tokens.
+
+      *  Process an authorization token.
+
+         +  Verify the token is from the right AS.
+
+         +  Verify that the token applies to this RS.
+
+         +  Check that the token has not expired (if the token provides
+            expiration information).
+
+         +  Check the token's integrity.
+
+         +  Store the token so that it can be retrieved in the context
+            of a matching request.
+
+      *  Process a request.
+
+         +  Set up communication security with the client.
+
+         +  Authenticate the client.
+
+         +  Match the client against existing tokens.
+
+
+
+Seitz, et al.            Expires August 4, 2016                [Page 41]
+
+Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
+
+
+         +  Check that tokens beloinging to the client actually
+            authorize the requested action.
+
+         +  Optionally: Check that the matching tokens are still valid
+            (if this is possible.
+
+      *  Send a response following the agreed upon communication
+         security.
 
 Appendix C.  Optimizations
 
@@ -2284,16 +2349,7 @@ Appendix C.  Optimizations
 
 
 
-
-
-
-
-
-
-
-
-
-Seitz, et al.            Expires August 4, 2016                [Page 41]
+Seitz, et al.            Expires August 4, 2016                [Page 42]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2349,7 +2405,7 @@ D.1.1.  Token Request
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 42]
+Seitz, et al.            Expires August 4, 2016                [Page 43]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2405,7 +2461,7 @@ D.1.2.  Token Response
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 43]
+Seitz, et al.            Expires August 4, 2016                [Page 44]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2461,7 +2517,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 44]
+Seitz, et al.            Expires August 4, 2016                [Page 45]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2517,7 +2573,7 @@ D.2.1.  Introspection Request
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 45]
+Seitz, et al.            Expires August 4, 2016                [Page 46]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2573,7 +2629,7 @@ D.2.2.  Introspection Response
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 46]
+Seitz, et al.            Expires August 4, 2016                [Page 47]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2629,7 +2685,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 47]
+Seitz, et al.            Expires August 4, 2016                [Page 48]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2685,7 +2741,7 @@ Authors' Addresses
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 48]
+Seitz, et al.            Expires August 4, 2016                [Page 49]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2741,4 +2797,4 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 4, 2016                [Page 49]
+Seitz, et al.            Expires August 4, 2016                [Page 50]

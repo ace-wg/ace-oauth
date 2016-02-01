@@ -2145,7 +2145,7 @@ considerations we refer the reader to
       Responsibilites -- a Checklist">
       <t><list style="hanging">
 	<t hangText="Resource Owner">
-	  <list style="symbol">
+	  <list style="symbols">
 	    <t>Make sure that the RS is registered at the AS.</t>
 	    <t>Make sure that clients can discover the AS which is in charge
 	    of the RS.</t>
@@ -2154,7 +2154,7 @@ considerations we refer the reader to
 	  </list>
 	</t>
 	<t hangText="Requesting Party">
-	  <list style="symbol">
+	  <list style="symbols">
 	    <t>Make sure that the client is provisioned the necessary
 	    credentials to authenticate to the AS.</t>
 	    <t>Make sure that the client is configured to follow the security
@@ -2164,13 +2164,29 @@ considerations we refer the reader to
 	    <t>Register the client at the AS.</t>
           </list>
         </t>
-	<t hangText="AS"></t>
-        <t hangText="client">
-	  <list style="symbol">
+	<t hangText="Authorization Server">
+	  <list style="symbols">
+	    <t>Register RS and manage corresponding security contexts.</t>
+            <t>Register clients and including authentication credentials.</t>
+	    <t>Allow Resource Onwers to configure and update access control
+	    policies related to their registered RS'</t>
+	    <t>Expose a service that allows clients to request tokens.</t>
+            <t>Authenticate clients that whish to request a token.</t>
+	    <t>Process a token requests against the authorization
+	    policies configured for the RS.</t>
+	    <t>Expose a service that allows RS's to submit token introspection
+	    requests.</t>
+	    <t>Authenticate RS's that whish to get an introspection response.</t>
+	    <t>Process token introspection requests.</t>
+	    <t>Optionally: Handle token revokation.</t>
+          </list>
+	</t>
+        <t hangText="Client">
+	  <list style="symbols">
 	    <t>Discover the AS in charge of the RS that is to be targeted with
 	    a request.</t>
             <t>Submit the token request (A).
-	      <list style="symbol">
+	      <list style="symbols">
 		<t>Authenticate towards the AS.</t>
 		<t>Specify which RS, which resource(s), and which action(s)
 		the request(s) will target.</t>
@@ -2180,7 +2196,7 @@ considerations we refer the reader to
 	      </list>
 	    </t>
 	    <t>Process the access token and client information (B)
-	       <list style="symbol">
+	       <list style="symbols">
 		<t>Check that the token has the right format (e.g. CWT).</t>
 		<t>Check that the client information provides the necessary
 		security parameters (e.g. PoP key, information on
@@ -2188,7 +2204,7 @@ considerations we refer the reader to
 	      </list>
 	    </t>
 	    <t>Send the token and request to the RS (C)
-	      <list style="symbol">
+	      <list style="symbols">
 		<t>Authenticate towards the RS (this could coincide with the
 		proof of possession process).</t>
 		<t>Transmit the token as specified by the AS (default is to an
@@ -2206,7 +2222,34 @@ considerations we refer the reader to
 	    <t>Register the client at the AS.</t>
           </list>
 	</t>
-	<t hangText="RS"></t>
+	<t hangText="Resource Server">
+	  <list style="symbols">
+	    <t>Expose a way to submit authorization tokens.</t>
+            <t>Process an authorization token.
+	      <list style="symbols">
+		<t>Verify the token is from the right AS.</t>
+		<t>Verify that the token applies to this RS.</t>
+		<t>Check that the token has not expired (if the token provides
+		expiration information).</t>
+		<t>Check the token's integrity.</t>
+		<t>Store the token so that it can be retrieved in the context
+		of a matching request.</t>
+	      </list>
+	    </t>
+	    <t>Process a request.
+	     <list style="symbols">
+	        <t>Set up communication security with the client.</t>
+		<t>Authenticate the client.</t>
+		<t>Match the client against existing tokens.</t>
+		<t>Check that tokens beloinging to the client actually
+		authorize the requested action.</t>
+		<t>Optionally: Check that the matching tokens are still valid (if this is
+		possible.</t>
+	      </list>
+	    </t>
+	    <t>Send a response following the agreed upon communication security.</t>
+          </list>
+	</t>
       </list></t>
     </section>
 
