@@ -707,8 +707,8 @@ needed, that the content is confidentiality protected.</t>
     that enable clients to authenticate servers based on the Web PKI.  In a
     more heterogeneous IoT environment a wider range of use cases needs to be
     supported.  Therefore, this document suggests extensions to OAuth 2.0 that
-    enable the AS to inform the client on how to communicate securely with a 
-    RS and that allow the client to indicate communication security
+    enables the AS to inform the client on how to communicate securely with a 
+    RS and that allows the client to indicate communication security
     preferences to the AS.</t>
     
     <t>The client may be a constrained device and could therefore be limited
@@ -1904,6 +1904,8 @@ considerations we refer the reader to
 
     <section anchor="iana" title="IANA Considerations">
       <t>TBD</t>
+
+      <t>FIXME: Add registry over csp values from Figure 2</t>
     </section>
 
 
@@ -2091,6 +2093,75 @@ considerations we refer the reader to
         </list>
       </t>
 
+    </section>
+
+    <section anchor="app:rolesAndResponsibilities" title="Roles and
+      Responsibilites -- a Checklist">
+      <t><list style="hanging">
+	<t hangText="Resource Owner">
+	  <list style="symbol">
+	    <t>Make sure that the RS is registered at the AS.</t>
+	    <t>Make sure that clients can discover the AS which is in charge
+	    of the RS.</t>
+	    <t>Make sure that the AS has the necessary, up-to-date, access 
+	    control policies for the RS.</t>
+	  </list>
+	</t>
+	<t hangText="Requesting Party">
+	  <list style="symbol">
+	    <t>Make sure that the client is provisioned the necessary
+	    credentials to authenticate to the AS.</t>
+	    <t>Make sure that the client is configured to follow the security
+	    requirements of the Requesting Party, when issuing requests
+	    (e.g. minimum communication security requirements, trust
+	    anchors).</t>
+	    <t>Register the client at the AS.</t>
+          </list>
+        </t>
+	<t hangText="AS"></t>
+        <t hangText="client">
+	  <list style="symbol">
+	    <t>Discover the AS in charge of the RS that is to be targeted with
+	    a request.</t>
+            <t>Submit the token request (A).
+	      <list style="symbol">
+		<t>Authenticate towards the AS.</t>
+		<t>Specify which RS, which resource(s), and which action(s)
+		the request(s) will target.</t>
+		<t>Specify preferences for communication security</t>
+		<t>If raw public key (rpk) is used, make sure the AS has the
+		right rpk for this client.</t>
+	      </list>
+	    </t>
+	    <t>Process the access token and client information (B)
+	       <list style="symbol">
+		<t>Check that the token has the right format (e.g. CWT).</t>
+		<t>Check that the client information provides the necessary
+		security parameters (e.g. PoP key, information on
+		communication security protocols supported by the RS).</t>
+	      </list>
+	    </t>
+	    <t>Send the token and request to the RS (C)
+	      <list style="symbol">
+		<t>Authenticate towards the RS (this could coincide with the
+		proof of possession process).</t>
+		<t>Transmit the token as specified by the AS (default is to an
+		authorization information resource, alternative options are as
+		a CoAP option or in the DTLS handshake).</t>
+		<t>Perform the proof-of-possession procedure as specified for
+		the type of used token (this may already have been taken care
+		of through the authentication procedure).</t>
+	      </list>
+	    </t>
+	    <t>Process the RS response (F)
+	    requirements of the Requesting Party, when issuing requests
+	    (e.g. minimum communication security requirements, trust
+	    anchors).</t>
+	    <t>Register the client at the AS.</t>
+          </list>
+	</t>
+	<t hangText="RS"></t>
+      </list></t>
     </section>
 
     <section anchor="app:optionsOptimizations" title="Optimizations">
