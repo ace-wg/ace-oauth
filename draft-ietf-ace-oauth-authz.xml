@@ -7,7 +7,9 @@
      An alternate method (rfc include) is described in the references. -->
 
 
-<!ENTITY RFC2119 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC2119 SYSTEM
+"http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
+<!ENTITY RFC4279 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4279.xml">
 <!ENTITY RFC4680 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4680.xml">
 <!ENTITY RFC4949 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4949.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
@@ -23,7 +25,6 @@
 <!-- <!ENTITY RFC7250 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7250.xml"> -->
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
-<!ENTITY RFC7515 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7515.xml">
 <!ENTITY RFC7517 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7517.xml">
 <!-- <!ENTITY I-D.ietf-ace-usecases SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-usecases.xml"> -->
 <!ENTITY I-D.ietf-oauth-introspection SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-introspection.xml">
@@ -695,7 +696,7 @@ needed, that the content is confidentiality protected.</t>
 
 
 
-<section anchor="oauth2ProfilesCSP" title="Communication Security Protocol">
+<section anchor="oauth2ProfilesCSP" title="Client Information">
     
     <t>OAuth 2.0 using bearer tokens, as described in <xref
     target="RFC6749"/> and in <xref target="RFC6750"/>, 
@@ -711,11 +712,31 @@ needed, that the content is confidentiality protected.</t>
     RS and that allows the client to indicate communication security
     preferences to the AS.</t>
     
+    <t>In the OAuth memo desfining the key distribution for
+    proof-of-possession (PoP) tokens <xref
+    target="I-D.ietf-oauth-pop-key-distribution"/>,  the authors suggest to
+    use Uri-query parameters in order to submit the parameters of the client's
+    token request.  To avoid large headers if the client uses CoAP to
+    communicate with the AS, this memo specifies the following alternative for
+    submitting client reuqest parameters to the AS: The client encodes the
+    parameters of it's request as a CBOR map and submits that map as the
+    payload of the client reuqest.  The Content-format MUST be
+    application/cbor in that case.</t>
+    
+    <t>The OAuth memo further specifies that the AS SHALL use a JSON
+    structure in the payload of the response to encode the response
+    parameters.  These parameters include the authorization token, destined
+    for the RS and additional information for the client, such as e.g. the PoP
+    key.  We call this information "client information".  If the client is
+    using CoAP to communicate with the AS the AS SHOULD use CBOR instead of
+    JSON for encoding it's response.  The client can explicitly request this
+    encoding by using the CoAP Accept option.</t>
+
     <t>The client may be a constrained device and could therefore be limited
     in the communication security protocols it supports.  It can therefore
     signal to the AS which protocols it can support for securing their 
-    mutual communication.  This is done by using the "csp" parameter in the
-    Token Request message to the AS.</t>
+    mutual communication.  This is done by using the "csp" parameter defined
+    below in the Token Request message sent to the AS.</t>
 
     <t>The client and the RS might not have any prior knowledge about each 
     other, therefore the AS needs to help them to establish a security context 
@@ -724,9 +745,9 @@ needed, that the content is confidentiality protected.</t>
     
     <t>The "csp" parameter specifies how client and RS communication is going to
     be secured based on returned keys.  Currently defined values are "TLS", 
-    "DTLS", "OSCOAP" and "OSCON" with the encodings specified in
+    "DTLS", "ObjectSecurity" with the encodings specified in
     <xref target="tab:cspParam"/>.  Depending on the value different
-    additional parameters become mandatory (FIXME: Define which).</t>
+    additional parameters become mandatory.</t>
     
     <t><figure align="center" anchor="tab:cspParam"
                title="Table of 'csp' parameter value encodings for Client 
@@ -737,54 +758,63 @@ needed, that the content is confidentiality protected.</t>
        |-----------+--------------+-----------------------|
        | 0         | 0            | TLS                   |
        | 1         | 0            | DTLS                  |
-       | 2         | 0            | OSCOAP                |
-       | 3         | 0            | OSCON                 |
+       | 2         | 0            | ObjectSecurity        |
        \-----------+--------------+-----------------------/
       ]]></artwork>
     </figure></t>
 
     <t>CoAP specifies three security modes of DTLS: PreSharedKey, RawPublicKey
-    and Certificate.  For Certificate mode, additional information MAY be
-    provided in the same way as for TLS.</t>
+    and Certificate.  The same modes may be used with TLS.  The mode of the
+    CSP to be used is negotiated in the DTLS handshake.  The AS MAY give an
+    indication about the security modes supported by the RS using the "mode"
+    parameter with the values specified in <xref target="tab:modeParam"/>.  If
+    several modes are supported, the AS indicates this by repeating the "mode"
+    parameter with different values.</t>
+    
+    <t><figure align="center" anchor="tab:modeParam"
+               title="Table of 'mode' parameter value encodings for Client 
+		      Information.">
+      <artwork align="left"><![CDATA[
+       /-----------+--------------+-----------------------\
+       | Value     | Major Type   | Key                   |
+       |-----------+--------------+-----------------------|
+       | 0         | 0            | PreSharedKey (PSK)    |
+       | 1         | 0            | RawPublicKey (RPK)    |
+       | 2         | 0            | Certificate           |
+       \-----------+--------------+-----------------------/
+      ]]></artwork>
+    </figure></t>
 
     <t>For PreSharedKey mode, the AS MUST provide the client with the 
-    corresponding key used by the RS.  If PoP tokens with symmetric keys are
-    used (see section 4 of <xref
-    target="I-D.ietf-oauth-pop-key-distribution"/>), the client MUST use the
-    PoP key as DTLS pre-shared key. If PoP tokens are not used or if the PoP
-    token is based on an asymmetric key, the AS MUST provide the client with 
-    the DTLS pre-shared key in the client information, using the "psk"
-    parameter defined below.</t>
-  
-    <t>If the RS uses RawPublicKey mode, the RS' key SHOULD be provided to the
-    client in the Client Information using the "rpk" parameter defined 
-    below.  If PoP tokens with asymmetric keys are used (see section 5 of 
-    <xref target="I-D.ietf-oauth-pop-key-distribution"/>) , the client MUST
-    use the PoP key for client authentication in DTLS.</t>
+    pre-shared key to be used with the RS.  If this mode is used together with
+    PoP tokens, the PoP key MUST be a symmetric key (see section 4 of
+    <xref target="I-D.ietf-oauth-pop-key-distribution"/>), the 
+    client MUST use the PoP key as DTLS pre-shared key.  The AS MUST provide 
+    the PoP key using the "key" parameter, specified in <xref
+    target="I-D.ietf-oauth-pop-key-distribution"/>, containing either a JWK 
+    <xref target="RFC7517"/> or CWK (FIXME refernce).  The client MUST use
+    the "kid" parameter provided as part of the JWK/CWK as the psk_identity
+    in the DTLS handshake <xref target="RFC4279"/>.</t>
 
+    <t>If RawPublicKey mode is used, the AS MUST provide the client with the 
+    RS's raw public key using the "rpk" parameter defined in the follwoing.
+    This parameter MUST contain an JWK or a CWK.  A RS configured to use this
+    mode together with PoP tokens MUST require client authentication in the
+    DTLS handshake.  The client MUST use the raw public key bound to the PoP
+    token for client authentication in DTLS.</t>    
+
+    <t>If PoP tokens are not used, but the RS requires or supports DTLS in
+    either PSK or RPK mode, then the AS MUST provide the client with the
+    DTLS pre-shared key or the DTLS raw public key of the RS in the client
+    information, using a parameter called "dtlskey", which SHALL contain a 
+    JWK/CWK specifying the key to be used in the DTLS handshake. For symmetric
+    keys the corresponding JWK/CWK MUST contain the kid parameter, which MUST
+    be used as psk_identity in the DTLS handshake <xref target="RFC4279"/>.</t>
+  
     <t>TLS or DTLS with certificates MAY make use of pre-established trust
     anchors or MAY be configured more tightly with additional client
     information parameters, such as x5c, x5t, or x5t#S256. An overview of
     these parameters is given below.</t>
-                
-    <t>To use object security (such as OSCOAP and OSCON) requires security
-    context to be established, which can be provisioned with PoP token and
-    client information, or derived from that information.  This memo defines a
-    generic container object that is supposed to function as the root element
-    providing this security context information. Object security
-    specifications designed to be used with this protocol MUST specify the
-    content format and correspondings processing rules.</t>
-
-    <t>FIXME definition of object security context container</t>
-      
-    <t>FIXME definition of psk</t>
-       
-    <t hangText="RS public key (rpk)"><vspace blankLines="1"/>
-    When using DTLS, OSCOAP or OSCON the communication security may
-    be based on raw public keys.  This attribute is a JWK/CWK representation
-    of the public key that the RS will use to protect communication.  The alg
-    parameter of the JWK/CWK is used to indicate how the key should be used.
-    </t>
 
     <t hangText="X.509 Certificate Chain (x5c)"><vspace blankLines="1"/>
     For when communication security is based on certificates this attribute
@@ -798,15 +828,14 @@ needed, that the content is confidentiality protected.</t>
     can be used to define the specific server certificate to expect or the CA
     certificate.  Semantics for this attribute is defined by JWK/CWK.</t>
     
-               
-    <t hangText="RS public key (psk)"><vspace blankLines="1"/>
-    FIXME
-    </t>
-
-    <!--FIXME: Derived how? -->
-                
-    <!--FIXME: maybe we should say something about response validation too 
-      here  -->
+                   
+    <t>To use object security (such as OSCOAP and OSCON) requires security
+    context to be established, which can be provisioned with PoP token and
+    client information, or derived from that information. Object security
+    specifications designed to be used with this protocol MUST specify the
+    parameters that an AS has to provide to the client in order to set up
+    the necessary security context.</t>
+  
     <!-- If OSCON is used only the payload is protected.  This is
          setup is useful when the application has no control over the transport
          layer or when the transport layer does not support TLS, DTLS or
@@ -2003,6 +2032,8 @@ considerations we refer the reader to
 
       &RFC2119;
 
+      &RFC4279;
+
       &RFC6347;
 
       &RFC7252;
@@ -2049,8 +2080,6 @@ considerations we refer the reader to
       &RFC7231;
 
       &RFC7519;
-
-      &RFC7515;
 
     </references>
 
