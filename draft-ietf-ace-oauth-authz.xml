@@ -6,7 +6,6 @@
      There has to be one entity for each item to be referenced.
      An alternate method (rfc include) is described in the references. -->
 
-
 <!ENTITY RFC2119 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC4279 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4279.xml">
@@ -24,8 +23,8 @@
 <!ENTITY RFC7231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7231.xml">
 <!-- <!ENTITY RFC7250 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7250.xml"> -->
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
-<!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
 <!ENTITY RFC7517 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7517.xml">
+<!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
 <!-- <!ENTITY I-D.ietf-ace-usecases SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-usecases.xml"> -->
 <!ENTITY I-D.ietf-oauth-introspection SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-introspection.xml">
 <!ENTITY I-D.somaraju-ace-multicast SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.somaraju-ace-multicast.xml">
@@ -736,7 +735,9 @@ needed, that the content is confidentiality protected.</t>
     in the communication security protocols it supports.  It can therefore
     signal to the AS which protocols it can support for securing their 
     mutual communication.  This is done by using the "csp" parameter defined
-    below in the Token Request message sent to the AS.</t>
+    below in the Token Request message sent to the AS.  If the client supports
+    signals support for DTLS, it MAY also use the "dtlsmode" parameter defined
+    below, in order to indicate support for specific DTLS modes.</t>
 
     <t>The client and the RS might not have any prior knowledge about each 
     other, therefore the AS needs to help them to establish a security context 
@@ -766,13 +767,14 @@ needed, that the content is confidentiality protected.</t>
     <t>CoAP specifies three security modes of DTLS: PreSharedKey, RawPublicKey
     and Certificate.  The same modes may be used with TLS.  The mode of the
     CSP to be used is negotiated in the DTLS handshake.  The AS MAY give an
-    indication about the security modes supported by the RS using the "mode"
-    parameter with the values specified in <xref target="tab:modeParam"/>.  If
-    several modes are supported, the AS indicates this by repeating the "mode"
-    parameter with different values.</t>
+    indication about the security modes supported by the RS using the
+    "dtlsmode" parameter with the values specified in <xref
+    target="tab:modeParam"/>.  If several modes are supported, the AS
+    indicates this by repeating the "dtlsmode" parameter with different 
+    values.</t>
     
     <t><figure align="center" anchor="tab:modeParam"
-               title="Table of 'mode' parameter value encodings for Client 
+               title="Table of 'dtlsmode' parameter value encodings for Client 
 		      Information.">
       <artwork align="left"><![CDATA[
        /-----------+--------------+-----------------------\
@@ -836,6 +838,32 @@ needed, that the content is confidentiality protected.</t>
     parameters that an AS has to provide to the client in order to set up
     the necessary security context.</t>
   
+    <t>The RS may support different ways of receiving the authorization
+    token from the client (see <xref target="oauth2ProfilesAuthzInfo"/> and
+    <xref target="app:optionsOptimizations"/>).  The AS MAY signal the 
+    required method for authorization token transfer in the client information
+    by using the "token-transport" parameter using the values defined in table
+    <xref target="tab:tokenTransportParam"/>.  If no "token-transport"
+    parameter is present, the client MUST use the default Authorization
+    Information resource as  specified in <xref
+    target="oauth2ProfilesAuthzInfo"/>.</t>
+
+    <t><figure align="center" anchor="tab:tokenTransportParam"
+               title="Table of 'token-transprot' parameter value encodings for
+		      Client Information.">
+      <artwork align="left"><![CDATA[
+       /-----------+--------------+-------------------------\
+       | Value     | Major Type   | Key                     |
+       |-----------+--------------+-------------------------|
+       | 0         | 0            | POST to /authz-info     |
+       | 1         | 0            | RFC 4680                |
+       | 2         | 0            | CoAP option "Ref-Token" |
+       \-----------+--------------+-------------------------/
+      ]]></artwork>
+    </figure></t>
+
+
+
     <!-- If OSCON is used only the payload is protected.  This is
          setup is useful when the application has no control over the transport
          layer or when the transport layer does not support TLS, DTLS or
@@ -1942,8 +1970,10 @@ considerations we refer the reader to
 
     <section anchor="iana" title="IANA Considerations">
       <t>TBD</t>
-      <t>FIXME: Add registry over csp values from Figure 2</t>
-    
+      <t>FIXME: Add registry over 'csp' values from Figure 2</t>
+      <t>FIXME: Add registry over 'dtlsmode' values from Figure 3</t>
+      <t>FIXME: Add registry of 'rpk' parameter from section 5.1</t>
+      <t>FIXME: Add registry of 'dtlskey' parameter from section 5.1</t>
       <section anchor="CoAPOptionNumberRegistration" title="CoAP Option Number Registration">
       	<t>
       		This section registers the "Access-Token" CoAP Option Number [RFC2046] in
