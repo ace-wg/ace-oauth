@@ -5,13 +5,13 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                      SICS
 Intended status: Standards Track                             G. Selander
-Expires: August 8, 2016                                         Ericsson
+Expires: August 13, 2016                                        Ericsson
                                                            E. Wahlstroem
                                                               S. Erdtman
                                                         Nexus Technology
                                                            H. Tschofenig
                                                                 ARM Ltd.
-                                                        February 5, 2016
+                                                       February 10, 2016
 
 
         Authorization for the Internet of Things using OAuth 2.0
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on August 8, 2016.
+   This Internet-Draft will expire on August 13, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 1]
+Seitz, et al.            Expires August 13, 2016                [Page 1]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 2]
+Seitz, et al.            Expires August 13, 2016                [Page 2]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -165,7 +165,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 3]
+Seitz, et al.            Expires August 13, 2016                [Page 3]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -221,7 +221,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 4]
+Seitz, et al.            Expires August 13, 2016                [Page 4]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -277,7 +277,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 5]
+Seitz, et al.            Expires August 13, 2016                [Page 5]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -333,7 +333,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 6]
+Seitz, et al.            Expires August 13, 2016                [Page 6]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -389,7 +389,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 7]
+Seitz, et al.            Expires August 13, 2016                [Page 7]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -445,7 +445,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 8]
+Seitz, et al.            Expires August 13, 2016                [Page 8]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -501,7 +501,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                 [Page 9]
+Seitz, et al.            Expires August 13, 2016                [Page 9]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -557,7 +557,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 10]
+Seitz, et al.            Expires August 13, 2016               [Page 10]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -613,7 +613,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 11]
+Seitz, et al.            Expires August 13, 2016               [Page 11]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -669,7 +669,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 12]
+Seitz, et al.            Expires August 13, 2016               [Page 12]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -725,7 +725,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 13]
+Seitz, et al.            Expires August 13, 2016               [Page 13]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -734,13 +734,15 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
    PoP key as DTLS pre-shared key.  The AS MUST provide the PoP key
    using the "key" parameter, specified in
    [I-D.ietf-oauth-pop-key-distribution], containing either a JWK
-   [RFC7517] or CWK (FIXME refernce).  The client MUST use the "kid"
-   parameter provided as part of the JWK/CWK as the psk_identity in the
-   DTLS handshake [RFC4279].
+   [RFC7517] or COSE_Key [I-D.ietf-cose-msg].  The AS must encrypt the
+   contents of the "key" parameter either using JWE [RFC7516] or the
+   COSE_Encrypted structure [I-D.ietf-cose-msg].  The client MUST use
+   the "kid" parameter provided as part of the JWK/COSE_Key as the
+   psk_identity in the DTLS handshake [RFC4279].
 
    If RawPublicKey mode is used, the AS MUST provide the client with the
    RS's raw public key using the "rpk" parameter defined in the
-   follwoing.  This parameter MUST contain an JWK or a CWK.  A RS
+   follwoing.  This parameter MUST contain an JWK or a COSE_Key.  A RS
    configured to use this mode together with PoP tokens MUST require
    client authentication in the DTLS handshake.  The client MUST use the
    raw public key bound to the PoP token for client authentication in
@@ -750,10 +752,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
    either PSK or RPK mode, then the AS MUST provide the client with the
    DTLS pre-shared key or the DTLS raw public key of the RS in the
    client information, using a parameter called "dtlskey", which SHALL
-   contain a JWK/CWK specifying the key to be used in the DTLS
-   handshake.  For symmetric keys the corresponding JWK/CWK MUST contain
-   the kid parameter, which MUST be used as psk_identity in the DTLS
-   handshake [RFC4279].
+   contain a JWK/COSE_Key specifying the key to be used in the DTLS
+   handshake.  For symmetric keys the corresponding JWK/COSE_Key MUST
+   contain the kid parameter, which MUST be used as psk_identity in the
+   DTLS handshake [RFC4279].
 
    TLS or DTLS with certificates MAY make use of pre-established trust
    anchors or MAY be configured more tightly with additional client
@@ -763,12 +765,12 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
    For when communication security is based on certificates this
    attribute can be used to define the server certificate or CA
    certificate.  Semantics for this attribute is defined by [RFC7517] or
-   CWK (FIXME, future reference).
+   COSE_Key [I-D.ietf-cose-msg].
 
    For when communication security is based on certificates this
    attribute can be used to define the specific server certificate to
    expect or the CA certificate.  Semantics for this attribute is
-   defined by JWK/CWK.
+   defined by JWK/COSE_Key.
 
    To use object security (such as OSCOAP and OSCON) requires security
    context to be established, which can be provisioned with PoP token
@@ -779,9 +781,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-
-
-Seitz, et al.            Expires August 8, 2016                [Page 14]
+Seitz, et al.            Expires August 13, 2016               [Page 14]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -837,7 +837,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 15]
+Seitz, et al.            Expires August 13, 2016               [Page 15]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -893,7 +893,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 16]
+Seitz, et al.            Expires August 13, 2016               [Page 16]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -949,7 +949,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 17]
+Seitz, et al.            Expires August 13, 2016               [Page 17]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1005,7 +1005,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 18]
+Seitz, et al.            Expires August 13, 2016               [Page 18]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1061,7 +1061,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 19]
+Seitz, et al.            Expires August 13, 2016               [Page 19]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1117,7 +1117,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 20]
+Seitz, et al.            Expires August 13, 2016               [Page 20]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1173,7 +1173,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 21]
+Seitz, et al.            Expires August 13, 2016               [Page 21]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1229,7 +1229,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 22]
+Seitz, et al.            Expires August 13, 2016               [Page 22]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1285,7 +1285,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 23]
+Seitz, et al.            Expires August 13, 2016               [Page 23]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1341,7 +1341,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 24]
+Seitz, et al.            Expires August 13, 2016               [Page 24]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1397,7 +1397,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 25]
+Seitz, et al.            Expires August 13, 2016               [Page 25]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1453,7 +1453,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 26]
+Seitz, et al.            Expires August 13, 2016               [Page 26]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1509,7 +1509,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 27]
+Seitz, et al.            Expires August 13, 2016               [Page 27]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1565,7 +1565,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 28]
+Seitz, et al.            Expires August 13, 2016               [Page 28]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1621,7 +1621,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 29]
+Seitz, et al.            Expires August 13, 2016               [Page 29]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1677,7 +1677,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 30]
+Seitz, et al.            Expires August 13, 2016               [Page 30]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1733,7 +1733,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 31]
+Seitz, et al.            Expires August 13, 2016               [Page 31]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1789,7 +1789,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 32]
+Seitz, et al.            Expires August 13, 2016               [Page 32]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1845,7 +1845,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 33]
+Seitz, et al.            Expires August 13, 2016               [Page 33]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1901,7 +1901,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 34]
+Seitz, et al.            Expires August 13, 2016               [Page 34]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -1957,7 +1957,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 35]
+Seitz, et al.            Expires August 13, 2016               [Page 35]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2013,7 +2013,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 36]
+Seitz, et al.            Expires August 13, 2016               [Page 36]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2026,6 +2026,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
               Application Protocol (CoAP)", RFC 7252,
               DOI 10.17487/RFC7252, June 2014,
               <http://www.rfc-editor.org/info/rfc7252>.
+
+   [RFC7516]  Jones, M. and J. Hildebrand, "JSON Web Encryption (JWE)",
+              RFC 7516, DOI 10.17487/RFC7516, May 2015,
+              <http://www.rfc-editor.org/info/rfc7516>.
 
    [RFC7517]  Jones, M., "JSON Web Key (JWK)", RFC 7517,
               DOI 10.17487/RFC7517, May 2015,
@@ -2065,11 +2069,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-
-
-
-
-Seitz, et al.            Expires August 8, 2016                [Page 37]
+Seitz, et al.            Expires August 13, 2016               [Page 37]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2125,7 +2125,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 38]
+Seitz, et al.            Expires August 13, 2016               [Page 38]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2181,7 +2181,7 @@ Appendix A.  Design Justification
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 39]
+Seitz, et al.            Expires August 13, 2016               [Page 39]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2237,7 +2237,7 @@ Appendix B.  Roles and Responsibilites -- a Checklist
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 40]
+Seitz, et al.            Expires August 13, 2016               [Page 40]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2293,7 +2293,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 41]
+Seitz, et al.            Expires August 13, 2016               [Page 41]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2349,7 +2349,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 42]
+Seitz, et al.            Expires August 13, 2016               [Page 42]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2405,7 +2405,7 @@ Appendix C.  Optimizations
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 43]
+Seitz, et al.            Expires August 13, 2016               [Page 43]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2461,7 +2461,7 @@ D.1.  Profile for Token resource
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 44]
+Seitz, et al.            Expires August 13, 2016               [Page 44]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2517,7 +2517,7 @@ D.1.1.  Token Request
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 45]
+Seitz, et al.            Expires August 13, 2016               [Page 45]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2573,7 +2573,7 @@ D.1.2.  Token Response
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 46]
+Seitz, et al.            Expires August 13, 2016               [Page 46]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2629,7 +2629,7 @@ D.2.1.  Introspection Request
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 47]
+Seitz, et al.            Expires August 13, 2016               [Page 47]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2685,7 +2685,7 @@ D.2.2.  Introspection Response
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 48]
+Seitz, et al.            Expires August 13, 2016               [Page 48]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2741,7 +2741,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 49]
+Seitz, et al.            Expires August 13, 2016               [Page 49]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2797,7 +2797,7 @@ Authors' Addresses
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 50]
+Seitz, et al.            Expires August 13, 2016               [Page 50]
 
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
@@ -2853,4 +2853,4 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
 
-Seitz, et al.            Expires August 8, 2016                [Page 51]
+Seitz, et al.            Expires August 13, 2016               [Page 51]

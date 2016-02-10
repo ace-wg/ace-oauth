@@ -23,6 +23,7 @@
 <!ENTITY RFC7231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7231.xml">
 <!-- <!ENTITY RFC7250 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7250.xml"> -->
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
+<!ENTITY RFC7516 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7516.xml">
 <!ENTITY RFC7517 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7517.xml">
 <!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
 <!-- <!ENTITY I-D.ietf-ace-usecases SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-usecases.xml"> -->
@@ -795,23 +796,26 @@ needed, that the content is confidentiality protected.</t>
     client MUST use the PoP key as DTLS pre-shared key.  The AS MUST provide 
     the PoP key using the "key" parameter, specified in <xref
     target="I-D.ietf-oauth-pop-key-distribution"/>, containing either a JWK 
-    <xref target="RFC7517"/> or CWK (FIXME refernce).  The client MUST use
-    the "kid" parameter provided as part of the JWK/CWK as the psk_identity
-    in the DTLS handshake <xref target="RFC4279"/>.</t>
+    <xref target="RFC7517"/> or COSE_Key <xref target="I-D.ietf-cose-msg"/>.
+    The AS must encrypt the contents of the "key" parameter either using JWE
+    <xref target="RFC7516"/> or the COSE_Encrypted structure <xref
+    target="I-D.ietf-cose-msg"/>.  The client MUST use the "kid" parameter
+    provided as part of the JWK/COSE_Key as the psk_identity in the
+    DTLS handshake <xref target="RFC4279"/>.</t>
 
     <t>If RawPublicKey mode is used, the AS MUST provide the client with the 
     RS's raw public key using the "rpk" parameter defined in the follwoing.
-    This parameter MUST contain an JWK or a CWK.  A RS configured to use this
-    mode together with PoP tokens MUST require client authentication in the
-    DTLS handshake.  The client MUST use the raw public key bound to the PoP
-    token for client authentication in DTLS.</t>    
+    This parameter MUST contain an JWK or a COSE_Key.  A RS configured to use
+    this mode together with PoP tokens MUST require client authentication in
+    the DTLS handshake.  The client MUST use the raw public key bound to the
+    PoP token for client authentication in DTLS.</t>    
 
     <t>If PoP tokens are not used, but the RS requires or supports DTLS in
     either PSK or RPK mode, then the AS MUST provide the client with the
     DTLS pre-shared key or the DTLS raw public key of the RS in the client
     information, using a parameter called "dtlskey", which SHALL contain a 
-    JWK/CWK specifying the key to be used in the DTLS handshake. For symmetric
-    keys the corresponding JWK/CWK MUST contain the kid parameter, which MUST
+    JWK/COSE_Key specifying the key to be used in the DTLS handshake. For symmetric
+    keys the corresponding JWK/COSE_Key MUST contain the kid parameter, which MUST
     be used as psk_identity in the DTLS handshake <xref target="RFC4279"/>.</t>
   
     <t>TLS or DTLS with certificates MAY make use of pre-established trust
@@ -823,13 +827,13 @@ needed, that the content is confidentiality protected.</t>
     For when communication security is based on certificates this attribute
     can be used to define the server certificate or CA certificate.
     Semantics for this attribute is defined by <xref target="RFC7517"/> or
-    CWK (FIXME, future reference).</t>
+    COSE_Key <xref target="I-D.ietf-cose-msg"/>.</t>
    
     <t hangText="X.509 Certificate Thumbprint (x5t and x5t#S256)">
     <vspace blankLines="1"/>
     For when communication security is based on certificates this attribute
     can be used to define the specific server certificate to expect or the CA
-    certificate.  Semantics for this attribute is defined by JWK/CWK.</t>
+    certificate.  Semantics for this attribute is defined by JWK/COSE_Key.</t>
     
                    
     <t>To use object security (such as OSCOAP and OSCON) requires security
@@ -2068,7 +2072,9 @@ considerations we refer the reader to
       &RFC6347;
 
       &RFC7252;
-           
+      
+      &RFC7516;     
+
       &RFC7517;
 
     </references>
