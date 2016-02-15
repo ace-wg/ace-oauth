@@ -418,7 +418,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
          delimited, case-sensitive strings, with a semantic that is well-known
 	 to the AS and the RS.
          <!-- <vspace blankLines="1"/>
-         A common missconception is that the requested scopes must
+         A common misconception is that the requested scopes must
          also be included in the returned access token, but the requested scopes
          are only metadata about the token.  They could also be packaged in the
          token as a separate attribute, but it's more common to assert the
@@ -701,27 +701,27 @@ needed, that the content is confidentiality protected.</t>
     
     <t>OAuth 2.0 using bearer tokens, as described in <xref
     target="RFC6749"/> and in <xref target="RFC6750"/>, 
-    requires TLS for all communication interactions between client, authorization
-    server, and resource server.  This is possible in the scope where OAuth 2.0
-    was originally developed: web and mobile applications.  In these environments
-    resources like computational power and bandwidth are not scarce and operating
-    systems as well as browser platforms are pre-provisioned with trust anchors
-    that enable clients to authenticate servers based on the Web PKI.  In a
-    more heterogeneous IoT environment a wider range of use cases needs to be
-    supported.  Therefore, this document suggests extensions to OAuth 2.0 that
-    enables the AS to inform the client on how to communicate securely with a 
-    RS and that allows the client to indicate communication security
-    preferences to the AS.</t>
+    requires TLS for all communication interactions between client, 
+    authorization server, and resource server.  This is possible in the scope
+    where OAuth 2.0 was originally developed: web and mobile applications.  In
+    these environments resources like computational power and bandwidth are
+    not scarce and operating systems as well as browser platforms are 
+    pre-provisioned with trust anchors that enable clients to authenticate
+    servers based on the Web PKI.  In a more heterogeneous IoT environment a 
+    wider range of use cases needs to be supported.  Therefore, this document
+    suggests extensions to OAuth 2.0 that enables the AS to inform the client 
+    on how to communicate securely with a RS and that allows the client to 
+    indicate communication security preferences to the AS.</t>
     
-    <t>In the OAuth memo desfining the key distribution for
+    <t>In the OAuth memo defining the key distribution for
     proof-of-possession (PoP) tokens <xref
     target="I-D.ietf-oauth-pop-key-distribution"/>,  the authors suggest to
     use Uri-query parameters in order to submit the parameters of the client's
     token request.  To avoid large headers if the client uses CoAP to
     communicate with the AS, this memo specifies the following alternative for
-    submitting client reuqest parameters to the AS: The client encodes the
+    submitting client request parameters to the AS: The client encodes the
     parameters of it's request as a CBOR map and submits that map as the
-    payload of the client reuqest.  The Content-format MUST be
+    payload of the client request.  The Content-format MUST be
     application/cbor in that case.</t>
     
     <t>The OAuth memo further specifies that the AS SHALL use a JSON
@@ -733,18 +733,28 @@ needed, that the content is confidentiality protected.</t>
     JSON for encoding it's response.  The client can explicitly request this
     encoding by using the CoAP Accept option.</t>
 
+    <t>If the channel between client and AS is not secure, the whole messages 
+    from client to AS and vice-versa MUST be wrapped in JWEs 
+    <xref target="RFC7516"/> or COSE_Encrypted structures <xref 
+    target="I-D.ietf-cose-msg"/>.</t>
+
     <t>The client may be a constrained device and could therefore be limited
     in the communication security protocols it supports.  It can therefore
     signal to the AS which protocols it can support for securing their 
     mutual communication.  This is done by using the "csp" parameter defined
-    below in the Token Request message sent to the AS.  If the client supports
-    signals support for DTLS, it MAY also use the "dtlsmode" parameter defined
-    below, in order to indicate support for specific DTLS modes.</t>
+    below in the Token Request message sent to the AS.</t>
+
+    <t>Note that The OAuth key distribution specification <xref
+    target="I-D.ietf-oauth-pop-key-distribution"/> describes in section 6
+    how the client can request specific types of keys (symmetric vs. 
+    asymmetric) and proof-of-possession algorithms in the PoP token
+    request.</t>
 
     <t>The client and the RS might not have any prior knowledge about each 
     other, therefore the AS needs to help them to establish a security context 
     or at least a key.  The AS does this by indicating communication security 
-    protocol ("csp") and additional key parameters in the client information.</t>
+    protocol ("csp") and additional key parameters in the client
+    information.</t>
     
     <t>The "csp" parameter specifies how client and RS communication is going to
     be secured based on returned keys.  Currently defined values are "TLS", 
@@ -767,56 +777,31 @@ needed, that the content is confidentiality protected.</t>
     </figure></t>
 
     <t>CoAP specifies three security modes of DTLS: PreSharedKey, RawPublicKey
-    and Certificate.  The same modes may be used with TLS.  The mode of the
-    CSP to be used is negotiated in the DTLS handshake.  The AS MAY give an
-    indication about the security modes supported by the RS using the
-    "dtlsmode" parameter with the values specified in <xref
-    target="tab:modeParam"/>.  If several modes are supported, the AS
-    indicates this by repeating the "dtlsmode" parameter with different 
-    values.</t>
+    and Certificate.  The same modes may be used with TLS.  The client is to
+    infer from the type of key provided, which (D)TLS mode the RS supports as
+    follows.</t>
+
+    <t>If PreSharedKey mode is used, the AS MUST provide the client with 
+    the pre-shared key to be used with the RS.  This key MUST be the same as
+    the PoP key (i.e. a symmetric key as in section 4 of <xref
+    target="I-D.ietf-oauth-pop-key-distribution"/>).</t>
+
+    <t>The client MUST use the PoP key as DTLS pre-shared key.  The client 
+    MUST furthermore use the "kid" parameter provided as part of the 
+    JWK/COSE_Key as the psk_identity in the DTLS handshake <xref 
+    target="RFC4279"/>.</t>
     
-    <t><figure align="center" anchor="tab:modeParam"
-               title="Table of 'dtlsmode' parameter value encodings for Client 
-		      Information.">
-      <artwork align="left"><![CDATA[
-       /-----------+--------------+-----------------------\
-       | Value     | Major Type   | Key                   |
-       |-----------+--------------+-----------------------|
-       | 0         | 0            | PreSharedKey (PSK)    |
-       | 1         | 0            | RawPublicKey (RPK)    |
-       | 2         | 0            | Certificate           |
-       \-----------+--------------+-----------------------/
-      ]]></artwork>
-    </figure></t>
-
-    <t>For PreSharedKey mode, the AS MUST provide the client with the 
-    pre-shared key to be used with the RS.  If this mode is used together with
-    PoP tokens, the PoP key MUST be a symmetric key (see section 4 of
-    <xref target="I-D.ietf-oauth-pop-key-distribution"/>), the 
-    client MUST use the PoP key as DTLS pre-shared key.  The AS MUST provide 
-    the PoP key using the "key" parameter, specified in <xref
-    target="I-D.ietf-oauth-pop-key-distribution"/>, containing either a JWK 
-    <xref target="RFC7517"/> or COSE_Key <xref target="I-D.ietf-cose-msg"/>.
-    The AS must encrypt the contents of the "key" parameter either using JWE
-    <xref target="RFC7516"/> or the COSE_Encrypted structure <xref
-    target="I-D.ietf-cose-msg"/>.  The client MUST use the "kid" parameter
-    provided as part of the JWK/COSE_Key as the psk_identity in the
-    DTLS handshake <xref target="RFC4279"/>.</t>
-
-    <t>If RawPublicKey mode is used, the AS MUST provide the client with the 
-    RS's raw public key using the "rpk" parameter defined in the follwoing.
-    This parameter MUST contain an JWK or a COSE_Key.  A RS configured to use
-    this mode together with PoP tokens MUST require client authentication in
-    the DTLS handshake.  The client MUST use the raw public key bound to the
+    <t>If RawPublicKey mode is used, the AS MUST provide the client with 
+    the RS's raw public key using the "rpk" parameter defined in the
+    following.  This parameter MUST contain a JWK or a COSE_Key.  The client
+    MUST provide a raw public key to the AS, and the AS MUST use this key as
+    PoP key in the token.  The token MUST thus use asymmetric keys for the 
+    proof-of-possession.</t>
+    
+    <t>In order to get the proof-of-possession a RS configured to use this
+    mode together with PoP tokens MUST require client authentication in the 
+    DTLS handshake.  The client MUST use the raw public key bound to the
     PoP token for client authentication in DTLS.</t>    
-
-    <t>If PoP tokens are not used, but the RS requires or supports DTLS in
-    either PSK or RPK mode, then the AS MUST provide the client with the
-    DTLS pre-shared key or the DTLS raw public key of the RS in the client
-    information, using a parameter called "dtlskey", which SHALL contain a 
-    JWK/COSE_Key specifying the key to be used in the DTLS handshake. For symmetric
-    keys the corresponding JWK/COSE_Key MUST contain the kid parameter, which MUST
-    be used as psk_identity in the DTLS handshake <xref target="RFC4279"/>.</t>
   
     <t>TLS or DTLS with certificates MAY make use of pre-established trust
     anchors or MAY be configured more tightly with additional client
@@ -834,7 +819,6 @@ needed, that the content is confidentiality protected.</t>
     For when communication security is based on certificates this attribute
     can be used to define the specific server certificate to expect or the CA
     certificate.  Semantics for this attribute is defined by JWK/COSE_Key.</t>
-    
                    
     <t>To use object security (such as OSCOAP and OSCON) requires security
     context to be established, which can be provisioned with PoP token and
@@ -885,11 +869,11 @@ needed, that the content is confidentiality protected.</t>
 </section>
   <section anchor="oauth2ProfilesCoAPAccessTokenOption"
            title="CoAP Access-Token Option">
-    <t> OAuth 2.0 access tokens are usually transferred as authorisation 
-    	header. CoAP has no authorisation header equivalence. This document 
+    <t> OAuth 2.0 access tokens are usually transferred as authorization 
+    	header. CoAP has no authorization header equivalence. This document 
     	therefor register the option Access-Token. The Access-Token option 
     	is an alternative for transferring the access token when it is smaller 
-    	then 255 bytes. If token is larger the 255 bytes lager authorisation 
+    	then 255 bytes. If token is larger the 255 bytes lager authorization 
     	information resources MUST at the RS be user when CoAP.
     </t>
   </section>
@@ -908,14 +892,14 @@ needed, that the content is confidentiality protected.</t>
       URI may, however, vary in deployments.
     </t>
     <t>The RS needs to store the PoP token for when later
-      authorising requests from the client. The RS is not mandated 
+      authorizing requests from the client. The RS is not mandated 
       to be able to manage multiple client at once. how the RS manages 
       clients is out of scope for this specification.
     </t>
 
     <section anchor="authzInfoResourceRequest" 
              title="Authorization Information Request">
-    <t>The client makes a POST request to the authorisation information
+    <t>The client makes a POST request to the authorization information
       resource by sending its PoP token as request data.</t>
     <t>Client MUST send the Content-Format option indicate token format</t>
     <!-- TODO insert Content-Format -->
@@ -1288,7 +1272,7 @@ F:  |<--------+ Header: 2.05 Content
                   A: The client sends the request POST to /token at AS.  The
                   request contains the Audience parameter set to
                   "tempSensor109797", a value that the temperature sensor
-                  identifies itself with.  The scope the client want's the AS to
+                  identifies itself with.  The scope the client wants the AS to
                   authorize the access token for is "owner", which means that 
                   the token can be used to both read temperature data and
                   upgrade the firmware on the RS.  The AS evaluates the request
@@ -1976,9 +1960,7 @@ considerations we refer the reader to
     <section anchor="iana" title="IANA Considerations">
       <t>TBD</t>
       <t>FIXME: Add registry over 'csp' values from Figure 2</t>
-      <t>FIXME: Add registry over 'dtlsmode' values from Figure 3</t>
       <t>FIXME: Add registry of 'rpk' parameter from section 5.1</t>
-      <t>FIXME: Add registry of 'dtlskey' parameter from section 5.1</t>
       <section anchor="CoAPOptionNumberRegistration" title="CoAP Option Number Registration">
       	<t>
       		This section registers the "Access-Token" CoAP Option Number [RFC2046] in
@@ -2008,7 +1990,7 @@ considerations we refer the reader to
             </t>
             <t hangText="Format"><vspace blankLines="1"/>
               Based on the observer the format is perseved differently. 
-              Opaque data to the cleint and CWT or referese token to the RS.
+              Opaque data to the client and CWT or reference token to the RS.
             </t>
             <t hangText="Length"><vspace blankLines="1"/>
               Less then 255 bytes
@@ -2237,14 +2219,15 @@ considerations we refer the reader to
 	    <t>Allow Resource Onwers to configure and update access control
 	    policies related to their registered RS'</t>
 	    <t>Expose a service that allows clients to request tokens.</t>
-            <t>Authenticate clients that whish to request a token.</t>
+            <t>Authenticate clients that wishes to request a token.</t>
 	    <t>Process a token requests against the authorization
 	    policies configured for the RS.</t>
 	    <t>Expose a service that allows RS's to submit token introspection
 	    requests.</t>
-	    <t>Authenticate RS's that whish to get an introspection response.</t>
+	    <t>Authenticate RS's that wishes to get an introspection 
+	    response.</t>
 	    <t>Process token introspection requests.</t>
-	    <t>Optionally: Handle token revokation.</t>
+	    <t>Optionally: Handle token revocation.</t>
           </list>
 	</t>
         <t hangText="Client">
@@ -2257,8 +2240,8 @@ considerations we refer the reader to
 		<t>Specify which RS, which resource(s), and which action(s)
 		the request(s) will target.</t>
 		<t>Specify preferences for communication security</t>
-		<t>If raw public key (rpk) is used, make sure the AS has the
-		right rpk for this client.</t>
+		<t>If raw public key (rpk) or certificate is used, make sure 
+		the AS has the right rpk or certificate for this client.</t>
 	      </list>
 	    </t>
 	    <t>Process the access token and client information (B)
@@ -2307,7 +2290,7 @@ considerations we refer the reader to
 	        <t>Set up communication security with the client.</t>
 		<t>Authenticate the client.</t>
 		<t>Match the client against existing tokens.</t>
-		<t>Check that tokens beloinging to the client actually
+		<t>Check that tokens belonging to the client actually
 		authorize the requested action.</t>
 		<t>Optionally: Check that the matching tokens are still valid (if this is
 		possible.</t>
@@ -2325,7 +2308,7 @@ considerations we refer the reader to
 
       <t><list style="hanging">
       <t hangText="Access token in DTLS handshake"><vspace blankLines="1"/>
-      In the case of CSP=DTLS/TLS, the access token provisoning exchange in
+      In the case of CSP=DTLS/TLS, the access token provisioning exchange in
       step C of the protocol may be embedded in the security
       handshake.  Different solutions are possible, where one standardized
       method would be the use of the TLS supplemental data extension
