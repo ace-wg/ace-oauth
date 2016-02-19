@@ -831,14 +831,14 @@ needed, that the content is confidentiality protected.</t>
     token from the client (see <xref target="oauth2ProfilesAuthzInfo"/> and
     <xref target="app:optionsOptimizations"/>).  The AS MAY signal the 
     required method for authorization token transfer in the client information
-    by using the "token-transport" parameter using the values defined in table
-    <xref target="tab:tokenTransportParam"/>.  If no "token-transport"
+    by using the "tktr" (token transport) parameter using the values defined  
+    in table <xref target="tab:tokenTransportParam"/>.  If no "tktn"
     parameter is present, the client MUST use the default Authorization
     Information resource as  specified in <xref
     target="oauth2ProfilesAuthzInfo"/>.</t>
 
     <t><figure align="center" anchor="tab:tokenTransportParam"
-               title="Table of 'token-transprot' parameter value encodings for
+               title="Table of 'tktn' parameter value encodings for
 		      Client Information.">
       <artwork align="left"><![CDATA[
        /-----------+--------------+-------------------------\
@@ -851,21 +851,30 @@ needed, that the content is confidentiality protected.</t>
       ]]></artwork>
     </figure></t>
 
+    <t>Table <xref target="tab:cspSummary"/> summarizes the additional
+    parameters defined here for use by the client or the AS in the
+    PoP token request protocol.</t>
+    <t><figure align="center" anchor="tab:cspSummary"
+               title="Table of additional parameters defined for the
+		      PoP protocol.">
+      <artwork align="left"><![CDATA[
+   /-----------+--------------+----------------------------------\
+   | Parameter | Used by      | Description                      |
+   |-----------+--------------+----------------------------------|
+   | csp       | client or AS | Communication security protocol  |
+   | rpk       | AS           | RS's raw public key              |
+   | x5c       | AS           | RS's X.509 certificate chain     |
+   | x5t       | AS           | RS's SHA-1 cert thumb print      |
+   | x5t#S256  | AS           | RS's SHA-256 cert thumb print    |
+   | tktn      | AS           | Mode of token transfer C -> RS   |
+   \-----------+--------------+----------------------------------/
+      ]]></artwork>
+    </figure></t>
 
 
-    <!-- If OSCON is used only the payload is protected.  This is
-         setup is useful when the application has no control over the transport
-         layer or when the transport layer does not support TLS, DTLS or
-         CoAP at all, e.g. Bluetooth Smart.  In this case the PoP key is used
-         to protect the payload from client to server could be symmetric or
-         asymmetric keys.  Validation of the response differs depending on the
-         key type used.  If symmetric keys are used it is derived from the PoP
-         key, if an asymmetric key is used to validate server response it it is
-         returned in the additional response parameter "rpk", and if certificates
-         is used the certificate is referred to by x5t, x5t#S256 or x5c.  The
-         encapsulation could use but is not limited to JOSE or COSE primitives
-         to sign, MAC or encrypting the payload data.
-    -->
+
+
+
 </section>
   <section anchor="oauth2ProfilesCoAPAccessTokenOption"
            title="CoAP Access-Token Option">
@@ -1961,6 +1970,8 @@ considerations we refer the reader to
       <t>TBD</t>
       <t>FIXME: Add registry over 'csp' values from Figure 2</t>
       <t>FIXME: Add registry of 'rpk' parameter from section 5.1</t>
+      <t>FIXME: Add registry of 'tktn' values from Figure 3</t>
+
       <section anchor="CoAPOptionNumberRegistration" title="CoAP Option Number Registration">
       	<t>
       		This section registers the "Access-Token" CoAP Option Number [RFC2046] in
