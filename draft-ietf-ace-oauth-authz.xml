@@ -726,7 +726,7 @@ needed, that the content is confidentiality protected.</t>
     
     <t>The OAuth memo further specifies that the AS SHALL use a JSON
     structure in the payload of the response to encode the response
-    parameters.  These parameters include the authorization token, destined
+    parameters.  These parameters include the access token, destined
     for the RS and additional information for the client, such as e.g. the PoP
     key.  We call this information "client information".  If the client is
     using CoAP to communicate with the AS the AS SHOULD use CBOR instead of
@@ -827,10 +827,10 @@ needed, that the content is confidentiality protected.</t>
     parameters that an AS has to provide to the client in order to set up
     the necessary security context.</t>
   
-    <t>The RS may support different ways of receiving the authorization
+    <t>The RS may support different ways of receiving the access
     token from the client (see <xref target="oauth2ProfilesAuthzInfo"/> and
     <xref target="app:optionsOptimizations"/>).  The AS MAY signal the 
-    required method for authorization token transfer in the client information
+    required method for access token transfer in the client information
     by using the "tktr" (token transport) parameter using the values defined  
     in table <xref target="tab:tokenTransportParam"/>.  If no "tktn"
     parameter is present, the client MUST use the default Authorization
@@ -2319,8 +2319,8 @@ considerations we refer the reader to
 	</t>
 	<t hangText="Resource Server">
 	  <list style="symbols">
-	    <t>Expose a way to submit authorization tokens.</t>
-            <t>Process an authorization token.
+	    <t>Expose a way to submit access tokens.</t>
+            <t>Process an access token.
 	      <list style="symbols">
 		<t>Verify the token is from the right AS.</t>
 		<t>Verify that the token applies to this RS.</t>
@@ -2777,11 +2777,46 @@ F:  |<--------+ Header: 2.04 Changed
                can be found in <xref target="ExCOff" />
              </t>
            </section>
---> 
+-->    
         </section>
 
-
-
+    </section>
+    <section anchor="app:changelog" title="Document Updates">
+      <section anchor="app:f1t2" title="Version -00 to -01">
+	<t><list style="symbols">
+	  <t>Changed 5.1. from "Communication Security Protocol" to "Client
+	  Information".</t> 
+	  <t>Major rewrite of 5.1 to clarify the information exchanged between
+	  C and AS in the PoP token request profile for IoT.
+	  <list style="symbols">
+	    <t>Allow the client to indicate preferences for the communication
+	    security protocol.</t>
+	    <t>Defined the term "Client Information" for the additional
+	    information returned to the client in addition to the access
+	    token.</t>
+	    <t>Require that the messages between AS and client are secured,
+	    either with (D)TLS or with COSE_Encrypted wrappers.</t>
+	    <t>Removed dependency on OSCoAP and added generic text about
+	    object security instead.</t>
+	    <t>Defined the "rpk" parameter in the client information to  
+	    transmit the raw public key of the RS from AS to client.</t>
+	    <t>(D)TLS MUST use the PoP key in the handshake (either as
+	    PSK or as client RPK with client authentication).</t>
+	    <t>Defined the use of x5c, x5t and x5tS256 parameters when a
+	    client certificate is used for proof of possession.</t>
+	    <t>Defined "tktn" parameter for signaling for how to tranfer the
+	    access token.</t>
+	  </list></t>
+	  <t>Added 5.2. the CoAP Access-Token option for transfering access
+	  tokens in messages that do not have payload.</t>
+	  <t>5.3.2. Defined success and error responses from the RS when
+	  receiving an access token.</t>
+	  <t>5.6.:Added section giving guidance on how to handle token
+	  expiration in the absence of reliable time.</t>
+	  <t>Appendix B Added list of roles and responsibilities for C, AS and
+	  RS.</t>
+	</list></t>
+      </section>
     </section>
   </back>
 </rfc>
