@@ -81,7 +81,7 @@ Table of Contents
        5.3.1.  Authorization Information Request . . . . . . . . . .  16
        5.3.2.  Authorization Information Response  . . . . . . . . .  16
          5.3.2.1.  Success Response  . . . . . . . . . . . . . . . .  16
-         5.3.2.2.  Error Response  . . . . . . . . . . . . . . . . .  17
+         5.3.2.2.  Error Response  . . . . . . . . . . . . . . . . .  16
      5.4.  Authorization Information Format  . . . . . . . . . . . .  17
      5.5.  CBOR Data Formats . . . . . . . . . . . . . . . . . . . .  17
      5.6.  Token Expiration  . . . . . . . . . . . . . . . . . . . .  17
@@ -831,9 +831,9 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
    gracefully mapped to CoAP.  In case the access token is larger than
    255 bytes it should not be sent as a CoAP option.
 
-   For conveying authorization information to the RS we therefore
-   introduce a new resource to which the PoP tokens can be sent to
-   convey authorization information before the first resource request is
+   For conveying authorization information to the RS a new resource is
+   introduced to which the PoP tokens can be sent to convey
+   authorization information before the first resource request is made
 
 
 
@@ -842,8 +842,8 @@ Seitz, et al.            Expires August 28, 2016               [Page 15]
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
-   made by the client.  This specification calls this resource "/authz-
-   info"; the URI may, however, vary in deployments.
+   by the client.  This specification calls this resource "/authz-info";
+   the URI may, however, vary in deployments.
 
    The RS needs to store the PoP token for when later authorizing
    requests from the client.  The RS is not mandated to be able to
@@ -859,14 +859,13 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 5.3.2.  Authorization Information Response
 
-   The RS may select to not respond to save resources, no response may
-   indicate success or error the client can only know by doing an access
-   request after having passed the token.  If it responds it MUST
-   respond according to success or error response section
+   The RS MUST resonde to a requests to the authorization information
+   resource.  The response MUST match CoAP response codes according to
+   success or error response section
 
 5.3.2.1.  Success Response
 
-   Successful responses SHOULD respond with 2.01 Created to indicate
+   Successful requests MUST be answered with 2.01 Created to indicate
    that a "session" for the PoP Token has been created.  No location
    path is required to be returned.
 
@@ -886,10 +885,11 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
        Figure 5: Authorization Information Resource Success Response
 
+5.3.2.2.  Error Response
 
-
-
-
+   The resource server MUST user appropriate CoAP response code to
+   convey the error to the Client.  For request that are not valid, e.g.
+   unknown Content-Format, 4.00 Bad Request MUST be returned.  If token
 
 
 
@@ -898,10 +898,8 @@ Seitz, et al.            Expires August 28, 2016               [Page 16]
 Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
 
 
-5.3.2.2.  Error Response
-
-   The resource server MUST user appropriate CoAP response code to
-   convey the error to the Client.
+   is not valid, e.g. wrong audience, the RS MUST return 4.01
+   Unauthorized.
 
              Resource
      Client   Server
@@ -946,6 +944,8 @@ Internet-Draft         OAuth 2.0 IoT Authorization         February 2016
    which it can verify the validity of a received access token.  We list
    the possibilities here including what functionality they require of
    the RS.
+
+
 
 
 

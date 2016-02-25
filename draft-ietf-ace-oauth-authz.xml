@@ -886,7 +886,8 @@ needed, that the content is confidentiality protected.</t>
     	information resources MUST at the RS be user when CoAP.
     </t>
   </section>
-  <section anchor="oauth2ProfilesAuthzInfo"
+
+<section anchor="oauth2ProfilesAuthzInfo"
            title="Authorization Information Resource at the Resource Server">
     <t>A consequence of allowing the use of CoAP as web transfer protocol
       is that we cannot rely on HTTP specific mechanisms, such as
@@ -894,8 +895,8 @@ needed, that the content is confidentiality protected.</t>
       necessarily gracefully mapped to CoAP.  In case the access token is
       larger than 255 bytes it should not be sent as a CoAP option.
     </t>
-    <t>For conveying authorization information to the RS we therefore
-      introduce a new resource to which the PoP tokens can be sent to
+    <t>For conveying authorization information to the RS a new resource is 
+      introduced to which the PoP tokens can be sent to
       convey authorization information before the first resource request is made
       by the client.  This specification calls this resource "/authz-info"; the 
       URI may, however, vary in deployments.
@@ -916,15 +917,13 @@ needed, that the content is confidentiality protected.</t>
     </section>
       <section anchor="authzInfoResourceResponse" 
                title="Authorization Information Response">
-        <t>The RS may select to not respond to save resources, 
-          no response may indicate success or error the client 
-          can only know by doing an access request after having 
-          passed the token. If it responds it MUST respond 
-          according to success or error response section</t>
+        <t>The RS MUST resonde to a requests to the authorization 
+          information resource. The response MUST match CoAP response 
+          codes according to success or error response section</t>
 
       <section anchor="authzInfoResourceSuccessResponse"
                title="Success Response">
-        <t>Successful responses SHOULD respond with 2.01 
+        <t>Successful requests MUST be answered with 2.01 
           Created to indicate that a "session" for the PoP 
           Token has been created. No location path is 
           required to be returned.
@@ -955,6 +954,9 @@ B:  |<--------+ Header: 2.01 Created
                title="Error Response">
         <t>The resource server MUST user appropriate CoAP 
           response code to convey the error to the Client.
+          For request that are not valid, e.g. unknown Content-Format, 
+          4.00 Bad Request MUST be returned. If token is not valid, 
+          e.g. wrong audience, the RS MUST return 4.01 Unauthorized.
         </t>
         <t>
           <figure align="center" anchor="fig:clientRSAuthzInfoError"
