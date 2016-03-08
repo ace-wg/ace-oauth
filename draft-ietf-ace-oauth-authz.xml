@@ -720,7 +720,7 @@ needed, that the content is confidentiality protected.</t>
     token request.  To avoid large headers if the client uses CoAP to
     communicate with the AS, this memo specifies the following alternative for
     submitting client request parameters to the AS: The client encodes the
-    parameters of it's request as a CBOR map and submits that map as the
+    parameters of its request as a CBOR map and submits that map as the
     payload of the client request.  The Content-format MUST be
     application/cbor in that case.</t>
     
@@ -730,13 +730,15 @@ needed, that the content is confidentiality protected.</t>
     for the RS and additional information for the client, such as e.g. the PoP
     key.  We call this information "client information".  If the client is
     using CoAP to communicate with the AS the AS SHOULD use CBOR instead of
-    JSON for encoding it's response.  The client can explicitly request this
-    encoding by using the CoAP Accept option.</t>
+    JSON for encoding its response.  The client can explicitly request this
+    encoding by setting the CoAP Accept option in the access token request to
+    "application/cbor".</t>
 
     <t>If the channel between client and AS is not secure, the whole messages 
     from client to AS and vice-versa MUST be wrapped in JWEs 
     <xref target="RFC7516"/> or COSE_Encrypted structures <xref 
-    target="I-D.ietf-cose-msg"/>.</t>
+    target="I-D.ietf-cose-msg"/>.  The client can explicitly request COSE
+    wrapping by setting the CoAP Accept option to "application/cose".</t>
 
     <t>The client may be a constrained device and could therefore be limited
     in the communication security protocols it supports.  It can therefore
@@ -748,17 +750,17 @@ needed, that the content is confidentiality protected.</t>
     target="I-D.ietf-oauth-pop-key-distribution"/> describes in section 6
     how the client can request specific types of keys (symmetric vs. 
     asymmetric) and proof-of-possession algorithms in the PoP token
-    request.</t>
+    request.  These are used as well in this specification.</t>
 
     <t>The client and the RS might not have any prior knowledge about each 
     other, therefore the AS needs to help them to establish a security context 
-    or at least a key.  The AS does this by indicating communication security 
-    protocol ("csp") and additional key parameters in the client
-    information.</t>
+    or at least a common key.  The AS does this by indicating the
+    communication security  protocol parameter "csp" and additional key
+    parameters in the client information.</t>
     
-    <t>The "csp" parameter specifies how client and RS communication is going to
-    be secured based on returned keys.  Currently defined values are "TLS", 
-    "DTLS", "ObjectSecurity" with the encodings specified in
+    <t>The csp parameter specifies how client and RS communication is going to
+    be secured based on the keys provided by the AS.  Currently defined values
+    are "TLS",  "DTLS", "ObjectSecurity" with the encodings specified in
     <xref target="tab:cspParam"/>.  Depending on the value different
     additional parameters become mandatory.</t>
     
@@ -777,7 +779,7 @@ needed, that the content is confidentiality protected.</t>
     </figure></t>
 
     <t>CoAP specifies three security modes of DTLS: PreSharedKey, RawPublicKey
-    and Certificate.  The same modes may be used with TLS.  The client is to
+    and Certificate.  The same modes can be used with TLS.  The client is to
     infer from the type of key provided, which (D)TLS mode the RS supports as
     follows.</t>
 
@@ -789,14 +791,21 @@ needed, that the content is confidentiality protected.</t>
     <t>The client MUST use the PoP key as DTLS pre-shared key.  The client 
     MUST furthermore use the "kid" parameter provided as part of the 
     JWK/COSE_Key as the psk_identity in the DTLS handshake <xref 
-    target="RFC4279"/>.</t>
+    target="RFC4279"/>.  How the AS and the RS determine the values of the kid
+    parameter is out of scope for this specification, but the AS MUST use a
+    kid that makes it possible for the RS to select the correct key.</t>
     
     <t>If RawPublicKey mode is used, the AS MUST provide the client with 
     the RS's raw public key using the "rpk" parameter defined in the
     following.  This parameter MUST contain a JWK or a COSE_Key.  The client
     MUST provide a raw public key to the AS, and the AS MUST use this key as
     PoP key in the token.  The token MUST thus use asymmetric keys for the 
-    proof-of-possession.</t>
+    proof-of-possession.  Note that the PoP key distribution specification
+    <xref target="I-D.ietf-oauth-pop-key-distribution"/> defines how the
+    client can transfer its key as a JWK datastructure.  This specification
+    RECOMMENDS to use a COSE_Key structure instead.  This specification refers
+    to section 9.1.3.2.1. of CoAP <xref target="RFC7252"/> for recommendations
+    on how to generate the kid for a raw public key.</t>
     
     <t>In order to get the proof-of-possession a RS configured to use this
     mode together with PoP tokens MUST require client authentication in the 
