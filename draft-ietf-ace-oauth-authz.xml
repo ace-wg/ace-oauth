@@ -9,7 +9,6 @@
 <!ENTITY RFC2119 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC4279 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4279.xml">
-<!ENTITY RFC4680 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4680.xml">
 <!ENTITY RFC4949 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4949.xml">
 <!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
@@ -836,30 +835,6 @@ needed, that the content is confidentiality protected.</t>
     parameters that an AS has to provide to the client in order to set up
     the necessary security context.</t>
   
-    <t>The RS may support different ways of receiving the access
-    token from the client (see <xref target="oauth2ProfilesAuthzInfo"/> and
-    <xref target="app:optionsOptimizations"/>).  The AS MAY signal the 
-    required method for access token transfer in the client information
-    by using the "tktr" (token transport) parameter using the values defined  
-    in table <xref target="tab:tokenTransportParam"/>.  If no "tktn"
-    parameter is present, the client MUST use the default Authorization
-    Information resource as  specified in <xref
-    target="oauth2ProfilesAuthzInfo"/>.</t>
-
-    <t><figure align="center" anchor="tab:tokenTransportParam"
-               title="Table of 'tktn' parameter value encodings for
-		      Client Information.">
-      <artwork align="left"><![CDATA[
-       /-----------+--------------+-------------------------\
-       | Value     | Major Type   | Key                     |
-       |-----------+--------------+-------------------------|
-       | 0         | 0            | POST to /authz-info     |
-       | 1         | 0            | RFC 4680                |
-       | 2         | 0            | CoAP option "Ref-Token" |
-       \-----------+--------------+-------------------------/
-      ]]></artwork>
-    </figure></t>
-
     <t>Table <xref target="tab:cspSummary"/> summarizes the additional
     parameters defined here for use by the client or the AS in the
     PoP token request protocol.</t>
@@ -875,16 +850,11 @@ needed, that the content is confidentiality protected.</t>
    | x5c       | AS           | RS's X.509 certificate chain     |
    | x5t       | AS           | RS's SHA-1 cert thumb print      |
    | x5t#S256  | AS           | RS's SHA-256 cert thumb print    |
-   | tktn      | AS           | Mode of token transfer C -> RS   |
    \-----------+--------------+----------------------------------/
       ]]></artwork>
     </figure></t>
+  </section>
 
-
-
-
-
-</section>
   <section anchor="oauth2ProfilesCoAPAccessTokenOption"
            title="CoAP Access-Token Option">
     <t> OAuth 2.0 access tokens are usually transferred as authorization 
@@ -2133,8 +2103,6 @@ considerations we refer the reader to
 
       &I-D.ietf-core-block;
 
-      &RFC4680;
-
       &RFC4949;
 
       &RFC5246;
@@ -2357,67 +2325,6 @@ considerations we refer the reader to
           </list>
 	</t>
       </list></t>
-    </section>
-
-    <section anchor="app:optionsOptimizations" title="Optimizations">
-      <t>This section sketches some potential optimizations to the presented
-      solution.</t>
-
-      <t><list style="hanging">
-      <t hangText="Access token in DTLS handshake"><vspace blankLines="1"/>
-      In the case of CSP=DTLS/TLS, the access token provisioning exchange in
-      step C of the protocol may be embedded in the security
-      handshake.  Different solutions are possible, where one standardized
-      method would be the use of the TLS supplemental data extension
-      <xref target="RFC4680"/> for transferring the access token.</t>
-
-     <t hangText="Reference token and introspection"><vspace blankLines="1"/>
-     In case of introspection it may be beneficial to utilize access tokens
-     which are not self-contained (also known as "reference tokens")
-     that are used to lookup detailed information about the authorization.
-     The RS uses the introspection message exchange not only for validating
-     token claims, but also for obtaining claims that potentially were not
-     known at the time when the access token was issued.
-
-     <vspace blankLines="1"/>A reference token can be made much more compact
-     than a self-contained token, since it does not need to contain any of 
-     claims that it represents.  This could be very useful in particular if the 
-     client is constrained and offline most of the time.</t>
-
-     <t hangText="Reference token in CoAP option"><vspace blankLines="1"/>
-     While large access tokens must be sent in CoAP payload, if the access
-     token is known to be of a certain limited size, for example in the case of
-     a reference token, then it would be favorable to combine the access token
-     provisioning request with the resource request to the RS.
-
-     <vspace blankLines="1"/>One way to achieve this is to define a new CoAP
-     option for carrying reference tokens, called "Ref-Token" as shown in the
-     example in <xref target="fig:ref-token-optimization"/>.</t>
-
-      <t><figure align="center" anchor="fig:ref-token-optimization"
-                 title="Reference Token in CoAP Option">
-         <artwork align="left"><![CDATA[
-           Resource
-  Client    Server
-    |         |
-C:  +-------->| Header: PUT (Code=0.02)
-    | PUT     | Ref-Token:SlAV32hkKG
-    |         | Object-Security:
-    |         |    <seq>,<cid>,[Uri-Path:"lock", 1],<tag>)
-    |         |
-    .         .
-    .         .
-    .         .
-    |         |
-F:  |<--------+ Header: 2.04 Changed
-    | 2.04    | Object-Security:
-    |         |    (<seq>,<cid>,,<tag>)
-    |         |
-                    ]]></artwork>
-                </figure>
-            </t>
-        </list>
-      </t>
     </section>
 
     <section anchor="app:cborMappingsForOAuth2Properties"
