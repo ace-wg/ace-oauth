@@ -1028,947 +1028,6 @@ B:  |<--------+ Header: 4.01 Unauthorized
 
 </section>
 
-<!-- ***************************************************** -->
-
-      <section anchor="options" title="Deployment Scenarios">
-        <t>There is a large variety of IoT deployments, as is indicated in 
-        <xref target="constraints"/>, and this section highlights common 
-        variants.  This section is not normative but illustrates how the
-        framework can be applied.
-        </t>
-
-        <t>For each of the deployment variants there are a number of possible
-        security setups between clients, resource servers and authorization
-        servers.  The main focus in the following subsections is on how 
-        authorization of a client request for a resource hosted by a RS is 
-        performed.  This requires us to also consider how these requests and 
-        responses between the clients and the resource servers are secured. 
-        </t>
-
-        <t>The security protocols between other pairs of nodes in the
-        architecture, namely client-to-AS and RS-to-AS, are not detailed in 
-        these examples.  Different security protocols may be used on transport
-        or application layer. 
-
-<!--  TLS/DTLS is one option, another one is object secure CoAP
-        (OSCOAP) <xref target="I-D.selander-ace-object-security"/>.  These
-        protocols can be used with different kinds of keys.  For these
-        interactions it is assumed in this document that keys are
-        pre-established, meaning that either symmetric keys, public keys, or
-        trust anchors are provisioned to the actors.
---> 
-        </t>
-
-        <t>Note: We use the CBOR
-        diagnostic notation for examples of requests and responses.</t>
-
-<!-- ************************** -->
-
-
- <!-- ************************** -->
-<section anchor="bothOffline" title="Client and Resource Server are Offline">
-  <t>In this scenario we consider the case where both the resource server and the client are offline, i.e., they are not connected to the AS at the time of the resource request. 
-   This access procedure
-  involves steps A, B, C, and F of <xref target="fig:protocolFlow"/>, but
-  assumes that step A and B have been carried out during a phase when the client
-  had connectivity to AS.
-  </t>
-
-  <t>Since the resource server must be able to verify the access token locally,
-  self-contained access tokens must be used.</t>
-
-<!--  <t>The access token's Audience claim ("aud")
-  <xref target="I-D.ietf-oauth-pop-key-distribution"/> MUST specify an audience
-  that includes the RS.  The RS MUST be able to confirm this locally, e.g.
-  through a locally configured list of audience identifiers.</t>
-
-
-  <section anchor="ExBothOff" title="Example">
---> 
-    <t>This example shows the interactions between a client, the
-    authorization server and a temperature sensor acting as a resource server.  Message
-    exchanges A and B are shown in <xref target="fig:BothOffline"/>.</t>
-
-    <t><list style="hanging">
-      <t>A: The client first generates a public-private key pair used for
-      communication security with the RS. <!-- Alternatively, the client may be
-      pre-provisioned with a key pair, or the task outsourced to a trusted party
-      such as the CAS (<xref target="I-D.ietf-ace-actors"/>).--> </t>
-
-      <t>The client sends the POST request to /token at AS.  The request
-      contains the public key of the client and the Audience parameter set to
-      "tempSensorInLivingRoom", a value that the temperature sensor
-      identifies itself with.  The AS evaluates the request and authorizes the
-      client to access the resource.</t>
-
-      <t>B: The AS responds with a PoP token and client information.  The PoP
-      token contains the public key of the client, while the client information
-      contains the public key of the RS.  For communication security
-      this example uses DTLS with raw public keys between the client and the RS.</t>
-
-      <t>Note: In this example we assume that the client knows what resource it
-      wants to access, and is therefore able to request specific
-      audience and scope claims for the access token.</t>
-    </list></t>
-
-    <t><figure align="center" anchor="fig:BothOffline"
-               title="Token Request and Response Using Client Credentials.">
-        <artwork align="left"><![CDATA[
-         Authorization
-  Client    Server
-    |         |
-    |         |
-A:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path:"token"
-    |         | Payload: <Request-Payload>
-    |         |
-B:  |<--------+ Header: 2.05 Content
-    |         | Content-Type: application/cbor
-    | 2.05    | Payload: <Response-Payload>
-    |         |
-        ]]></artwork>
-    </figure></t>
-
-    <t>The information contained in the Request-Payload and the
-    Response-Payload is shown in <xref target="fig:bothOfflineReq"/>.
-
-     <figure align="center" anchor="fig:bothOfflineReq"
-             title="Request and Response Payload Details.">
-      <artwork align="left"><![CDATA[
-Request-Payload :
-{
-  "grant_type" : "client_credentials",
-  "aud" : "tempSensorInLivingRoom",
-  "client_id" : "myclient",
-  "client_secret" : "qwerty"
-}
-
-Response-Payload :
-{
-  "access_token" : b64'SlAV32hkKG ...',
-  "token_type" : "pop",
-  "csp" : "DTLS",
-  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-}
-        ]]></artwork>
-    </figure></t>
-
-    <t>The content of the "key" parameter and the access token are shown in
-    <xref target="fig:BothcborMappingValuesAsymmetricKeyFormat"/> and
-    <xref target="fig:BothcborMappingValueAsymmetricCWT"/>.</t>
-
-    <t><figure align="center"
-               anchor="fig:BothcborMappingValuesAsymmetricKeyFormat"
-               title="Public Key of the RS.">
-        <artwork align="left"><![CDATA[
-{
-  "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
-  "kty" : "EC",
-  "crv" : "P-256",
-  "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
-  "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
-}
-        ]]></artwork>
-    </figure></t>
-
-    <t><figure align="center"
-               anchor="fig:BothcborMappingValueAsymmetricCWT"
-               title="Access Token including Public Key of the Client.">
-        <artwork align="left"><![CDATA[
-{
-  "aud" : "tempSensorInLivingRoom",
-  "iat" : "1360189224",
-  "cnf" : {
-    "jwk" : {
-      "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
-      "kty" : "EC",
-      "crv" : "P-256",
-      "x" : b64'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
-      "y" : b64'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0'
-    }
-  }
-}
-        ]]></artwork>
-    </figure></t>
-
-    <t>Messages C and F are shown in
-    <xref target="fig:BothOfflinePostAccessTokenAsymmetric"/> -
-    <xref target="fig:BothOfflineDTLSRequestAndResponse"/>.
-
-    <list style="hanging">
-      <t>C: The client then sends the PoP token to the /authz-info resource at
-      the RS.  This is a plain CoAP request, i.e. no DTLS/OSCOAP between 
-      client and RS, since the token is integrity protected between AS and 
-      RS.  The RS verifies that the PoP token was created by a known and trusted 
-      AS, is valid, and responds to the client.  The RS caches the security 
-      context together with authorization information about this client 
-      contained in the PoP token.</t>
-
-      <t>The client and resource server run the DTLS handshake using the raw 
-      public keys established in step B and C.</t>
-
-      <t>The client sends the CoAP request GET to /temperature on RS over
-      DTLS.  The RS verifies that the request is authorized.</t>
-
-      <t>F: The RS responds with a resource representation over DTLS.</t>
-    </list></t>
-
-    <t><figure align="center" anchor="fig:BothOfflinePostAccessTokenAsymmetric"
-               title="Access Token provisioning to RS">
-      <artwork align="left"><![CDATA[
-           Resource
- Client     Server
-    |         |
-C:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path:"authz-info"
-    |         | Payload: SlAV32hkKG ...
-    |         |   (access token)
-    |         |
-    |<--------+ Header: 2.04 Changed
-    | 2.04    |
-    |         |
-      ]]></artwork>
-    </figure></t>
-
-    <t><figure align="center" anchor="fig:BothOfflineDTLSRequestAndResponse"
-               title="Resource Request and Response protected by DTLS.">
-      <artwork align="left"><![CDATA[
-           Resource
- Client     Server
-    |         |
-    |<=======>| DTLS Connection Establishment
-    |         |   using Raw Public Keys
-    |         |
-    |         |
-    +-------->| Header: GET (Code=0.01)
-    | GET     | Uri-Path: "temperature"
-    |         |
-    |         |
-    |         |
-F:  |<--------+ Header: 2.05 Content
-    | 2.05    | Payload: {"t":"22.7"}
-    |         |
-      ]]></artwork>
-    </figure></t>
-
-</section>
-
-
-
-
-        <section anchor="rsOffline" title="Resource Server Offline">
-          <t>In this deployment scenario we consider the case of an RS that may 
-          not be able to access the AS at the time it receives an access request
-          from a client.  We denote this case "RS offline", it involves steps A, 
-          B, C and F of <xref target="fig:protocolFlow"/>.
-          </t>
-          <t>
-            If the RS is offline, then it must be possible for the RS to locally
-            validate the access token. This requires self-contained tokens to be 
-            used.</t>
-<!-- 
-          <t>
-            The access token's Audience claim
-            ("aud") <xref target="I-D.ietf-oauth-pop-key-distribution"/>
-            MUST specify an audience that includes the RS.  The RS MUST be
-            able to confirm this locally e.g. through a locally configured
-	    list of audience identifiers.
-          </t>
---> 
-          <t>
-            The validity time for the token should always be chosen as short as 
-	    possible to reduce the possibility that a token contains out-of-date
-            authorization information. Therefore the  value for the Expiration 
-            Time claim ("exp") should be set only slightly larger than the value
-            for the Issuing Time claim  ("iss").  A constrained RS with means to
-            reliably measure time must validate the expiration time of the 
-            access token.
-          </t>
-
-            <t>The following example shows interactions between a client
-            (air-conditioning control unit), an offline resource server 
-            (temperature sensor)and an authorization server.  The message 
-            exchanges A and B are shown in <xref target="fig:rsOffline"/>.
-            </t>
-
-            <t>
-              <list style="hanging">
-                <t>
-                  A: The client sends the request POST to /token at AS.  The
-                  request contains the Audience parameter set to
-                  "tempSensor109797", a value that the temperature sensor
-                  identifies itself with.  The scope the client wants the AS to
-                  authorize the access token for is "owner", which means that 
-                  the token can be used to both read temperature data and
-                  upgrade the firmware on the RS.  The AS evaluates the request
-                  and authorizes the client to access the resource.
-                </t>
-
-                <t>
-                  B: The AS responds with a PoP token and client information.
-                  The PoP token is wrapped in a COSE message, object secured
-                  content from AS to RS.  The client information contains
-                  a symmetric key.  In this case communication security between
-                  C and RS is OSCOAP with an authenticated encryption
-                  algorithm.  The client derives two unidirectional security
-                  contexts to use with the resource request and response
-                  messages.  The access token includes the claim "aif" with the
-                  authorized access that an owner of the temperature device can
-                  enjoy.  The "aif" claim, issued by the AS, informs the RS that
-                  the owner of the access token, that can prove the possession
-                  of a key is authorized to make a GET request against the
-                  /tempC resource and a POST request on the /firmware resource.
-                </t>
-              </list>
-            </t>
-
-
-            <t><figure align="center" anchor="fig:rsOffline"
-                       title="Token Request and Response">
-                <artwork align="left"><![CDATA[
-
-         Authorization
- Client     Server
-    |         |
-    |         |
-A:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path: "token"
-    |         | Payload: <Request-Payload>
-    |         |
-B:  |<--------+ Header: 2.05 Content
-    |         | Content-Type: application/cbor
-    | 2.05    | Payload: <Response-Payload>
-    |         |
-    |         |
-            ]]>
-              </artwork>
-            </figure></t>
-
-            <t>The information contained in the Request-Payload and the
-            Response-Payload is shown in <xref target="fig:rsOfflineReq"/>.
-
-              <figure align="center" anchor="fig:rsOfflineReq"
-                       title="Request and Response Payload for RS offline">
-                <artwork align="left"><![CDATA[
-
-Request-Payload:
-{
-  "grant_type" : "client_credentials",
-  "client_id" : "myclient",
-  "client_secret" : "qwerty",
-  "aud" : "tempSensor109797",
-  "scope" : "owner"
-}
-
-Response-Payload:
-{
-  "access_token": b64'SlAV32hkKG ...',
-  "token_type" : "pop",
-  "csp" : "OSCOAP",
-  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-}
-                ]]></artwork>
-              </figure></t>
-
-              <t><xref target="fig:cborMappingValuesCWTsymmetricKey"/>
-              shows examples of the key and the access_token parameters
-	      of the Response-Payload, decoded to CBOR.</t>
- <t>
-   <figure align="center" anchor="fig:cborMappingValuesCWTsymmetricKey"
-           title="Access Token and symmetric key from the Response-Payload">
-     <artwork align="left"><![CDATA[
-access_token:
-{
-  "aud" : "tempSensor109797",
-  "exp" : 1311281970,
-  "iat" : 1311280970,
-  "aif" :  [["/tempC", 0], ["/firmware", 2]],
-  "cnf" : {
-    "ck":b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
-    }
- }
-
-key:
-{
-  "alg" : "AES_128_CCM_8",
-  "kid" : b64'U29tZSBLZXkgSWQ',
-  "k" : b64'ZoRSOrFzN_FzUA5XKMYoVHyzff5oRJxl-IXRtztJ6uE'
-}
-     ]]></artwork>
-   </figure>
- </t>
-
-
-      <t>
-        Message exchanges C and F are shown in
-        <xref target="fig:rsOfflinePostAccessTokenSymmetric"/> and
-        <xref target="fig:rsOfflineOSCOAPRequestAndResponse"/>.
-        <list style="hanging">
-          <t>C: The client then sends the PoP token to the /authz-info resource
-          in the RS.  This is a plain CoAP request, i.e. no DTLS/OSCOAP
-          between client and RS, since the token is integrity protected 
-          between AS and RS.  The RS verifies that the PoP token was created by a
-          known and trusted AS, is valid, and responds to the client.  The RS 
-          derives and caches the security contexts together with authorization 
-          information about this client contained in the PoP token.
-          </t>
-          <t>
-          The client sends the CoAP requests GET to /tempC on the RS using
-          OSCOAP.  The RS verifies the request and that it is authorized.</t>
-          <t>
-          F: The RS responds with a protected status code using OSCOAP.  The
-          client verifies the response.
-          </t>
-        </list>
-      </t>
-
-            <t><figure align="center"
-                       anchor="fig:rsOfflinePostAccessTokenSymmetric"
-                       title="Access Token provisioning to RS">
-               <artwork align="left"><![CDATA[
-           Resource
-  Client    Server
-    |         |
-C:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path:"authz-info"
-    |         | Payload: <Access Token>
-    |         |
-    |         |
-    |<--------+ Header: 2.04 Changed
-    | 2.04    |
-    |         |
-    |         |
-                ]]></artwork>
-              </figure>
-        </t>
-
-<t>
-    <figure align="center" anchor="fig:rsOfflineOSCOAPRequestAndResponse"
-            title="Resource request and response protected by OSCOAP">
-        <artwork align="left"><![CDATA[
-            Resource
-  Client     Server
-    |         |
-    +-------->| Header: GET (Code=0.01)
-    | GET     | Object-Security:
-    |         |   (<seq>,<cid>,[Uri-Path:"tempC"],<tag>)
-    |         |
-F:  |<--------+ Header: 2.05 Content
-    | 2.05    | Object-Security:
-    |         |   (<seq>,<cid>,[22.7 C],<tag>)
-    |         |
-        ]]></artwork>
-      </figure>
-
-     In <xref target="fig:rsOfflineOSCOAPRequestAndResponse"/>
-     the GET request contains an Object-Security option and an indication of the
-     content of the COSE object: a sequence number ("seq", starting from 0), a
-     context identifier ("cid") indicating the security context, the ciphertext
-     containing the encrypted CoAP option identifying the resource, and the
-     Message Authentication Code ("tag") which also covers the Code in the CoAP
-     header.
-     <vspace blankLines="1"/>
-     The Object-Security ciphertext in the response [22.7 C] represents an
-     encrypted temperature reading. (The COSE object is actually carried in the
-     CoAP payload when possible but that is omitted to simplify notation.)
-</t>
-</section>
-
-
-
-
- <!-- ************************** -->
-
-<section anchor="cOffline" title="Token Introspection with an Offline Client">
-
-  <t>In this deployment scenario we assume that a client is not be able to 
-  access the AS at the time of the access request.  Since the RS is, however, 
-  connected to the back-end infrastructure it can make use of token 
-  introspection.  This access procedure involves steps A-F of 
-  <xref target="fig:protocolFlow"/>, but assumes steps A and B have been
-  carried out during a phase when the client had connectivity to AS.
-  </t>
-
-  
-  <t>Since the client is assumed to be offline, at least for a certain period of 
-  time, a pre-provisioned access token has to be long-lived.  The resource 
-  server may use its online connectivity to validate the access token with the
-  authorization server, which is shown in the example below.</t>
-
-<!--  <t>The access token's Audience claim ("aud")
-  <xref target="I-D.ietf-oauth-pop-key-distribution"/> MUST specify an audience
-  that includes the RS.</t>
--->
-    <t>In the example we show the interactions between an offline client
-    (key fob), a resource server (online lock), and an authorization server.  We
-    assume that there is a provisioning step where the client has access to the
-    AS.  This corresponds to message exchanges A and B which are shown in
-    <xref target="fig:cOffline"/>.
-    </t>
-
-    <t>
-      <list style="hanging">
-        <t>A: The client sends the request using POST to /token at AS.  The
-        request contains the Audience parameter set to  "lockOfDoor4711", a
-        value the that the online door in question identifies itself with.  The
-        AS generates an access token as on opaque string, which it can match to
-        the specific client, a targeted audience and a symmetric key security
-        context.</t>
-
-        <t>B: The AS responds with the an access token and client information,
-        the latter containing a symmetric key.
-        Communication security between C and RS will be OSCOAP with 
-        authenticated encryption.
-        </t>
-      </list>
-    </t>
-
-    <t><figure align="center" anchor="fig:cOffline"
-               title="Token Request and Response using Client Credentials.">
-      <artwork align="left"><![CDATA[
-
-         Authorization
- Client     Server
-    |         |
-    |         |
-A:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path:"token"
-    |         | Payload: <Request-Payload>
-    |         |
-B:  |<--------+ Header: 2.05 Content
-    |         | Content-Type: application/cbor
-    | 2.05    | Payload: <Response-Payload>
-    |         |
-    ]]></artwork>
-    </figure></t>
-
-    <t>Authorization consent from the resource owner can be pre-configured, 
-    but it can also be provided via an interactive flow with the resource 
-    owner.  An example of this for the key fob case could be that the 
-    resource owner has a connected car, he buys a generic key that he 
-    wants to use with the car.  To authorize the key fob he connects it 
-    to his computer that then provides the UI for the device.  After 
-    that OAuth 2.0 implicit flow is used to authorize the key for 
-    his car at the the car manufacturers AS.</t>
-
-    <t>The information contained in the Request-Payload and the
-    Response-Payload is shown in <xref target="fig:cOfflineReq"/>.
-
-     <figure align="center" anchor="fig:cOfflineReq"
-             title="Request and Response Payload for C offline">
-      <artwork align="left"><![CDATA[
-Request-Payload:
-{
-  "grant_type" : "token",
-  "aud" : "lockOfDoor4711",
-  "client_id" : "myclient",
-}
-
-Response-Payload:
-{
-  "access_token" : b64'SlAV32hkKG ...'
-  "token_type" : "pop",
-  "csp" : "OSCOAP",
-  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-}
-      ]]></artwork>
-    </figure></t>
-
-    <t>The access token in this case is just an opaque string referencing
-   the authorization information at the AS.</t>
-
-    <t><list style="hanging">
-        <t>C: Next, the client POSTs the access token to the /authz-info
-        resource in the RS.  This is a plain CoAP request, i.e. no 
-        DTLS/OSCOAP between client and RS.  Since the token is an opaque string,
-        the RS cannot verify it on its own, and thus defers to respond the 
-        client with a status code until step E and only acknowledges on the CoAP
-        message layer (indicated with a dashed line).</t>
-    </list></t>
-
-    <t><figure align="center" anchor="fig:cOfflinePostAccessTokenAsymmetric"
-               title="Access Token provisioning to RS">
-      <artwork align="left"><![CDATA[
-            Resource
-  Client     Server
-    |         |
-C:  +-------->| Header: POST (T=CON, Code=0.02
-    | POST    | Token 0x2a12)
-    |         | Uri-Path:"authz-info"
-    |         | Payload: SlAV32hkKG ...
-    |         |   (access token)
-    |         |
-    |<- - - - + Header: T=ACK
-    |         |
-      ]]></artwork>
-    </figure></t>
-<t>
-    <list style="hanging">
-        <t>D: The RS forwards the token to the /introspect
-        resource on the AS.  Introspection assumes a secure connection
-        between the AS and the RS, e.g. using DTLS or OSCOAP,  which
-	is not detailed in this example.
-        </t>
-
-        <t>E: The AS provides the introspection response containing claims
-	about the token.  This includes the confirmation key (cnf) claim
-        that allows the RS to verify the client's proof of possession in
-	step F.</t>
-
-        <t>After receiving message E, the RS responds to the client's POST in
-        step C with Code 2.04 (Changed), using CoAP Token 0x2a12.  This step is
-        not shown in the figures.</t>
-
-        <t><figure align="center" anchor="fig:cOfflineIntrospection"
-            title="Token Introspection for C offline">
-            <artwork align="left"><![CDATA[
-Resource Authorization
- Server     Server
-    |          |
-D:  +--------->| Header: POST (Code=0.02)
-    |  POST    | Uri-Path: "introspect"
-    |          | Payload: <Request-Payload>
-    |          |
-E:  |<---------+ Header: 2.05 Content
-    |  2.05    | Content-Type: application/cbor)
-    |          | Payload: <Response-Payload>
-    |          |
-            ]]></artwork>
-        </figure></t>
-
-        <t>The information contained in the Request-Payload and the
-        Response-Payload is shown in <xref target="fig:cOfflineIntroReq"/>.
-
-        <figure align="center" anchor="fig:cOfflineIntroReq"
-                title="Request and Response Payload for Introspection">
-          <artwork align="left"><![CDATA[
-Request-Payload:
-{
-  "token" : b64'SlAV32hkKG...',
-  "client_id" : "myRS",
-  "client_secret" : "ytrewq"
-}
-
-Response-Payload:
-{
-  "active" : true,
-  "aud" : "lockOfDoor4711",
-  "scope" : "open, close",
-  "iat" : 1311280970,
-  "cnf" : {
-    "ck" : b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
-  }
-}
-          ]]></artwork>
-        </figure></t>
-      </list>
-  </t>
-
-<t>
-    <list style="hanging">
-        <t>
-            The client sends the CoAP requests PUT 1 (= "close the lock") to
-            /lock on RS using OSCOAP with a security context derived from
-            the key supplied in step B.  The RS verifies the request with the
-	    key supplied in step E and that it is authorized by the token
-            supplied in step C.
-        </t>
-        <t>
-            F: The RS responds with a protected status code using OSCOAP.  The
-            client verifies the response.
-        </t>
-    </list>
-</t>
-        <t><figure align="center" anchor="fig:cOfflineDTLSRequestAndResponse"
-            title="Resource request and response protected by OSCOAP">
-            <artwork align="left"><![CDATA[
-           Resource
-  Client    Server
-    |         |
-    +-------->| Header: PUT (Code=0.03)
-    | PUT     | Object-Security:
-    |         |    (<seq>,<cid>,[Uri-Path:"lock", 1],<tag>)
-    |         |
-F:  |<--------+ Header: 2.04 Changed
-    | 2.04    | Object-Security:
-    |         |    (<seq>,<cid>,,<tag>)
-    |         |
-            ]]></artwork>
-        </figure></t>
-
-        <t>
-        The Object-Security ciphertext [...] of the PUT request contains
-        CoAP options that are encrypted, as well as the payload value '1' which
-        is the value of PUT to the door lock.</t>
-
-        <t> In this example there is no ciphertext of the PUT
-        response, but "tag" contains a MAC which covers the request sequence
-        number and context identifier as well as the Code which allows the
-        Client to verify that this actuator command was well received (door
-        is locked).
-        </t>
-    </section>
-
-
- <!-- ************************** -->
-
-<section anchor="allOnline" title="Always-On Connectivity">
-  <t>A popular deployment scenario for IoT devices is to have them always be 
-  connected to the Internet so that they can be reachable to receive 
-  commands.  As a continuation from the previous scenarios we assume that both 
-  the client and the RS are online at the time of the access request.</t>
-
-  <t>If the client and the resource server are online then the AS should be
-  configured to issue short-lived access tokens for the resource to the
-  client.  The resource server must then validate self-contained access tokens 
-  or otherwise must use token introspection to obtain the up-to-date claim 
-  information.  If transmission costs are high or the channel is lossy, the CWT 
-  token format <xref target="I-D.wahlstroem-ace-cbor-web-token"/> may be used 
-  instead of a JWT to reduce the volume of network traffic.  In terms of
-  messaging this deployment scenario uses the patterns described in the 
-  previous sub-sections. </t>
-
-  <t>Note that despite the lack of connectivity constraints there may still be 
-  other restrictions a deployment may face.</t>
-</section>
-
-<!-- ************************** -->
-
-<section anchor="rsKindaOffline" title="Token-less Authorization">
-
-    <t>In this deployment scenario we consider the case of an RS which is 
-    severely energy constrained, sleeps most of the time and need to have a 
-    tight messaging budget.  It is not only infeasible to access the AS at the 
-    time of the access request, as in the "RS offline" case 
-    <xref target="rsOffline"/>, it must be offloaded as much message 
-    communication as possible.</t>
-
-    <t>OAuth 2.0 is already an efficient protocol in terms of message exchanges
-    and can be further optimized by compact encodings of tokens.  The scenario
-    illustrated in this section goes beyond that and removes the access
-    tokens from the protocol.  This may be considered a degenerate case of OAuth
-    2.0 but it allows us to do two things:</t>
-    
-    <t>
-        <list style="numbers">
-        <t>The common case where authorization is performed by means of
-            authentication fits into the same protocol framework.  Authentication
-            protocol and key is specified by client information, and access 
-            token is omitted. </t>
-        <t>Authentication, and thereby authorization, may even be implicit,
-            i.e. anyone with access to the right key is authorized to access the
-            protected resource.</t>
-    </list>
-        </t>
-
-
-    <t>In case 2., the RS does not need to receive any
-    message from the client, and therefore enables offloading recurring
-    resource request and response processing to a third party, such as a
-    Message Broker (MB) in a publish-subscribe setting.
-    </t>
-    
-    
-    <t>
-        This scenario involves steps A, B, C and F of 
-        <xref target="fig:protocolFlow"/> and four parties:  a client 
-        (subscriber), an offline RS (publisher),
-        a trusted AS, and a MB, not necessarily trusted with
-        access to the plain text publications.
-        Message exchange A, B is shown in <xref target="fig:rsKindaOffline"/>.
-    </t>
-
- <!--   <section anchor="ExRSKindaOff"
-             title="Example">
- -->
- 
-      <t><list style="hanging">
-        <t>A: The client sends the request POST to /token at AS.  The request
-        contains the Audience parameter set to "birchPollenSensor301", a value
-        that characterizes a certain pollen sensor resource.  The AS evaluates
-        the request and authorizes the client to access the resource.</t>
-
-        <t>B: The AS responds with an empty token and client information with a
-        security context to be used by the client.  The empty token signifies 
-        that authorization is performed by means of authentication using the
-        communication security protocol indicated with "csp".  In this case it
-        is object security of content (OSCON) i.e. protection of CoAP payload 
-        only.  The security context contains the symmetric decryption key and a 
-        public signature verification key of the RS.</t>
-      </list></t>
-
-      <t><figure align="center" anchor="fig:rsKindaOffline"
-                 title="Token Request and Response">
-        <artwork align="left"><![CDATA[
-        Authorization
-  Client   Server
-    |         |
-    |         |
-A:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path:"token"
-    |         | Payload: <Request-Payload>
-    |         |
-B:  |<--------+ Header: 2.05 Content
-    |         | Content-Type: application/cbor
-    | 2.05    | Payload: <Response-Payload>
-    |         |
-    |         |
-        ]]>
-        </artwork>
-      </figure></t>
-
-      <t>The information contained in the Request-Payload and the
-      Response-Payload is shown in <xref target="fig:rsKindaOfflineReq"/>.
-
-        <figure align="center" anchor="fig:rsKindaOfflineReq"
-                       title="Request and Response Payload for RS severely
-                              constrained ">
-                <artwork align="left"><![CDATA[
-Request-Payload :
-{
-  "grant_type" : "client_credentials",
-  "aud" : "birchPollenSensor301",
-  "client_id" : "myclient",
-  "client_secret" : "qwerty"
-}
-
-Response-Payload :
-{
-  "access_token" : NULL,
-  "token_type" : "none",
-  "csp" : "OSCON",
-  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-}
-        ]]>
-        </artwork>
-      </figure></t>
-
-      <t>The content of the "key" parameter is shown in
-      <xref target="fig:rsKindaKeyParameter"/>.</t>
-
-      <t><figure align="center" anchor="fig:rsKindaKeyParameter"
-                 title="The 'key' Parameter">
-        <artwork align="left"><![CDATA[
-key :
-{
-  "alg" : "AES_128_CTR_ECDSA",
-  "kid" : b64'c29tZSBvdGhlciBrZXkgaWQ';
-  "k"   : b64'ZoRSOrFzN_FzUA5XKMYoVHyzff5oRJxl-IXRtztJ6uE',
-  "crv" : "P-256",
-  "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
-  "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
-}
-        ]]></artwork>
-      </figure></t>
-
-<t>The RS, which sleeps most of the time, occasionally wakes up, measures the
-    number birch pollens per cubic meters, publishes the measurements to the MB, 
-    and then returns to sleep.  See 
-    <xref target="fig:rsKindaOfflineOSCOAPRequestAndResponse"/>.
-    <vspace blankLines="1"/>
-   In this case the birch pollen count stopped at 270, which
-   is encrypted with the symmetric key and signed with the private key of the
-   RS.  The MB verifies that the message originates from RS
-   using the public key of RS, that it is not a replay of an old
-   measurement using the sequence number of the OSCON COSE profile, and caches
-   the object secured content.  The MB does not have the secret key so is unable 
-   to read the plain text measurement.</t>
-
-<t>Message exchanges C and F are shown in
-    <xref target="fig:rsKindaOfflineOSCOAPRequestAndResponse"/>.
-    <list style="hanging">
-        <t>
-            C: Since there is no access token, the client does not address the
-            /authz-info resource in the RS.  The client sends the CoAP request
-            GET to /birchPollen on MB which is a plain CoAP request.
-        </t>
-        <t>
-            F: The MB responds with the cached object secured content.
-        </t>
-    </list>
-</t>
-
-
-<t>
-    <figure align="center" anchor="fig:rsKindaOfflineOSCOAPRequestAndResponse"
-        title="Sensor measurement protected by COSE">
-        <artwork align="left"><![CDATA[
-           Message   Resource
-  Client    Broker    Server
-    |         |         |
-    |         |<--------| Header: PUT (Code=0.02)
-    |         |  PUT    | Uri-Path: "birchPollen"
-    |         |         | Payload: (<seq>,<cid>,["270"],<tag>)
-    |         |         |
-    |         |-------->| Header: 2.04 Changed
-    |         | 2.04    |
-    |         |
-    |         |
-C:  +-------->| Header: GET (Code=0.01)
-    | GET     | Uri-Path: "birchPollen"
-    |         |
-    |         |
-F:  |<--------+ Header: 2.05 Content
-    | 2.05    | Payload: (<seq>,<cid>,["270"],<tag>)
-    |         |
-        ]]>
-        </artwork>
-    </figure>
-</t>
-<t>
-    The payload is a COSE message consisting of sequence number 'seq' stepped by
-    the RS for each publication, the context identifier 'cid' in this case
-    coinciding with the key identifier 'kid' of 
-    <xref target="fig:rsKindaKeyParameter"/>, the encrypted measurement and the 
-    signature by the RS.</t>
-<t>
-    Note that the same COSE message format may be used as in OSCOAP
-    but that only CoAP payload is protected in this case.
-</t>
-<t>
-    The authorization step is implicit, so while any client could request access
-    the COSE object, only authorized clients have access to the symmetric key
-    needed to decrypt the content.
-</t>
-
-<t>
-Note that in this case the order of the message exchanges A,B and C,F could in 
-principle be interchanged, i.e. the client could first request and obtain the 
-protected resource in steps C,F; and after that request client information 
-containing the keys decrypt and verify the message.
-</t>
-
-<!--  </section>
--->
-</section>
-
-
-
-<!-- ************************** -->
-
-<section anchor="clientMulticast"
-               title="Securing Group Communication">
-
-<t>There are use cases that require securing communication between a (group of)
-senders and a group of receivers.  One prominent example is lighting.  Often, a 
-set of lighting nodes (e.g., luminaires, wall-switches, sensors) are grouped 
-together and only authorized members of the group must be able read and process 
-messages.  Additionally, receivers of group messages must be able to verify the 
-integrity of received messages as being generated within the group.</t> 
-
-<t>The requirements for securely communicating in such group use cases
-efficiently is outlined in <xref target="I-D.somaraju-ace-multicast"/> along 
-with an architectural description that aligns with the content of this
-document.  The requirements for conveying the necessary identifiers to reference 
-groups and also the process of commissioning devices can be accomplished using
-the protocol described in this document.  For details about the lighting-unique 
-use case aspects, the architecture, as well as other multicast-specific 
-considerations we refer the reader to  
-<xref target="I-D.somaraju-ace-multicast"/>.</t>
-
-</section>
-</section>
-
     <section anchor="security" title="Security Considerations">
       <t>The entire document is about security.  Security considerations
       applicable to authentication and authorization in RESTful
@@ -2699,6 +1758,429 @@ considerations we refer the reader to
         </section>
 
     </section>
+
+<!-- ***************************************************** -->
+      <section anchor="options" title="Deployment Examples">
+        <t>There is a large variety of IoT deployments, as is indicated in 
+        <xref target="constraints"/>, and this section highlights a few common 
+        variants.  This section is not normative but illustrates how the
+        framework can be applied.
+        </t>
+
+        <t>For each of the deployment variants there are a number of possible
+        security setups between clients, resource servers and authorization
+        servers.  The main focus in the following subsections is on how 
+        authorization of a client request for a resource hosted by a RS is 
+        performed.  This requires the the security of the requests and 
+        responses between the clients and the RS to consider. 
+        </t>
+
+        <t>Note: CBOR diagnostic notation is used for examples of requests 
+          and responses.</t>
+
+<!-- ************************** -->
+
+
+ <!-- ************************** -->
+<section anchor="localTokenValidation" title="Local Token Validation">
+  <t>In this scenario we consider the case where the resource server is offline, 
+i.e. it is not connected to the AS at the time of the access request. 
+This access procedure involves steps A, B, C, and F of <xref target="fig:protocolFlow"/>.
+  </t>
+
+  <t>Since the resource server must be able to verify the access token locally,
+  self-contained access tokens must be used.</t>
+
+    <t>This example shows the interactions between a client, the
+    authorization server and a temperature sensor acting as a resource server.  Message
+    exchanges A and B are shown in <xref target="fig:RSOffline"/>.</t>
+
+    <t><list style="hanging">
+      <t>A: The client first generates a public-private key pair used for
+      communication security with the RS.</t>
+
+      <t>The client sends the POST request to /token at the AS.  The request
+      contains the public key of the client and the Audience parameter set to
+      "tempSensorInLivingRoom", a value that the temperature sensor
+      identifies itself with.  The AS evaluates the request and authorizes the
+      client to access the resource.</t>
+
+      <t>B: The AS responds with a PoP token and client information.  The PoP
+      token contains the public key of the client, and the client information
+      contains the public key of the RS.  For communication security
+      this example uses DTLS RawPublicKey between the client and the RS. The issued 
+      token will have a short validity time, i.e. 'exp' close to 'iat', 
+      to protect the RS from replay attacks since it, that cannot 
+      do introspection to check the tokens current validity. The token includes the
+      claim "aif" with the authorized access that an owner of the
+      temperature device can enjoy.  The 'aif' claim, issued by the AS,
+      informs the RS that the owner of the token, that can prove
+      the possession of a key is authorized to make a GET request
+      against the /temperature resource and a POST request on the /firmware
+      resource.</t>
+ 
+      <t>Note: In this example we assume that the client knows what resource it
+      wants to access, and is therefore able to request specific
+      audience and scope claims for the access token.</t>
+    </list></t>
+
+    <t><figure align="center" anchor="fig:RSOffline"
+               title="Token Request and Response Using Client Credentials.">
+        <artwork align="left"><![CDATA[
+         Authorization
+  Client    Server
+    |         |
+    |         |
+A:  +-------->| Header: POST (Code=0.02)
+    |  POST   | Uri-Path:"token"
+    |         | Content-Type: application/cbor
+    |         | Payload: <Request-Payload>
+    |         |
+B:  |<--------+ Header: 2.05 Content
+    |  2.05   | Content-Type: application/cbor
+    |         | Payload: <Response-Payload>
+    |         |
+        ]]></artwork>
+    </figure></t>
+
+    <t>The information contained in the Request-Payload and the
+    Response-Payload is shown in <xref target="fig:RSOfflineReq"/>.
+
+     <figure align="center" anchor="fig:RSOfflineReq"
+             title="Request and Response Payload Details.">
+      <artwork align="left"><![CDATA[
+Request-Payload :
+{
+  "grant_type" : "client_credentials",
+  "aud" : "tempSensorInLivingRoom",
+  "client_id" : "myclient",
+  "client_secret" : "qwerty"
+}
+
+Response-Payload :
+{
+  "access_token" : b64'SlAV32hkKG ...',
+  "token_type" : "pop",
+  "csp" : "DTLS",
+  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
+  "rpk" : b64'ZXlKaGJHY2lPaUpTVTBF ...'
+}
+        ]]></artwork>
+    </figure></t>
+
+    <t>The content of the "key" parameter and the access token are shown in
+    <xref target="fig:BothcborMappingValuesAsymmetricKeyFormat"/> and
+    <xref target="fig:BothcborMappingValueAsymmetricCWT"/>.</t>
+
+    <t><figure align="center"
+               anchor="fig:BothcborMappingValuesAsymmetricKeyFormat"
+               title="Public Key of the RS.">
+        <artwork align="left"><![CDATA[
+{
+  "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
+  "kty" : "EC",
+  "crv" : "P-256",
+  "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
+  "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
+}
+        ]]></artwork>
+    </figure></t>
+
+    <t><figure align="center"
+               anchor="fig:BothcborMappingValueAsymmetricCWT"
+               title="Access Token including Public Key of the Client.">
+        <artwork align="left"><![CDATA[
+{
+  "aud" : "tempSensorInLivingRoom",
+  "iat" : "1360189224",
+  "exp" : "1360289224",
+  "aif" :  [["/temperature", 0], ["/firmware", 2]],
+  "cnf" : {
+    "jwk" : {
+      "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
+      "kty" : "EC",
+      "crv" : "P-256",
+      "x" : b64'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
+      "y" : b64'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0'
+    }
+  }
+}
+        ]]></artwork>
+    </figure></t>
+
+    <t>Messages C and F are shown in
+    <xref target="fig:RSOfflinePostAccessTokenAsymmetric"/> -
+    <xref target="fig:RSOfflineDTLSRequestAndResponse"/>.
+
+    <list style="hanging">
+      <t>C: The client then sends the PoP token to the /authz-info resource at
+      the RS.  This is a plain CoAP request, i.e. no transport or application 
+      layer security between client and RS, since the token is integrity protected 
+      between AS and RS.  The RS verifies that the PoP token was created by a 
+      known and trusted AS, is valid, and responds to the client.  The RS caches 
+      the security context together with authorization information about this client 
+      contained in the PoP token.</t>
+
+    <t><figure align="center" anchor="fig:RSOfflinePostAccessTokenAsymmetric"
+               title="Access Token provisioning to RS">
+      <artwork align="left"><![CDATA[
+           Resource
+ Client     Server
+    |         |
+C:  +-------->| Header: POST (Code=0.02)
+    |  POST   | Uri-Path:"authz-info"
+    |         | Payload: SlAV32hkKG ...
+    |         |
+    |<--------+ Header: 2.01 Created
+    |  2.01   |
+    |         |
+]]></artwork>
+    </figure></t>   
+
+      <t>The client and the RS runs the DTLS handshake using the raw 
+      public keys established in step B and C.</t>
+
+      <t>The client sends the CoAP request GET to /temperature on RS over
+      DTLS.  The RS verifies that the request is authorized, based on 
+      previously established security context.</t>
+
+      <t>F: The RS responds with a resource representation over DTLS.</t>
+    </list></t>
+
+    <t><figure align="center" anchor="fig:RSOfflineDTLSRequestAndResponse"
+               title="Resource Request and Response protected by DTLS.">
+      <artwork align="left"><![CDATA[
+           Resource
+ Client     Server
+    |         |
+    |<=======>| DTLS Connection Establishment
+    |         |   using Raw Public Keys
+    |         |
+    +-------->| Header: GET (Code=0.01)
+    | GET     | Uri-Path: "temperature"
+    |         |
+    |         |
+    |         |
+F:  |<--------+ Header: 2.05 Content
+    | 2.05    | Payload: <sensor value>
+    |         |
+      ]]></artwork>
+    </figure></t>
+</section>
+
+
+ <!-- ************************** -->
+
+<section anchor="introspectionAidedTokenValidation" title="Introspection Aided Token Validation">
+
+  <t>In this deployment scenario we assume that a client is not be able to 
+  access the AS at the time of the access request.  Since the RS is, however, 
+  connected to the back-end infrastructure it can make use of token 
+  introspection.  This access procedure involves steps A-F of 
+  <xref target="fig:protocolFlow"/>, but assumes steps A and B have been
+  carried out during a phase when the client had connectivity to AS.
+  </t>
+
+  <t>Since the client is assumed to be offline, at least for a certain period of 
+  time, a pre-provisioned access token has to be long-lived.  The resource 
+  server may use its online connectivity to validate the access token with the
+  authorization server, which is shown in the example below.</t>
+
+    <t>In the example we show the interactions between an offline client
+    (key fob), a resource server (online lock), and an authorization server.  We
+    assume that there is a provisioning step where the client has access to the
+    AS.  This corresponds to message exchanges A and B which are shown in
+    <xref target="fig:cOffline"/>.
+    </t>
+    <t>Authorization consent from the resource owner can be pre-configured, 
+    but it can also be provided via an interactive flow with the resource 
+    owner.  An example of this for the key fob case could be that the 
+    resource owner has a connected car, he buys a generic key that he 
+    wants to use with the car.  To authorize the key fob he connects it 
+    to his computer that then provides the UI for the device.  After 
+    that OAuth 2.0 implicit flow can used to authorize the key for 
+    his car at the the car manufacturers AS.</t>
+
+      <t>Note: In this example the client does not know the exact door it 
+        will be used to access since the token request is not send at the 
+        time of access. So the scope and audience claims is set quite 
+        wide to start with and new values different form the 
+        original once can be returned from introspection later on.</t>
+            <t>
+      <list style="hanging">
+        <t>A: The client sends the request using POST to /token at AS.  The
+        request contains the Audience parameter set to  "PACS1337" (PACS, Physical Access System), a
+        value the that the online door in question identifies itself with.  The
+        AS generates an access token as on opaque string, which it can match to
+        the specific client, a targeted audience and a symmetric key.</t>
+
+        <t>B: The AS responds with the an access token and client information,
+        the latter containing a symmetric key.
+        Communication security between C and RS will be DTLS and PreSharedKey. 
+        The PoP key being used as the PreSharedKey.
+        </t>
+      </list>
+    </t>
+
+    <t><figure align="center" anchor="fig:cOffline"
+               title="Token Request and Response using Client Credentials.">
+      <artwork align="left"><![CDATA[
+
+         Authorization
+ Client     Server
+    |         |
+    |         |
+A:  +-------->| Header: POST (Code=0.02)
+    |  POST   | Uri-Path:"token"
+    |         | Content-Type: application/cbor
+    |         | Payload: <Request-Payload>
+    |         |
+B:  |<--------+ Header: 2.05 Content
+    |         | Content-Type: application/cbor
+    |  2.05   | Payload: <Response-Payload>
+    |         |
+    ]]></artwork>
+    </figure></t>
+
+    <t>The information contained in the Request-Payload and the
+    Response-Payload is shown in <xref target="fig:cOfflineReq"/>.
+
+     <figure align="center" anchor="fig:cOfflineReq"
+             title="Request and Response Payload for C offline">
+      <artwork align="left"><![CDATA[
+Request-Payload:
+{
+  "grant_type" : "client_credentials",
+  "aud" : "lockOfDoor4711",
+  "client_id" : "keyfob",
+  "client_secret" : "qwerty"
+}
+
+Response-Payload:
+{
+  "access_token" : b64'SlAV32hkKG ...'
+  "token_type" : "pop",
+  "csp" : "DTLS",
+  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
+}
+      ]]></artwork>
+    </figure></t>
+
+    <t>The access token in this case is just an opaque string referencing
+   the authorization information at the AS.</t>
+
+    <t><list style="hanging">
+        <t>C: Next, the client POSTs the access token to the /authz-info
+        resource in the RS.  This is a plain CoAP request, i.e. no 
+        DTLS between client and RS.  Since the token is an opaque string,
+        the RS cannot verify it on its own, and thus defers to respond the 
+        client with a status code until after step E.</t>
+
+        <t>D: The RS forwards the token to the /introspect
+        resource on the AS.  Introspection assumes a secure connection
+        between the AS and the RS, e.g. using transport of application layer security,  which
+  is not detailed in this example.
+        </t>
+
+        <t>E: The AS provides the introspection response containing claims
+  about the token.  This includes the confirmation key (cnf) claim
+        that allows the RS to verify the client's proof of possession in
+  step F.</t>
+
+        <t>After receiving message E, the RS responds to the client's POST in
+        step C with Code 2.01 Created.</t>
+
+        <t><figure align="center" anchor="fig:cOfflineIntrospection"
+            title="Token Introspection for C offline">
+            <artwork align="left"><![CDATA[
+           Resource
+  Client    Server
+    |         |
+C:  +-------->| Header: POST (T=CON, Code=0.02)
+    |  POST   | Uri-Path:"authz-info"
+    |         | Content-Type: "application/cbor"
+    |         | Payload: b64'SlAV32hkKG ...''
+    |         |
+    |         |     Authorization
+    |         |       Server
+    |         |          |
+D:  |         +--------->| Header: POST (Code=0.02)
+    |         |  POST    | Uri-Path: "introspect"
+    |         |          | Content-Type: "application/cbor"
+    |         |          | Payload: <Request-Payload>
+    |         |          |
+E:  |         |<---------+ Header: 2.05 Content
+    |         |  2.05    | Content-Type: "application/cbor"
+    |         |          | Payload: <Response-Payload>
+    |         |          |         
+    |         |          
+C:  |<--------+ Header: 2.01 Created
+    |  2.01   |
+    |         |
+]]></artwork>
+        </figure></t>
+
+        <t>The information contained in the Request-Payload and the
+        Response-Payload is shown in <xref target="fig:cOfflineIntroReq"/>.
+
+        <figure align="center" anchor="fig:cOfflineIntroReq"
+                title="Request and Response Payload for Introspection">
+          <artwork align="left"><![CDATA[
+Request-Payload:
+{
+  "token" : b64'SlAV32hkKG...',
+  "client_id" : "FrontDoor",
+  "client_secret" : "ytrewq"
+}
+
+Response-Payload:
+{
+  "active" : true,
+  "aud" : "lockOfDoor4711",
+  "scope" : "open, close",
+  "iat" : 1311280970,
+  "cnf" : {
+    "ck" : b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
+  }
+}
+          ]]></artwork>
+        </figure></t>
+      </list>
+  </t>
+
+<t>
+    <list style="hanging">
+        <t>
+            The client uses the symmetric PoP key to establish a DTLS 
+            PreSharedKey secure connection to the RS. The CoAP request PUT is 
+            sent to the uri-path /state on RS changing state of the door to locked.
+        </t>
+        <t>
+            F: The RS responds with a appropriate over the secure DTLS channel.
+        </t>
+    </list>
+</t>
+        <t><figure align="center" anchor="fig:cOfflineDTLSRequestAndResponse"
+            title="Resource request and response protected by OSCOAP">
+            <artwork align="left"><![CDATA[
+           Resource
+  Client    Server
+    |         |
+    |<=======>| DTLS Connection Establishment
+    |         |   using Pre Shared Key
+    |         |
+    +-------->| Header: PUT (Code=0.03)
+    | PUT     | Uri-Path: "state"
+    |         | Payload: <new state for the lock>
+    |         |
+F:  |<--------+ Header: 2.04 Changed
+    | 2.04    | Payload: <new state for the lock>
+    |         |
+            ]]></artwork>
+        </figure></t>
+    </section>
+
+</section>
     <section anchor="app:changelog" title="Document Updates">
       <section anchor="app:f1t2" title="Version -00 to -01">
 	<t><list style="symbols">

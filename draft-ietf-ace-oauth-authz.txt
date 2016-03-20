@@ -5,13 +5,13 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                      SICS
 Intended status: Standards Track                             G. Selander
-Expires: September 19, 2016                                     Ericsson
+Expires: September 21, 2016                                     Ericsson
                                                            E. Wahlstroem
                                                               S. Erdtman
                                                         Nexus Technology
                                                            H. Tschofenig
                                                                 ARM Ltd.
-                                                          March 18, 2016
+                                                          March 20, 2016
 
 
         Authorization for the Internet of Things using OAuth 2.0
@@ -40,7 +40,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on September 19, 2016.
+   This Internet-Draft will expire on September 21, 2016.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Seitz, et al.          Expires September 19, 2016               [Page 1]
+Seitz, et al.          Expires September 21, 2016               [Page 1]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -68,7 +68,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 Table of Contents
 
    1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
-   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   3
    3.  Overview  . . . . . . . . . . . . . . . . . . . . . . . . . .   4
      3.1.  OAuth 2.0 . . . . . . . . . . . . . . . . . . . . . . . .   5
      3.2.  CoAP  . . . . . . . . . . . . . . . . . . . . . . . . . .   7
@@ -85,40 +85,36 @@ Table of Contents
      5.4.  Authorization Information Format  . . . . . . . . . . . .  17
      5.5.  CBOR Data Formats . . . . . . . . . . . . . . . . . . . .  17
      5.6.  Token Expiration  . . . . . . . . . . . . . . . . . . . .  17
-   6.  Deployment Scenarios  . . . . . . . . . . . . . . . . . . . .  18
-     6.1.  Client and Resource Server are Offline  . . . . . . . . .  19
-     6.2.  Resource Server Offline . . . . . . . . . . . . . . . . .  22
-     6.3.  Token Introspection with an Offline Client  . . . . . . .  26
-     6.4.  Always-On Connectivity  . . . . . . . . . . . . . . . . .  30
-     6.5.  Token-less Authorization  . . . . . . . . . . . . . . . .  31
-     6.6.  Securing Group Communication  . . . . . . . . . . . . . .  34
-   7.  Security Considerations . . . . . . . . . . . . . . . . . . .  35
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  35
-     8.1.  CoAP Option Number Registration . . . . . . . . . . . . .  35
-   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  36
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  36
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  36
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  38
-   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  39
-   Appendix B.  Roles and       Responsibilites -- a Checklist . . .  41
-   Appendix C.  CoAP and CBOR profiles for OAuth 2.0 . . . . . . . .  44
-     C.1.  Profile for Token resource  . . . . . . . . . . . . . . .  44
-       C.1.1.  Token Request . . . . . . . . . . . . . . . . . . . .  44
-       C.1.2.  Token Response  . . . . . . . . . . . . . . . . . . .  45
-     C.2.  CoAP Profile for OAuth Introspection  . . . . . . . . . .  46
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  18
+   7.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  18
+     7.1.  CoAP Option Number Registration . . . . . . . . . . . . .  19
+   8.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  19
+   9.  References  . . . . . . . . . . . . . . . . . . . . . . . . .  20
+     9.1.  Normative References  . . . . . . . . . . . . . . . . . .  20
+     9.2.  Informative References  . . . . . . . . . . . . . . . . .  21
+   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  23
+   Appendix B.  Roles and       Responsibilites -- a Checklist . . .  25
+   Appendix C.  CoAP and CBOR profiles for OAuth 2.0 . . . . . . . .  27
+     C.1.  Profile for Token resource  . . . . . . . . . . . . . . .  27
+       C.1.1.  Token Request . . . . . . . . . . . . . . . . . . . .  28
+       C.1.2.  Token Response  . . . . . . . . . . . . . . . . . . .  29
+     C.2.  CoAP Profile for OAuth Introspection  . . . . . . . . . .  30
+       C.2.1.  Introspection Request . . . . . . . . . . . . . . . .  30
+       C.2.2.  Introspection Response  . . . . . . . . . . . . . . .  31
+   Appendix D.  Deployment Examples  . . . . . . . . . . . . . . . .  33
+     D.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  34
+     D.2.  Introspection Aided Token Validation  . . . . . . . . . .  37
+   Appendix E.  Document Updates . . . . . . . . . . . . . . . . . .  42
+     E.1.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  42
 
 
 
-Seitz, et al.          Expires September 19, 2016               [Page 2]
+Seitz, et al.          Expires September 21, 2016               [Page 2]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
-       C.2.1.  Introspection Request . . . . . . . . . . . . . . . .  47
-       C.2.2.  Introspection Response  . . . . . . . . . . . . . . .  47
-   Appendix D.  Document Updates . . . . . . . . . . . . . . . . . .  50
-     D.1.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  50
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  51
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  43
 
 1.  Introduction
 
@@ -159,22 +155,20 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
    are used; in some circumstances profiles are defined, for example to
    support smaller the over-the-wire message size and smaller code size.
 
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016               [Page 3]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
 2.  Terminology
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
    "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
    document are to be interpreted as described in [RFC2119].
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016               [Page 3]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
 
    Certain security-related terms such as "authentication",
    "authorization", "confidentiality", "(data) integrity", "message
@@ -219,17 +213,19 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
    document defines such an alternative encoding.  The COSE message
    format [I-D.ietf-cose-msg] is also based on CBOR.
 
-
-
-Seitz, et al.          Expires September 19, 2016               [Page 4]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
    A fourth building block is application layer security, which is used
    where transport layer security is insufficient.  At the time of
    writing the preferred approach for securing CoAP at the application
    layer is via the use of COSE [I-D.ietf-cose-msg], which adds object
+
+
+
+
+Seitz, et al.          Expires September 21, 2016               [Page 4]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    security to CBOR-encoded data.  More details about applying COSE to
    CoAP can be found in OSCOAP [I-D.selander-ace-object-security].
 
@@ -275,14 +271,16 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       utilization (e.g., cryptographic properties) based on the security
       requirements of the given deployment.
 
+   Proof of Possession Tokens:
 
 
-Seitz, et al.          Expires September 19, 2016               [Page 5]
+
+
+
+Seitz, et al.          Expires September 21, 2016               [Page 5]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
-
-   Proof of Possession Tokens:
 
       An access token may be bound to a cryptographic key, which is then
       used by an RS to authenticate requests from a client.  Such tokens
@@ -329,18 +327,17 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
    Scopes and Permissions:
 
+      In OAuth 2.0, the client specifies the type of permissions it is
+      seeking to obtain (via the scope parameter) in the access request.
+      In turn, the AS may use the "scope" response parameter to inform
 
 
 
-
-Seitz, et al.          Expires September 19, 2016               [Page 6]
+Seitz, et al.          Expires September 21, 2016               [Page 6]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
-      In OAuth 2.0, the client specifies the type of permissions it is
-      seeking to obtain (via the scope parameter) in the access request.
-      In turn, the AS may use the "scope" response parameter to inform
       the client of the scope of the access token issued.  As the client
       could be a constrained device as well, this memo uses CBOR encoded
       messages defined in Appendix C to request scopes and to be
@@ -389,7 +386,10 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016               [Page 7]
+
+
+
+Seitz, et al.          Expires September 21, 2016               [Page 7]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -445,7 +445,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016               [Page 8]
+Seitz, et al.          Expires September 21, 2016               [Page 8]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -501,7 +501,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016               [Page 9]
+Seitz, et al.          Expires September 21, 2016               [Page 9]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -557,7 +557,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 10]
+Seitz, et al.          Expires September 21, 2016              [Page 10]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -613,7 +613,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 11]
+Seitz, et al.          Expires September 21, 2016              [Page 11]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -669,7 +669,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 12]
+Seitz, et al.          Expires September 21, 2016              [Page 12]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -725,7 +725,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 13]
+Seitz, et al.          Expires September 21, 2016              [Page 13]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -781,7 +781,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 14]
+Seitz, et al.          Expires September 21, 2016              [Page 14]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -837,7 +837,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 15]
+Seitz, et al.          Expires September 21, 2016              [Page 15]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -893,7 +893,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 16]
+Seitz, et al.          Expires September 21, 2016              [Page 16]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -949,7 +949,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-Seitz, et al.          Expires September 19, 2016              [Page 17]
+Seitz, et al.          Expires September 21, 2016              [Page 17]
 
 Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
@@ -976,950 +976,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       no means of reliably measuring time, this is the best that can be
       achieved.
 
-6.  Deployment Scenarios
-
-   There is a large variety of IoT deployments, as is indicated in
-   Appendix A, and this section highlights common variants.  This
-   section is not normative but illustrates how the framework can be
-   applied.
-
-   For each of the deployment variants there are a number of possible
-   security setups between clients, resource servers and authorization
-   servers.  The main focus in the following subsections is on how
-   authorization of a client request for a resource hosted by a RS is
-   performed.  This requires us to also consider how these requests and
-   responses between the clients and the resource servers are secured.
-
-   The security protocols between other pairs of nodes in the
-   architecture, namely client-to-AS and RS-to-AS, are not detailed in
-   these examples.  Different security protocols may be used on
-   transport or application layer.
-
-   Note: We use the CBOR diagnostic notation for examples of requests
-   and responses.
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 18]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-6.1.  Client and Resource Server are Offline
-
-   In this scenario we consider the case where both the resource server
-   and the client are offline, i.e., they are not connected to the AS at
-   the time of the resource request.  This access procedure involves
-   steps A, B, C, and F of Figure 1, but assumes that step A and B have
-   been carried out during a phase when the client had connectivity to
-   AS.
-
-   Since the resource server must be able to verify the access token
-   locally, self-contained access tokens must be used.
-
-   This example shows the interactions between a client, the
-   authorization server and a temperature sensor acting as a resource
-   server.  Message exchanges A and B are shown in Figure 6.
-
-      A: The client first generates a public-private key pair used for
-      communication security with the RS.
-
-      The client sends the POST request to /token at AS.  The request
-      contains the public key of the client and the Audience parameter
-      set to "tempSensorInLivingRoom", a value that the temperature
-      sensor identifies itself with.  The AS evaluates the request and
-      authorizes the client to access the resource.
-
-      B: The AS responds with a PoP token and client information.  The
-      PoP token contains the public key of the client, while the client
-      information contains the public key of the RS.  For communication
-      security this example uses DTLS with raw public keys between the
-      client and the RS.
-
-      Note: In this example we assume that the client knows what
-      resource it wants to access, and is therefore able to request
-      specific audience and scope claims for the access token.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 19]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-            Authorization
-     Client    Server
-       |         |
-       |         |
-   A:  +-------->| Header: POST (Code=0.02)
-       | POST    | Uri-Path:"token"
-       |         | Payload: <Request-Payload>
-       |         |
-   B:  |<--------+ Header: 2.05 Content
-       |         | Content-Type: application/cbor
-       | 2.05    | Payload: <Response-Payload>
-       |         |
-
-      Figure 6: Token Request and Response Using Client Credentials.
-
-   The information contained in the Request-Payload and the Response-
-   Payload is shown in Figure 7.
-
-   Request-Payload :
-   {
-     "grant_type" : "client_credentials",
-     "aud" : "tempSensorInLivingRoom",
-     "client_id" : "myclient",
-     "client_secret" : "qwerty"
-   }
-
-   Response-Payload :
-   {
-     "access_token" : b64'SlAV32hkKG ...',
-     "token_type" : "pop",
-     "csp" : "DTLS",
-     "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-   }
-
-              Figure 7: Request and Response Payload Details.
-
-   The content of the "key" parameter and the access token are shown in
-   Figure 8 and Figure 9.
-
-   {
-     "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
-     "kty" : "EC",
-     "crv" : "P-256",
-     "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
-     "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
-   }
-
-                      Figure 8: Public Key of the RS.
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 20]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-   {
-     "aud" : "tempSensorInLivingRoom",
-     "iat" : "1360189224",
-     "cnf" : {
-       "jwk" : {
-         "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
-         "kty" : "EC",
-         "crv" : "P-256",
-         "x" : b64'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
-         "y" : b64'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0'
-       }
-     }
-   }
-
-        Figure 9: Access Token including Public Key of the Client.
-
-   Messages C and F are shown in Figure 10 - Figure 11.
-
-      C: The client then sends the PoP token to the /authz-info resource
-      at the RS.  This is a plain CoAP request, i.e. no DTLS/OSCOAP
-      between client and RS, since the token is integrity protected
-      between AS and RS.  The RS verifies that the PoP token was created
-      by a known and trusted AS, is valid, and responds to the client.
-      The RS caches the security context together with authorization
-      information about this client contained in the PoP token.
-
-      The client and resource server run the DTLS handshake using the
-      raw public keys established in step B and C.
-
-      The client sends the CoAP request GET to /temperature on RS over
-      DTLS.  The RS verifies that the request is authorized.
-
-      F: The RS responds with a resource representation over DTLS.
-
-              Resource
-    Client     Server
-       |         |
-   C:  +-------->| Header: POST (Code=0.02)
-       | POST    | Uri-Path:"authz-info"
-       |         | Payload: SlAV32hkKG ...
-       |         |   (access token)
-       |         |
-       |<--------+ Header: 2.04 Changed
-       | 2.04    |
-       |         |
-
-                Figure 10: Access Token provisioning to RS
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 21]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-              Resource
-    Client     Server
-       |         |
-       |<=======>| DTLS Connection Establishment
-       |         |   using Raw Public Keys
-       |         |
-       |         |
-       +-------->| Header: GET (Code=0.01)
-       | GET     | Uri-Path: "temperature"
-       |         |
-       |         |
-       |         |
-   F:  |<--------+ Header: 2.05 Content
-       | 2.05    | Payload: {"t":"22.7"}
-       |         |
-
-        Figure 11: Resource Request and Response protected by DTLS.
-
-6.2.  Resource Server Offline
-
-   In this deployment scenario we consider the case of an RS that may
-   not be able to access the AS at the time it receives an access
-   request from a client.  We denote this case "RS offline", it involves
-   steps A, B, C and F of Figure 1.
-
-   If the RS is offline, then it must be possible for the RS to locally
-   validate the access token.  This requires self-contained tokens to be
-   used.
-
-   The validity time for the token should always be chosen as short as
-   possible to reduce the possibility that a token contains out-of-date
-   authorization information.  Therefore the value for the Expiration
-   Time claim ("exp") should be set only slightly larger than the value
-   for the Issuing Time claim ("iss").  A constrained RS with means to
-   reliably measure time must validate the expiration time of the access
-   token.
-
-   The following example shows interactions between a client (air-
-   conditioning control unit), an offline resource server (temperature
-   sensor)and an authorization server.  The message exchanges A and B
-   are shown in Figure 12.
-
-      A: The client sends the request POST to /token at AS.  The request
-      contains the Audience parameter set to "tempSensor109797", a value
-      that the temperature sensor identifies itself with.  The scope the
-      client wants the AS to authorize the access token for is "owner",
-      which means that the token can be used to both read temperature
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 22]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-      data and upgrade the firmware on the RS.  The AS evaluates the
-      request and authorizes the client to access the resource.
-
-      B: The AS responds with a PoP token and client information.  The
-      PoP token is wrapped in a COSE message, object secured content
-      from AS to RS.  The client information contains a symmetric key.
-      In this case communication security between C and RS is OSCOAP
-      with an authenticated encryption algorithm.  The client derives
-      two unidirectional security contexts to use with the resource
-      request and response messages.  The access token includes the
-      claim "aif" with the authorized access that an owner of the
-      temperature device can enjoy.  The "aif" claim, issued by the AS,
-      informs the RS that the owner of the access token, that can prove
-      the possession of a key is authorized to make a GET request
-      against the /tempC resource and a POST request on the /firmware
-      resource.
-
-
-            Authorization
-    Client     Server
-       |         |
-       |         |
-   A:  +-------->| Header: POST (Code=0.02)
-       | POST    | Uri-Path: "token"
-       |         | Payload: <Request-Payload>
-       |         |
-   B:  |<--------+ Header: 2.05 Content
-       |         | Content-Type: application/cbor
-       | 2.05    | Payload: <Response-Payload>
-       |         |
-       |         |
-
-
-                   Figure 12: Token Request and Response
-
-   The information contained in the Request-Payload and the Response-
-   Payload is shown in Figure 13.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 23]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-   Request-Payload:
-   {
-     "grant_type" : "client_credentials",
-     "client_id" : "myclient",
-     "client_secret" : "qwerty",
-     "aud" : "tempSensor109797",
-     "scope" : "owner"
-   }
-
-   Response-Payload:
-   {
-     "access_token": b64'SlAV32hkKG ...',
-     "token_type" : "pop",
-     "csp" : "OSCOAP",
-     "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-   }
-
-          Figure 13: Request and Response Payload for RS offline
-
-   Figure 14 shows examples of the key and the access_token parameters
-   of the Response-Payload, decoded to CBOR.
-
-   access_token:
-   {
-     "aud" : "tempSensor109797",
-     "exp" : 1311281970,
-     "iat" : 1311280970,
-     "aif" :  [["/tempC", 0], ["/firmware", 2]],
-     "cnf" : {
-       "ck":b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
-       }
-    }
-
-   key:
-   {
-     "alg" : "AES_128_CCM_8",
-     "kid" : b64'U29tZSBLZXkgSWQ',
-     "k" : b64'ZoRSOrFzN_FzUA5XKMYoVHyzff5oRJxl-IXRtztJ6uE'
-   }
-
-    Figure 14: Access Token and symmetric key from the Response-Payload
-
-   Message exchanges C and F are shown in Figure 15 and Figure 16.
-
-      C: The client then sends the PoP token to the /authz-info resource
-      in the RS.  This is a plain CoAP request, i.e. no DTLS/OSCOAP
-      between client and RS, since the token is integrity protected
-      between AS and RS.  The RS verifies that the PoP token was created
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 24]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-      by a known and trusted AS, is valid, and responds to the client.
-      The RS derives and caches the security contexts together with
-      authorization information about this client contained in the PoP
-      token.
-
-      The client sends the CoAP requests GET to /tempC on the RS using
-      OSCOAP.  The RS verifies the request and that it is authorized.
-
-      F: The RS responds with a protected status code using OSCOAP.  The
-      client verifies the response.
-
-              Resource
-     Client    Server
-       |         |
-   C:  +-------->| Header: POST (Code=0.02)
-       | POST    | Uri-Path:"authz-info"
-       |         | Payload: <Access Token>
-       |         |
-       |         |
-       |<--------+ Header: 2.04 Changed
-       | 2.04    |
-       |         |
-       |         |
-
-                Figure 15: Access Token provisioning to RS
-
-               Resource
-     Client     Server
-       |         |
-       +-------->| Header: GET (Code=0.01)
-       | GET     | Object-Security:
-       |         |   (<seq>,<cid>,[Uri-Path:"tempC"],<tag>)
-       |         |
-   F:  |<--------+ Header: 2.05 Content
-       | 2.05    | Object-Security:
-       |         |   (<seq>,<cid>,[22.7 C],<tag>)
-       |         |
-
-       Figure 16: Resource request and response protected by OSCOAP
-
-   In Figure 16 the GET request contains an Object-Security option and
-   an indication of the content of the COSE object: a sequence number
-   ("seq", starting from 0), a context identifier ("cid") indicating the
-   security context, the ciphertext containing the encrypted CoAP option
-   identifying the resource, and the Message Authentication Code ("tag")
-   which also covers the Code in the CoAP header.
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 25]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-   The Object-Security ciphertext in the response [22.7 C] represents an
-   encrypted temperature reading.  (The COSE object is actually carried
-   in the CoAP payload when possible but that is omitted to simplify
-   notation.)
-
-6.3.  Token Introspection with an Offline Client
-
-   In this deployment scenario we assume that a client is not be able to
-   access the AS at the time of the access request.  Since the RS is,
-   however, connected to the back-end infrastructure it can make use of
-   token introspection.  This access procedure involves steps A-F of
-   Figure 1, but assumes steps A and B have been carried out during a
-   phase when the client had connectivity to AS.
-
-   Since the client is assumed to be offline, at least for a certain
-   period of time, a pre-provisioned access token has to be long-lived.
-   The resource server may use its online connectivity to validate the
-   access token with the authorization server, which is shown in the
-   example below.
-
-   In the example we show the interactions between an offline client
-   (key fob), a resource server (online lock), and an authorization
-   server.  We assume that there is a provisioning step where the client
-   has access to the AS.  This corresponds to message exchanges A and B
-   which are shown in Figure 17.
-
-      A: The client sends the request using POST to /token at AS.  The
-      request contains the Audience parameter set to "lockOfDoor4711", a
-      value the that the online door in question identifies itself with.
-      The AS generates an access token as on opaque string, which it can
-      match to the specific client, a targeted audience and a symmetric
-      key security context.
-
-      B: The AS responds with the an access token and client
-      information, the latter containing a symmetric key.  Communication
-      security between C and RS will be OSCOAP with authenticated
-      encryption.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 26]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-            Authorization
-    Client     Server
-       |         |
-       |         |
-   A:  +-------->| Header: POST (Code=0.02)
-       | POST    | Uri-Path:"token"
-       |         | Payload: <Request-Payload>
-       |         |
-   B:  |<--------+ Header: 2.05 Content
-       |         | Content-Type: application/cbor
-       | 2.05    | Payload: <Response-Payload>
-       |         |
-
-      Figure 17: Token Request and Response using Client Credentials.
-
-   Authorization consent from the resource owner can be pre-configured,
-   but it can also be provided via an interactive flow with the resource
-   owner.  An example of this for the key fob case could be that the
-   resource owner has a connected car, he buys a generic key that he
-   wants to use with the car.  To authorize the key fob he connects it
-   to his computer that then provides the UI for the device.  After that
-   OAuth 2.0 implicit flow is used to authorize the key for his car at
-   the the car manufacturers AS.
-
-   The information contained in the Request-Payload and the Response-
-   Payload is shown in Figure 18.
-
-   Request-Payload:
-   {
-     "grant_type" : "token",
-     "aud" : "lockOfDoor4711",
-     "client_id" : "myclient",
-   }
-
-   Response-Payload:
-   {
-     "access_token" : b64'SlAV32hkKG ...'
-     "token_type" : "pop",
-     "csp" : "OSCOAP",
-     "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-   }
-
-           Figure 18: Request and Response Payload for C offline
-
-   The access token in this case is just an opaque string referencing
-   the authorization information at the AS.
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 27]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-      C: Next, the client POSTs the access token to the /authz-info
-      resource in the RS.  This is a plain CoAP request, i.e. no DTLS/
-      OSCOAP between client and RS.  Since the token is an opaque
-      string, the RS cannot verify it on its own, and thus defers to
-      respond the client with a status code until step E and only
-      acknowledges on the CoAP message layer (indicated with a dashed
-      line).
-
-               Resource
-     Client     Server
-       |         |
-   C:  +-------->| Header: POST (T=CON, Code=0.02
-       | POST    | Token 0x2a12)
-       |         | Uri-Path:"authz-info"
-       |         | Payload: SlAV32hkKG ...
-       |         |   (access token)
-       |         |
-       |<- - - - + Header: T=ACK
-       |         |
-
-                Figure 19: Access Token provisioning to RS
-
-      D: The RS forwards the token to the /introspect resource on the
-      AS.  Introspection assumes a secure connection between the AS and
-      the RS, e.g. using DTLS or OSCOAP, which is not detailed in this
-      example.
-
-      E: The AS provides the introspection response containing claims
-      about the token.  This includes the confirmation key (cnf) claim
-      that allows the RS to verify the client's proof of possession in
-      step F.
-
-      After receiving message E, the RS responds to the client's POST in
-      step C with Code 2.04 (Changed), using CoAP Token 0x2a12.  This
-      step is not shown in the figures.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 28]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-   Resource Authorization
-    Server     Server
-       |          |
-   D:  +--------->| Header: POST (Code=0.02)
-       |  POST    | Uri-Path: "introspect"
-       |          | Payload: <Request-Payload>
-       |          |
-   E:  |<---------+ Header: 2.05 Content
-       |  2.05    | Content-Type: application/cbor)
-       |          | Payload: <Response-Payload>
-       |          |
-
-               Figure 20: Token Introspection for C offline
-
-      The information contained in the Request-Payload and the Response-
-      Payload is shown in Figure 21.
-
-   Request-Payload:
-   {
-     "token" : b64'SlAV32hkKG...',
-     "client_id" : "myRS",
-     "client_secret" : "ytrewq"
-   }
-
-   Response-Payload:
-   {
-     "active" : true,
-     "aud" : "lockOfDoor4711",
-     "scope" : "open, close",
-     "iat" : 1311280970,
-     "cnf" : {
-       "ck" : b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
-     }
-   }
-
-         Figure 21: Request and Response Payload for Introspection
-
-      The client sends the CoAP requests PUT 1 (= "close the lock") to
-      /lock on RS using OSCOAP with a security context derived from the
-      key supplied in step B.  The RS verifies the request with the key
-      supplied in step E and that it is authorized by the token supplied
-      in step C.
-
-      F: The RS responds with a protected status code using OSCOAP.  The
-      client verifies the response.
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 29]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-              Resource
-     Client    Server
-       |         |
-       +-------->| Header: PUT (Code=0.03)
-       | PUT     | Object-Security:
-       |         |    (<seq>,<cid>,[Uri-Path:"lock", 1],<tag>)
-       |         |
-   F:  |<--------+ Header: 2.04 Changed
-       | 2.04    | Object-Security:
-       |         |    (<seq>,<cid>,,<tag>)
-       |         |
-
-       Figure 22: Resource request and response protected by OSCOAP
-
-   The Object-Security ciphertext [...] of the PUT request contains CoAP
-   options that are encrypted, as well as the payload value '1' which is
-   the value of PUT to the door lock.
-
-   In this example there is no ciphertext of the PUT response, but "tag"
-   contains a MAC which covers the request sequence number and context
-   identifier as well as the Code which allows the Client to verify that
-   this actuator command was well received (door is locked).
-
-6.4.  Always-On Connectivity
-
-   A popular deployment scenario for IoT devices is to have them always
-   be connected to the Internet so that they can be reachable to receive
-   commands.  As a continuation from the previous scenarios we assume
-   that both the client and the RS are online at the time of the access
-   request.
-
-   If the client and the resource server are online then the AS should
-   be configured to issue short-lived access tokens for the resource to
-   the client.  The resource server must then validate self-contained
-   access tokens or otherwise must use token introspection to obtain the
-   up-to-date claim information.  If transmission costs are high or the
-   channel is lossy, the CWT token format
-   [I-D.wahlstroem-ace-cbor-web-token] may be used instead of a JWT to
-   reduce the volume of network traffic.  In terms of messaging this
-   deployment scenario uses the patterns described in the previous sub-
-   sections.
-
-   Note that despite the lack of connectivity constraints there may
-   still be other restrictions a deployment may face.
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 30]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-6.5.  Token-less Authorization
-
-   In this deployment scenario we consider the case of an RS which is
-   severely energy constrained, sleeps most of the time and need to have
-   a tight messaging budget.  It is not only infeasible to access the AS
-   at the time of the access request, as in the "RS offline" case
-   Section 6.2, it must be offloaded as much message communication as
-   possible.
-
-   OAuth 2.0 is already an efficient protocol in terms of message
-   exchanges and can be further optimized by compact encodings of
-   tokens.  The scenario illustrated in this section goes beyond that
-   and removes the access tokens from the protocol.  This may be
-   considered a degenerate case of OAuth 2.0 but it allows us to do two
-   things:
-
-   1.  The common case where authorization is performed by means of
-       authentication fits into the same protocol framework.
-       Authentication protocol and key is specified by client
-       information, and access token is omitted.
-
-   2.  Authentication, and thereby authorization, may even be implicit,
-       i.e. anyone with access to the right key is authorized to access
-       the protected resource.
-
-   In case 2., the RS does not need to receive any message from the
-   client, and therefore enables offloading recurring resource request
-   and response processing to a third party, such as a Message Broker
-   (MB) in a publish-subscribe setting.
-
-   This scenario involves steps A, B, C and F of Figure 1 and four
-   parties: a client (subscriber), an offline RS (publisher), a trusted
-   AS, and a MB, not necessarily trusted with access to the plain text
-   publications.  Message exchange A, B is shown in Figure 23.
-
-      A: The client sends the request POST to /token at AS.  The request
-      contains the Audience parameter set to "birchPollenSensor301", a
-      value that characterizes a certain pollen sensor resource.  The AS
-      evaluates the request and authorizes the client to access the
-      resource.
-
-      B: The AS responds with an empty token and client information with
-      a security context to be used by the client.  The empty token
-      signifies that authorization is performed by means of
-      authentication using the communication security protocol indicated
-      with "csp".  In this case it is object security of content (OSCON)
-      i.e. protection of CoAP payload only.  The security context
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 31]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-      contains the symmetric decryption key and a public signature
-      verification key of the RS.
-
-           Authorization
-     Client   Server
-       |         |
-       |         |
-   A:  +-------->| Header: POST (Code=0.02)
-       | POST    | Uri-Path:"token"
-       |         | Payload: <Request-Payload>
-       |         |
-   B:  |<--------+ Header: 2.05 Content
-       |         | Content-Type: application/cbor
-       | 2.05    | Payload: <Response-Payload>
-       |         |
-       |         |
-
-
-                   Figure 23: Token Request and Response
-
-   The information contained in the Request-Payload and the Response-
-   Payload is shown in Figure 24.
-
-   Request-Payload :
-   {
-     "grant_type" : "client_credentials",
-     "aud" : "birchPollenSensor301",
-     "client_id" : "myclient",
-     "client_secret" : "qwerty"
-   }
-
-   Response-Payload :
-   {
-     "access_token" : NULL,
-     "token_type" : "none",
-     "csp" : "OSCON",
-     "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-   }
-
-
-    Figure 24: Request and Response Payload for RS severely constrained
-
-   The content of the "key" parameter is shown in Figure 25.
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 32]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-   key :
-   {
-     "alg" : "AES_128_CTR_ECDSA",
-     "kid" : b64'c29tZSBvdGhlciBrZXkgaWQ';
-     "k"   : b64'ZoRSOrFzN_FzUA5XKMYoVHyzff5oRJxl-IXRtztJ6uE',
-     "crv" : "P-256",
-     "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
-     "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
-   }
-
-                      Figure 25: The 'key' Parameter
-
-   The RS, which sleeps most of the time, occasionally wakes up,
-   measures the number birch pollens per cubic meters, publishes the
-   measurements to the MB, and then returns to sleep.  See Figure 26.
-
-   In this case the birch pollen count stopped at 270, which is
-   encrypted with the symmetric key and signed with the private key of
-   the RS.  The MB verifies that the message originates from RS using
-   the public key of RS, that it is not a replay of an old measurement
-   using the sequence number of the OSCON COSE profile, and caches the
-   object secured content.  The MB does not have the secret key so is
-   unable to read the plain text measurement.
-
-   Message exchanges C and F are shown in Figure 26.
-
-      C: Since there is no access token, the client does not address the
-      /authz-info resource in the RS.  The client sends the CoAP request
-      GET to /birchPollen on MB which is a plain CoAP request.
-
-      F: The MB responds with the cached object secured content.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 33]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-              Message   Resource
-     Client    Broker    Server
-       |         |         |
-       |         |<--------| Header: PUT (Code=0.02)
-       |         |  PUT    | Uri-Path: "birchPollen"
-       |         |         | Payload: (<seq>,<cid>,["270"],<tag>)
-       |         |         |
-       |         |-------->| Header: 2.04 Changed
-       |         | 2.04    |
-       |         |
-       |         |
-   C:  +-------->| Header: GET (Code=0.01)
-       | GET     | Uri-Path: "birchPollen"
-       |         |
-       |         |
-   F:  |<--------+ Header: 2.05 Content
-       | 2.05    | Payload: (<seq>,<cid>,["270"],<tag>)
-       |         |
-
-
-              Figure 26: Sensor measurement protected by COSE
-
-   The payload is a COSE message consisting of sequence number 'seq'
-   stepped by the RS for each publication, the context identifier 'cid'
-   in this case coinciding with the key identifier 'kid' of Figure 25,
-   the encrypted measurement and the signature by the RS.
-
-   Note that the same COSE message format may be used as in OSCOAP but
-   that only CoAP payload is protected in this case.
-
-   The authorization step is implicit, so while any client could request
-   access the COSE object, only authorized clients have access to the
-   symmetric key needed to decrypt the content.
-
-   Note that in this case the order of the message exchanges A,B and C,F
-   could in principle be interchanged, i.e. the client could first
-   request and obtain the protected resource in steps C,F; and after
-   that request client information containing the keys decrypt and
-   verify the message.
-
-6.6.  Securing Group Communication
-
-   There are use cases that require securing communication between a
-   (group of) senders and a group of receivers.  One prominent example
-   is lighting.  Often, a set of lighting nodes (e.g., luminaires, wall-
-   switches, sensors) are grouped together and only authorized members
-   of the group must be able read and process messages.  Additionally,
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 34]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
-   receivers of group messages must be able to verify the integrity of
-   received messages as being generated within the group.
-
-   The requirements for securely communicating in such group use cases
-   efficiently is outlined in [I-D.somaraju-ace-multicast] along with an
-   architectural description that aligns with the content of this
-   document.  The requirements for conveying the necessary identifiers
-   to reference groups and also the process of commissioning devices can
-   be accomplished using the protocol described in this document.  For
-   details about the lighting-unique use case aspects, the architecture,
-   as well as other multicast-specific considerations we refer the
-   reader to [I-D.somaraju-ace-multicast].
-
-7.  Security Considerations
+6.  Security Considerations
 
    The entire document is about security.  Security considerations
    applicable to authentication and authorization in RESTful
@@ -1931,7 +988,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
    threats as well as mitigation measures for Proof-of-Possession
    tokens.
 
-8.  IANA Considerations
+7.  IANA Considerations
 
    TBD
 
@@ -1941,7 +998,19 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
    FIXME: Add registry of 'tktn' values from Figure 3
 
-8.1.  CoAP Option Number Registration
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 18]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+7.1.  CoAP Option Number Registration
 
    This section registers the "Access-Token" CoAP Option Number
    [RFC2046] in "CoRE Parameters" sub-registry "CoAP Option Numbers" in
@@ -1954,13 +1023,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
    Number
 
       TBD
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 35]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
    Reference
 
@@ -1988,7 +1050,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
       Less then 255 bytes
 
-9.  Acknowledgments
+8.  Acknowledgments
 
    We would like to thank Eve Maler for her contributions to the use of
    OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion
@@ -1997,9 +1059,16 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
    this work.  Finally, we would like to thank the ACE working group in
    general for their feedback.
 
-10.  References
 
-10.1.  Normative References
+
+Seitz, et al.          Expires September 21, 2016              [Page 19]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+9.  References
+
+9.1.  Normative References
 
    [I-D.bormann-core-ace-aif]
               Bormann, C., "An Authorization Information Format (AIF)
@@ -2009,14 +1078,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
    [I-D.ietf-cose-msg]
               Schaad, J., "CBOR Encoded Message Syntax", draft-ietf-
               cose-msg-10 (work in progress), February 2016.
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 36]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
    [I-D.ietf-oauth-introspection]
               Richer, J., "OAuth 2.0 Token Introspection", draft-ietf-
@@ -2050,6 +1111,17 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
               wahlstroem-ace-oauth-introspection-01 (work in progress),
               March 2015.
 
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 20]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
@@ -2064,16 +1136,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
               Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
               January 2012, <http://www.rfc-editor.org/info/rfc6347>.
 
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 37]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
    [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
               Application Protocol (CoAP)", RFC 7252,
               DOI 10.17487/RFC7252, June 2014,
@@ -2087,7 +1149,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
               DOI 10.17487/RFC7517, May 2015,
               <http://www.rfc-editor.org/info/rfc7517>.
 
-10.2.  Informative References
+9.2.  Informative References
 
    [I-D.ietf-ace-actors]
               Gerdes, S., Seitz, L., Selander, G., and C. Bormann, "An
@@ -2105,6 +1167,17 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
               for Constrained RESTful Environments", draft-seitz-ace-
               core-authz-00 (work in progress), June 2015.
 
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 21]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    [I-D.somaraju-ace-multicast]
               Somaraju, A., Kumar, S., Tschofenig, H., and W. Werner,
               "Security for Low-Latency Group Communication", draft-
@@ -2119,16 +1192,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
               (TLS) Protocol Version 1.2", RFC 5246,
               DOI 10.17487/RFC5246, August 2008,
               <http://www.rfc-editor.org/info/rfc5246>.
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 38]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
    [RFC6690]  Shelby, Z., "Constrained RESTful Environments (CoRE) Link
               Format", RFC 6690, DOI 10.17487/RFC6690, August 2012,
@@ -2161,6 +1224,16 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
               DOI 10.17487/RFC7228, May 2014,
               <http://www.rfc-editor.org/info/rfc7228>.
 
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 22]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    [RFC7231]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Semantics and Content", RFC 7231,
               DOI 10.17487/RFC7231, June 2014,
@@ -2177,14 +1250,6 @@ Appendix A.  Design Justification
    building blocks and briefly summarizes their importance.  The
    justification for offering some of those building blocks, as opposed
    to using OAuth 2.0 as is, is given below.
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 39]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
    Common IoT constraints are:
 
@@ -2218,6 +1283,13 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       secret key establishment using transport or application layer
       security.
 
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 23]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    Small Amount of Memory:
 
       Microcontrollers embedded in IoT devices are often equipped with
@@ -2232,15 +1304,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       establishment also has an impact on memory and code.
 
    User Interface Limitations:
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 40]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
       Protecting access to resources is both an important security as
       well as privacy feature.  End users and enterprise customers do
@@ -2271,6 +1334,18 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       The latter raises the need for application layer security over the
       various interfaces.
 
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 24]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
 Appendix B.  Roles and Responsibilites -- a Checklist
 
    Resource Owner
@@ -2290,14 +1365,6 @@ Appendix B.  Roles and Responsibilites -- a Checklist
 
       *  Make sure that the client is configured to follow the security
          requirements of the Requesting Party, when issuing requests
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 41]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
          (e.g. minimum communication security requirements, trust
          anchors).
 
@@ -2328,6 +1395,13 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
       *  Optionally: Handle token revocation.
 
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 25]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    Client
 
       *  Discover the AS in charge of the RS that is to be targeted with
@@ -2346,13 +1420,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
             the AS has the right rpk or certificate for this client.
 
       *  Process the access token and client information (B)
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 42]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
          +  Check that the token has the right format (e.g.  CWT).
 
@@ -2383,6 +1450,14 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
       *  Expose a way to submit access tokens.
 
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 26]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
       *  Process an access token.
 
          +  Verify the token is from the right AS.
@@ -2402,13 +1477,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
          +  Set up communication security with the client.
 
          +  Authenticate the client.
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 43]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
          +  Match the client against existing tokens.
 
@@ -2436,6 +1504,16 @@ C.1.  Profile for Token resource
    presenting its authorization grant or client credentials to the
    /token resource the AS.
 
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 27]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
 C.1.1.  Token Request
 
    The client makes a request to the token resource by sending a CBOR
@@ -2456,15 +1534,6 @@ C.1.1.  Token Request
       OPTIONAL.  The client secret.
 
    scope:
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 44]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
       OPTIONAL.  The scope of the access request as described by
       Section 3.1.
@@ -2489,6 +1558,18 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
    The parameters defined above use the following CBOR major types.
 
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 28]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
         /-----------+--------------+-----------------------\
         | Value     | Major Type   | Key                   |
         |-----------+--------------+-----------------------|
@@ -2501,7 +1582,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
         | 6         | 0            | key                   |
         \-----------+--------------+-----------------------/
 
-              Figure 27: CBOR mappings used in token requests
+              Figure 6: CBOR mappings used in token requests
 
 C.1.2.  Token Response
 
@@ -2513,14 +1594,6 @@ C.1.2.  Token Response
       REQUIRED.  The access token issued by the authorization server.
 
    token_type:
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 45]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
       REQUIRED.  The type of the token issued. "pop" is recommended.
 
@@ -2544,6 +1617,15 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
    alg:
 
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 29]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
       OPTIONAL.  The 'alg' parameter provides further information about
       the algorithm, such as whether a symmetric or an asymmetric
       crypto-system is used.
@@ -2561,7 +1643,7 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
          | 5         | 0            | alg                   |
          \-----------+--------------+-----------------------/
 
-             Figure 28: CBOR mappings used in token responses
+              Figure 7: CBOR mappings used in token responses
 
 C.2.  CoAP Profile for OAuth Introspection
 
@@ -2570,14 +1652,6 @@ C.2.  CoAP Profile for OAuth Introspection
    scopes found in access token.  The OAuth Token Introspection
    specification [I-D.ietf-oauth-introspection] defines a way to
    validate the token using HTTP POST or HTTP GET.  This document reuses
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 46]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
    the work done in the OAuth Token Introspection and defines a mapping
    of the request and response to CoAP [RFC7252] to be used by
    constrained devices.
@@ -2601,6 +1675,13 @@ C.2.1.  Introspection Request
       OPTIONAL.  The client identifier issued to the holder of the token
       (client or RS) during the registration process.
 
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 30]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    client_secret:
 
       OPTIONAL.  The client secret.
@@ -2616,7 +1697,7 @@ C.2.1.  Introspection Request
           | 3         | 0            | client_secret         |
           \-----------+--------------+-----------------------/
 
-    Figure 29: CBOR Mappings to Token Introspection Request Parameters.
+    Figure 8: CBOR Mappings to Token Introspection Request Parameters.
 
 C.2.2.  Introspection Response
 
@@ -2626,13 +1707,6 @@ C.2.2.  Introspection Response
    failed client authentication or is invalid, the authorization server
    returns an error response using the CoAP 4.00 'Bad Request' response
    code.
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 47]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
    The JSON structure in the payload response includes the top-level
    members defined in Section 2.2 in the OAuth Token Introspection
@@ -2655,6 +1729,14 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       issuance time and before its expiration time).
 
    scope:
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 31]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
 
       OPTIONAL.  A string containing a space-separated list of scopes
       associated with this token, in the format described in Section 3.3
@@ -2683,13 +1765,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
    iat:
 
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 48]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
       OPTIONAL.  Integer timestamp, measured in the number of seconds
       since January 1 1970 UTC, indicating when this token will expire,
       as defined in CWT [I-D.wahlstroem-ace-cbor-web-token].
@@ -2712,6 +1787,13 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       identifiers representing the intended audience for this token, as
       defined in CWT [I-D.wahlstroem-ace-cbor-web-token].
 
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 32]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
    iss:
 
       OPTIONAL.  String representing the issuer of this token, as
@@ -2723,28 +1805,6 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
       [I-D.wahlstroem-ace-cbor-web-token]
 
    The parameters defined above use the following CBOR major types:
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 49]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
 
    /-----------+--------------+-----------------------\
    | Value     | Major Type   | Key                   |
@@ -2763,11 +1823,484 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
    | 11        | 0            | cti                   |
    \-----------+--------------+-----------------------/
 
-   Figure 30: CBOR Mappings to Token Introspection Response Parameters.
+    Figure 9: CBOR Mappings to Token Introspection Response Parameters.
 
-Appendix D.  Document Updates
+Appendix D.  Deployment Examples
 
-D.1.  Version -00 to -01
+   There is a large variety of IoT deployments, as is indicated in
+   Appendix A, and this section highlights a few common variants.  This
+   section is not normative but illustrates how the framework can be
+   applied.
+
+   For each of the deployment variants there are a number of possible
+   security setups between clients, resource servers and authorization
+   servers.  The main focus in the following subsections is on how
+   authorization of a client request for a resource hosted by a RS is
+   performed.  This requires the the security of the requests and
+   responses between the clients and the RS to consider.
+
+   Note: CBOR diagnostic notation is used for examples of requests and
+   responses.
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 33]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+D.1.  Local Token Validation
+
+   In this scenario we consider the case where the resource server is
+   offline, i.e. it is not connected to the AS at the time of the access
+   request.  This access procedure involves steps A, B, C, and F of
+   Figure 1.
+
+   Since the resource server must be able to verify the access token
+   locally, self-contained access tokens must be used.
+
+   This example shows the interactions between a client, the
+   authorization server and a temperature sensor acting as a resource
+   server.  Message exchanges A and B are shown in Figure 10.
+
+      A: The client first generates a public-private key pair used for
+      communication security with the RS.
+
+      The client sends the POST request to /token at the AS.  The
+      request contains the public key of the client and the Audience
+      parameter set to "tempSensorInLivingRoom", a value that the
+      temperature sensor identifies itself with.  The AS evaluates the
+      request and authorizes the client to access the resource.
+
+      B: The AS responds with a PoP token and client information.  The
+      PoP token contains the public key of the client, and the client
+      information contains the public key of the RS.  For communication
+      security this example uses DTLS RawPublicKey between the client
+      and the RS.  The issued token will have a short validity time,
+      i.e. 'exp' close to 'iat', to protect the RS from replay attacks
+      since it, that cannot do introspection to check the tokens current
+      validity.  The token includes the claim "aif" with the authorized
+      access that an owner of the temperature device can enjoy.  The
+      'aif' claim, issued by the AS, informs the RS that the owner of
+      the token, that can prove the possession of a key is authorized to
+      make a GET request against the /temperature resource and a POST
+      request on the /firmware resource.
+
+      Note: In this example we assume that the client knows what
+      resource it wants to access, and is therefore able to request
+      specific audience and scope claims for the access token.
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 34]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+            Authorization
+     Client    Server
+       |         |
+       |         |
+   A:  +-------->| Header: POST (Code=0.02)
+       |  POST   | Uri-Path:"token"
+       |         | Content-Type: application/cbor
+       |         | Payload: <Request-Payload>
+       |         |
+   B:  |<--------+ Header: 2.05 Content
+       |  2.05   | Content-Type: application/cbor
+       |         | Payload: <Response-Payload>
+       |         |
+
+      Figure 10: Token Request and Response Using Client Credentials.
+
+   The information contained in the Request-Payload and the Response-
+   Payload is shown in Figure 11.
+
+   Request-Payload :
+   {
+     "grant_type" : "client_credentials",
+     "aud" : "tempSensorInLivingRoom",
+     "client_id" : "myclient",
+     "client_secret" : "qwerty"
+   }
+
+   Response-Payload :
+   {
+     "access_token" : b64'SlAV32hkKG ...',
+     "token_type" : "pop",
+     "csp" : "DTLS",
+     "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
+     "rpk" : b64'ZXlKaGJHY2lPaUpTVTBF ...'
+   }
+
+             Figure 11: Request and Response Payload Details.
+
+   The content of the "key" parameter and the access token are shown in
+   Figure 12 and Figure 13.
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 35]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+   {
+     "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
+     "kty" : "EC",
+     "crv" : "P-256",
+     "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
+     "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
+   }
+
+                     Figure 12: Public Key of the RS.
+
+   {
+     "aud" : "tempSensorInLivingRoom",
+     "iat" : "1360189224",
+     "exp" : "1360289224",
+     "aif" :  [["/temperature", 0], ["/firmware", 2]],
+     "cnf" : {
+       "jwk" : {
+         "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
+         "kty" : "EC",
+         "crv" : "P-256",
+         "x" : b64'f83OJ3D2xF1Bg8vub9tLe1gHMzV76e8Tus9uPHvRVEU',
+         "y" : b64'x_FEzRu9m36HLN_tue659LNpXW6pCyStikYjKIWI5a0'
+       }
+     }
+   }
+
+        Figure 13: Access Token including Public Key of the Client.
+
+   Messages C and F are shown in Figure 14 - Figure 15.
+
+      C: The client then sends the PoP token to the /authz-info resource
+      at the RS.  This is a plain CoAP request, i.e. no transport or
+      application layer security between client and RS, since the token
+      is integrity protected between AS and RS.  The RS verifies that
+      the PoP token was created by a known and trusted AS, is valid, and
+      responds to the client.  The RS caches the security context
+      together with authorization information about this client
+      contained in the PoP token.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 36]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+              Resource
+    Client     Server
+       |         |
+   C:  +-------->| Header: POST (Code=0.02)
+       |  POST   | Uri-Path:"authz-info"
+       |         | Payload: SlAV32hkKG ...
+       |         |
+       |<--------+ Header: 2.01 Created
+       |  2.01   |
+       |         |
+
+                Figure 14: Access Token provisioning to RS
+
+      The client and the RS runs the DTLS handshake using the raw public
+      keys established in step B and C.
+
+      The client sends the CoAP request GET to /temperature on RS over
+      DTLS.  The RS verifies that the request is authorized, based on
+      previously established security context.
+
+      F: The RS responds with a resource representation over DTLS.
+
+              Resource
+    Client     Server
+       |         |
+       |<=======>| DTLS Connection Establishment
+       |         |   using Raw Public Keys
+       |         |
+       +-------->| Header: GET (Code=0.01)
+       | GET     | Uri-Path: "temperature"
+       |         |
+       |         |
+       |         |
+   F:  |<--------+ Header: 2.05 Content
+       | 2.05    | Payload: <sensor value>
+       |         |
+
+        Figure 15: Resource Request and Response protected by DTLS.
+
+D.2.  Introspection Aided Token Validation
+
+   In this deployment scenario we assume that a client is not be able to
+   access the AS at the time of the access request.  Since the RS is,
+   however, connected to the back-end infrastructure it can make use of
+   token introspection.  This access procedure involves steps A-F of
+   Figure 1, but assumes steps A and B have been carried out during a
+   phase when the client had connectivity to AS.
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 37]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+   Since the client is assumed to be offline, at least for a certain
+   period of time, a pre-provisioned access token has to be long-lived.
+   The resource server may use its online connectivity to validate the
+   access token with the authorization server, which is shown in the
+   example below.
+
+   In the example we show the interactions between an offline client
+   (key fob), a resource server (online lock), and an authorization
+   server.  We assume that there is a provisioning step where the client
+   has access to the AS.  This corresponds to message exchanges A and B
+   which are shown in Figure 16.
+
+   Authorization consent from the resource owner can be pre-configured,
+   but it can also be provided via an interactive flow with the resource
+   owner.  An example of this for the key fob case could be that the
+   resource owner has a connected car, he buys a generic key that he
+   wants to use with the car.  To authorize the key fob he connects it
+   to his computer that then provides the UI for the device.  After that
+   OAuth 2.0 implicit flow can used to authorize the key for his car at
+   the the car manufacturers AS.
+
+   Note: In this example the client does not know the exact door it will
+   be used to access since the token request is not send at the time of
+   access.  So the scope and audience claims is set quite wide to start
+   with and new values different form the original once can be returned
+   from introspection later on.
+
+      A: The client sends the request using POST to /token at AS.  The
+      request contains the Audience parameter set to "PACS1337" (PACS,
+      Physical Access System), a value the that the online door in
+      question identifies itself with.  The AS generates an access token
+      as on opaque string, which it can match to the specific client, a
+      targeted audience and a symmetric key.
+
+      B: The AS responds with the an access token and client
+      information, the latter containing a symmetric key.  Communication
+      security between C and RS will be DTLS and PreSharedKey.  The PoP
+      key being used as the PreSharedKey.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 38]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+            Authorization
+    Client     Server
+       |         |
+       |         |
+   A:  +-------->| Header: POST (Code=0.02)
+       |  POST   | Uri-Path:"token"
+       |         | Content-Type: application/cbor
+       |         | Payload: <Request-Payload>
+       |         |
+   B:  |<--------+ Header: 2.05 Content
+       |         | Content-Type: application/cbor
+       |  2.05   | Payload: <Response-Payload>
+       |         |
+
+      Figure 16: Token Request and Response using Client Credentials.
+
+   The information contained in the Request-Payload and the Response-
+   Payload is shown in Figure 17.
+
+   Request-Payload:
+   {
+     "grant_type" : "client_credentials",
+     "aud" : "lockOfDoor4711",
+     "client_id" : "keyfob",
+     "client_secret" : "qwerty"
+   }
+
+   Response-Payload:
+   {
+     "access_token" : b64'SlAV32hkKG ...'
+     "token_type" : "pop",
+     "csp" : "DTLS",
+     "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
+   }
+
+           Figure 17: Request and Response Payload for C offline
+
+   The access token in this case is just an opaque string referencing
+   the authorization information at the AS.
+
+      C: Next, the client POSTs the access token to the /authz-info
+      resource in the RS.  This is a plain CoAP request, i.e. no DTLS
+      between client and RS.  Since the token is an opaque string, the
+      RS cannot verify it on its own, and thus defers to respond the
+      client with a status code until after step E.
+
+      D: The RS forwards the token to the /introspect resource on the
+      AS.  Introspection assumes a secure connection between the AS and
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 39]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+      the RS, e.g. using transport of application layer security, which
+      is not detailed in this example.
+
+      E: The AS provides the introspection response containing claims
+      about the token.  This includes the confirmation key (cnf) claim
+      that allows the RS to verify the client's proof of possession in
+      step F.
+
+      After receiving message E, the RS responds to the client's POST in
+      step C with Code 2.01 Created.
+
+
+
+              Resource
+     Client    Server
+       |         |
+   C:  +-------->| Header: POST (T=CON, Code=0.02)
+       |  POST   | Uri-Path:"authz-info"
+       |         | Content-Type: "application/cbor"
+       |         | Payload: b64'SlAV32hkKG ...''
+       |         |
+       |         |     Authorization
+       |         |       Server
+       |         |          |
+   D:  |         +--------->| Header: POST (Code=0.02)
+       |         |  POST    | Uri-Path: "introspect"
+       |         |          | Content-Type: "application/cbor"
+       |         |          | Payload: <Request-Payload>
+       |         |          |
+   E:  |         |<---------+ Header: 2.05 Content
+       |         |  2.05    | Content-Type: "application/cbor"
+       |         |          | Payload: <Response-Payload>
+       |         |          |
+       |         |
+   C:  |<--------+ Header: 2.01 Created
+       |  2.01   |
+       |         |
+
+               Figure 18: Token Introspection for C offline
+
+      The information contained in the Request-Payload and the Response-
+      Payload is shown in Figure 19.
+
+
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 40]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+   Request-Payload:
+   {
+     "token" : b64'SlAV32hkKG...',
+     "client_id" : "FrontDoor",
+     "client_secret" : "ytrewq"
+   }
+
+   Response-Payload:
+   {
+     "active" : true,
+     "aud" : "lockOfDoor4711",
+     "scope" : "open, close",
+     "iat" : 1311280970,
+     "cnf" : {
+       "ck" : b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
+     }
+   }
+
+         Figure 19: Request and Response Payload for Introspection
+
+      The client uses the symmetric PoP key to establish a DTLS
+      PreSharedKey secure connection to the RS.  The CoAP request PUT is
+      sent to the uri-path /state on RS changing state of the door to
+      locked.
+
+      F: The RS responds with a appropriate over the secure DTLS
+      channel.
+
+              Resource
+     Client    Server
+       |         |
+       |<=======>| DTLS Connection Establishment
+       |         |   using Pre Shared Key
+       |         |
+       +-------->| Header: PUT (Code=0.03)
+       | PUT     | Uri-Path: "state"
+       |         | Payload: <new state for the lock>
+       |         |
+   F:  |<--------+ Header: 2.04 Changed
+       | 2.04    | Payload: <new state for the lock>
+       |         |
+
+       Figure 20: Resource request and response protected by OSCOAP
+
+
+
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 41]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
+
+Appendix E.  Document Updates
+
+E.1.  Version -00 to -01
 
    o  Changed 5.1. from "Communication Security Protocol" to "Client
       Information".
@@ -2794,14 +2327,6 @@ D.1.  Version -00 to -01
       *  (D)TLS MUST use the PoP key in the handshake (either as PSK or
          as client RPK with client authentication).
 
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 50]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
       *  Defined the use of x5c, x5t and x5tS256 parameters when a
          client certificate is used for proof of possession.
 
@@ -2819,6 +2344,15 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
    o  Appendix B Added list of roles and responsibilities for C, AS and
       RS.
+
+
+
+
+
+Seitz, et al.          Expires September 21, 2016              [Page 42]
+
+Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
+
 
 Authors' Addresses
 
@@ -2849,15 +2383,6 @@ Authors' Addresses
    Email: erik.wahlstrom@nexusgroup.com
 
 
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 51]
-
-Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
-
-
    Samuel Erdtman
    Nexus Technology
    Telefonvagen 26
@@ -2880,33 +2405,4 @@ Internet-Draft         OAuth 2.0 IoT Authorization            March 2016
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.          Expires September 19, 2016              [Page 52]
+Seitz, et al.          Expires September 21, 2016              [Page 43]
