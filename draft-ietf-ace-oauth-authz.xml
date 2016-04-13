@@ -232,12 +232,14 @@ processing and message exchange capabilities.
 
 <t>This memo describes how to re-use OAuth 2.0 <xref target="RFC6749"/> to
 extend authorization to Internet of Things devices with different kinds of
-constraints.  At the time of writing, OAuth 2.0 is already used with certain
-types of IoT devices and this document will provide implementers additional
-guidance for using it in a secure and privacy-friendly way.  Where possible the
-basic OAuth 2.0 mechanisms are used; in some circumstances profiles are defined,
-for example to support smaller the over-the-wire message size and
-smaller code size.</t>
+constraints.  It constitutes a framework that describes building blocks
+for adapting OAuth 2.0 to an IoT setting.  Detailed, interoperable deployments
+of this framework will be described in profiles, which MUST comply with this
+profile. Implementations can then claim conformance with a specific profile,
+where implementations of the same profile MUST be interoperable while
+implementations of different profiles are not expected to be.  Powerful
+endpoints may support multiple profiles in order to be able to interact with a
+variety of less powerful devices.</t>
 </section>
 
 <!-- ***************************************************** -->
@@ -267,7 +269,7 @@ memo to avoid confusion with the CoAP <xref target="RFC7252"/> term
 "endpoint".</t>
 
 <t>
-Since this draft focuses on the problem of access control to resources, we
+Since this memo focuses on the problem of access control to resources, we
 simplify the actors by assuming that the client authorization server (CAS)
 functionality is not stand-alone but subsumed by either the authorization server
 or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
@@ -553,11 +555,10 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   client and the transport of access tokens and client information from AS 
   to the client. </t> 
 
- <t>It is also assumed
-  that the RS has been registered with the AS.  Established keying material 
-between the AS and the RS allows the AS to apply cryptographic protection 
-to the access token to ensure that the content cannot be modified, and if
-needed, that the content is confidentiality protected.</t> 
+ <t>It is also assumed that the RS has been registered with the AS.
+ Established keying material between the AS and the RS allows the AS to apply
+ cryptographic protection to the access token to ensure that the content cannot
+ be modified, and if needed, that the content is confidentiality protected.</t> 
 
 <t>The keying material necessary for establishing communication security
   between C and RS is dynamically established as part of the protocol described 
@@ -621,7 +622,7 @@ needed, that the content is confidentiality protected.</t>
       contexts or dynamically established. The RS authenticates the client via 
       the PoP token; and the client authenticates the RS via the client 
       information as described in
-      <xref target="oauth2ProfilesCSP"/>.
+      <xref target="oauth2Profiles"/>.
     </t>
 
     <t hangText="Resource Request (C):"><vspace blankLines="1"/>
@@ -696,7 +697,7 @@ needed, that the content is confidentiality protected.</t>
 
 
 
-<section anchor="oauth2ProfilesCSP" title="Client Information">
+<section anchor="oauth2Profiles" title="Client Information">
     
     <t>OAuth 2.0 using bearer tokens, as described in <xref
     target="RFC6749"/> and in <xref target="RFC6750"/>, 
@@ -708,9 +709,9 @@ needed, that the content is confidentiality protected.</t>
     pre-provisioned with trust anchors that enable clients to authenticate
     servers based on the Web PKI.  In a more heterogeneous IoT environment a 
     wider range of use cases needs to be supported.  Therefore, this document
-    suggests extensions to OAuth 2.0 that enables the AS to inform the client 
-    on how to communicate securely with a RS and that allows the client to 
-    indicate communication security preferences to the AS.</t>
+    suggests extensions to OAuth 2.0 that enables the client to reuqest the use
+    of a specific profile from the AS, and in response the AS can inform the
+    client which profiles the RS supports.</t>
     
     <t>In the OAuth memo defining the key distribution for
     proof-of-possession (PoP) tokens <xref
@@ -723,7 +724,7 @@ needed, that the content is confidentiality protected.</t>
     payload of the client request.  The Content-format MUST be
     application/cbor in that case.</t>
     
-    <t>The OAuth memo further specifies that the AS SHALL use a JSON
+    <t>The OAuth memo further specifies that the AS shall use a JSON
     structure in the payload of the response to encode the response
     parameters.  These parameters include the access token, destined
     for the RS and additional information for the client, such as e.g. the PoP
@@ -740,10 +741,10 @@ needed, that the content is confidentiality protected.</t>
     wrapping by setting the CoAP Accept option to "application/cose".</t>
 
     <t>The client may be a constrained device and could therefore be limited
-    in the communication security protocols it supports.  It can therefore
+    in the encodings and protocols it supports.  It can therefore
     signal to the AS which protocols it can support for securing their 
-    mutual communication.  This is done by using the "csp" parameter defined
-    below in the Token Request message sent to the AS.</t>
+    mutual communication.  This is done by using the "profile" parameter
+    defined below in the Token Request message sent to the AS.</t>
 
     <t>Note that The OAuth key distribution specification <xref
     target="I-D.ietf-oauth-pop-key-distribution"/> describes in section 6
@@ -753,106 +754,46 @@ needed, that the content is confidentiality protected.</t>
 
     <t>The client and the RS might not have any prior knowledge about each 
     other, therefore the AS needs to help them to establish a security context 
-    or at least a common key.  The AS does this by indicating the
-    communication security  protocol parameter "csp" and additional key
-    parameters in the client information.</t>
-    
-    <t>The csp parameter specifies how client and RS communication is going to
-    be secured based on the keys provided by the AS.  Currently defined values
-    are "TLS",  "DTLS", "ObjectSecurity" with the encodings specified in
-    <xref target="tab:cspParam"/>.  Depending on the value different
-    additional parameters become mandatory.</t>
-    
-    <t><figure align="center" anchor="tab:cspParam"
-               title="Table of 'csp' parameter value encodings for Client 
-		      Information.">
-      <artwork align="left"><![CDATA[
-       /-----------+--------------+-----------------------\
-       | Value     | Major Type   | Key                   |
-       |-----------+--------------+-----------------------|
-       | 0         | 0            | TLS                   |
-       | 1         | 0            | DTLS                  |
-       | 2         | 0            | ObjectSecurity        |
-       \-----------+--------------+-----------------------/
-      ]]></artwork>
-    </figure></t>
+    or at least a common key using one of the profiles of this framework.  The
+    AS does this by using the "profile" datastructure containing information
+    about the communication and communication security protocols, the method of
+    token transport, and the supported credentials in the client information.
+    Profiles MAY extend the range of information carried in this
+    datastructure.</t>   
+    <t>
+    <figure><artwork align="left"><![CDATA[
+      struct {
+          CommunicationProtocol protocol;
+          CommunicationSecurityProtocol comm_sec_protocol;
+          TokenTransport token_transport_method;
+          CredentialType credential_type;
+      } Profile;
+      ]]></artwork></figure>
+    </t>
 
-    <t>CoAP specifies three security modes of DTLS: PreSharedKey, RawPublicKey
-    and Certificate.  The same modes can be used with TLS.  The client is to
-    infer from the type of key provided, which (D)TLS mode the RS supports as
-    follows.</t>
+    <t>
+    <figure><artwork align="left"><![CDATA[
+      enum { HTTP, CoAP } CommunicationProtocol;
+      ]]></artwork></figure>
+    </t>
 
-    <t>If PreSharedKey mode is used, the AS MUST provide the client with 
-    the pre-shared key to be used with the RS.  This key MUST be the same as
-    the PoP key (i.e. a symmetric key as in section 4 of <xref
-    target="I-D.ietf-oauth-pop-key-distribution"/>).</t>
+    <t>
+    <figure><artwork align="left"><![CDATA[
+      enum { TLS1.2, DTLS1.2, OSCoAP } CommunicationSecurityProtocol;
+      ]]></artwork></figure>
+    </t>
 
-    <t>The client MUST use the PoP key as DTLS pre-shared key.  The client 
-    MUST furthermore use the "kid" parameter provided as part of the 
-    JWK/COSE_Key as the psk_identity in the DTLS handshake <xref 
-    target="RFC4279"/>.  How the AS and the RS determine the values of the kid
-    parameter is out of scope for this specification, but the AS MUST use a
-    kid that makes it possible for the RS to select the correct key.</t>
-    
-    <t>If RawPublicKey mode is used, the AS MUST provide the client with 
-    the RS's raw public key using the "rpk" parameter defined in the
-    following.  This parameter MUST contain a JWK or a COSE_Key.  The client
-    MUST provide a raw public key to the AS, and the AS MUST use this key as
-    PoP key in the token.  The token MUST thus use asymmetric keys for the 
-    proof-of-possession.  Note that the PoP key distribution specification
-    <xref target="I-D.ietf-oauth-pop-key-distribution"/> defines how the
-    client can transfer its key as a JWK datastructure.  This specification
-    RECOMMENDS to use a COSE_Key structure instead.  This specification refers
-    to section 9.1.3.2.1. of CoAP <xref target="RFC7252"/> for recommendations
-    on how to generate the kid for a raw public key.</t>
-    
-    <t>In order to get the proof-of-possession a RS configured to use this
-    mode together with PoP tokens MUST require client authentication in the 
-    DTLS handshake.  The client MUST use the raw public key bound to the
-    PoP token for client authentication in DTLS.</t>    
-  
-    <t>TLS or DTLS with certificates MAY make use of pre-established trust
-    anchors or MAY be configured more tightly with additional client
-    information parameters, such as x5c, x5t, or x5t#S256. An overview of
-    these parameters is given below.</t>
+    <t>
+    <figure><artwork align="left"><![CDATA[
+      enum { POSTauthzInfo } TokenTransport;
+      ]]></artwork></figure>
+    </t>
 
-    <t hangText="X.509 Certificate Chain (x5c)"><vspace blankLines="1"/>
-    For when communication security is based on certificates this attribute
-    can be used to define the server certificate or CA certificate.
-    Semantics for this attribute is defined by <xref target="RFC7517"/> or
-    COSE_Key <xref target="I-D.ietf-cose-msg"/>.</t>
-   
-    <t hangText="X.509 Certificate Thumbprint (x5t and x5t#S256)">
-    <vspace blankLines="1"/>
-    For when communication security is based on certificates this attribute
-    can be used to define the specific server certificate to expect or the CA
-    certificate.  Semantics for this attribute is defined by JWK/COSE_Key.</t>
-                   
-    <t>To use object security (such as OSCOAP and OSCON) requires security
-    context to be established, which can be provisioned with PoP token and
-    client information, or derived from that information. Object security
-    specifications designed to be used with this protocol MUST specify the
-    parameters that an AS has to provide to the client in order to set up
-    the necessary security context.</t>
-  
-    <t>Table <xref target="tab:cspSummary"/> summarizes the additional
-    parameters defined here for use by the client or the AS in the
-    PoP token request protocol.</t>
-    <t><figure align="center" anchor="tab:cspSummary"
-               title="Table of additional parameters defined for the
-		      PoP protocol.">
-      <artwork align="left"><![CDATA[
-   /-----------+--------------+----------------------------------\
-   | Parameter | Used by      | Description                      |
-   |-----------+--------------+----------------------------------|
-   | csp       | client or AS | Communication security protocol  |
-   | rpk       | AS           | RS's raw public key              |
-   | x5c       | AS           | RS's X.509 certificate chain     |
-   | x5t       | AS           | RS's SHA-1 cert thumb print      |
-   | x5t#S256  | AS           | RS's SHA-256 cert thumb print    |
-   \-----------+--------------+----------------------------------/
-      ]]></artwork>
-    </figure></t>
+    <t>
+    <figure><artwork align="left"><![CDATA[
+      enum { PSK, RPK, X.509cert} CredentialType;
+      ]]></artwork></figure>
+    </t>
   </section>
 
   <section anchor="oauth2ProfilesCoAPAccessTokenOption"
@@ -1497,7 +1438,7 @@ B:  |<--------+ Header: 4.01 Unauthorized
                 REQUIRED.  Information on what communication protocol to use
                 in the communication between the client and the RS.  Details on
                 possible values can be found in
-                <xref target="oauth2ProfilesCSP" />.
+                <xref target="oauth2Profiles" />.
               </t>
 
                <t hangText="scope:"><vspace blankLines="1"/>
