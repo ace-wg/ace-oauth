@@ -762,145 +762,60 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     datastructure.</t>   
     <t>
     <figure><artwork align="left"><![CDATA[
-      struct {
-          CommunicationProtocol protocol;
-          CommunicationSecurityProtocol comm_sec_protocol;
-          TokenTransport token_transport_method;
-          CredentialType credential_type;
-      } Profile;
+   struct {
+      CommunicationProtocol protocol;
+      CommSecProtocol comm_sec_protocol;
+      TokenTransport token_transport_method;
+      CredentialType credential_type;
+   } Profile;
       ]]></artwork></figure>
     </t>
 
     <t>
     <figure><artwork align="left"><![CDATA[
-      enum { HTTP, CoAP } CommunicationProtocol;
+   enum { HTTP(0), CoAP(1) } CommunicationProtocol;
       ]]></artwork></figure>
     </t>
 
     <t>
     <figure><artwork align="left"><![CDATA[
-      enum { TLS1.2, DTLS1.2, OSCoAP } CommunicationSecurityProtocol;
+   enum { TLS1.2(0), DTLS1.2(1), OSCoAP(2) } CommSecProtocol;
       ]]></artwork></figure>
     </t>
 
     <t>
     <figure><artwork align="left"><![CDATA[
-      enum { POSTauthzInfo } TokenTransport;
+   enum { POSTauthzInfo(0), CoAPOption(1) } TokenTransport;
       ]]></artwork></figure>
     </t>
 
     <t>
     <figure><artwork align="left"><![CDATA[
-      enum { PSK, RPK, X.509cert} CredentialType;
+   enum { PSK(0), RPK(1), X.509cert(2)} CredentialType;
       ]]></artwork></figure>
+    </t>
+
+    <t>If the client and the AS are using CoAP to communicate, the Profile
+    datastructure SHALL be encoded as a CBOR map using the encoding from <xref
+    target="fig:profile"/> for the tags.</t>
+    
+    <t>
+      <figure align="center" anchor="fig:profile"
+              title="CBOR Mappings to Profile Parameters.">
+        <artwork align="left"><![CDATA[
+/-----------+--------------+-----------------------\
+| Value     | Major Type   | Key                   |
+|-----------+--------------+-----------------------|
+| 0         | 0            | CommunicationProtocol |
+| 1         | 0            | CommSecProtocol       |
+| 2         | 0            | TokenTransport        |
+| 3         | 0            | CredentialType        |
+\-----------+--------------+-----------------------/
+        ]]></artwork>
+      </figure>
     </t>
   </section>
 
-  <section anchor="oauth2ProfilesCoAPAccessTokenOption"
-           title="CoAP Access-Token Option">
-    <t> OAuth 2.0 access tokens are usually transferred as authorization 
-    	header. CoAP has no authorization header equivalence. This document 
-    	therefor register the option Access-Token. The Access-Token option 
-    	is an alternative for transferring the access token when it is smaller 
-    	then 255 bytes. If token is larger the 255 bytes lager authorization 
-    	information resources MUST at the RS be user when CoAP.
-    </t>
-  </section>
-
-<section anchor="oauth2ProfilesAuthzInfo"
-           title="Authorization Information Resource at the Resource Server">
-    <t>A consequence of allowing the use of CoAP as web transfer protocol
-      is that we cannot rely on HTTP specific mechanisms, such as
-      transferring information elements in HTTP headers since those are not
-      necessarily gracefully mapped to CoAP.  In case the access token is
-      larger than 255 bytes it should not be sent as a CoAP option.
-    </t>
-    <t>For conveying authorization information to the RS a new resource is 
-      introduced to which the PoP tokens can be sent to
-      convey authorization information before the first resource request is made
-      by the client.  This specification calls this resource "/authz-info"; the 
-      URI may, however, vary in deployments.
-    </t>
-    <t>The RS needs to store the PoP token for when later
-      authorizing requests from the client. The RS is not mandated 
-      to be able to manage multiple client at once. how the RS manages 
-      clients is out of scope for this specification.
-    </t>
-
-    <section anchor="authzInfoResourceRequest" 
-             title="Authorization Information Request">
-    <t>The client makes a POST request to the authorization information
-      resource by sending its PoP token as request data.</t>
-    <t>Client MUST send the Content-Format option indicate token format</t>
-    <!-- TODO insert Content-Format -->
-
-    </section>
-      <section anchor="authzInfoResourceResponse" 
-               title="Authorization Information Response">
-        <t>The RS MUST resonde to a requests to the authorization 
-          information resource. The response MUST match CoAP response 
-          codes according to success or error response section</t>
-
-      <section anchor="authzInfoResourceSuccessResponse"
-               title="Success Response">
-        <t>Successful requests MUST be answered with 2.01 
-          Created to indicate that a "session" for the PoP 
-          Token has been created. No location path is 
-          required to be returned.
-        </t>
-        <t>
-          <figure align="center" anchor="fig:clientRSAuthzInfoSuccess"
-                   title="Authorization Information Resource Success Response">
-            <artwork align="left"><![CDATA[
-          Resource
-  Client   Server
-    |         |
-    |         |
-A:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path: "/authz-info"
-    |         | Content-Format: "application/cwt"
-    |         | Payload: <PoP Token>
-    |         |
-B:  |<--------+ Header: 2.01 Created
-    | 2.01    | 
-    |         | 
-        ]]>
-            </artwork>
-          </figure>
-        </t>
-      </section>
-
-      <section anchor="authzInfoResourceErrorResponse"
-               title="Error Response">
-        <t>The resource server MUST user appropriate CoAP 
-          response code to convey the error to the Client.
-          For request that are not valid, e.g. unknown Content-Format, 
-          4.00 Bad Request MUST be returned. If token is not valid, 
-          e.g. wrong audience, the RS MUST return 4.01 Unauthorized.
-        </t>
-        <t>
-          <figure align="center" anchor="fig:clientRSAuthzInfoError"
-                   title="Authorization Information Resource Error Response">
-            <artwork align="left"><![CDATA[
-          Resource
-  Client   Server
-    |         |
-    |         |
-A:  +-------->| Header: POST (Code=0.02)
-    | POST    | Uri-Path: "/authz-info"
-    |         | Content-Format: "application/cwt"
-    |         | Payload: <PoP Token>
-    |         |
-B:  |<--------+ Header: 4.01 Unauthorized
-    | 2.01    | 
-    |         | 
-        ]]>
-            </artwork>
-          </figure>
-        </t>
-      </section>
-    </section>
-  </section>
 
 <section anchor="aifsection"
     title="Authorization Information Format">
@@ -923,12 +838,8 @@ B:  |<--------+ Header: 4.01 Unauthorized
         method and the payload includes a query component, which is formatted as
         application/x-www-form-urlencoded.  CoAP payloads cannot be formatted in
         the same way which requires the /token resource on the AS to be 
-        profiled.
-        <!-- FIXME: The CoAP specific information could be moved to section 4.
-         -->
-        
-        <xref target="app:cborMappingsForOAuth2Properties" /> defines a 
-        CBOR-based format for sending parameters to the /token resource.
+        profiled. <xref target="app:cborMappingsForOAuth2Properties" /> defines
+	a CBOR-based format for sending parameters to the /token resource.
     </t>
 </section>
 
