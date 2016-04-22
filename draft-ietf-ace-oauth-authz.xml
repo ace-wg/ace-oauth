@@ -753,67 +753,35 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     request.  These are used as well in this specification.</t>
 
     <t>The client and the RS might not have any prior knowledge about each
-    other, therefore the AS needs to help them to establish a security context
-    or at least a common key using one of the profiles of this framework.  The
-    AS does this by using the "profile" parameter, encoding information
-    about the communication and communication security protocols and the method of
-    token transport. Profiles MAY define new parameters to extend the range of
-    client information conveyed in this way.</t>
-    <t>
-    <figure><artwork align="left"><![CDATA[
-   struct {
-      CommunicationProtocol protocol;
-      CommSecProtocol comm_sec_protocol;
-      TokenTransport token_transport_method;
-      CredentialType credential_type;
-   } Profile;
-      ]]></artwork></figure>
-    </t>
-
-    <t>
-    <figure><artwork align="left"><![CDATA[
-   enum { HTTP(0), CoAP(1) } CommunicationProtocol;
-      ]]></artwork></figure>
-    </t>
-
-    <t>
-    <figure><artwork align="left"><![CDATA[
-   enum { TLS1.2(0), DTLS1.2(1), OSCoAP(2) } CommSecProtocol;
-      ]]></artwork></figure>
-    </t>
-
-    <t>
-    <figure><artwork align="left"><![CDATA[
-   enum { POSTauthzInfo(0), CoAPOption(1) } TokenTransport;
-      ]]></artwork></figure>
-    </t>
-
-    <t>
-    <figure><artwork align="left"><![CDATA[
-   enum { PSK(0), RPK(1), X.509cert(2)} CredentialType;
-      ]]></artwork></figure>
-    </t>
-
-    <t>If the client and the AS are using CoAP to communicate, the Profile
-    datastructure SHALL be encoded as a CBOR map using the encoding from <xref
-    target="fig:profile"/> for the tags.</t>
-
-    <t>
-      <figure align="center" anchor="fig:profile"
-              title="CBOR Mappings to Profile Parameters.">
-        <artwork align="left"><![CDATA[
-/-----------+--------------+-----------------------\
-| Value     | Major Type   | Key                   |
-|-----------+--------------+-----------------------|
-| 0         | 0            | CommunicationProtocol |
-| 1         | 0            | CommSecProtocol       |
-| 2         | 0            | TokenTransport        |
-| 3         | 0            | CredentialType        |
-\-----------+--------------+-----------------------/
+    other, therefore the AS needs to help them to establish secure
+    communications with each other using one of the profiles of this framework.
+    The AS does this by using the "profile" parameter, identifying the
+    communication protocol and the communication security protocol, such
+    as e.g. 'coap_dtls' for CoAP over DTLS.</t>
+    
+    <t>An initial set of profile identifiers and their CBOR encodings are
+    specified in <xref target="fig:profile"/>.  They identify profiles
+    using HTTP over TLS, CoAP over DTLS and CoAP with object security as
+    specified in <xref target="I-D.selander-ace-object-security"/>.  
+     
+     <figure align="center" anchor="fig:profile" title="Profile identifiers
+       and their CBOR mappings"><artwork align="left"><![CDATA[
+/--------------------+----------+------------\
+| Profile identifier | CBOR Key | Major Type |
+|--------------------+----------+------------|
+| http_tls           |    0     |     0      | 
+| coap_dtls          |    1     |     0      |
+| coap_oscoap        |    2     |     0      |
+\--------------------+----------+------------/
         ]]></artwork>
       </figure>
     </t>
-  </section>
+
+    <t>Profiles MAY define additional parameters for both the token request and
+    the client information in the access token response in order to support
+    negotioation or signalling of profile specific parameters.</t>
+
+</section>
 
 
 <section anchor="aifsection"
@@ -868,7 +836,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       number, and only accepts tokens as valid, that are in a certain range
       around this number.  This method does only require the RS to keep track
       of the sequence number.  The method does not provide timely expiration,
-      but it makes sure that older tokens cease to be valid after a specified
+      but it makes sure that older tokens cease to be valid after a certain
       number of newer ones got issued.  For a constrained RS with no network
       connectivity and no means of reliably measuring time, this is the best
       that can be achieved.</t>
