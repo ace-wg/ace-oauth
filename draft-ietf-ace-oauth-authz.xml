@@ -77,7 +77,7 @@
     <!-- The abbreviated title is used in the page header - it is only necessary if the
         full title is longer than 39 characters -->
 
-    <title abbrev="OAuth 2.0 IoT Authorization">Authorization for the Internet of Things using OAuth 2.0</title>
+<title abbrev="OAuth 2.0 IoT Authorization">Authentication and Authorization for Constrained Environments (ACE)</title>
 
     <!-- add 'role="editor"' below for the editors if appropriate -->
 
@@ -187,8 +187,8 @@
          keywords will be used for the search engine. -->
 
     <abstract>
-      <t>This memo defines how to use OAuth 2.0 as an authorization framework
-      with Internet of Things (IoT) deployments, thus bringing a well-known and
+      <t>This memo defines the ACE framework for authentication and authorization
+        in Internet of Things (IoT) deployments using OAuth 2.0, thus bringing a well-known and
       widely used security solution to IoT devices.  Where possible vanilla
       OAuth 2.0 is used, but where the limitations of IoT devices require it,
       profiles and extensions are provided.
@@ -230,12 +230,13 @@ levels in between.  Thus IoT devices are very different in terms of available
 processing and message exchange capabilities.
 </t>
 
-<t>This memo describes how to re-use OAuth 2.0 <xref target="RFC6749"/> to
-extend authorization to Internet of Things devices with different kinds of
-constraints.  It constitutes a framework that describes building blocks
+<t>This memo describes a framework for authentication and authorization in
+  constrained environments (ACE) built on re-use of OAuth 2.0 <xref target="RFC6749"/>,
+  thereby extending authorization to Internet of Things devices with different kinds of
+constraints.  The framework constitutes building blocks
 for adapting OAuth 2.0 to an IoT setting.  Detailed, interoperable deployments
-of this framework will be described in profiles, which MUST comply with this
-profile. Implementations can then claim conformance with a specific profile,
+of this framework will be described in ACE profiles, which MUST comply with this
+framework. Implementations can claim conformance with a specific ACE profile,
 where implementations of the same profile MUST be interoperable while
 implementations of different profiles are not expected to be.  Powerful
 endpoints may support multiple profiles in order to be able to interact with a
@@ -281,7 +282,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 <section anchor="overview" title="Overview">
 
-  <t>This specification describes a framework for authorization in the Internet
+  <t>This specification describes the ACE framework for authorization in the Internet
       of Things consisting of a set of building blocks.</t>
 
   <t>
@@ -322,13 +323,13 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   can be found in <xref target="constraints"/>.</t>
 
 
-  <t>Luckily, not every IoT device suffers from all constraints.  The described
+  <t>Luckily, not every IoT device suffers from all constraints.  The ACE
   framework nevertheless takes all these aspects into account and allows
   several different deployment variants to co-exist rather than mandating a
   one-size-fits-all solution.  We believe this is important to cover the wide
   range of possible interworking use cases and the different requirements from
   a security point of view.  Once IoT deployments mature, popular deployment
-  variants will be documented in form of profiles.</t>
+  variants will be documented in form of ACEprofiles.</t>
 
   <t>In the subsections below we provide further details about the different
   building blocks.</t>
@@ -343,10 +344,22 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     resource server.</t>
 
     <t>A number of OAuth 2.0 terms are used within this memo:
+      
+      <list style="hanging">
+        <t hangText="/token and /introspect:"><vspace blankLines="1"/>
+          The AS resource (in OAuth 2.0 called "endpoint") /token is the resource
+          targeted by a Client requesting an access token for use when accessing a
+          resource on the RS. The client makes a POST request to /token on the AS and
+          receives the access token in the POST response.
+          <vspace blankLines="1"/>
+          The AS resource /introspect is the resource targeted by an RS when
+          requesting additional information regarding a received access token.
+          The RS makes a POST request to /introspect on the AS and receives
+          such information in the POST response. (See "Introspection" below.)
+          <vspace blankLines="1"/>
+        </t>
 
-    <list style="hanging">
-
-      <t hangText="Access Tokens:"><vspace blankLines="1"/>
+        <t hangText="Access Tokens:"><vspace blankLines="1"/>
         Access tokens are credentials used to access protected resources.  An
         access token is a data structure representing authorization permissions
         issued to the client.  Access tokens are generated by the authorization
@@ -356,7 +369,9 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         Access tokens can have different formats, and various methods
         of utilization (e.g., cryptographic properties) based on the security
         requirements of the given deployment.
+        <vspace blankLines="1"/>
       </t>
+
 
       <t hangText="Proof of Possession Tokens:"><vspace blankLines="1"/>
         An access token may be bound to a
@@ -536,9 +551,13 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 <section anchor="specs" title="Protocol Interactions">
 
 <t>
-    This framework is based on the same protocol interactions as OAuth 2.0:
-    A client obtains an access token from an AS and presents the token
-    to an RS to gain access to a protected resource.  These interactions are
+    This ACE framework is based on the OAuth 2.0 protocol interactions using
+    the /token and /introspect resources.
+    A client obtains an access token from an AS using /token and presents the token
+    to an RS to gain access to a protected resource. Alternatively, or additionallly,
+    the RS can uses an obtained access token with the AS /introspect resource to get
+    information about the state and content of the access token.
+    These interactions are
     shown in <xref target="fig:protocolFlow"/>.  An overview of various OAuth
     concepts is provided in <xref target="oauth2Overview"/>.
 </t>
@@ -572,7 +591,8 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     At the start of the protocol there is an optional discovery step where the
     client discovers the resource server and the resources this server hosts.
     In this step the client might also determine what permissions are needed to
-    access the protected resource.  The exact procedure depends on the
+    access the protected resource.  The exact procedure SHOULD be defined in the
+    ACE profile and depends on the
     protocols being used and the specific deployment environment.  In Bluetooth
     Smart, for example, advertisements are broadcasted by a peripheral,
     including information about the supported services.  In CoAP, as a second
@@ -609,8 +629,8 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       the use of PoP tokens (see <xref target="oauth2Overview"/> for a short
       description) wherein the AS binds a key to an access token.  The client
       may include permissions it seeks to obtain, and information about the
-      type of credentials it wants to use (i.e., symmetric or asymmetric
-      cryptography).<vspace blankLines="0"/>
+      credentials it wants to use (e.g. symmetric/asymmetric
+      cryptography or a reference to a specific credential).<vspace blankLines="0"/>
     </t>
 
     <t hangText="Access Token Response (B):"><vspace blankLines="1"/>
