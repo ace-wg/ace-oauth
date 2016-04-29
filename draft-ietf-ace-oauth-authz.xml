@@ -77,7 +77,7 @@
     <!-- The abbreviated title is used in the page header - it is only necessary if the
         full title is longer than 39 characters -->
 
-<title abbrev="OAuth 2.0 IoT Authorization">Authentication and Authorization for Constrained Environments (ACE)</title>
+<title abbrev="ACE">Authentication and Authorization for Constrained Environments (ACE)</title>
 
     <!-- add 'role="editor"' below for the editors if appropriate -->
 
@@ -428,7 +428,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
          turn, the AS may use the "scope" response parameter to inform the
          client of the scope of the access token issued.  As the client could
 	 be a constrained device as well, this memo uses CBOR encoded messages
-         defined in <xref target="app:cborMappingsForOAuth2Properties" /> to
+         defined in <xref target="oauthProfile" /> to
          request scopes and to be informed what scopes the access token was
          actually authorized for by the AS.
          <vspace blankLines="1"/>
@@ -642,9 +642,10 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       which security protocol the client should use with the resource server(s)
       that it has just been authorized to access.  Communication security
       between client and RS may be based on pre-provisioned keys/security
-      contexts or dynamically established. The RS authenticates the client via
-      the PoP token; and the client authenticates the RS via the client
-      information as described in <xref target="oauth2Profiles"/>.
+      contexts or dynamically established.  The RS authenticates the client via
+      the PoP token; and the client authenticates the RS according to the
+      profile that was specified in the Client Information. FIXME: We need to
+      look at this and make sure it is still correct.
       <vspace blankLines="0"/>
     </t>
 
@@ -708,255 +709,328 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 <!-- ***************************************************** -->
 
-<section anchor="specsClientInfo" title="OAuth 2.0 Profiling">
-
-  <t>
-    This section describes profiles of OAuth 2.0 adjusting it to constrained
-    environments for use cases where this is necessary.  A profile for
-    expressing JSON Web Tokens (JWT) in CBOR is provided in 
-    <xref target="I-D.wahlstroem-ace-cbor-web-token"/>.
+<section anchor="oauthProfile" title="ACE Framework = OAuth 2.0 Profile">
+  
+  <t>This section describes the profiling and extensions of OAuth 2.0 for
+  constrained environments which constitues the ACE framework.
   </t>
+    
+  <t>OAuth 2.0 using bearer tokens, as described in <xref target="RFC6749"/>
+  and <xref target="RFC6750"/>, requires TLS for all communication
+  interactions between client, authorization server, and resource server.  This
+  is possible in the scope where OAuth 2.0 was originally developed: web and
+  mobile applications.  In these environments resources like computational
+  power and bandwidth are not scarce and operating systems as well as browser
+  platforms are pre-provisioned with trust anchors that enable clients to
+  authenticate servers based on the Web PKI.  For IoT deployments a wider range
+  of use cases needs to be supported. 
+  </t>
+  
+  <t>
+    <list style="hanging">
+      <t hangText="Credential Provisioning"><vspace blankLines="1"/>
+        For IoT we cannot generally assume that the client and RS will support
+        Web PKI, so the AS is needs to provision credentials or associated
+	information to allow mutual authentication. These credentials need to
+	be provided to the parties before or during the authentication protocol
+	is executed.
+        <vspace blankLines="0"/>
+      </t>
+      
+      <t hangText="Channel Binding"><vspace blankLines="1"/>
+        The ACE framework by default implements channel binding, i.e. that the
+        authenticated communication channel is bound to the access rights.
+	FIXME: Need to explain how this does not make it impossible to update
+	rights without renegotiating the channel.
+        <vspace blankLines="0"/>
+      </t>
+      
+      <t hangText="ACE Profile Negotiation"><vspace blankLines="1"/>
+        The client or RS may be limited in the encodings or protocols it
+	supports.  To support a variety of different deployment settings,
+	specific interactions between client and RS are defined in an ACE
+	profile.  The ACE framework supports the negotiation of different ACE
+	profiles between client and AS using the "profile" parameter in the
+	token request and token response. 
+        <vspace blankLines="0"/>
+      </t>
+      
+      <t hangText="Encoding and transporting requests to AS"><vspace
+      blankLines="1"/> 
+        In OAuth 2.0 the communication between client or RS and AS is assumed
+        to be HTTP and may use Uri-query parameters. This applies for example
+	to the client when making a request to /token for proof-of-possession
+        (PoP) tokens <xref target="I-D.ietf-oauth-pop-key-distribution"/>.
+        To avoid large headers if the client uses CoAP to communicate with the
+	AS, this memo specifies the following alternative for submitting the
+	senders request parameters to the AS: The sender encodes the parameters
+	of its request as a CBOR map and submits that map as the payload of the
+	request.  The Content-format MUST be application/cbor in that case.
+        <vspace blankLines="0"/>
+      </t>
+      
+      <t hangText="Encoding and transporting responses from AS"><vspace
+      blankLines="1"/> 
+        The OAuth requires the AS to use a JSON structure in the payload of the
+        response to encode the response parameters.  If the communication is
+        with the AS is CoAP, then the AS SHOULD use CBOR instead of
+        JSON for encoding its response.  The requesting device can explicitly
+	request this encoding by setting the CoAP Accept option in the access
+	token request to "application/cbor".
+        <vspace blankLines="0"/>
+      </t>
+    </list>
+  </t>
+  
+  
+  <t>
+    Many IoT devices can support OAuth 2.0 without any additional
+    extensions, but for certain constrained settings additional profiling
+    is needed.  This section defines CoAP resources for the HTTP based
+    token, authorization and introspection resources (endpoints) used in
+    vanilla OAuth 2.0.  For the content CBOR mappings are defined as an
+    alternative to JSON and form based POST structures used in HTTP.
+  </t>
+  
+</section>
 
-
-
-<section anchor="oauth2Profiles" title="Client Information">
-
-    <t>OAuth 2.0 using bearer tokens, as described in <xref
-    target="RFC6749"/> and in <xref target="RFC6750"/>,
-    requires TLS for all communication interactions between client,
-    authorization server, and resource server.  This is possible in the scope
-    where OAuth 2.0 was originally developed: web and mobile applications.  In
-    these environments resources like computational power and bandwidth are
-    not scarce and operating systems as well as browser platforms are
-    pre-provisioned with trust anchors that enable clients to authenticate
-    servers based on the Web PKI.  In a more heterogeneous IoT environment a
-    wider range of use cases needs to be supported.  Therefore, this document
-    suggests extensions to OAuth 2.0 that enables the client and the AS to
-    negotiate the use of a specific profile.</t>
-
-    <t>In the OAuth memo defining the key distribution for
-    proof-of-possession (PoP) tokens <xref
-    target="I-D.ietf-oauth-pop-key-distribution"/>,  the authors suggest to
-    use Uri-query parameters in order to submit the parameters of the client's
-    token request.  To avoid large headers if the client uses CoAP to
-    communicate with the AS, this memo specifies the following alternative for
-    submitting client request parameters to the AS: The client encodes the
-    parameters of its request as a CBOR map and submits that map as the
-    payload of the client request.  The Content-format MUST be
-    application/cbor in that case.</t>
-
-    <t>The OAuth memo further specifies that the AS shall use a JSON
-    structure in the payload of the response to encode the response
-    parameters.  These parameters include the access token, destined
-    for the RS and additional information for the client, such as e.g. the PoP
-    key.  We call this information "client information".  If the client is
-    using CoAP to communicate with the AS the AS SHOULD use CBOR instead of
-    JSON for encoding its response.  The client can explicitly request this
-    encoding by setting the CoAP Accept option in the access token request to
-    "application/cbor".</t>
-
-    <t>If the channel between client and AS is not secure, the whole messages
-    from client to AS and vice-versa MUST be wrapped in JWEs
-    <xref target="RFC7516"/> or COSE_Encrypted structures <xref
-    target="I-D.ietf-cose-msg"/>.  The client can explicitly request COSE
-    wrapping by setting the CoAP Accept option to "application/cose".</t>
-
-    <t>The client may be a constrained device and could therefore be limited
-    in the encodings and protocols it supports.  It can therefore
-    signal to the AS which profiles it can support by using the "profile"
-    parameter defined below in the Token Request message sent to the AS.</t>
-
-    <t>Note that The OAuth key distribution specification <xref
+<section anchor="tokenResource" title="The /token Resource">
+   
+  <t>FIXME: Find right place for this text.
+    The client and the RS might not have any prior knowledge about each
+    other, therefore the AS needs to help them to establish secure
+    communications with each other using one of the profiles of this framework.
+  </t>
+  
+  <t>
+    The OAuth key distribution specification <xref
     target="I-D.ietf-oauth-pop-key-distribution"/> describes in section 6
     how the client can request specific types of keys (symmetric vs.
     asymmetric) and proof-of-possession algorithms in the PoP token
-    request.  These are used as well in this specification.</t>
-
-    <t>The client and the RS might not have any prior knowledge about each
-    other, therefore the AS needs to help them to establish secure
-    communications with each other using one of the profiles of this framework.
-    The AS does this by using the "profile" parameter, identifying the
-    communication protocol and the communication security protocol, such
-    as e.g. 'coap_dtls' for CoAP over DTLS.</t>
+    request.
+  </t>
+  <section anchor="oauth2ProfilesCBOR" title="CBOR Data Formats">
+    <t>
+      The /token resource (called "endpoint" in OAuth 2.0), defined in Section
+      3.2 of <xref target="RFC6749" />, is used by the client to obtain an
+      access token.  Requests sent to the /token resource use the HTTP POST
+      method and the payload includes a query component, which is formatted as
+      application/x-www-form-urlencoded.  CoAP payloads cannot be formatted in
+      the same way which requires the /token resource on the AS to be
+      profiled. <xref target="tokenResourceCoap" /> defines
+      a CBOR-based format for sending parameters to the /token resource.
+    </t>
+  </section>
+   
+  <section anchor="specsClientInfo" title="The 'profile' Parameter">
     
-    <t>An initial set of profile identifiers and their CBOR encodings are
-    specified in <xref target="fig:profile"/>.  They identify profiles
-    using HTTP over TLS, CoAP over DTLS and CoAP with object security as
-    specified in <xref target="I-D.selander-ace-object-security"/>.  
-     
-     <figure align="center" anchor="fig:profile" title="Profile identifiers
-       and their CBOR mappings"><artwork align="left"><![CDATA[
-/--------------------+----------+------------\
-| Profile identifier | CBOR Key | Major Type |
-|--------------------+----------+------------|
-| http_tls           |    0     |     0      | 
-| coap_dtls          |    1     |     0      |
-| coap_oscoap        |    2     |     0      |
-\--------------------+----------+------------/
+    <t>
+      The "profile" parameter identifies the communication protocol and the
+      communication security protocol, such
+      as e.g. 'coap_dtls' for CoAP over DTLS.
+    </t>
+    
+    
+    <t>
+      An initial set of profile identifiers and their CBOR encodings are
+      specified in <xref target="fig:profile"/>.  They identify profiles
+      using HTTP over TLS, CoAP over DTLS and CoAP with COSE as
+      specified in <xref target="I-D.selander-ace-object-security"/>.
+      
+      <figure align="center" anchor="fig:profile" title="Profile identifiers
+        and their CBOR mappings"><artwork align="left"><![CDATA[
+          /--------------------+----------+------------\
+          | Profile identifier | CBOR Key | Major Type |
+          |--------------------+----------+------------|
+          | http_tls           |    0     |     0      |
+          | coap_dtls          |    1     |     0      |
+          | coap_oscoap        |    2     |     0      |
+          \--------------------+----------+------------/
         ]]></artwork>
       </figure>
     </t>
+    
+    <t>
+      Profiles MAY define additional parameters for both the token request and
+      the client information in the access token response in order to support
+      negotioation or signalling of profile specific parameters.
+    </t>
+    
+  </section>
+  
 
-    <t>Profiles MAY define additional parameters for both the token request and
-    the client information in the access token response in order to support
-    negotioation or signalling of profile specific parameters.</t>
-
+<section anchor="tokenResourceCoap" title="FIXME: What is that doing here? CoAP Profile for Token resource">
+  <t>The token resource is used by the client to obtain an access token by
+    presenting its authorization grant e.g. client credentials to the
+    "/token" resource the AS.</t>
+  
+  <t> When the request is sent over HTTP the request Content-Type is set to
+    "application/x-www-form-urlencoded" or the data is sent as query
+    parameters.  When sending the request CBOR encoded over CoAP the
+    Content-Formats option MUST be set to "application/cbor".  Query
+    parameter option is not allowed</t>
+  
+  <t>When response is returned over HTTP the Content-Type is set to
+    "application/json".  When returning the response CBOR encoded over
+    CoAP the Content-Formats option MUST be set to "application/cbor"</t>
+  
+  <t>For requiredness of attributes see the OAuth framework and the PoP
+    token specifications.  No exceptions is added by this specification.</t>
+  
+  <t>The OAuth parameters are mapped to CBOR types as follows and are
+    given an integer key value to save space.</t>
+  <t>
+    <figure align="center" anchor="fig:cborTokenParameters" title="CBOR mappings used in token requests">
+      <artwork align="left"><![CDATA[
+        /-------------------+----------+--------------\
+        | Parameter name    | CBOR Key | Major Type   |
+        |-------------------+----------+--------------|
+        | client_id         | 1        | 3            |
+        | client_secret     | 2        | 2            |
+        | response_type     | 3        | 3            |
+        | redirect_uri      | 4        | 3            |
+        | scope             | 5        | 3            |
+        | state             | 6        | 3            |
+        | code              | 7        | 2            |
+        | error_description | 8        | 3            |
+        | error_uri         | 9        | 3            |
+        | grant_type        | 10       | 3            |
+        | access_token      | 11       | 3            |
+        | token_type        | 12       | 0            |
+        | expires_in        | 13       | 0            |
+        | username          | 14       | 3            |
+        | password          | 15       | 3            |
+        | refresh_token     | 16       | 3            |
+        | alg               | 17       | 3            |
+        | key               | 18       | 3            |
+        | aud               | 19       | 3            |
+        | profile           | 20       | 0            |
+        \---------------+--------------+--------------/
+      ]]></artwork>
+    </figure>
+  </t>
+<t>The channel between client and AS MUST be encrypted and integrity protected,
+  e.g. using DTLS or OSCOAP. FIXME: Find the right place for this.  
+</t>
+</section>
 </section>
 
 
-<section anchor="aifsection"
+
+<section title="The Access Token">
+
+
+
+  <t>
+    A profile for
+    expressing JSON Web Tokens (JWT) in CBOR is provided in
+    <xref target="I-D.wahlstroem-ace-cbor-web-token"/>.
+  </t>
+  
+  
+  <section anchor="aifsection"
     title="Authorization Information Format">
     <t>We introduce a new claim for describing access rights with a specific
-    format, the "aif" claim.  In this memo we propose to use the compact
-    format provided by AIF  <xref target="I-D.bormann-core-ace-aif" />.  Access
-    rights may be specified as a list of URIs of resources together with allowed
-    actions (GET, POST, PUT, PATCH, or DELETE).  Other formats may be mandated
-    by specific applications or requirements (e.g. specifying local conditions
-    on access).
+      format, the "aif" claim.  In this memo we propose to use the compact
+      format provided by AIF  <xref target="I-D.bormann-core-ace-aif" />.  Access
+      rights may be specified as a list of URIs of resources together with allowed
+      actions (GET, POST, PUT, PATCH, or DELETE).  Other formats may be mandated
+      by specific applications or requirements (e.g. specifying local conditions
+      on access).
     </t>
-</section>
-
-
-<section anchor="oauth2ProfilesCBOR" title="CBOR Data Formats">
+  </section>
+  
+  
+  <section title="Access Token Transport (TBD Goeran)">
     <t>
-        The /token resource (called "endpoint" in OAuth 2.0), defined in Section
-        3.2 of <xref target="RFC6749" />, is used by the client to obtain an
-        access token.  Requests sent to the /token resource use the HTTP POST
-        method and the payload includes a query component, which is formatted as
-        application/x-www-form-urlencoded.  CoAP payloads cannot be formatted in
-        the same way which requires the /token resource on the AS to be
-        profiled. <xref target="app:cborMappingsForOAuth2Properties" /> defines
-	a CBOR-based format for sending parameters to the /token resource.
+      Defined in ACE profile.
     </t>
-</section>
-
-<section anchor="tokenValidity" title="Token Expiration">
+    <t>
+      We present a method for access token transport applicable in generic
+      RESTful settings: POST /authz-info
+    </t>
+  </section>
+  
+  <section anchor="tokenValidity" title="Token Expiration">
     <t>Depending on the capabilities of the RS, there are various ways in
-    which it can verify the validity of a received access token.  We list the
-    possibilities here including what functionality they require of the
-    RS.</t>
-
+      which it can verify the validity of a received access token.  We list the
+      possibilities here including what functionality they require of the
+      RS.</t>
+    
     <t><list style="symbols">
       <t>The token is a CWT/JWT and includes a 'exp' claim and possibly the
-      'nbf' claim.  The RS verifies these by comparing them to values from
-      its internal clock as defined in <xref target="RFC7519"/>.  In this
-      case the RS must have a real time chip (RTC) or some other way of
-      reliably measuring time.</t>
-
+        'nbf' claim.  The RS verifies these by comparing them to values from
+        its internal clock as defined in <xref target="RFC7519"/>.  In this
+        case the RS must have a real time chip (RTC) or some other way of
+        reliably measuring time.</t>
+      
       <t>The RS verifies the validity of the token by performing an
-      introspection request as specified in <xref
-      target="introspectionResource"/>.  This requires the RS to have a
-      reliable network connection to the AS and to be able to handle two
-      secure sessions in parallel (C to RS and AS to RS).</t>
-
+        introspection request as specified in <xref
+        target="introspectionResource"/>.  This requires the RS to have a
+        reliable network connection to the AS and to be able to handle two
+        secure sessions in parallel (C to RS and AS to RS).</t>
+      
       <t>The RS and the AS both store a sequence number linked to their common
-      security association.  The AS increments this number for each access
-      token it issues and includes it in the access token, which is a
-      CWT/JWT.  The RS keeps track of the most recently received sequence
-      number, and only accepts tokens as valid, that are in a certain range
-      around this number.  This method does only require the RS to keep track
-      of the sequence number.  The method does not provide timely expiration,
-      but it makes sure that older tokens cease to be valid after a certain
-      number of newer ones got issued.  For a constrained RS with no network
-      connectivity and no means of reliably measuring time, this is the best
-      that can be achieved.</t>
-
+        security association.  The AS increments this number for each access
+        token it issues and includes it in the access token, which is a
+        CWT/JWT.  The RS keeps track of the most recently received sequence
+        number, and only accepts tokens as valid, that are in a certain range
+        around this number.  This method does only require the RS to keep track
+        of the sequence number.  The method does not provide timely expiration,
+        but it makes sure that older tokens cease to be valid after a certain
+        number of newer ones got issued.  For a constrained RS with no network
+        connectivity and no means of reliably measuring time, this is the best
+        that can be achieved.</t>
+      
     </list></t>
-</section>
-    <section anchor="app:cborMappingsForOAuth2Properties"
-      title="CoAP and CBOR profiles for OAuth 2.0">
-
-      <t>
-        Many IoT devices can support OAuth 2.0 without any additional
-        extensions, but for certain constrained settings additional profiling
-        is needed.  This section defines CoAP resources for the HTTP based
-        token, authorization and introspection resources (endpoints) used in
-        vanilla OAuth 2.0.  For the content CBOR mappings are defined as an
-        alternative to JSON and form based POST structures used in HTTP.
-      </t>
-
-    <section anchor="tokenResource"
-       title="Profile for Token resource">
-
-       <t>The token resource is used by the client to obtain an access token by presenting its authorization grant e.g. client credentials to the "/token" resource the AS.</t>
-
-       <t>When the request is sent over HTTP the request Content-Type is set to "application/x-www-form-urlencoded" or the data is sent as query parameters.  When sending the request CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor". Query parameter option is not allowed</t>
-
-       <t>When response is returned over HTTP the Content-Type is set to "application/json".  When returning the response CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor"</t>
-
-       <t>For requiredness of attributes see the OAuth framework and the PoP token specifications. No exceptions is added by this specification.</t>
-
-       <t>The OAuth parameters are mapped to CBOR types as follows and are given an integer key value to save space.</t>
-
-      <t>
-        <figure align="center" anchor="fig:cborTokenMappingRequest" title="CBOR mappings used in token requests">
-          <artwork align="center"><![CDATA[
-/-------------------+----------+--------------\
-| Parameter name    | CBOR Key | Major Type   |
-|-------------------+----------+--------------|
-| client_id         | 1        | 3            |
-| client_secret     | 2        | 2            |
-| response_type     | 3        | 3            |
-| redirect_uri      | 4        | 3            |
-| scope             | 5        | 3            |
-| state             | 6        | 3            |
-| code              | 7        | 2            |
-| error_description | 8        | 3            |
-| error_uri         | 9        | 3            |
-| grant_type        | 10       | 3            |
-| access_token      | 11       | 3            |
-| token_type        | 12       | 0            |
-| expires_in        | 13       | 0            |
-| username          | 14       | 3            |
-| password          | 15       | 3            |
-| refresh_token     | 16       | 3            |
-| alg               | 17       | 3            |
-| key               | 18       | 3            |
-| aud               | 19       | 3            |
-| profile           | 20       | 0            |
-\---------------+--------------+--------------/
-]]></artwork>
-        </figure>
-      </t>
-    </section>
-    <section anchor="introspectionResource" title="CoAP Profile for OAuth Introspection">
-      <t>Token introspection as defined in for OAuth to is used for the RS and potentially the client to get metadata about the token e.g. validity status, claims and scopes. Introspection for HTTP and JSON is defined in The OAuth Token Introspection specification <xref target="I-D.ietf-oauth-introspection"/>. In this section a mapping to CoAP and CBOR is defined for more constrained devices.</t>
-
-      <t>When the request is sent over HTTP the request Content-Type is set to "application/x-www-form-urlencoded" or the data is sent as query parameters.  When sending the request CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor".  Query parameter options is not allowed</t>
-
-      <t>When response is returned over HTTP the Content-Type is set to "application/json".  When returning the response CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor"</t>
-
-      <t>For requiredness of attributes see The OAuth Token Introspection specification <xref target="I-D.ietf-oauth-introspection"/>. No exceptions is added by this specification.</t>
-
-      <t>The introspection request and response parameters are mapped to CBOR types as follows and are given an integer key value to save space.</t>
-      <t>
-        <figure align="center" anchor="fig:cborIntrospectionParameters" title="CBOR Mappings to Token Introspection Parameters.">
-          <artwork align="left"><![CDATA[
-/----------------+----------+---------------\
-| Parameter name | CBOR Key | Major Type    |
-|----------------+----------+---------------|
-| active         | 1        | 0             |
-| username       | 2        | 3             |
-| client_id      | 3        | 3             |
-| scope          | 4        | 3             |
-| token_type     | 5        | 3             |
-| exp            | 6        | 6 tag value 1 |
-| iat            | 7        | 6 tag value 1 |
-| nbf            | 8        | 6 tag value 1 |
-| sub            | 9        | 3             |
-| aud            | 10       | 3             |
-| iss            | 11       | 3             |
-| jti            | 12       | 3             |
-| alg            | 13       | 3             |
-| key            | 14       | 3             |
-| aud            | 15       | 3             |
-\----------------+----------+---------------/
-]]></artwork>
-        </figure>
-      </t>
-    </section>
   </section>
-</section>
+</section><!-- access token -->
+
+
+<section title="The /introspect Resource">
+  
+  <section anchor="introspectionResource" title="CoAP Profile for OAuth Introspection">
+    <t>Token introspection as defined in for OAuth to is used for the RS and potentially the client to get metadata about the token e.g. validity status, claims and scopes. Introspection for HTTP and JSON is defined in The OAuth Token Introspection specification <xref target="I-D.ietf-oauth-introspection"/>. In this section a mapping to CoAP and CBOR is defined for more constrained devices.</t>
+    
+    <t>When the request is sent over HTTP the request Content-Type is set to "application/x-www-form-urlencoded" or the data is sent as query parameters.  When sending the request CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor".  Query parameter options is not allowed</t>
+    
+    <t>When response is returned over HTTP the Content-Type is set to "application/json".  When returning the response CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor"</t>
+    
+    <t>For requiredness of attributes see The OAuth Token Introspection specification <xref target="I-D.ietf-oauth-introspection"/>. No exceptions is added by this specification.</t>
+    
+    <t>The introspection request and response parameters are mapped to CBOR types as follows and are given an integer key value to save space.</t>
+    <t>
+      <figure align="center" anchor="fig:cborIntrospectionParameters" title="CBOR Mappings to Token Introspection Parameters.">
+        <artwork align="left"><![CDATA[
+          /----------------+----------+---------------\
+          | Parameter name | CBOR Key | Major Type    |
+          |----------------+----------+---------------|
+          | active         | 1        | 0             |
+          | username       | 2        | 3             |
+          | client_id      | 3        | 3             |
+          | scope          | 4        | 3             |
+          | token_type     | 5        | 3             |
+          | exp            | 6        | 6 tag value 1 |
+          | iat            | 7        | 6 tag value 1 |
+          | nbf            | 8        | 6 tag value 1 |
+          | sub            | 9        | 3             |
+          | aud            | 10       | 3             |
+          | iss            | 11       | 3             |
+          | jti            | 12       | 3             |
+          | alg            | 13       | 3             |
+          | key            | 14       | 3             |
+          | aud            | 15       | 3             |
+          \----------------+----------+---------------/
+        ]]></artwork>
+      </figure>
+    </t>
+   <t>The channel between RS and AS MUST be encrypted and integrity protected,
+      e.g. using DTLS or OSCOAP. FIXME: This seems a bit out of place, check
+   where to put this.</t>
+
+  </section>
+  
+</section><!-- introspect resource -->
 
     <section anchor="security" title="Security Considerations">
       <t>The entire document is about security.  Security considerations
