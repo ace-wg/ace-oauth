@@ -644,8 +644,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       between client and RS may be based on pre-provisioned keys/security
       contexts or dynamically established.  The RS authenticates the client via
       the PoP token; and the client authenticates the RS according to the
-      profile that was specified in the Client Information. FIXME: We need to
-      look at this and make sure it is still correct.
+      profile that was specified in the Client Information.
       <vspace blankLines="0"/>
     </t>
 
@@ -709,7 +708,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 <!-- ***************************************************** -->
 
-<section anchor="oauthProfile" title="ACE Framework = OAuth 2.0 Profile">
+<section anchor="oauthProfile" title="Framework">
   
   <t>This section describes the profiling and extensions of OAuth 2.0 for
   constrained environments which constitues the ACE framework.
@@ -781,26 +780,34 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       </t>
     </list>
   </t>
-  
-  
+   
   <t>
     Many IoT devices can support OAuth 2.0 without any additional
     extensions, but for certain constrained settings additional profiling
-    is needed.  This section defines CoAP resources for the HTTP based
-    token, authorization and introspection resources (endpoints) used in
-    vanilla OAuth 2.0.  For the content CBOR mappings are defined as an
-    alternative to JSON and form based POST structures used in HTTP.
+    is needed.  The following sections define CoAP resources for the HTTP based
+    token and introspection resources (endpoints) used in  vanilla OAuth 2.0.
+    For the content CBOR mappings are defined as an alternative to JSON and 
+    form based POST structures used in HTTP.
   </t>
 
 <section anchor="tokenResource" title="The /token Resource">
-   
-  <t>FIXME: Find right place for this text.
-    The client and the RS might not have any prior knowledge about each
-    other, therefore the AS needs to help them to establish secure
-    communications with each other using one of the profiles of this framework.
-  </t>
   
-  <t>
+  <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
+  access token requests.  This memo extends the functionality of the /token
+  resource, giving the AS the possiblility to help client and RS to establish
+  a security context.
+  </t>
+ 
+  <t>In the constrained settings protecting the channel between client and AS
+  with TLS is not always feasible, or desirable.  Therefore other ways of
+  protection (e.g. DTLS or object security) need to be deployed.  This
+  framework requires that the data exchanged between client and AS 
+  MUST be encrypted and integrity protected.  Profiles are expected to 
+  specify the details of how this is done, depending e.g. on the communication
+  protocol and the credentials used by the client.
+  </t>
+
+  <t>FIXME: Pull that stuff in from pop-key-dist.
     The OAuth key distribution specification <xref
     target="I-D.ietf-oauth-pop-key-distribution"/> describes in section 6
     how the client can request specific types of keys (symmetric vs.
@@ -907,9 +914,6 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       ]]></artwork>
     </figure>
   </t>
-<t>The channel between client and AS MUST be encrypted and integrity protected,
-  e.g. using DTLS or OSCOAP. FIXME: Find the right place for this.  
-</t>
 </section>
 </section>
 
@@ -985,9 +989,17 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 </section><!-- access token -->
 
 
-<section title="The /introspect Resource">
+<section anchor="introspectionResource" title="The /introspect Resource">
   
-  <section anchor="introspectionResource" title="CoAP Profile for OAuth Introspection">
+  <section anchor="cbor4introspect" title="CBOR Data Formats">
+
+  </section>
+
+  <section anchor="rsInfo" title="Resource Server Information">
+
+  </section>
+
+  <section anchor="coap4introspect" title="CoAP Profile for OAuth Introspection">
     <t>Token introspection as defined in for OAuth to is used for the RS and potentially the client to get metadata about the token e.g. validity status, claims and scopes. Introspection for HTTP and JSON is defined in The OAuth Token Introspection specification <xref target="I-D.ietf-oauth-introspection"/>. In this section a mapping to CoAP and CBOR is defined for more constrained devices.</t>
     
     <t>When the request is sent over HTTP the request Content-Type is set to "application/x-www-form-urlencoded" or the data is sent as query parameters.  When sending the request CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor".  Query parameter options is not allowed</t>
