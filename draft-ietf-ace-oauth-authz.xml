@@ -992,39 +992,48 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 
 <section anchor="introspectionResource" title="The /introspect Resource">
-  <t>Token introspection as defined in <xref target="RFC7662"/> is used by 
-  the RS and potentially the client to query the AS for metadata about a given
-  token e.g. validity status, claims and scope.  The specification referenced
-  above defines how to use HTTP POST to transfer the introspection request and
-  how the AS encodes its response in JSON.  This section defined adaptations
-  to more constrained environments based on CoAP and CBOR.</t>
+  <t>Token introspection <xref target="RFC7662"/> is used by the RS and
+  potentially the client to query the AS for metadata about a given token
+  e.g. validity status or scope. RFC 7662 <xref target="RFC7662"/> defines how
+  to use HTTP POST to transfer the introspection request and how the AS encodes
+  its response in JSON.  This section defines adaptations to more constrained
+  environments using CoAP and CBOR.</t> 
 
   <t>Following RFC 7662, this framework requires that the data sent and 
   received by the introspection endpoint MUST be encrypted and integrity
   protected.  However this profile does not require the RS to implement TLS,
   as this may not be feasible on a constrained resource server.  Instead
-  profiles are expected to  specify the details of how this is done, depending
-  e.g. on the communication protocol and the credentials used by the RS.
+  profiles are expected to  specify the details of how this protection is
+  achieved e.g. based on the communication protocol and the credentials used by
+  the RS.
   </t>
 
-  <section anchor="cbor4introspect" title="CBOR Data Formats">
-
-  </section>
-
   <section anchor="rsInfo" title="Resource Server Information">
-
+    In a scenario where the client is a constrained device, it may be
+    necessary to support the establishment of secure communications
   </section>
 
-  <section anchor="coap4introspect" title="CoAP Profile for OAuth Introspection">
-    <t> In this section a mapping to CoAP and CBOR is defined for more constrained devices.</t>
+  <section anchor="coap4introspect" title="CoAP Profile for OAuth
+					   Introspection"> 
+    <t>In this section a mapping of the introspection data encoded in
+    JSON to CBOR and of the HTTP protocol messages to CoAP is defined, 
+    in order to support more constrained devices.</t> 
     
-    <t>When the request is sent over HTTP the request Content-Type is set to "application/x-www-form-urlencoded" or the data is sent as query parameters.  When sending the request CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor".  Query parameter options is not allowed</t>
+    <t>When the request is sent over HTTP the request Content-Type is set to
+    "application/x-www-form-urlencoded" or the data is sent as query
+    parameters.  When sending the request CBOR encoded over CoAP the
+    Content-Formats option MUST be set to "application/cbor".  Query parameter
+    options MUST NOT be used.</t>
     
-    <t>When response is returned over HTTP the Content-Type is set to "application/json".  When returning the response CBOR encoded over CoAP the Content-Formats option MUST be set to "application/cbor"</t>
+    <t>When response is returned over HTTP the Content-Type is set to
+    "application/json".  When returning the response CBOR encoded over CoAP the
+    Content-Formats option MUST be set to "application/cbor"</t>
     
-    <t>For requiredness of attributes see The OAuth Token Introspection specification <xref target="I-D.ietf-oauth-introspection"/>. No exceptions is added by this specification.</t>
+    <t>The required or optional status of attributes is the same as in RFC
+    7662 in this framework.</t>   
     
-    <t>The introspection request and response parameters are mapped to CBOR types as follows and are given an integer key value to save space.</t>
+    <t>The introspection request and response parameters are mapped to CBOR
+    types as follows and are given an integer key value to save space.</t> 
     <t>
       <figure align="center" anchor="fig:cborIntrospectionParameters" title="CBOR Mappings to Token Introspection Parameters.">
         <artwork align="left"><![CDATA[
@@ -1050,11 +1059,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         ]]></artwork>
       </figure>
     </t>
-   <t>The channel between RS and AS MUST be encrypted and integrity protected,
-      e.g. using DTLS or OSCOAP. FIXME: This seems a bit out of place, check
-   where to put this.</t>
-
-  </section>
+</section>
   
 </section><!-- introspect resource -->
 
