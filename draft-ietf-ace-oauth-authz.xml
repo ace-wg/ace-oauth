@@ -681,7 +681,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       associated with a specific access token.  Token introspection over
       CoAP is defined in
       <xref target="I-D.wahlstroem-ace-oauth-introspection"/> and for HTTP in
-      <xref target="I-D.ietf-oauth-introspection"/>.
+      <xref target="RFC7662"/>.
       <vspace blankLines="1"/>
       Note that token introspection is an optional step and can be omitted if
       the token is self-contained and the resource server is prepared to
@@ -991,26 +991,35 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 </section><!-- access token -->
 
 
-<section anchor="introspectionResource" title="The /introspect Resource">
+<section anchor="introspectionResource" title="Introspection">
   <t>Token introspection <xref target="RFC7662"/> is used by the RS and
   potentially the client to query the AS for metadata about a given token
-  e.g. validity status or scope. RFC 7662 <xref target="RFC7662"/> defines how
+  e.g. validity or scope. RFC 7662 <xref target="RFC7662"/> defines how
   to use HTTP POST to transfer the introspection request and how the AS encodes
   its response in JSON.  This section defines adaptations to more constrained
   environments using CoAP and CBOR.</t> 
 
   <t>Following RFC 7662, this framework requires that the data sent and 
   received by the introspection endpoint MUST be encrypted and integrity
-  protected.  However this profile does not require the RS to implement TLS,
+  protected.  However this framework does not require the RS to implement TLS,
   as this may not be feasible on a constrained resource server.  Instead
   profiles are expected to  specify the details of how this protection is
   achieved e.g. based on the communication protocol and the credentials used by
-  the RS.
+  the RS.  Furthermore the AS and the enpoint querying the introspection
+  resource MUST perform mutual authentication, and the AS MUST check if the
+  querying endpoint is authorized to perform this specific introspection
+  request.  Profiles including introspection MUST specify how the mutual
+  authentication is performed.
   </t>
 
   <section anchor="rsInfo" title="Resource Server Information">
-    In a scenario where the client is a constrained device, it may be
-    necessary to support the establishment of secure communications
+    <t>The introspection endpoint may need to provide additional
+    parameters in a constrained usecase, compared to the usual
+    web usecases.  For example if the connection between client and
+    RS has a very low bandwidth, it is favourable to transport 
+    the client's credentials over a faster direct link between AS and RS,
+    instead of encoding them in the access token.</t>
+    <t>FIXME: Is there really anything new to transport here?</t>
   </section>
 
   <section anchor="coap4introspect" title="CoAP Profile for OAuth
@@ -1025,12 +1034,13 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     Content-Formats option MUST be set to "application/cbor".  Query parameter
     options MUST NOT be used.</t>
     
-    <t>When response is returned over HTTP the Content-Type is set to
+    <t>When a response is returned over HTTP the Content-Type is set to
     "application/json".  When returning the response CBOR encoded over CoAP the
-    Content-Formats option MUST be set to "application/cbor"</t>
+    Content-Formats option MUST be set to "application/cbor"</t> 
     
-    <t>The required or optional status of attributes is the same as in RFC
-    7662 in this framework.</t>   
+    <t>In this framework, the REQUIRED or OPTIONAL status of parameters is the
+    same as in RFC 7662.  Profiles MAY define additional parameters that can
+    have either status.</t>   
     
     <t>The introspection request and response parameters are mapped to CBOR
     types as follows and are given an integer key value to save space.</t> 
@@ -1059,6 +1069,9 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         ]]></artwork>
       </figure>
     </t>
+    <t>When using CBOR, the whole payload of introspection request and response
+    messages SHALL be formatted as a CBOR map (major type 5) using the
+    parameter abbreviations defined above.</t>
 </section>
   
 </section><!-- introspect resource -->
