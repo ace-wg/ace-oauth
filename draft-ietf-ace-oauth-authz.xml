@@ -552,7 +552,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 <section anchor="specs" title="Protocol Interactions">
 
 <t>
-    This ACE framework is based on the OAuth 2.0 protocol interactions using
+    The ACE framework is based on the OAuth 2.0 protocol interactions using
     the /token and /introspect resources.
     A client obtains an access token from an AS using /token and presents the token
     to an RS to gain access to a protected resource. Alternatively, or additionallly,
@@ -571,16 +571,16 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 </t>
 
 <t>
-  For the description in this document we assume that the client has been
+  The ACE framework supports a wide variety of communication security between client,
+  authorization server, and resource server. We assume that the client has been
   registered to an AS.  Registration means that the two share credentials,
   configuration parameters and that some form of authorization has taken
   place.  These credentials are used to protect the token request by the
-  client and the transport of access tokens and client information from AS
-  to the client. </t>
+  client and the token response from AS to the client. </t>
 
  <t>It is also assumed that the RS has been registered with the AS.
  Established keying material between the AS and the RS allows the AS to apply
- cryptographic protection to the access token to ensure that the content cannot
+ cryptographic protection to the access token to ensure that its content cannot
  be modified, and if needed, that the content is confidentiality protected.</t>
 
 <t>The keying material necessary for establishing communication security
@@ -711,86 +711,77 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 <section anchor="oauthProfile" title="Framework">
   
-  <t>This section describes the profiling and extensions of OAuth 2.0 for
-  constrained environments which constitues the ACE framework.
-  </t>
-    
-  <t>OAuth 2.0 using bearer tokens, as described in <xref target="RFC6749"/>
-  and <xref target="RFC6750"/>, requires TLS for all communication
-  interactions between client, authorization server, and resource server.  This
-  is possible in the scope where OAuth 2.0 was originally developed: web and
-  mobile applications.  In these environments resources like computational
-  power and bandwidth are not scarce and operating systems as well as browser
-  platforms are pre-provisioned with trust anchors that enable clients to
-  authenticate servers based on the Web PKI.  For IoT deployments a wider range
-  of use cases needs to be supported. 
+  <t>This section details the profiling and extensions of OAuth 2.0 for
+    constrained environments which constitues the ACE framework.
   </t>
   
   <t>
     <list style="hanging">
       <t hangText="Credential Provisioning"><vspace blankLines="1"/>
-        For IoT we cannot generally assume that the client and RS will support
-        Web PKI, so the AS is needs to provision credentials or associated
-	information to allow mutual authentication. These credentials need to
-	be provided to the parties before or during the authentication protocol
-	is executed.
+        For IoT we cannot generally assume that the client and RS are part of a common
+        key infrastructure, so the AS provisions credentials or associated
+        information to allow mutual authentication. These credentials need to
+        be provided to the parties before or during the authentication protocol
+        is executed, and may be re-used for subsequent token requests.
         <vspace blankLines="0"/>
       </t>
       
       <t hangText="Channel Binding"><vspace blankLines="1"/>
         The ACE framework by default implements channel binding, i.e. that the
-        authenticated communication channel is bound to the access rights.
-	FIXME: Need to explain how this does not make it impossible to update
-	rights without renegotiating the channel.
+        authenticated communication channel is bound to the access rights. The binding
+        is provided by the "cnf" claim in the access token which indicates which
+        key is used for mutual authentication. For subsequent token requests,
+        updated rights can be requested for the same channel by the client indicating which
+        credentials was used to establish the channel.
         <vspace blankLines="0"/>
       </t>
       
       <t hangText="ACE Profile Negotiation"><vspace blankLines="1"/>
         The client or RS may be limited in the encodings or protocols it
-	supports.  To support a variety of different deployment settings,
-	specific interactions between client and RS are defined in an ACE
-	profile.  The ACE framework supports the negotiation of different ACE
-	profiles between client and AS using the "profile" parameter in the
-	token request and token response. 
+        supports.  To support a variety of different deployment settings,
+        specific interactions between client and RS are defined in an ACE
+        profile.  The ACE framework supports the negotiation of different ACE
+        profiles between client and AS using the "profile" parameter in the
+        token request and token response.
         <vspace blankLines="0"/>
       </t>
       
       <t hangText="Encoding and transporting requests to AS"><vspace
-      blankLines="1"/> 
+        blankLines="1"/>
         In OAuth 2.0 the communication between client or RS and AS is assumed
         to be HTTP and may use Uri-query parameters. This applies for example
-	to the client when making a request to /token for proof-of-possession
+        to the client when making a request to /token for proof-of-possession
         (PoP) tokens <xref target="I-D.ietf-oauth-pop-key-distribution"/>.
         To avoid large headers if the client uses CoAP to communicate with the
-	AS, this memo specifies the following alternative for submitting the
-	senders request parameters to the AS: The sender encodes the parameters
-	of its request as a CBOR map and submits that map as the payload of the
-	request.  The Content-format MUST be application/cbor in that case.
+        AS, this memo specifies the following alternative for submitting the
+        senders request parameters to the AS: The sender encodes the parameters
+        of its request as a CBOR map and submits that map as the payload of the
+        request.  The Content-format MUST be application/cbor in that case.
         <vspace blankLines="0"/>
       </t>
       
       <t hangText="Encoding and transporting responses from AS"><vspace
-      blankLines="1"/> 
+        blankLines="1"/>
         The OAuth requires the AS to use a JSON structure in the payload of the
         response to encode the response parameters.  If the communication is
         with the AS is CoAP, then the AS SHOULD use CBOR instead of
         JSON for encoding its response.  The requesting device can explicitly
-	request this encoding by setting the CoAP Accept option in the access
-	token request to "application/cbor".
+        request this encoding by setting the CoAP Accept option in the access
+        token request to "application/cbor".
         <vspace blankLines="0"/>
       </t>
     </list>
   </t>
-   
+  
   <t>
     Many IoT devices can support OAuth 2.0 without any additional
     extensions, but for certain constrained settings additional profiling
     is needed.  The following sections define CoAP resources for the HTTP based
     token and introspection resources (endpoints) used in  vanilla OAuth 2.0.
-    For the content CBOR mappings are defined as an alternative to JSON and 
+    For the content CBOR mappings are defined as an alternative to JSON and
     form based POST structures used in HTTP.
   </t>
-
+  
 <section anchor="tokenResource" title="The /token Resource">
   
   <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
