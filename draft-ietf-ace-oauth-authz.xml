@@ -557,7 +557,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     the /token and /introspect resources.
     A client obtains an access token from an AS using /token and presents the token
     to an RS to gain access to a protected resource. Alternatively, or additionallly,
-    the RS can uses an obtained access token with the AS /introspect resource to get
+    the RS can use an obtained access token with the AS /introspect resource to get
     information about the state and content of the access token.
     These interactions are
     shown in <xref target="fig:protocolFlow"/>.  An overview of various OAuth
@@ -627,7 +627,8 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 <t>
   <list style="hanging">
     <t hangText="Requesting an Access Token (A):"><vspace blankLines="1"/>
-      The client makes an access token request to the AS.  This memo assumes
+      The client makes an access token request to the /token resource at the AS.
+      This memo assumes
       the use of PoP tokens (see <xref target="oauth2Overview"/> for a short
       description) wherein the AS binds a key to an access token.  The client
       may include permissions it seeks to obtain, and information about the
@@ -641,7 +642,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       "Client Information".  In addition to the response parameters defined by
       OAuth 2.0 and the PoP token extension, we consider new kinds of response
       parameters in <xref target="specsClientInfo"/>, including information on
-      which security protocol the client should use with the resource server(s)
+      which profile the client should use with the resource server(s)
       that it has just been authorized to access.  Communication security
       between client and RS may be based on pre-provisioned keys/security
       contexts or dynamically established.  The RS authenticates the client via
@@ -670,17 +671,16 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       <vspace blankLines="1"/>
       The RS verifies that the token is integrity protected by the AS and
       compares the claims contained in the access token with the resource
-      request.  If the RS is online, validation can be handed over to the AS
+      request. If the RS is online, validation can be handed over to the AS
       using token introspection (see messages D and E) over HTTP or CoAP, in
       which case the different parts of step C may be interleaved with
       introspection.<vspace blankLines="0"/>
     </t>
 
     <t hangText="Token Introspection Request (D):"><vspace blankLines="1"/>
-      A resource server may be configured to use token introspection to
-      interact with the AS to obtain the most recent claims, such as scope,
-      audience, validity etc.
-      associated with a specific access token.  Token introspection over
+      A resource server may be configured to introspect the access token by
+      including it in a request to the /introspect resource at that AS.
+      Token introspection over
       CoAP is defined in
       <xref target="I-D.wahlstroem-ace-oauth-introspection"/> and for HTTP in
       <xref target="RFC7662"/>.
@@ -691,7 +691,8 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     </t>
 
     <t hangText="Token Introspection Response (E):"><vspace blankLines="1"/>
-      The AS validates the token and returns the claims associated with it
+      The AS validates the token and returns the most recent claims, such as scope,
+      audience, validity etc. associated with it
       back to the RS.  The RS then uses the received claims to process the
       request to either accept or to deny it.<vspace blankLines="0"/>
     </t>
@@ -713,7 +714,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 <section anchor="oauthProfile" title="Framework">
   
   <t>This section details the profiling and extensions of OAuth 2.0 for
-    constrained environments which constitues the ACE framework.
+    constrained environments which constitutes the ACE framework.
   </t>
   
   <t>
@@ -730,7 +731,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       <t hangText="Channel Binding"><vspace blankLines="1"/>
         The ACE framework by default implements channel binding, i.e. that the
         authenticated communication channel is bound to the access rights. The binding
-        is provided by the "cnf" claim in the access token which indicates which
+        is provided by the "cnf" claim indicating what
         key is used for mutual authentication. For subsequent token requests,
         updated rights can be requested for the same channel by the client indicating which
         credentials was used to establish the channel.
