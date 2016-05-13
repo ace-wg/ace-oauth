@@ -711,28 +711,29 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 <section anchor="oauthProfile" title="Framework">
   
-  <t>This section details the profiling and extensions of OAuth 2.0 for
-    constrained environments which constitutes the ACE framework.
+  <t>The following sections detail the profiling and extensions of OAuth 2.0
+  for constrained environments which constitutes the ACE framework. 
   </t>
   
   <t>
     <list style="hanging">
       <t hangText="Credential Provisioning"><vspace blankLines="1"/>
-        For IoT we cannot generally assume that the client and RS are part of a common
-        key infrastructure, so the AS provisions credentials or associated
-        information to allow mutual authentication. These credentials need to
-        be provided to the parties before or during the authentication protocol
-        is executed, and may be re-used for subsequent token requests.
+        For IoT we cannot generally assume that the client and RS are part of a
+	common key infrastructure, so the AS provisions credentials or
+	associated information to allow mutual authentication. These
+	credentials need to be provided to the parties before or during the
+	authentication protocol is executed, and may be re-used for subsequent
+	token requests. 
         <vspace blankLines="0"/>
       </t>
       
-      <t hangText="Channel Binding"><vspace blankLines="1"/>
-        The ACE framework by default implements channel binding, i.e. that the
-        authenticated communication channel is bound to the access rights. The binding
-        is provided by the "cnf" claim indicating what
-        key is used for mutual authentication. For subsequent token requests,
-        updated rights can be requested for the same channel by the client indicating which
-        credentials was used to establish the channel.
+      <t hangText="Token Binding"><vspace blankLines="1"/>
+        The ACE framework by default implements token binding, i.e. that the
+        authenticated token holder is bound to the token.  The binding is
+	provided by the "cnf" claim indicating what key is used for mutual
+	authentication. For subsequent token requests, updated rights can be
+	requested for the same key by the client indicating which 
+        credentials was used to bind it to the previous token.
         <vspace blankLines="0"/>
       </t>
       
@@ -772,25 +773,19 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       </t>
     </list>
   </t>
-  
-  <t>
-    Many IoT devices can support OAuth 2.0 without any additional
-    extensions, but for certain constrained settings additional profiling
-    is needed.  The following sections define CoAP resources for the HTTP based
-    token and introspection resources (endpoints) used in  vanilla OAuth 2.0.
-    For the content CBOR mappings are defined as an alternative to JSON and
-    form based POST structures used in HTTP.
-  </t>
+</section> <!--Framework-->
   
 <section anchor="tokenResource" title="The /token Resource">
   
   <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
   access token requests.  This memo extends the functionality of the /token
   resource, giving the AS the possiblility to help client and RS to establish
-  a security context.
+  a keys.
   </t>
  
-  <t>In the constrained settings protecting the channel between client and AS
+  <t>OAuth 2.0 requires the use of TLS client to use  The OAuth 2.0
+  introspection specification In the constrained settings protecting the
+  channel between client and AS FIXME:
   with TLS is not always feasible, or desirable.  Therefore other ways of
   protection (e.g. DTLS or object security) need to be deployed.  This
   framework requires that the data exchanged between client and AS 
@@ -807,20 +802,6 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     request.
   </t>
 
-  <section anchor="oauth2ProfilesCBOR" title="CBOR Data Formats">
-    <t>FIXME: What is the sense of having this section when we have "CoAP
-    Profile for Token resource"?
-      The /token resource (called "endpoint" in OAuth 2.0), defined in Section
-      3.2 of <xref target="RFC6749" />, is used by the client to obtain an
-      access token.  Requests sent to the /token resource use the HTTP POST
-      method and the payload includes a query component, which is formatted as
-      application/x-www-form-urlencoded.  CoAP payloads cannot be formatted in
-      the same way which requires the /token resource on the AS to be
-      profiled. <xref target="tokenResourceCoap" /> defines
-      a CBOR-based format for sending parameters to the /token resource.
-    </t>
-  </section>
-   
   <section anchor="specsClientInfo" title="The 'profile' Parameter">
     
     <t>
@@ -857,8 +838,30 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     
   </section>
   
+  <section anchor="symmetricKeyTokenReq" title="Symmetric Key Transport">
+    <section anchor="C2AS_symmetric" title="Client-to-AS Request">
 
-<section anchor="tokenResourceCoap" title="CoAP Profile for Token resource">
+    </section>
+
+    <section anchor="AS2C_symmetric" title="AS-to-Client Response">
+
+    </section>
+
+  </section>
+
+  <section anchor="asymmetricKeyTokenReq" title="Asymmetric Key Transport">
+    
+    <section anchor="C2AS_asymmetric" title="Client-to-AS Request">
+
+    </section>
+
+    <section anchor="AS2C_asymmetric" title="AS-to-Client Response">
+
+    </section>
+
+  </section>
+
+  <section anchor="tokenResourceCoap" title="CoAP Profile for Token resource">
   <t>The token resource is used by the client to obtain an access token by
     presenting its authorization grant e.g. client credentials to the
     "/token" resource the AS.</t>
@@ -901,7 +904,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         | password          | 15       | 3            |
         | refresh_token     | 16       | 3            |
         | alg               | 17       | 3            |
-        | key               | 18       | 3            |
+        | cnf               | 18       | 3            |
         | aud               | 19       | 3            |
         | profile           | 20       | 0            |
         \---------------+--------------+--------------/
@@ -1056,7 +1059,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
           | iss            | 11       | 3             |
           | jti            | 12       | 3             |
           | alg            | 13       | 3             |
-          | key            | 14       | 3             |
+          | cnf            | 14       | 3             |
           | aud            | 15       | 3             |
           \----------------+----------+---------------/
         ]]></artwork>
@@ -1069,8 +1072,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   
 </section><!-- introspect resource -->
 
-</section><!-- ACE framework -->
-    <section anchor="security" title="Security Considerations">
+<section anchor="security" title="Security Considerations">
       <t>The entire document is about security.  Security considerations
       applicable to authentication and authorization in RESTful
       environments provided in OAuth 2.0 <xref target="RFC6749"/> apply to this
@@ -1081,9 +1083,9 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       <xref target="I-D.ietf-oauth-pop-architecture"/> discusses security
       and privacy threats as well as mitigation measures for Proof-of-Possession
       tokens.</t>
-    </section>
+</section>
 
-    <section anchor="iana" title="IANA Considerations">
+<section anchor="iana" title="IANA Considerations">
       <t>This specification registers new parameters for OAuth and establishes registries for mappings to CBOR.</t>
 
       <section anchor="IANAOAuthIntrospectionResponseParameterRegistrationn" title="OAuth Introspection Response Parameter Registration">
@@ -1392,7 +1394,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">key</spanx></t>
+              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
               <t>CBOR key value: 18</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1568,7 +1570,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">key</spanx></t>
+              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
               <t>CBOR key value: 14</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2032,29 +2034,21 @@ Response-Payload :
   "access_token" : b64'SlAV32hkKG ...',
   "token_type" : "pop",
   "csp" : "DTLS",
-  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
-  "rpk" : b64'ZXlKaGJHY2lPaUpTVTBF ...'
+  "cnf" : {
+    "COSE_Key" : {
+      "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
+      "kty" : "EC",
+      "crv" : "P-256",
+      "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
+      "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
+    }
+  }
 }
         ]]></artwork>
     </figure></t>
 
-    <t>The content of the "key" parameter and the access token are shown in
-    <xref target="fig:BothcborMappingValuesAsymmetricKeyFormat"/> and
-    <xref target="fig:BothcborMappingValueAsymmetricCWT"/>.</t>
-
-    <t><figure align="center"
-               anchor="fig:BothcborMappingValuesAsymmetricKeyFormat"
-               title="Public Key of the RS.">
-        <artwork align="left"><![CDATA[
-{
-  "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
-  "kty" : "EC",
-  "crv" : "P-256",
-  "x"   : b64'MKBCTNIcKUSDii11ySs3526iDZ8AiTo7Tu6KPAqv7D4',
-  "y"   : b64'4Etl6SRW2YiLUrN5vfvVHuhp7x8PxltmWWlbbM4IFyM'
-}
-        ]]></artwork>
-    </figure></t>
+    <t>The content of the access token is shown
+    in  <xref target="fig:BothcborMappingValueAsymmetricCWT"/>.</t>
 
     <t><figure align="center"
                anchor="fig:BothcborMappingValueAsymmetricCWT"
@@ -2231,7 +2225,14 @@ Response-Payload:
   "access_token" : b64'SlAV32hkKG ...'
   "token_type" : "pop",
   "csp" : "DTLS",
-  "key" : b64'eyJhbGciOiJSU0ExXzUi ...'
+  "cnf" : { 
+    "COSE_Key" : {
+      "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
+      "kty" : "oct",
+      "alg" : "HS256",
+      "k": b64'ZoRSOrFzN_FzUA5XKMYoVHyzff5oRJxl-IXRtztJ6uE'
+    }
+  }
 }
       ]]></artwork>
     </figure></t>
@@ -2310,7 +2311,7 @@ Response-Payload:
   "scope" : "open, close",
   "iat" : 1311280970,
   "cnf" : {
-    "ck" : b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
+    "kid" : b64'JDLUhTMjU2IiwiY3R5Ijoi ...'
   }
 }
           ]]></artwork>
