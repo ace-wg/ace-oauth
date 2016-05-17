@@ -330,7 +330,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   one-size-fits-all solution.  We believe this is important to cover the wide
   range of possible interworking use cases and the different requirements from
   a security point of view.  Once IoT deployments mature, popular deployment
-  variants will be documented in form of ACEprofiles.</t>
+  variants will be documented in form of ACE profiles.</t>
 
   <t>In the subsections below we provide further details about the different
   building blocks.</t>
@@ -555,7 +555,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     The ACE framework is based on the OAuth 2.0 protocol interactions using
     the /token and /introspect resources.
     A client obtains an access token from an AS using /token and presents the token
-    to an RS to gain access to a protected resource. Alternatively, or additionallly,
+    to an RS to gain access to a protected resource. Alternatively, or additionally,
     the RS can use an obtained access token with the AS /introspect resource to get
     information about the state and content of the access token.
     These interactions are
@@ -779,13 +779,13 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   
   <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
   access token requests.  This memo extends the functionality of the /token
-  resource, giving the AS the possiblility to help client and RS to establish
+  resource, giving the AS the possibility to help client and RS to establish
   shared keys or to exchange their public keys.
   </t>
  
   <section anchor="symmetricKeyTokenReq" title="Symmetric Key Transport">
-    <t>This section describes how a client can request symmetric keys to be
-    used as proof of possession mechanism.</t>
+    <t>This section describes the request and response for access tokens using
+    symmetric keys for proof of possession.</t>
 
     <section anchor="C2AS_symmetric" title="Client-to-AS Request">
       <t>In case a symmetric key shall be bound to an access token the
@@ -793,9 +793,15 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       client to the AS the following parameters MAY be included:
       
       <list style="hanging">
-	<t hangText="token_type:">OPTIONAL.  See FIXME for more details.</t>
-	<t hangText="alg:">OPTIONAL.  See FIXME for more details.</t>
-	<t hangText="profile:">OPTIONAL.  See FIXME for more details.</t>
+	<t hangText="token_type:">OPTIONAL.  See <xref
+	target="specsClientInfo"/> for more details.</t> 
+	<t hangText="alg:">OPTIONAL.  See <xref target="specsClientInfo"/> for
+	more details.</t> 
+	<t hangText="profile:">OPTIONAL.  This indicates the profile that
+	the client would like to use with the RS.  See <xref
+	target="specsClientInfo"/> for more details on the formatting of this
+	parameter.  If the RS cannot support the requested profile, the AS MUST
+	reply with an error message.</t> 
       </list>
     </t>
     
@@ -832,15 +838,15 @@ Payload:
     <section anchor="AS2C_symmetric" title="AS-to-Client Response">
       <t>If the access token request has been successfully verified by the
       AS and the client is authorized to obtain a PoP token for the indicated
-      RS and scopes (if any), the AS issues an access token and optionally a
-      refresh token.  If client authentication failed or is invalid, the
-      authorization server returns an error response as described in FIXME
-      analogous to Section 5.2 of <xref target="RFC6749"/>.</t>
+      audience and scopes (if any), the AS issues an access token and
+      optionally a refresh token.  If client authentication failed or is
+      invalid, the authorization server returns an error response as described
+      in FIXME analogous to Section 5.2 of <xref target="RFC6749"/>.</t>
 
       <t>The AS MUST include an access token, a 'cnf' parameter and
       a 'profile' parameter in the Client Information of a successful response.
-      The 'cnf' parameter is defined in FIXME, and the 'profile' parameter is
-      defined in FIXME.</t>
+      The 'cnf' and the 'profile' parameters are defined in <xref
+      target="specsClientInfo"/>.</t> 
 
       <t>The 'profile' parameter expresses what profile the RS is willing
       to use to communicate with this client.  If the client requested a 
@@ -864,15 +870,15 @@ Payload:
 {
   "access_token" : b64'SlAV32hkKG ...
    (remainder of CWT omitted for brevity;
-   CWT contains COSE_Key in the 'cnf' parameter)",
+   CWT contains COSE_Key in the 'cnf' parameter)',
   "token_type" : "pop",
   "expires_in" : "3600",
+  "profile" : "coap_dtls"
   "cnf" : {
     "COSE_Key" : {
       (remainder of COSE_Key omitted for brevity)
     }
   }
-  "profile" : "coap_dtls"
 }
         ]]></artwork>
     </figure></t>
@@ -882,25 +888,115 @@ Payload:
   </section>
 
   <section anchor="asymmetricKeyTokenReq" title="Asymmetric Key Transport">
-    
+    <t>This section describes the request and response for access tokens using
+    asymmetric keys for proof of possession.</t>
+
     <section anchor="C2AS_asymmetric" title="Client-to-AS Request">
-      <t>FIXME</t>
+      <t>In case an asymmetric key shall be bound to an access token then the
+      following procedure is applicable.  In the request message from the
+      client to the AS the following parameters MAY be included:
+
+      <list style="hanging">
+	<t hangText="token_type:">OPTIONAL.  See <xref
+	target="specsClientInfo"/> for more details.</t> 
+	<t hangText="alg:">OPTIONAL.  See <xref target="specsClientInfo"/> for
+	more details.</t> 
+	<t hangText="profile:">OPTIONAL.   This indicates the profile that
+	the client would like to use with the RS.  See <xref
+	target="specsClientInfo"/> for more details on the formatting of this
+	parameter.  If the RS cannot support the requested profile, the AS MUST
+	reply with an error message.</t>
+	<t hangText="cnf:">OPTIONAL.  This field contains information about the
+	public key the client would like to bind to the access token.  If the
+	client does not provide such information, the AS MUST create an
+	ephemeral key pair (considering the information provided by the client)
+	or alternatively respond with an error message.  See <xref
+	target="specsClientInfo"/> for more details on the formatting
+	of the 'cnf' parameter.</t>
+      </list>
+    </t>
+
+    <t>These new parameters are optional in the case where the AS has prior
+    knowledge of the capabilities and credentials of the client, otherwise
+    these parameters are required.</t>
+    
+    <t>For example, the client makes the following CoAP request using DTLS
+    (extra line breaks are for display purposes only).</t>
+  
+    <t><figure align="center" anchor="fig:asymmATreq"
+               title="Example request for an access token bound to an
+		      asymmetric key.">
+        <artwork align="left"><![CDATA[
+Header: POST (Code=0.02)
+Uri-Host: "server.example.com"
+Uri-Path: "token"
+Content-Type: "application/cbor"
+Payload:
+{
+  "grant_type" : "token",
+  "aud" : "lockOfDoor0815",
+  "client_id" : "myclient",
+  "token_type" : "pop",
+  "alg" : "ES256",
+  "profile" : "coap_dtls"
+  "cnf" : {
+    "COSE_Key" : { 
+      (remainder of COSE_Key omitted for brevity)
+    }
+  }
+}
+        ]]></artwork>
+    </figure></t>
     </section>
 
     <section anchor="AS2C_asymmetric" title="AS-to-Client Response">
-      <t>FIXME</t>
+      <t>If the access token request has been successfully verified by the
+      AS and the client is authorized to obtain a PoP token for the indicated
+      audience and scopes (if any), the AS issues an access token and
+      optionally a refresh token.  If client authentication failed or is
+      invalid, the authorization server returns an error response as described
+      in FIXME analogous to Section 5.2 of <xref target="RFC6749"/>.</t>
+
+      <t>The authorization server also places information about the public key
+      used by the client into the access token to create the binding 
+      between the two.</t>
+
+      <t>An example of a successful response is shown in <xref
+      target="fig:asymmATres"/>.</t>
+
+      <t><figure align="center" anchor="fig:asymmATres"
+               title="Example AS response with an access token bound to an
+		      asymmetric key.">
+        <artwork align="left"><![CDATA[
+Header: Created (Code=2.01)
+Content-Type: "application/cbor"
+Payload:
+{
+  "access_token" : b64'2YotnFZFE ...
+   (remainder of CWT omitted for brevity;
+   CWT contains COSE_Key in the 'cnf' parameter)',
+  "token_type" : "pop",
+  "expires_in" : "3600",
+  "profile" : "coap_dtls"
+  }
+}
+        ]]></artwork>
+    </figure></t>
+
+    <t>Note: In this example there is no need for the AS to provide
+    the pop key to the client, since the client already has the asymmetric
+    key pair.</t>
     </section>
+  </section> <!-- assymetric pop key -->
 
-  </section>
-
-  <section anchor="tokenParams" title="Token Types, Algorithms and
-				       Profiles">
-    <t>FIXME</t>
-   
+  <section anchor="tokenParams" title="Token Types, Algorithms and Profiles">
+    <t>FIXME: spec profile, cnf, token_type, and alg.</t>   
   </section>
     
 
-  <section anchor="tokenResourceCoap" title="FIXME:CoAP Profile for Token resource">
+  <section anchor="specsClientInfo" title="FIXME:CoAP Profile for Token
+					   resource">
+
   <t>The token resource is used by the client to obtain an access token by
     presenting its authorization grant e.g. client credentials to the
     "/token" resource the AS.</t>
@@ -1038,7 +1134,7 @@ Payload:
   as this may not be feasible on a constrained resource server.  Instead
   profiles are expected to  specify the details of how this protection is
   achieved e.g. based on the communication protocol and the credentials used by
-  the RS.  Furthermore the AS and the enpoint querying the introspection
+  the RS.  Furthermore the AS and the endpoint querying the introspection
   resource MUST perform mutual authentication, and the AS MUST check if the
   querying endpoint is authorized to perform this specific introspection
   request.  Profiles including introspection MUST specify how the mutual
@@ -1057,7 +1153,7 @@ Payload:
     <t>The introspection endpoint may need to provide additional
     parameters in a constrained usecase, compared to the usual
     web usecases.  For example if the connection between client and
-    RS has a very low bandwidth, it is favourable to transport 
+    RS has a very low bandwidth, it is favorable to transport 
     the client's credentials over a faster direct link between AS and RS,
     instead of encoding them in the access token.</t>
     <t>In order to support this type of provisioning, this memo extends the
@@ -1892,7 +1988,7 @@ Payload:
 	  <list style="symbols">
 	    <t>Register RS and manage corresponding security contexts.</t>
             <t>Register clients and including authentication credentials.</t>
-	    <t>Allow Resource Onwers to configure and update access control
+	    <t>Allow Resource Owners to configure and update access control
 	    policies related to their registered RS'</t>
 	    <t>Expose a service that allows clients to request tokens.</t>
             <t>Authenticate clients that wishes to request a token.</t>
