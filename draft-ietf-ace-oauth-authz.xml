@@ -640,7 +640,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       an access token.  It also includes various parameters, which we call
       "Client Information".  In addition to the response parameters defined by
       OAuth 2.0 and the PoP token extension, we consider new kinds of response
-      parameters in <xref target="specsClientInfo"/>, including information on
+      parameters in <xref target="tokenParams"/>, including information on
       which profile the client should use with the resource server(s)
       that it has just been authorized to access.  Communication security
       between client and RS may be based on pre-provisioned keys/security
@@ -752,10 +752,14 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   <t>OAuth 2.0 requires the use of TLS both to protect the communication
   between AS and client when requesting an access token and between AS and RS
   for introspection.  In constrained settings TLS is not always feasible,
-  or desirable.  Therefore this framework requires that integrity 
-  and confidentiality protection of the data exchanged with the AS.  
-  Profiles are expected to specify the details of how this is done, depending
-  e.g. on the communication protocol and the credentials used by the client.
+  or desirable.  Therefore in this framework it is REQUIRED that the 
+  data exchanged with the AS is encrypted and integrity protected.  It is
+  furthermore REQUIRED that the AS and the endpoint communicating with it
+  (client or RS) perform mutual authentication.</t>
+
+  <t>Profiles are expected to specify the details of how this is done,
+  depending e.g. on the communication protocol and the credentials used by the
+  client or the RS. 
   </t>
 
   <t>In OAuth 2.0 the communication between client or RS and AS is assumed
@@ -794,12 +798,12 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       
       <list style="hanging">
 	<t hangText="token_type:">OPTIONAL.  See <xref
-	target="specsClientInfo"/> for more details.</t> 
-	<t hangText="alg:">OPTIONAL.  See <xref target="specsClientInfo"/> for
+	target="tokenParams"/> for more details.</t> 
+	<t hangText="alg:">OPTIONAL.  See <xref target="tokenParams"/> for
 	more details.</t> 
 	<t hangText="profile:">OPTIONAL.  This indicates the profile that
 	the client would like to use with the RS.  See <xref
-	target="specsClientInfo"/> for more details on the formatting of this
+	target="tokenParams"/> for more details on the formatting of this
 	parameter.  If the RS cannot support the requested profile, the AS MUST
 	reply with an error message.</t> 
       </list>
@@ -846,7 +850,7 @@ Payload:
       <t>The AS MUST include an access token, a 'cnf' parameter and
       a 'profile' parameter in the Client Information of a successful response.
       The 'cnf' and the 'profile' parameters are defined in <xref
-      target="specsClientInfo"/>.</t> 
+      target="tokenParams"/>.</t> 
 
       <t>The 'profile' parameter expresses what profile the RS is willing
       to use to communicate with this client.  If the client requested a 
@@ -885,7 +889,7 @@ Payload:
 
     </section>
 
-  </section>
+  </section> <!-- symmetric key transport -->
 
   <section anchor="asymmetricKeyTokenReq" title="Asymmetric Key Transport">
     <t>This section describes the request and response for access tokens using
@@ -898,12 +902,12 @@ Payload:
 
       <list style="hanging">
 	<t hangText="token_type:">OPTIONAL.  See <xref
-	target="specsClientInfo"/> for more details.</t> 
-	<t hangText="alg:">OPTIONAL.  See <xref target="specsClientInfo"/> for
+	target="tokenParams"/> for more details.</t> 
+	<t hangText="alg:">OPTIONAL.  See <xref target="tokenParams"/> for
 	more details.</t> 
 	<t hangText="profile:">OPTIONAL.   This indicates the profile that
 	the client would like to use with the RS.  See <xref
-	target="specsClientInfo"/> for more details on the formatting of this
+	target="tokenParams"/> for more details on the formatting of this
 	parameter.  If the RS cannot support the requested profile, the AS MUST
 	reply with an error message.</t>
 	<t hangText="cnf:">OPTIONAL.  This field contains information about the
@@ -911,7 +915,7 @@ Payload:
 	client does not provide such information, the AS MUST create an
 	ephemeral key pair (considering the information provided by the client)
 	or alternatively respond with an error message.  See <xref
-	target="specsClientInfo"/> for more details on the formatting
+	target="tokenParams"/> for more details on the formatting
 	of the 'cnf' parameter.</t>
       </list>
     </t>
@@ -990,89 +994,103 @@ Payload:
   </section> <!-- assymetric pop key -->
 
   <section anchor="tokenParams" title="Token Types, Algorithms and Profiles">
-    <t>FIXME: spec profile, cnf, token_type, and alg.</t>   
-  </section>
+    <t>To allow clients to indicate support for specific token types and
+    respective algorithms they need to interact with the AS.  They can either
+    provide this information out-of-band or via the 'token_type' and
+    'alg' parameter in the client request.</t>
+
+    <t>The value in the 'alg' parameter together with value from the
+    'token_type' parameter allow the client to indicate the supported
+    algorithms for a given token type.  The token type refers to the
+    specification used by the client to interact with the resource server
+    to demonstrate possession of the key.  The 'alg' parameter provides
+    further information about the algorithm, such as whether a symmetric
+    or an asymmetric crypto-system is used.  Hence, a client supporting a
+    specific token type also knows how to populate the values to the
+    'alg' parameter.</t>
+
+    <t>The value for the 'token_type' MUST be taken from the 'OAuth Access
+    Token Types' registry created by <xref target="RFC6749"/>.</t>
+
+    <t>This document does not register a new value for the OAuth Access
+    Token Types registry nor does it define values to be used for the
+    'alg' parameter since this is the responsibility of the profiles, 
+    defining the mechanism for clients interacting with resource servers.</t> 
     
+    <t>The values in the 'alg' parameter are case-sensitive.  If the client
+    supports more than one algorithm then each individual value MUST be
+   separated by a space.</t>
 
-  <section anchor="specsClientInfo" title="FIXME:CoAP Profile for Token
-					   resource">
-
-  <t>The token resource is used by the client to obtain an access token by
-    presenting its authorization grant e.g. client credentials to the
-    "/token" resource the AS.</t>
-  
-  <t> When the request is sent over HTTP the request Content-Type is set to
-    "application/x-www-form-urlencoded" or the data is sent as query
-    parameters.  When sending the request CBOR encoded over CoAP the
-    Content-Formats option MUST be set to "application/cbor".  Query
-    parameter option is not allowed</t>
-  
-  <t>When response is returned over HTTP the Content-Type is set to
-    "application/json".  When returning the response CBOR encoded over
-    CoAP the Content-Formats option MUST be set to "application/cbor"</t>
-  
-  <t>For requiredness of attributes see the OAuth framework and the PoP
-    token specifications.  No exceptions is added by this specification.</t>
-  
-  <t>The OAuth parameters are mapped to CBOR types as follows and are
-    given an integer key value to save space.</t>
-  <t>
-    <figure align="center" anchor="fig:cborTokenParameters" title="CBOR mappings used in token requests">
-      <artwork align="left"><![CDATA[
-        /-------------------+----------+--------------\
-        | Parameter name    | CBOR Key | Major Type   |
-        |-------------------+----------+--------------|
-        | client_id         | 1        | 3            |
-        | client_secret     | 2        | 2            |
-        | response_type     | 3        | 3            |
-        | redirect_uri      | 4        | 3            |
-        | scope             | 5        | 3            |
-        | state             | 6        | 3            |
-        | code              | 7        | 2            |
-        | error_description | 8        | 3            |
-        | error_uri         | 9        | 3            |
-        | grant_type        | 10       | 3            |
-        | access_token      | 11       | 3            |
-        | token_type        | 12       | 0            |
-        | expires_in        | 13       | 0            |
-        | username          | 14       | 3            |
-        | password          | 15       | 3            |
-        | refresh_token     | 16       | 3            |
-        | alg               | 17       | 3            |
-        | cnf               | 18       | 3            |
-        | aud               | 19       | 3            |
-        | profile           | 20       | 0            |
-        \---------------+--------------+--------------/
-      ]]></artwork>
-    </figure>
-  </t>
-</section>
-</section>
-
-
-
-<section title="The Access Token">
-
-
-
-  <t>
-    A profile for expressing JSON Web Tokens (JWT) in CBOR is provided in 
-    <xref target="I-D.wahlstroem-ace-cbor-web-token"/>.
-  </t>
-  
-  
-  <section anchor="aifsection"
-    title="Authorization Information Format">
-    <t>We introduce a new claim for describing access rights with a specific
-      format, the "aif" claim.  In this memo we propose to use the compact
-      format provided by AIF  <xref target="I-D.bormann-core-ace-aif" />.  Access
-      rights may be specified as a list of URIs of resources together with allowed
-      actions (GET, POST, PUT, PATCH, or DELETE).  Other formats may be mandated
-      by specific applications or requirements (e.g. specifying local conditions
-      on access).
+    <t>The "profile" parameter identifies the communication protocol and the 
+      communication security protocol that the client MUST use towards the
+      RS.</t>
+    
+    <t>An initial set of profile identifiers and their CBOR encodings are
+      specified in <xref target="fig:profile"/>.  Profiles using other
+      combinations of protocols MUST define their own profile identifier.
+      
+      <figure align="center" anchor="fig:profile" title="Profile identifiers
+        and their CBOR mappings"><artwork align="left"><![CDATA[
+          /--------------------+----------+--------------\
+          | Profile identifier | CBOR Key | Major Type   |
+          |--------------------+----------+--------------|
+          | http_tls           |    0     |     0 (uint) |
+          | coap_dtls          |    1     |     0        |
+          | coap_oscoap        |    2     |     0        |
+          \--------------------+----------+--------------/
+        ]]></artwork>
+      </figure>
+    </t>
+    
+    <t>Profiles MAY define additional parameters for both the token request and
+      the client information in the access token response in order to support
+      negotioation or signalling of profile specific parameters.
     </t>
   </section>
   
+  <section anchor="cborParams" title="Mapping parameters to CBOR">  
+    <t>All OAuth parameters in access token requests and responses are mapped
+    to CBOR types as follows and are given an integer key value to save
+    space.</t>  
+     
+    <t>
+      <figure align="center" anchor="fig:cborTokenParameters" 
+	      title="CBOR mappings used in token requests"> 
+      <artwork align="left"><![CDATA[
+        /-------------------+----------+-----------------\
+        | Parameter name    | CBOR Key | Major Type      |
+        |-------------------+----------+-----------------|
+        | client_id         | 1        | 3 (text string) |
+        | client_secret     | 2        | 2 (byte string) |
+        | response_type     | 3        | 3               |
+        | redirect_uri      | 4        | 3               |
+        | scope             | 5        | 3               |
+        | state             | 6        | 3               |
+        | code              | 7        | 2               |
+        | error_description | 8        | 3               |
+        | error_uri         | 9        | 3               |
+        | grant_type        | 10       | 3               |
+        | access_token      | 11       | 3               |
+        | token_type        | 12       | 0 (uint)        |
+        | expires_in        | 13       | 0               |
+        | username          | 14       | 3               |
+        | password          | 15       | 3               |
+        | refresh_token     | 16       | 3               |
+        | alg               | 17       | 3               |
+        | cnf               | 18       | 3               |
+        | aud               | 19       | 3               |
+        | profile           | 20       | 0               |
+        \---------------+--------------+-----------------/
+      ]]></artwork>
+    </figure>
+  </t>
+  </section>
+</section>
+
+<section title="The Access Token">
+  <t>This framework RECOMMENDS the use of CBOR web token (CWT) as 
+  specified in <xref target="I-D.wahlstroem-ace-cbor-web-token"/>.
+  </t>
   
   <section title="Access Token Transport (TBD Goeran)">
     <t>
@@ -1127,28 +1145,7 @@ Payload:
   to use HTTP POST to transfer the introspection request and how the AS encodes
   its response in JSON.  This section defines adaptations to more constrained
   environments using CoAP and CBOR.</t> 
-
-  <t>Following RFC 7662, this framework requires that the data sent and 
-  received by the introspection endpoint MUST be encrypted and integrity
-  protected.  However this framework does not require the RS to implement TLS,
-  as this may not be feasible on a constrained resource server.  Instead
-  profiles are expected to  specify the details of how this protection is
-  achieved e.g. based on the communication protocol and the credentials used by
-  the RS.  Furthermore the AS and the endpoint querying the introspection
-  resource MUST perform mutual authentication, and the AS MUST check if the
-  querying endpoint is authorized to perform this specific introspection
-  request.  Profiles including introspection MUST specify how the mutual
-  authentication is performed.
-  </t>
-  
-  <section anchor="IntroReq" title="Introspection Request">
-  
-  </section>
-  
-  <section anchor="IntroRes" title="Introspection Response">
-  
-  </section>
- 
+   
   <section anchor="rsInfo" title="Resource Server Information">
     <t>The introspection endpoint may need to provide additional
     parameters in a constrained usecase, compared to the usual
