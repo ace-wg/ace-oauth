@@ -731,9 +731,9 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         The ACE framework by default implements token binding, i.e. that the
         authenticated token holder is bound to the token.  The binding is
 	provided by the "cnf" claim indicating what key is used for mutual
-	authentication. For subsequent token requests, updated rights can be
-	requested for the same key by the client indicating which 
-        credentials was used to bind it to the previous token.
+	authentication. If clients need to update a token, e.g. to get
+	additional rights, they can request that the AS binds the new access
+	token to the same credential as the previous token.
         <vspace blankLines="0"/>
       </t>
       
@@ -746,33 +746,33 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         token request and token response.
         <vspace blankLines="0"/>
       </t>
-      
-      <t hangText="Encoding and transporting requests to AS"><vspace
-        blankLines="1"/>
-        In OAuth 2.0 the communication between client or RS and AS is assumed
-        to be HTTP and may use Uri-query parameters. This applies for example
-        to the client when making a request to /token for proof-of-possession
-        (PoP) tokens <xref target="I-D.ietf-oauth-pop-key-distribution"/>.
-        To avoid large headers if the client uses CoAP to communicate with the
-        AS, this memo specifies the following alternative for submitting the
-        senders request parameters to the AS: The sender encodes the parameters
-        of its request as a CBOR map and submits that map as the payload of the
-        request.  The Content-format MUST be application/cbor in that case.
-        <vspace blankLines="0"/>
-      </t>
-      
-      <t hangText="Encoding and transporting responses from AS"><vspace
-        blankLines="1"/>
-        The OAuth requires the AS to use a JSON structure in the payload of the
-        response to encode the response parameters.  If the communication is
-        with the AS is CoAP, then the AS SHOULD use CBOR instead of
-        JSON for encoding its response.  The requesting device can explicitly
-        request this encoding by setting the CoAP Accept option in the access
-        token request to "application/cbor".
-        <vspace blankLines="0"/>
-      </t>
     </list>
   </t>
+
+  <t>OAuth 2.0 requires the use of TLS both to protect the communication
+  between AS and client when requesting an access token and between AS and RS
+  for introspection.  In constrained settings TLS is not always feasible,
+  or desirable.  Therefore this framework requires that integrity 
+  and confidentiality protection of the data exchanged with the AS.  
+  Profiles are expected to specify the details of how this is done, depending
+  e.g. on the communication protocol and the credentials used by the client.
+  </t>
+
+  <t>In OAuth 2.0 the communication between client or RS and AS is assumed
+  to be HTTP and may use Uri-query parameters.  This framework RECOMMENDS
+  to use CoAP instead and RECOMMENDS the use of the following alternative
+  instead of Uri-query parameters: The sender (client or RS) encodes the
+  parameters of its request as a CBOR map and submits that map as the payload
+  of the POST request.  The Content-format MUST be "application/cbor" in that
+  case. 
+  </t>
+  
+  <t>The OAuth 2.0 AS uses a JSON structure in the payload of its responses
+  both to client and RS.  This framework RECOMMENDS the use of CBOR
+  <xref target="RFC7049"/> instead.  The requesting device can explicitly
+  request this encoding by setting the CoAP Accept option in the request to
+  "application/cbor".</t>
+
 </section> <!--Framework-->
   
 <section anchor="tokenResource" title="The /token Resource">
@@ -780,70 +780,102 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
   access token requests.  This memo extends the functionality of the /token
   resource, giving the AS the possiblility to help client and RS to establish
-  a keys.
+  shared keys or to exchange their public keys.
   </t>
  
-  <t>OAuth 2.0 requires the use of TLS client to use  The OAuth 2.0
-  introspection specification In the constrained settings protecting the
-  channel between client and AS FIXME:
-  with TLS is not always feasible, or desirable.  Therefore other ways of
-  protection (e.g. DTLS or object security) need to be deployed.  This
-  framework requires that the data exchanged between client and AS 
-  MUST be encrypted and integrity protected.  Profiles are expected to 
-  specify the details of how this is done, depending e.g. on the communication
-  protocol and the credentials used by the client.
-  </t>
-
-  <t>FIXME: Pull that stuff in from pop-key-dist:
-    The OAuth key distribution specification <xref
-    target="I-D.ietf-oauth-pop-key-distribution"/> describes in section 6
-    how the client can request specific types of keys (symmetric vs.
-    asymmetric) and proof-of-possession algorithms in the PoP token
-    request.
-  </t>
-
-  <section anchor="specsClientInfo" title="The 'profile' Parameter">
-    
-    <t>
-      The "profile" parameter identifies the communication protocol and the
-      communication security protocol, such
-      as e.g. 'coap_dtls' for CoAP over DTLS.
-    </t>
-    
-    
-    <t>
-      An initial set of profile identifiers and their CBOR encodings are
-      specified in <xref target="fig:profile"/>.  They identify profiles
-      using HTTP over TLS, CoAP over DTLS and CoAP with COSE as
-      specified in <xref target="I-D.selander-ace-object-security"/>.
-      
-      <figure align="center" anchor="fig:profile" title="Profile identifiers
-        and their CBOR mappings"><artwork align="left"><![CDATA[
-          /--------------------+----------+------------\
-          | Profile identifier | CBOR Key | Major Type |
-          |--------------------+----------+------------|
-          | http_tls           |    0     |     0      |
-          | coap_dtls          |    1     |     0      |
-          | coap_oscoap        |    2     |     0      |
-          \--------------------+----------+------------/
-        ]]></artwork>
-      </figure>
-    </t>
-    
-    <t>
-      Profiles MAY define additional parameters for both the token request and
-      the client information in the access token response in order to support
-      negotioation or signalling of profile specific parameters.
-    </t>
-    
-  </section>
-  
   <section anchor="symmetricKeyTokenReq" title="Symmetric Key Transport">
-    <section anchor="C2AS_symmetric" title="Client-to-AS Request">
+    <t>This section describes how a client can request symmetric keys to be
+    used as proof of possession mechanism.</t>
 
+    <section anchor="C2AS_symmetric" title="Client-to-AS Request">
+      <t>In case a symmetric key shall be bound to an access token the
+      following procedure is applicable.  In the request message from the
+      client to the AS the following parameters MAY be included:
+      
+      <list style="hanging">
+	<t hangText="token_type:">OPTIONAL.  See FIXME for more details.</t>
+	<t hangText="alg:">OPTIONAL.  See FIXME for more details.</t>
+	<t hangText="profile:">OPTIONAL.  See FIXME for more details.</t>
+      </list>
+    </t>
+    
+    <t>These new parameters are optional in the case where the AS has prior
+    knowledge of the capabilities of the client otherwise these parameters are
+    required.  This prior knowledge may, for example, be set by the use of a
+    dynamic client registration protocol exchange.</t> 
+
+    <t>For example, the client makes the following CoAP request using DTLS
+    (extra line breaks are for display purposes only).</t>
+
+    <t><figure align="center" anchor="fig:symmATreq"
+               title="Example request for an access token bound to a
+		      symmetric key.">
+        <artwork align="left"><![CDATA[
+Header: POST (Code=0.02)
+Uri-Host: "server.example.com"
+Uri-Path: "token"
+Content-Type: "application/cbor"
+Payload:
+{
+  "grant_type" : "client_credentials",
+  "aud" : "tempSensor4711",
+  "client_id" : "myclient",
+  "client_secret" : "qwerty",
+  "token_type" : "pop",
+  "alg" : "HS256",
+  "profile" : "coap_dtls"
+}
+        ]]></artwork>
+    </figure></t>
     </section>
 
     <section anchor="AS2C_symmetric" title="AS-to-Client Response">
+      <t>If the access token request has been successfully verified by the
+      AS and the client is authorized to obtain a PoP token for the indicated
+      RS and scopes (if any), the AS issues an access token and optionally a
+      refresh token.  If client authentication failed or is invalid, the
+      authorization server returns an error response as described in FIXME
+      analogous to Section 5.2 of <xref target="RFC6749"/>.</t>
+
+      <t>The AS MUST include an access token, a 'cnf' parameter and
+      a 'profile' parameter in the Client Information of a successful response.
+      The 'cnf' parameter is defined in FIXME, and the 'profile' parameter is
+      defined in FIXME.</t>
+
+      <t>The 'profile' parameter expresses what profile the RS is willing
+      to use to communicate with this client.  If the client requested a 
+      specific profile in the request, and the RS supports it, the AS SHOULD
+      select that profile.</t>
+
+      <t>Note that the access token may also contain a 'cnf' parameter,
+      however, the two parameters are consumed by different parties.  The
+      access token is created by the AS and processed by the RS (and opaque to
+      the client) whereas the Client Information is created by the AS and
+      processed by the client; it is never forwarded to the resource
+      server.</t> 
+   
+      <t><figure align="center" anchor="fig:symmATres"
+               title="Example AS response with an access token bound to a
+		      symmetric key.">
+        <artwork align="left"><![CDATA[
+Header: Created (Code=2.01)
+Content-Type: "application/cbor"
+Payload:
+{
+  "access_token" : b64'SlAV32hkKG ...
+   (remainder of CWT omitted for brevity;
+   CWT contains COSE_Key in the 'cnf' parameter)",
+  "token_type" : "pop",
+  "expires_in" : "3600",
+  "cnf" : {
+    "COSE_Key" : {
+      (remainder of COSE_Key omitted for brevity)
+    }
+  }
+  "profile" : "coap_dtls"
+}
+        ]]></artwork>
+    </figure></t>
 
     </section>
 
@@ -852,16 +884,23 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   <section anchor="asymmetricKeyTokenReq" title="Asymmetric Key Transport">
     
     <section anchor="C2AS_asymmetric" title="Client-to-AS Request">
-
+      <t>FIXME</t>
     </section>
 
     <section anchor="AS2C_asymmetric" title="AS-to-Client Response">
-
+      <t>FIXME</t>
     </section>
 
   </section>
 
-  <section anchor="tokenResourceCoap" title="CoAP Profile for Token resource">
+  <section anchor="tokenParams" title="Token Types, Algorithms and
+				       Profiles">
+    <t>FIXME</t>
+   
+  </section>
+    
+
+  <section anchor="tokenResourceCoap" title="FIXME:CoAP Profile for Token resource">
   <t>The token resource is used by the client to obtain an access token by
     presenting its authorization grant e.g. client credentials to the
     "/token" resource the AS.</t>
@@ -1005,7 +1044,15 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   request.  Profiles including introspection MUST specify how the mutual
   authentication is performed.
   </t>
-
+  
+  <section anchor="IntroReq" title="Introspection Request">
+  
+  </section>
+  
+  <section anchor="IntroRes" title="Introspection Response">
+  
+  </section>
+ 
   <section anchor="rsInfo" title="Resource Server Information">
     <t>The introspection endpoint may need to provide additional
     parameters in a constrained usecase, compared to the usual
