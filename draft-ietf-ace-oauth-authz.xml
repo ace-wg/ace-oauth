@@ -752,7 +752,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   <t>OAuth 2.0 requires the use of TLS both to protect the communication
   between AS and client when requesting an access token and between AS and RS
   for introspection.  In constrained settings TLS is not always feasible,
-  or desirable.  Therefore in this framework it is REQUIRED that the 
+  or desirable.  Nevertheless it is REQUIRED that the
   data exchanged with the AS is encrypted and integrity protected.  It is
   furthermore REQUIRED that the AS and the endpoint communicating with it
   (client or RS) perform mutual authentication.</t>
@@ -916,7 +916,9 @@ Payload:
 	ephemeral key pair (considering the information provided by the client)
 	or alternatively respond with an error message.  See <xref
 	target="tokenParams"/> for more details on the formatting
-	of the 'cnf' parameter.</t>
+    of the 'cnf' parameter. FIXME: consider omitting the case of the AS
+    generating a key pair. If we maintain this case, we also need to define
+    how to transport the private key in 'cnf'.</t>
       </list>
     </t>
 
@@ -1046,6 +1048,10 @@ Payload:
       the client information in the access token response in order to support
       negotioation or signalling of profile specific parameters.
     </t>
+    
+    <t>FIXME: details of the 'cnf' parameter.
+    </t>
+    
   </section>
   
   <section anchor="cborParams" title="Mapping parameters to CBOR">  
@@ -1085,57 +1091,25 @@ Payload:
     </figure>
   </t>
   </section>
+  
+  
+  <section title="Repeated token requests">
+    <t>FIXME: Consider moving this section or integrate this content in other
+      section.
+    </t>
+    <t>In case of a repeated request for an access token for the same resource
+      but potentially with different rights, or for the same resource server but
+      potentially different rights, it is possible to omit key transport in the
+      token request/response and access token. This assumes that keys are cached
+      by the RS and client. In this case, the 'cnf' contains a reference to the
+      key, instead of the key itself. FIXME: Add details.
+    </t>
+    <t>FIXME: Example
+    </t>
+  </section>
+  
 </section>
 
-<section title="The Access Token">
-  <t>This framework RECOMMENDS the use of CBOR web token (CWT) as 
-  specified in <xref target="I-D.wahlstroem-ace-cbor-web-token"/>.
-  </t>
-  
-  <section title="Access Token Transport (TBD Goeran)">
-    <t>
-      Defined in ACE profile.
-    </t>
-    <t>
-      We present a method for access token transport applicable in generic
-      RESTful settings: POST /authz-info
-    </t>
-  </section>
-  
-  <section anchor="tokenValidity" title="Token Expiration">
-    <t>Depending on the capabilities of the RS, there are various ways in
-      which it can verify the validity of a received access token.  We list the
-      possibilities here including what functionality they require of the
-      RS.</t>
-    
-    <t><list style="symbols">
-      <t>The token is a CWT/JWT and includes a 'exp' claim and possibly the
-        'nbf' claim.  The RS verifies these by comparing them to values from
-        its internal clock as defined in <xref target="RFC7519"/>.  In this
-        case the RS must have a real time chip (RTC) or some other way of
-        reliably measuring time.</t>
-      
-      <t>The RS verifies the validity of the token by performing an
-        introspection request as specified in <xref
-        target="introspectionResource"/>.  This requires the RS to have a
-        reliable network connection to the AS and to be able to handle two
-        secure sessions in parallel (C to RS and AS to RS).</t>
-      
-      <t>The RS and the AS both store a sequence number linked to their common
-        security association.  The AS increments this number for each access
-        token it issues and includes it in the access token, which is a
-        CWT/JWT.  The RS keeps track of the most recently received sequence
-        number, and only accepts tokens as valid, that are in a certain range
-        around this number.  This method does only require the RS to keep track
-        of the sequence number.  The method does not provide timely expiration,
-        but it makes sure that older tokens cease to be valid after a certain
-        number of newer ones got issued.  For a constrained RS with no network
-        connectivity and no means of reliably measuring time, this is the best
-        that can be achieved.</t>
-      
-    </list></t>
-  </section>
-</section><!-- access token -->
 
 
 <section anchor="introspectionResource" title="Introspection">
@@ -1210,7 +1184,107 @@ Payload:
     parameter abbreviations defined above.</t>
 </section>
   
+  <section title="The /introspect Resource">
+    <t>FIXME: Consider moving this section or integrate this content in other
+      section.
+    </t>
+    
+    <section title="RS-to-AS Request">
+      
+      <t>FIXME: Describe parameters
+      </t>
+      <t>FIXME: Example
+      </t>
+    </section>
+    
+    
+    <section title="AS-to-RS Response">
+      
+      <t>FIXME: Describe parameters
+      </t>
+      <t>FIXME: Example
+      </t>
+  
+    </section>
+
+  </section>
+  
+  
 </section><!-- introspect resource -->
+
+
+
+<section title="The Access Token">
+  <t>This framework RECOMMENDS the use of CBOR web token (CWT) as
+    specified in <xref target="I-D.wahlstroem-ace-cbor-web-token"/>.
+  </t>
+
+
+<section title="The /authz-info Resource">
+  <t>
+    The access token, containing authorization information and information of
+    the key used by the client, is transported to the RS so that the
+    RS can authenticate and authorize the client request. This section defines
+    a method for transporting the access token to the RS using CoAP that MAY
+    be used. An ACE profile MAY define other methods for token transport.
+  </t>
+  
+  <t>This method REQUIRES the RS to implement an /authz-info resource. A client
+    using this method MUST make a POST request to /authz-info on the RS with
+    the access token in the payload. The RS receiving the token MUST
+    verify the validity of the token.  If the token is valid, the RS MUST respond
+    to the POST request with 2.04 (Changed). If the token is not valid, the RS
+    MUST responds with error code FIXME:Error codes - one code for token permissions
+    not valid, another code for integrity or replay protection fails.
+    for
+  </t>
+  
+  <t>
+    The RS MAY make an introspection request to validate the token before
+    responding to the POST /authz-info request. If the introspection response
+    contains a Key-Token (FIXME: Key-Token, or what we shall call it, needs to
+    be defined in section 7) then the Key-Token SHALL be included in the payload
+    of the 2.04 (Changed) response.
+  </t>
+
+
+</section>
+
+<section anchor="tokenValidity" title="Token Expiration">
+  <t>Depending on the capabilities of the RS, there are various ways in
+    which it can verify the validity of a received access token.  We list the
+    possibilities here including what functionality they require of the
+    RS.</t>
+  
+  <t><list style="symbols">
+    <t>The token is a CWT/JWT and includes a 'exp' claim and possibly the
+      'nbf' claim.  The RS verifies these by comparing them to values from
+      its internal clock as defined in <xref target="RFC7519"/>.  In this
+      case the RS must have a real time chip (RTC) or some other way of
+      reliably measuring time.</t>
+    
+    <t>The RS verifies the validity of the token by performing an
+      introspection request as specified in <xref
+      target="introspectionResource"/>.  This requires the RS to have a
+      reliable network connection to the AS and to be able to handle two
+      secure sessions in parallel (C to RS and AS to RS).</t>
+    
+    <t>The RS and the AS both store a sequence number linked to their common
+      security association.  The AS increments this number for each access
+      token it issues and includes it in the access token, which is a
+      CWT/JWT.  The RS keeps track of the most recently received sequence
+      number, and only accepts tokens as valid, that are in a certain range
+      around this number.  This method does only require the RS to keep track
+      of the sequence number.  The method does not provide timely expiration,
+      but it makes sure that older tokens cease to be valid after a certain
+      number of newer ones got issued.  For a constrained RS with no network
+      connectivity and no means of reliably measuring time, this is the best
+      that can be achieved.</t>
+    
+  </list></t>
+</section>
+</section><!-- access token -->
+
 
 <section anchor="security" title="Security Considerations">
       <t>The entire document is about security.  Security considerations
