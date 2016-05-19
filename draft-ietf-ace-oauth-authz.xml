@@ -199,7 +199,6 @@
 
 <middle>
 
-
 <!-- ***************************************************** -->
 
 <section anchor="intro" title="Introduction">
@@ -727,13 +726,14 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         <vspace blankLines="0"/>
       </t>
       
-      <t hangText="Token Binding"><vspace blankLines="1"/>
-        The ACE framework by default implements token binding, i.e. that the
-        authenticated token holder is bound to the token.  The binding is
-	provided by the "cnf" claim indicating what key is used for mutual
-	authentication. If clients need to update a token, e.g. to get
-	additional rights, they can request that the AS binds the new access
-	token to the same credential as the previous token.
+      <t hangText="Proof-of-Possession"><vspace blankLines="1"/>
+        The ACE framework by default implements proof-of-possession for
+	access tokens, i.e. that the authenticated token holder is bound to
+	the token.  The binding is provided by the "cnf" claim indicating what
+	key is used for mutual authentication. If clients need to update a
+	token, e.g. to get additional rights, they can request that the AS
+	binds the new access token to the same credential as the previous
+	token. 
         <vspace blankLines="0"/>
       </t>
       
@@ -762,13 +762,13 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   client or the RS. 
   </t>
 
-  <t>In OAuth 2.0 the communication between client or RS and AS is assumed
-  to be HTTP and may use Uri-query parameters.  This framework RECOMMENDS
-  to use CoAP instead and RECOMMENDS the use of the following alternative
-  instead of Uri-query parameters: The sender (client or RS) encodes the
-  parameters of its request as a CBOR map and submits that map as the payload
-  of the POST request.  The Content-format MUST be "application/cbor" in that
-  case. 
+  <t>In OAuth 2.0 the communication with the Token and the Introspection
+  resources at the AS is assumed to be via HTTP and may use Uri-query
+  parameters.  This framework RECOMMENDS to use CoAP instead and RECOMMENDS the
+  use of the following alternative instead of Uri-query parameters: The sender
+  (client or RS) encodes the parameters of its request as a CBOR map and
+  submits that map as the payload  of the POST request.  The Content-format
+  MUST be "application/cbor" in that case. 
   </t>
   
   <t>The OAuth 2.0 AS uses a JSON structure in the payload of its responses
@@ -779,7 +779,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 </section> <!--Framework-->
   
-<section anchor="tokenResource" title="The /token Resource">
+<section anchor="tokenResource" title="The Token Resource">
   
   <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
   access token requests.  This memo extends the functionality of the /token
@@ -814,8 +814,11 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     required.  This prior knowledge may, for example, be set by the use of a
     dynamic client registration protocol exchange.</t> 
 
-    <t>For example, the client makes the following CoAP request using DTLS
-    (extra line breaks are for display purposes only).</t>
+    <t>In the following example illustrated in <xref target="fig:symmATreq"/>,
+    the client makes the a CoAP request using DTLS (DTLS part is not visible
+    in the figure). Note that the figure uses CBOR diagnostic notation, without
+    the integer abbreviations for the parameter names for better
+    readability.</t> 
 
     <t><figure align="center" anchor="fig:symmATreq"
                title="Example request for an access token bound to a
@@ -830,13 +833,14 @@ Payload:
   "grant_type" : "client_credentials",
   "aud" : "tempSensor4711",
   "client_id" : "myclient",
-  "client_secret" : "qwerty",
+  "client_secret" : b64'FWRUVGZUZmZFRkWSRlVGhA',
   "token_type" : "pop",
   "alg" : "HS256",
   "profile" : "coap_dtls"
 }
         ]]></artwork>
     </figure></t>
+
     </section>
 
     <section anchor="AS2C_symmetric" title="AS-to-Client Response">
@@ -912,13 +916,9 @@ Payload:
 	reply with an error message.</t>
 	<t hangText="cnf:">OPTIONAL.  This field contains information about the
 	public key the client would like to bind to the access token.  If the
-	client does not provide such information, the AS MUST create an
-	ephemeral key pair (considering the information provided by the client)
-	or alternatively respond with an error message.  See <xref
-	target="tokenParams"/> for more details on the formatting
-    of the 'cnf' parameter. FIXME: consider omitting the case of the AS
-    generating a key pair. If we maintain this case, we also need to define
-    how to transport the private key in 'cnf'.</t>
+	client does not provide such information, the AS MUST respond with an
+	error message.  See <xref target="tokenParams"/> for more details on
+	the formatting of the 'cnf' parameter.</t>
       </list>
     </t>
 
@@ -995,65 +995,187 @@ Payload:
     </section>
   </section> <!-- assymetric pop key -->
 
-  <section anchor="tokenParams" title="Token Types, Algorithms and Profiles">
-    <t>To allow clients to indicate support for specific token types and
-    respective algorithms they need to interact with the AS.  They can either
-    provide this information out-of-band or via the 'token_type' and
-    'alg' parameter in the client request.</t>
-
-    <t>The value in the 'alg' parameter together with value from the
-    'token_type' parameter allow the client to indicate the supported
-    algorithms for a given token type.  The token type refers to the
-    specification used by the client to interact with the resource server
-    to demonstrate possession of the key.  The 'alg' parameter provides
-    further information about the algorithm, such as whether a symmetric
-    or an asymmetric crypto-system is used.  Hence, a client supporting a
-    specific token type also knows how to populate the values to the
-    'alg' parameter.</t>
-
-    <t>The value for the 'token_type' MUST be taken from the 'OAuth Access
-    Token Types' registry created by <xref target="RFC6749"/>.</t>
-
-    <t>This document does not register a new value for the OAuth Access
-    Token Types registry nor does it define values to be used for the
-    'alg' parameter since this is the responsibility of the profiles, 
-    defining the mechanism for clients interacting with resource servers.</t> 
+  <section anchor="tokenParams" 
+	   title="New Request and Response Parameters">
+    <t>This section defines parameters that can be used in access token
+    requests and responses, as well as abbreviations for more compact encoding
+    of existing parameters and common values.</t>
     
-    <t>The values in the 'alg' parameter are case-sensitive.  If the client
-    supports more than one algorithm then each individual value MUST be
-   separated by a space.</t>
-
-    <t>The "profile" parameter identifies the communication protocol and the 
-      communication security protocol that the client MUST use towards the
-      RS.</t>
+    <section anchor="paramGrantType" title="Grant Type">
+      <t>The abbreviations in <xref target="fig:grant_types"/> MAY be
+      used MAY be used in CBOR encodings instead of the string values defined
+      in <xref target="RFC6749"/>. 
     
-    <t>An initial set of profile identifiers and their CBOR encodings are
-      specified in <xref target="fig:profile"/>.  Profiles using other
-      combinations of protocols MUST define their own profile identifier.
-      
-      <figure align="center" anchor="fig:profile" title="Profile identifiers
-        and their CBOR mappings"><artwork align="left"><![CDATA[
+       <figure align="center" anchor="fig:grant_types" 
+	       title="CBOR abbreviations for common grant types ">
+	 <artwork align="left"><![CDATA[
           /--------------------+----------+--------------\
-          | Profile identifier | CBOR Key | Major Type   |
+          | grant_type         | CBOR Key | Major Type   |
           |--------------------+----------+--------------|
-          | http_tls           |    0     |     0 (uint) |
-          | coap_dtls          |    1     |     0        |
-          | coap_oscoap        |    2     |     0        |
+          | password           |    0     |     0 (uint) |
+          | authorization_code |    1     |     0        |
+          | client_credentials |    2     |     0        |
+          | refresh_token      |    3     |     0        |
           \--------------------+----------+--------------/
         ]]></artwork>
+      </figure></t>
+    </section>
+   
+    <section anchor="paramTokenType" title="Token Type and Algorithms">
+      <t>To allow clients to indicate support for specific token types and
+      respective algorithms they need to interact with the AS.  They can either
+      provide this information out-of-band or via the 'token_type' and
+      'alg' parameter in the client request.</t>
+    
+      <t>The value in the 'alg' parameter together with value from the
+      'token_type' parameter allow the client to indicate the supported
+      algorithms for a given token type.  The token type refers to the
+      specification used by the client to interact with the resource server
+      to demonstrate possession of the key.  The 'alg' parameter provides
+      further information about the algorithm, such as whether a symmetric
+      or an asymmetric crypto-system is used.  Hence, a client supporting a
+      specific token type also knows how to populate the values to the
+      'alg' parameter.</t>
+
+      <t>This document registers the new value "pop" for the OAuth Access
+      Token Types registry, specifying a Proof-of-Possession token.  How the
+      proof-of-possession is performed is specified by the 'alg' parameter.  
+      Profiles of this framework are responsible for defining values for the 
+      'alg' parameter together with the corresponding proof-of-possession
+      mechanisms. FIXME: add to IANA section</t> 
+
+      <t> This framework does not register a new value for the OAuth Access
+      Token Types registry nor does it define values to be used for the
+      'alg' parameter since this is the responsibility of specifications
+      defining the mechanism for clients interacting with resource servers.</t>
+    
+      <t>The values in the 'alg' parameter are case-sensitive.  If the client
+      supports more than one algorithm then each individual value MUST be
+      separated by a space.</t>
+    </section>
+
+    <section anchor="paramProfile" title="Profile">
+      <t>The "profile" parameter identifies the communication protocol and the 
+      communication security protocol between the client and the RS.</t>
+      
+      <t>An initial set of profile identifiers and their CBOR encodings are
+      specified in <xref target="fig:profile"/>.  Profiles using other
+      combinations of protocols are expected to define their own profile
+      identifiers.
+      
+      <figure align="center" anchor="fig:profile" 
+	      title="Profile identifiers and their CBOR mappings">
+	<artwork align="left"><![CDATA[
+        /--------------------+----------+--------------\
+        | Profile identifier | CBOR Key | Major Type   |
+        |--------------------+----------+--------------|
+        | http_tls           |    0     |     0 (uint) |
+        | coap_dtls          |    1     |     0        |
+        | coap_oscoap        |    2     |     0        |
+        \--------------------+----------+--------------/
+        ]]></artwork>
       </figure>
-    </t>
+      </t>
     
-    <t>Profiles MAY define additional parameters for both the token request and
-      the client information in the access token response in order to support
-      negotioation or signalling of profile specific parameters.
-    </t>
-    
-    <t>FIXME: details of the 'cnf' parameter.
-    </t>
-    
-  </section>
-  
+      <t>Profiles MAY define additional parameters for both the token request
+      and the client information in the access token response in order to
+      support negotioation or signalling of profile specific parameters.
+      </t>
+    </section>
+
+    <section anchor="paramCnf" title="Confirmation">
+      <t>The "cnf" parameter identifies or provides the key used for
+      proof-of-possession.  This framework extends the definition of
+      'cnf' from <xref target="RFC7800"/> by defining CBOR/COSE encodings
+      and the use of 'cnf' for transporting keys in the client  
+      information.</t>  
+      
+      <t>Note that all examples shown below are in CBOR diagnostic notation
+      without abbreviations of parameters or their values, for increased
+      readability.</t>
+
+      <t>A CBOR encoded payload MAY contain the 'cnf' parameter with the
+      following contents:
+      
+      <list style="hanging">
+	<t hangText="COSE_Key">In this case the 'cnf' parameter contains
+	 the proof-of-possession key to be used by the client.  An example 
+	 is shown in figure <xref target="fig:cnfKey"/>.
+       
+	 <figure align="center" anchor="fig:cnfKey" 
+	       title="Confirmation paramter containing a public key">
+	 <artwork align="left"><![CDATA[
+"cnf" : {
+  "COSE_Key" : {
+    "kty" : "EC", 
+    "kid" : h'11', 
+    "crv" : "P-256", 
+    "x" : b64'usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8', 
+    "y" : b64'IBOL+C3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4' 
+  }
+}
+        ]]></artwork>
+      </figure></t>
+	 
+	<t hangText="COSE_Encrypted">In this case the 'cnf' parameter
+	contains an encrypted key destined for the client.  The client is
+	assumed to be able to decrypt the cihpertext of this parameter.
+	The parameter is encoded as COSE_Encrypt object wrapping a COSE_Key
+	object.  <xref target="fig:cnfEnc"/> shows an example of this type of
+	encoding.
+
+	 <figure align="center" anchor="fig:cnfEnc" 
+	       title="Confirmation paramter containing an encrypted
+		      symmetric key">
+	 <artwork align="left"><![CDATA[
+"cnf" : {
+  "COSE_Encrypted" : {
+    993(
+      [ h'a1010a' # protected header : {"alg" : "AES-CCM-16-64-128"}
+        "iv" : b64'ifUvZaHFgJM7UmGnjA',  # unprotected header
+       b64'WXThuZo6TMCaZZqi6ef/8WHTjOdGk8kNzaIhIQ' # ciphertext
+      ]
+    )
+  }
+}
+        ]]></artwork>
+      </figure>
+
+      The ciphertext here could e.g. contain a symmetric key as in
+      <xref target="fig:cnfEKey"/>.
+      
+      <figure align="center" anchor="fig:cnfEKey" 
+	       title="Example plaintext of an encrypted cnf parameter">
+	 <artwork align="left"><![CDATA[
+{
+  "kty" : "Symmetric", 
+  "kid" : b64'39Gqlw',
+  "k" : b64'hJtXhkV8FJG+Onbc6mxCcQh'
+}
+        ]]></artwork>
+      </figure>
+      </t>
+
+	<t hangText="Key Identifier">In this case the 'cnf' parameter
+	references a key that is assumed to be previously known by the
+	recipient.  This allows clients that perform repeated requests for an
+	access token for the same audience but e.g. with different scopes to
+	omit key transport in the access token, token request and token
+	response. <xref target="fig:cnfKid"/> shows such an example.
+	
+	<figure align="center" anchor="fig:cnfKid" 
+	       title="A Confirmation parameter with just a key identifier">
+	 <artwork align="left"><![CDATA[
+"cnf" : {
+  "kid" : b64'39Gqlw'
+}
+        ]]></artwork>
+      </figure>
+      </t>
+      </list></t>
+    </section>
+  </section> <!--Parameters -->
+
   <section anchor="cborParams" title="Mapping parameters to CBOR">  
     <t>All OAuth parameters in access token requests and responses are mapped
     to CBOR types as follows and are given an integer key value to save
@@ -1075,9 +1197,9 @@ Payload:
         | code              | 7        | 2               |
         | error_description | 8        | 3               |
         | error_uri         | 9        | 3               |
-        | grant_type        | 10       | 3               |
+        | grant_type        | 10       | 0 (unit)        |
         | access_token      | 11       | 3               |
-        | token_type        | 12       | 0 (uint)        |
+        | token_type        | 12       | 0               |
         | expires_in        | 13       | 0               |
         | username          | 14       | 3               |
         | password          | 15       | 3               |
@@ -1090,24 +1212,7 @@ Payload:
       ]]></artwork>
     </figure>
   </t>
-  </section>
-  
-  
-  <section title="Repeated token requests">
-    <t>FIXME: Consider moving this section or integrate this content in other
-      section.
-    </t>
-    <t>In case of a repeated request for an access token for the same resource
-      but potentially with different rights, or for the same resource server but
-      potentially different rights, it is possible to omit key transport in the
-      token request/response and access token. This assumes that keys are cached
-      by the RS and client. In this case, the 'cnf' contains a reference to the
-      key, instead of the key itself. FIXME: Add details.
-    </t>
-    <t>FIXME: Example
-    </t>
-  </section>
-  
+  </section>  
 </section>
 
 
