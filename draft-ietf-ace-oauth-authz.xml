@@ -782,19 +782,16 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 <section anchor="tokenResource" title="The Token Resource">
   
   <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
-  access token requests.  This memo extends the functionality of the /token
-  resource, giving the AS the possibility to help client and RS to establish
-  shared keys or to exchange their public keys.
+  access token requests.  This framework extends the functionality of the
+  /token resource, giving the AS the possibility to help client and RS to
+  establish shared keys or to exchange their public keys.
   </t>
- 
-  <section anchor="symmetricKeyTokenReq" title="Symmetric Key Transport">
-    <t>This section describes the request and response for access tokens using
-    symmetric keys for proof of possession.</t>
-
-    <section anchor="C2AS_symmetric" title="Client-to-AS Request">
-      <t>In case a symmetric key shall be bound to an access token the
-      following procedure is applicable.  In the request message from the
-      client to the AS the following parameters MAY be included:
+  
+  <section anchor="tokenRequest" title="Client-to-AS Request">
+      <t>When requesting an access token from the AS, the client MAY 
+      include the follwoing parameter in the request in addition to 
+      the ones required or optional according to the OAuth 2.0 specification
+      <xref target="RFC6749"/>:
       
       <list style="hanging">
 	<t hangText="token_type:">OPTIONAL.  See <xref
@@ -806,6 +803,12 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 	target="tokenParams"/> for more details on the formatting of this
 	parameter.  If the RS cannot support the requested profile, the AS MUST
 	reply with an error message.</t> 
+	<t hangText="cnf:">OPTIONAL.  This field contains information about a
+	public key the client would like to bind to the access token.  If the
+	client requests an asymmetric proof-of-possession algorithm, but does
+	not provide a pbulic key, the AS MUST respond with an error message.
+	See <xref target="tokenParams"/> for more details on the formatting of
+	the 'cnf' parameter.</t>
       </list>
     </t>
     
@@ -814,15 +817,18 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     required.  This prior knowledge may, for example, be set by the use of a
     dynamic client registration protocol exchange.</t> 
 
-    <t>In the following example illustrated in <xref target="fig:symmATreq"/>,
-    the client makes the a CoAP request using DTLS (DTLS part is not visible
-    in the figure). Note that the figure uses CBOR diagnostic notation, without
-    the integer abbreviations for the parameter names for better
-    readability.</t> 
+    <t>The following examples illustrate different types of requests
+    for proof-of-possession tokens.  Note that all figures use CBOR diagnostic
+    notation without the integer abbreviations for the parameters or their
+    values for better readability. Also note that some protection of these
+    messages e.g. DTLS is assumed but not visible in these examples.</t>
 
-    <t><figure align="center" anchor="fig:symmATreq"
-               title="Example request for an access token bound to a
-		      symmetric key.">
+    <t><xref target="fig:symmATreq"/> shows a request for a token
+    with a symmetric proof-of-possession key.
+
+    <figure align="center" anchor="fig:symmATreq"
+            title="Example request for an access token bound to a
+		   symmetric key.">
         <artwork align="left"><![CDATA[
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
@@ -841,97 +847,12 @@ Payload:
         ]]></artwork>
     </figure></t>
 
-    </section>
-
-    <section anchor="AS2C_symmetric" title="AS-to-Client Response">
-      <t>If the access token request has been successfully verified by the
-      AS and the client is authorized to obtain a PoP token for the indicated
-      audience and scopes (if any), the AS issues an access token and
-      optionally a refresh token.  If client authentication failed or is
-      invalid, the authorization server returns an error response as described
-      in FIXME analogous to Section 5.2 of <xref target="RFC6749"/>.</t>
-
-      <t>The AS MUST include an access token, a 'cnf' parameter and
-      a 'profile' parameter in the Client Information of a successful response.
-      The 'cnf' and the 'profile' parameters are defined in <xref
-      target="tokenParams"/>.</t> 
-
-      <t>The 'profile' parameter expresses what profile the RS is willing
-      to use to communicate with this client.  If the client requested a 
-      specific profile in the request, and the RS supports it, the AS SHOULD
-      select that profile.</t>
-
-      <t>Note that the access token may also contain a 'cnf' parameter,
-      however, the two parameters are consumed by different parties.  The
-      access token is created by the AS and processed by the RS (and opaque to
-      the client) whereas the Client Information is created by the AS and
-      processed by the client; it is never forwarded to the resource
-      server.</t> 
-   
-      <t><figure align="center" anchor="fig:symmATres"
-               title="Example AS response with an access token bound to a
-		      symmetric key.">
-        <artwork align="left"><![CDATA[
-Header: Created (Code=2.01)
-Content-Type: "application/cbor"
-Payload:
-{
-  "access_token" : b64'SlAV32hkKG ...
-   (remainder of CWT omitted for brevity;
-   CWT contains COSE_Key in the 'cnf' parameter)',
-  "token_type" : "pop",
-  "expires_in" : "3600",
-  "profile" : "coap_dtls"
-  "cnf" : {
-    "COSE_Key" : {
-      (remainder of COSE_Key omitted for brevity)
-    }
-  }
-}
-        ]]></artwork>
-    </figure></t>
-
-    </section>
-
-  </section> <!-- symmetric key transport -->
-
-  <section anchor="asymmetricKeyTokenReq" title="Asymmetric Key Transport">
-    <t>This section describes the request and response for access tokens using
-    asymmetric keys for proof of possession.</t>
-
-    <section anchor="C2AS_asymmetric" title="Client-to-AS Request">
-      <t>In case an asymmetric key shall be bound to an access token then the
-      following procedure is applicable.  In the request message from the
-      client to the AS the following parameters MAY be included:
-
-      <list style="hanging">
-	<t hangText="token_type:">OPTIONAL.  See <xref
-	target="tokenParams"/> for more details.</t> 
-	<t hangText="alg:">OPTIONAL.  See <xref target="tokenParams"/> for
-	more details.</t> 
-	<t hangText="profile:">OPTIONAL.   This indicates the profile that
-	the client would like to use with the RS.  See <xref
-	target="tokenParams"/> for more details on the formatting of this
-	parameter.  If the RS cannot support the requested profile, the AS MUST
-	reply with an error message.</t>
-	<t hangText="cnf:">OPTIONAL.  This field contains information about the
-	public key the client would like to bind to the access token.  If the
-	client does not provide such information, the AS MUST respond with an
-	error message.  See <xref target="tokenParams"/> for more details on
-	the formatting of the 'cnf' parameter.</t>
-      </list>
-    </t>
-
-    <t>These new parameters are optional in the case where the AS has prior
-    knowledge of the capabilities and credentials of the client, otherwise
-    these parameters are required.</t>
+    <t><xref target="fig:asymmATreq"/> shows a request for a token with an
+    asymmetric proof-of-possession key.
     
-    <t>For example, the client makes the following CoAP request using DTLS
-    (extra line breaks are for display purposes only).</t>
-  
-    <t><figure align="center" anchor="fig:asymmATreq"
-               title="Example request for an access token bound to an
-		      asymmetric key.">
+    <figure align="center" anchor="fig:asymmATreq"
+            title="Example request for an access token bound to an
+		   asymmetric key.">
         <artwork align="left"><![CDATA[
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
@@ -946,54 +867,118 @@ Payload:
   "alg" : "ES256",
   "profile" : "coap_dtls"
   "cnf" : {
-    "COSE_Key" : { 
-      (remainder of COSE_Key omitted for brevity)
+    "COSE_Key" : {
+      "kty" : "EC", 
+      "kid" : h'11', 
+      "crv" : "P-256", 
+      "x" : b64'usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8', 
+      "y" : b64'IBOL+C3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4' 
     }
   }
 }
         ]]></artwork>
     </figure></t>
-    </section>
+  
+    <t><xref target="fig:kidATreq"/> shows a request for a token
+    where a previously communicated proof-of-possession key is only
+    referenced. 
 
-    <section anchor="AS2C_asymmetric" title="AS-to-Client Response">
-      <t>If the access token request has been successfully verified by the
-      AS and the client is authorized to obtain a PoP token for the indicated
-      audience and scopes (if any), the AS issues an access token and
-      optionally a refresh token.  If client authentication failed or is
-      invalid, the authorization server returns an error response as described
-      in FIXME analogous to Section 5.2 of <xref target="RFC6749"/>.</t>
-
-      <t>The authorization server also places information about the public key
-      used by the client into the access token to create the binding 
-      between the two.</t>
-
-      <t>An example of a successful response is shown in <xref
-      target="fig:asymmATres"/>.</t>
-
-      <t><figure align="center" anchor="fig:asymmATres"
-               title="Example AS response with an access token bound to an
-		      asymmetric key.">
+    <figure align="center" anchor="fig:kidATreq"
+            title="Example request for an access token bound to a
+		   key reference.">
         <artwork align="left"><![CDATA[
+Header: POST (Code=0.02)
+Uri-Host: "server.example.com"
+Uri-Path: "token"
+Content-Type: "application/cbor"
+Payload:
+{
+  "grant_type" : "client_credentials",
+  "aud" : "valve424",
+  "scope" : "read",
+  "client_id" : "myclient",
+  "token_type" : "pop",
+  "alg" : "ES256",
+  "profile" : "coap_dtls"
+  "cnf" : {
+    "kid" : b64'6kg0dXJM13U'
+  }
+}
+       ]]></artwork>
+    </figure></t>
+
+  </section>
+
+  <section anchor="tokenResponse" title="AS-to-Client Response">
+    <t>If the access token request has been successfully verified by the
+    AS and the client is authorized to obtain a PoP token for the indicated
+    audience and scopes (if any), the AS issues an access token and
+    optionally a refresh token.  If client authentication failed or is
+    invalid, the authorization server returns an error response as described
+    in <xref target="errorsToken"/>.</t>
+    
+    <t>The AS MUST include an access token and a 'profile' parameter 
+    in the Client Information of a successful response.  If the
+    proof-of-possession method requires a key that the client does
+    not already possess the AS MUST include a 'cnf' parameter as well.  
+    The 'cnf' and the 'profile' parameters are defined in <xref
+    target="tokenParams"/>.</t> 
+    
+    <t>Note that the access token also contains a 'cnf' parameter,
+    however, the two parameters are consumed by different parties.  The
+    access token is created by the AS and processed by the RS (and opaque to
+    the client) whereas the Client Information is created by the AS and
+    processed by the client; it is never forwarded to the resource
+    server.</t> 
+
+    <t>The 'profile' parameter expresses what profile the RS is willing
+    to use to communicate with this client.  If the client requested a 
+    specific profile in the request, and the RS supports it, the AS SHOULD
+    select that profile.</t>
+        
+    <t>The following examples illustrate different types of responses
+    for proof-of-possession tokens.  Note that all figures use CBOR diagnostic
+    notation without the integer abbreviations for the parameters or their
+    values for better readability. Also note that some protection of these
+    messages e.g. DTLS is assumed but not visible in these examples.</t>
+    
+    <t><xref target="fig:symmATres"/> shows a response containing a token
+    and a 'cnf' parameter with a symmetric proof-of-possession key.
+
+    <figure align="center" anchor="fig:symmATres"
+            title="Example AS response with an access token bound to a
+		   symmetric key.">
+      <artwork align="left"><![CDATA[
 Header: Created (Code=2.01)
 Content-Type: "application/cbor"
 Payload:
 {
-  "access_token" : b64'2YotnFZFE ...
+  "access_token" : b64'SlAV32hkKG ...
    (remainder of CWT omitted for brevity;
    CWT contains COSE_Key in the 'cnf' parameter)',
   "token_type" : "pop",
   "expires_in" : "3600",
   "profile" : "coap_dtls"
+  "cnf" : {
+    "COSE_Key" : {
+      "kty" : "Symmetric", 
+      "kid" : b64'39Gqlw',
+      "k" : b64'hJtXhkV8FJG+Onbc6mxCcQh'
+    }
   }
 }
-        ]]></artwork>
+      ]]></artwork>
     </figure></t>
+  </section>
 
-    <t>Note: In this example there is no need for the AS to provide
-    the pop key to the client, since the client already has the asymmetric
-    key pair.</t>
-    </section>
-  </section> <!-- assymetric pop key -->
+  <section anchor="errorsToken" title="Error Response">  
+    <t>The error responses for CoAP-based interactions with the AS 
+    are equivalent to the ones for HTTP-based interactions as defined in
+    section  5.2 of <xref target="RFC6749"/>, with the following differences:
+    The Content-Type MUST be set to "application/cbor", the payload MUST be
+    encoded in a CBOR map and the CoAP response code code 4.00 Bad Request
+    MUST be used unless specified otherwise.</t>
+  </section>
 
   <section anchor="tokenParams" 
 	   title="New Request and Response Parameters">
@@ -1214,8 +1199,6 @@ Payload:
   </t>
   </section>  
 </section>
-
-
 
 <section anchor="introspectionResource" title="Introspection">
   <t>Token introspection <xref target="RFC7662"/> is used by the RS and
