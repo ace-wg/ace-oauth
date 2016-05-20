@@ -1161,7 +1161,7 @@ Payload:
     </section>
   </section> <!--Parameters -->
 
-  <section anchor="cborParams" title="Mapping parameters to CBOR">  
+  <section anchor="tokenCborParams" title="Mapping parameters to CBOR">  
     <t>All OAuth parameters in access token requests and responses are mapped
     to CBOR types as follows and are given an integer key value to save
     space.</t>  
@@ -1198,52 +1198,127 @@ Payload:
     </figure>
   </t>
   </section>  
-</section>
+</section><!-- Token endpoint -->
 
 <section anchor="introspectionResource" title="Introspection">
   <t>Token introspection <xref target="RFC7662"/> is used by the RS and
   potentially the client to query the AS for metadata about a given token
-  e.g. validity or scope. RFC 7662 <xref target="RFC7662"/> defines how
-  to use HTTP POST to transfer the introspection request and how the AS encodes
-  its response in JSON.  This section defines adaptations to more constrained
-  environments using CoAP and CBOR.</t> 
-   
-  <section anchor="rsInfo" title="Resource Server Information">
-    <t>The introspection endpoint may need to provide additional
-    parameters in a constrained usecase, compared to the usual
-    web usecases.  For example if the connection between client and
-    RS has a very low bandwidth, it is favorable to transport 
-    the client's credentials over a faster direct link between AS and RS,
-    instead of encoding them in the access token.</t>
-    <t>In order to support this type of provisioning, this memo extends the
-    "OAuth Token Introspection Response" registry by the "cnf" claim
-    as defined in <xref target="RFC7800"/>.</t>
+  e.g. validity or scope. Analogous to the protocol defined in
+  RFC 7662 <xref target="RFC7662"/> for HTTP and JSON, this section defines
+  adaptations to more constrained  environments using CoAP and CBOR.</t> 
+  
+  <t>Communication between the RS and the introspection resource at the
+  AS MUST be integrity protected and encrypted.  Furthermore AS and RS
+  MUST perform mutual authentication.  Profiles of this framework are expected
+  to specify how this protection and authentication is implemented.</t>
+    
+  <section anchor="introRS2AS" title="RS-to-AS Request">
+    <t>The RS sends a CoAP POST request to the introspection resource 
+    at the AS, with parameters sent as "application/cbor" data.  The 
+    RS sends a parameter representing the access token along with optional
+    parameters representing additional context that is known by the RS to
+    aid the AS in its response.</t>
+
+    <t>The same paramters are required and optional as in section 2.1
+    of RFC 7662 <xref target="RFC7662"/>.</t>
+
+    <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
+    introspection resource at the AS to query about an OAuth 2.0
+    proof-of-possession token.  Note that the figure uses CBOR diagnostic
+    notation without the integer abbreviations for the parameters or their
+    values for better readability. Also note that some protection of these
+    messages e.g. DTLS is assumed but not visible in this example.
+
+    <figure align="center" anchor="fig:introReq"
+            title="Example introspection request.">
+        <artwork align="left"><![CDATA[
+Header: POST (Code=0.02)
+Uri-Host: "server.example.com"
+Uri-Path: "introspect"
+Content-Type: "application/cbor"
+Payload:
+{
+  "token" : b64'7gj0dXJQ43U',
+  "token_type_hint" : "pop"
+}
+       ]]></artwork>
+    </figure></t>
+  </section>
+  
+  <section anchor="introAS2RS" title="AS-to-RS Response">
+    <t>The AS responds with a CBOR object in "application/cbor" format
+    with the same required and optional parameters as in section 2.2. of RFC
+    7662 <xref target="RFC7662"/> with the following additions:</t>
+
+    <t>FIXME: Define the use of token_type, alg, cnf and profile.</t>
+    <t>FIXME: Define the client token parameter.</t>
+
+    <t>For example, <xref target="fig:introRes"/> shows an AS
+    response to the introspection request in <xref target="fig:introReq"/>.
+    Note that the figure uses CBOR diagnostic notation without the integer
+    abbreviations for the parameters or their values for better
+    readability. Also note that some protection of these messages e.g. DTLS is
+    assumed but not visible in this example.
+
+    <figure align="center" anchor="fig:introRes"
+            title="Example introspection response.">
+      <artwork align="left"><![CDATA[
+Header: Created Code=2.01)
+Content-Type: "application/cbor"
+Payload:
+{
+  "active" : true,
+  "scope" : "read",
+  "token_type" : "pop",
+  "alg" : "HS256",
+  "cnf" : {
+    "COSE_Key" : {
+      "kty" : "Symmetric", 
+      "kid" : b64'39Gqlw',
+      "k" : b64'hJtXhkV8FJG+Onbc6mxCcQh'
+    }
+  }
+}
+      ]]></artwork>
+    </figure></t>
+  </section> 
+
+  <section anchor="errorsIntro" title="Error Response">  
+    <t>The error responses for CoAP-based interactions with the AS 
+    are equivalent to the ones for HTTP-based interactions as defined in
+    section 2.3 of <xref target="RFC7662"/>, with the following differences:
+
+    <list type="symbols">
+      
+      <t>If content is sent, the Content-Type MUST be set to
+      "application/cbor",  and the payload MUST be encoded in a CBOR map.</t>
+     
+      <t>If the credentials used by the RS are invalid the AS MUST respond
+      with the CoAP response code code 4.01 (Unauthorized) and use
+      the required and optional parameters from section 5.2 in RFC 6749
+      <xref target="RFC6749"/>.</t>
+      
+      <t>If the credentials used by the RS do not contain sufficient
+      privileges or are otherwise invalid for this request, the AS MUST
+      respond with the CoAP response code 4.03 (Forbidden).  In this 
+      case no payload is returned.</t>
+    </list>
+    </t>
+ 
+    <t>Note that a properly formed and authorized query for an inactive or
+    otherwise invalid token does not warrant an error response by this
+    specification.  In these cases, the authorization server MUST instead
+    respond with an introspection response with the "active" field set to
+    "false".</t>
   </section>
 
-  <section anchor="coap4introspect" title="CoAP Profile for OAuth
-					   Introspection"> 
-    <t>In this section a mapping of the introspection data encoded in
-    JSON to CBOR and of the HTTP protocol messages to CoAP is defined, 
-    in order to support more constrained devices.</t> 
-    
-    <t>When the request is sent over HTTP the request Content-Type is set to
-    "application/x-www-form-urlencoded" or the data is sent as query
-    parameters.  When sending the request CBOR encoded over CoAP the
-    Content-Formats option MUST be set to "application/cbor".  Query parameter
-    options MUST NOT be used.</t>
-    
-    <t>When a response is returned over HTTP the Content-Type is set to
-    "application/json".  When returning the response CBOR encoded over CoAP the
-    Content-Formats option MUST be set to "application/cbor"</t> 
-    
-    <t>In this framework, the REQUIRED or OPTIONAL status of parameters is the
-    same as in RFC 7662.  Profiles MAY define additional parameters that can
-    have either status.</t>   
-    
+  <section anchor="introParamsCbor" 
+	   title="Mapping Introspection parameters to CBOR">
     <t>The introspection request and response parameters are mapped to CBOR
-    types as follows and are given an integer key value to save space.</t> 
-    <t>
-      <figure align="center" anchor="fig:cborIntrospectionParameters" title="CBOR Mappings to Token Introspection Parameters.">
+    types as follows and are given an integer key value to save space.
+    
+    <figure align="center" anchor="fig:cborIntrospectionParameters"
+	    title="CBOR Mappings to Token Introspection Parameters."> 
         <artwork align="left"><![CDATA[
           /----------------+----------+---------------\
           | Parameter name | CBOR Key | Major Type    |
@@ -1267,36 +1342,7 @@ Payload:
         ]]></artwork>
       </figure>
     </t>
-    <t>When using CBOR, the whole payload of introspection request and response
-    messages SHALL be formatted as a CBOR map (major type 5) using the
-    parameter abbreviations defined above.</t>
-</section>
-  
-  <section title="The /introspect Resource">
-    <t>FIXME: Consider moving this section or integrate this content in other
-      section.
-    </t>
-    
-    <section title="RS-to-AS Request">
-      
-      <t>FIXME: Describe parameters
-      </t>
-      <t>FIXME: Example
-      </t>
-    </section>
-    
-    
-    <section title="AS-to-RS Response">
-      
-      <t>FIXME: Describe parameters
-      </t>
-      <t>FIXME: Example
-      </t>
-  
-    </section>
-
   </section>
-  
   
 </section><!-- introspect resource -->
 
