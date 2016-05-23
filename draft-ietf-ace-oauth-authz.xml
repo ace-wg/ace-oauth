@@ -1447,35 +1447,39 @@ D:  |<---------------+                |
     specified in <xref target="I-D.ietf-ace-cbor-web-token"/>.
   </t>
 
+  <t>In order to facilitate offline processing of access tokens,
+  this draft specfifies the "scope" parameter for access tokens
+  that explicitly encodes the scope of a given access token.  This parameter
+  follows the same encoding rules as defined in section 3.3 of <xref 
+  target="RFC6749"/>.  The meaning of a specific scope value is
+  application specific and expected to be known to the RS running 
+  that application.</t>
 
-<section title="The /authz-info Resource">
-  <t>
-    The access token, containing authorization information and information of
-    the key used by the client, is transported to the RS so that the
-    RS can authenticate and authorize the client request. This section defines
-    a method for transporting the access token to the RS using CoAP that MAY
-    be used. An ACE profile MAY define other methods for token transport.
+<section title="The Authorization Information Resource">
+  <t>The access token, containing authorization information and information of
+  the key used by the client, is transported to the RS so that the RS can
+  authenticate and authorize the client request. This section defines a method
+  for transporting the access token to the RS using CoAP that MAY be used. An
+  ACE profile MAY define other methods for token transport. 
   </t>
   
   <t>This method REQUIRES the RS to implement an /authz-info resource. A client
-    using this method MUST make a POST request to /authz-info on the RS with
-    the access token in the payload. The RS receiving the token MUST
-    verify the validity of the token.  If the token is valid, the RS MUST respond
-    to the POST request with 2.04 (Changed). If the token is not valid, the RS
-    MUST responds with error code FIXME:Error codes - one code for token permissions
-    not valid, another code for integrity or replay protection fails.
-    for
+  using this method MUST make a POST request to /authz-info on the RS with
+  the access token in the payload. The RS receiving the token MUST verify the 
+  validity of the token.  If the token is valid, the RS MUST respond to the 
+  POST request with 2.04 (Changed).</t>
+
+  <t>If the token is not valid, the RS MUST respond with error code 
+  4.01 (Unauthorized).  If the token is valid but the audience of the
+  token does not match the RS, the RS MUST respond with error code
+  4.03 (Forbidden).
   </t>
   
-  <t>
-    The RS MAY make an introspection request to validate the token before
-    responding to the POST /authz-info request. If the introspection response
-    contains a Key-Token (FIXME: Key-Token, or what we shall call it, needs to
-    be defined in section 7) then the Key-Token SHALL be included in the payload
-    of the 2.04 (Changed) response.
+  <t>The RS MAY make an introspection request to validate the token before
+  responding to the POST /authz-info request. If the introspection response
+  contains a client token <xref target="clientToken"/> then this token
+  SHALL be included in the payload of the 2.04 (Changed) response.
   </t>
-
-
 </section>
 
 <section anchor="tokenValidity" title="Token Expiration">
