@@ -789,26 +789,33 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   
   <section anchor="tokenRequest" title="Client-to-AS Request">
       <t>When requesting an access token from the AS, the client MAY 
-      include the follwoing parameter in the request in addition to 
+      include the follwoing parameters in the request in addition to 
       the ones required or optional according to the OAuth 2.0 specification
       <xref target="RFC6749"/>:
       
       <list style="hanging">
-	<t hangText="token_type:">OPTIONAL.  See <xref
-	target="tokenParams"/> for more details.</t> 
-	<t hangText="alg:">OPTIONAL.  See <xref target="tokenParams"/> for
-	more details.</t> 
-	<t hangText="profile:">OPTIONAL.  This indicates the profile that
-	the client would like to use with the RS.  See <xref
-	target="tokenParams"/> for more details on the formatting of this
-	parameter.  If the RS cannot support the requested profile, the AS MUST
-	reply with an error message.</t> 
-	<t hangText="cnf:">OPTIONAL.  This field contains information about a
-	public key the client would like to bind to the access token.  If the
-	client requests an asymmetric proof-of-possession algorithm, but does
-	not provide a pbulic key, the AS MUST respond with an error message.
-	See <xref target="tokenParams"/> for more details on the formatting of
-	the 'cnf' parameter.</t>
+	<t hangText="token_type"><vspace blankLines="0"/>
+	  OPTIONAL.  See <xref target="tokenParams"/> for more details.
+	<vspace blankLines="1"/></t>
+
+	<t hangText="alg"><vspace blankLines="0"/>
+	OPTIONAL.  See <xref target="tokenParams"/> for more details.
+	<vspace blankLines="1"/></t>	
+
+	<t hangText="profile"><vspace blankLines="0"/>
+	OPTIONAL.  This indicates the profile that the client would like to use
+	with the RS.  See <xref target="tokenParams"/> for more details on the
+	formatting of this parameter.  If the RS cannot support the requested
+	profile, the AS MUST reply with an error message.
+	<vspace blankLines="1"/></t>
+	
+	<t hangText="cnf"><vspace blankLines="0"/>
+	OPTIONAL.  This field contains information about a public key the
+	client would like to bind to the access token.  If the client requests
+	an asymmetric proof-of-possession algorithm, but does not provide a
+	pbulic key, the AS MUST respond with an error message.  See <xref
+	target="tokenParams"/> for more details on the formatting of the 'cnf'
+	parameter.</t> 
       </list>
     </t>
     
@@ -917,25 +924,31 @@ Payload:
     invalid, the authorization server returns an error response as described
     in <xref target="errorsToken"/>.</t>
     
-    <t>The AS MUST include an access token and a 'profile' parameter 
-    in the Client Information of a successful response.  If the
-    proof-of-possession method requires a key that the client does
-    not already possess the AS MUST include a 'cnf' parameter as well.  
-    The 'cnf' and the 'profile' parameters are defined in <xref
-    target="tokenParams"/>.</t> 
+    <t>The following parameters may also be part of a successful response in 
+    addition to those defined in section 5.1 of <xref target="RFC6749"/>:
+       
+    <list style="hanging">
+	<t hangText="profile"><vspace blankLines="0"/>
+	REQUIRED.  This indicates the profile that the client MUST use
+	towards the RS. See <xref target="tokenParams"/> for the formatting of
+	this parameter.<vspace blankLines="1"/></t>
+	
+	<t hangText="cnf"><vspace blankLines="0"/>
+	OPTIONAL.  This field contains information about the proof-of
+	possession key for this access token.  If the proof-of-possession
+	method requires a key that the client does not already possess this
+	parameter is REQUIRED. See <xref target="tokenParams"/> for the 
+	formatting of this parameter.</t> 
+      </list>
+    </t>
     
-    <t>Note that the access token also contains a 'cnf' parameter,
+    <t>Note that the access token can also contain a 'cnf' parameter,
     however, the two parameters are consumed by different parties.  The
     access token is created by the AS and processed by the RS (and opaque to
     the client) whereas the Client Information is created by the AS and
     processed by the client; it is never forwarded to the resource
     server.</t> 
 
-    <t>The 'profile' parameter expresses what profile the RS is willing
-    to use to communicate with this client.  If the client requested a 
-    specific profile in the request, and the RS supports it, the AS SHOULD
-    select that profile.</t>
-        
     <t>The following examples illustrate different types of responses
     for proof-of-possession tokens.  Note that all figures use CBOR diagnostic
     notation without the integer abbreviations for the parameters or their
@@ -1248,11 +1261,16 @@ Payload:
   <section anchor="introAS2RS" title="AS-to-RS Response">
     <t>The AS responds with a CBOR object in "application/cbor" format
     with the same required and optional parameters as in section 2.2. of RFC
-    7662 <xref target="RFC7662"/> with the following additions:</t>
-
-    <t>FIXME: Define the use of token_type, alg, cnf and profile.</t>
-    <t>FIXME: Define the client token parameter.</t>
-
+    7662 <xref target="RFC7662"/> with the following additions:
+    
+    <list style="hanging">
+      <t hangText="alg">REQUIRED. </t>
+      <t hangText="cnf">REQUIRED</t>
+      <t hangText="profile">REQUIRED</t>
+      <t hangText="client_token">REQUIRED</t>
+    </list>
+    </t>
+      
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
     Note that the figure uses CBOR diagnostic notation without the integer
@@ -1271,6 +1289,9 @@ Payload:
   "scope" : "read",
   "token_type" : "pop",
   "alg" : "HS256",
+  "profile" : "coap_dtls",
+  "client_token" : b64'testtest ...
+  (remainder of client token omitted for brevity)',
   "cnf" : {
     "COSE_Key" : {
       "kty" : "Symmetric", 
@@ -1288,7 +1309,7 @@ Payload:
     are equivalent to the ones for HTTP-based interactions as defined in
     section 2.3 of <xref target="RFC7662"/>, with the following differences:
 
-    <list type="symbols">
+    <list style="symbols">
       
       <t>If content is sent, the Content-Type MUST be set to
       "application/cbor",  and the payload MUST be encoded in a CBOR map.</t>
