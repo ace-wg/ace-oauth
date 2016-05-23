@@ -970,6 +970,7 @@ Payload:
    (remainder of CWT omitted for brevity;
    CWT contains COSE_Key in the 'cnf' parameter)',
   "token_type" : "pop",
+  "alg" : "HS256",
   "expires_in" : "3600",
   "profile" : "coap_dtls"
   "cnf" : {
@@ -1203,7 +1204,7 @@ Payload:
         | password          | 15       | 3               |
         | refresh_token     | 16       | 3               |
         | alg               | 17       | 3               |
-        | cnf               | 18       | 3               |
+        | cnf               | 18       | 5 (map)         |
         | aud               | 19       | 3               |
         | profile           | 20       | 0               |
         \---------------+--------------+-----------------/
@@ -1264,10 +1265,25 @@ Payload:
     7662 <xref target="RFC7662"/> with the following additions:
     
     <list style="hanging">
-      <t hangText="alg">REQUIRED. </t>
-      <t hangText="cnf">REQUIRED</t>
-      <t hangText="profile">REQUIRED</t>
-      <t hangText="client_token">REQUIRED</t>
+      <t hangText="alg"><vspace blankLines="0"/>
+      REQUIRED.  See <xref target="tokenParams"/> for more details.
+      <vspace blankLines="1"/></t>
+
+      <t hangText="cnf"><vspace blankLines="0"/>
+      REQUIRED.   This field contains information about the proof-of-possession
+      key that binds the client to the access token.  See <xref
+      target="tokenParams"/> for more details on the formatting of the 'cnf'
+      parameter.<vspace blankLines="1"/></t>
+
+      <t hangText="profile"><vspace blankLines="0"/>
+      REQUIRED.  This indicates the profile that the RS MUST use with the 
+      client.  See <xref target="tokenParams"/> for more details on the
+      formatting of this parameter.<vspace blankLines="1"/></t>
+
+      <t hangText="client_token"><vspace blankLines="0"/>
+      REQUIRED.  This parameter contains information that the RS
+      MUST pass on to the client.  See <xref target="clientToken"/>
+      for more details.</t>
     </list>
     </t>
       
@@ -1333,33 +1349,98 @@ Payload:
     "false".</t>
   </section>
 
+  <section anchor="clientToken" title="Client Token">
+    <t>In cases where the client has limited connectivity and
+    is requesting access to various, previously unknown resource servers, using
+    a long term token, there are situations where it would be beneficial to
+    relay the proof-of-possession key and other relevant information from
+    the AS to the client through the RS.  The client_token parameter
+    is designed to carry such information, and is intended to be used as
+    described in <xref target="fig:client_token"/>.
+
+    <figure align="center" anchor="fig:client_token"
+               title="Use of the client_token parameter.">
+      <artwork align="left"><![CDATA[
+                  Resource       Authorization
+ Client            Server           Server
+    |                |                |
+    |                |                |
+A:  +--------------->|                |
+    |  POST          |                |
+    |  token         |                |
+    |            B:  +--------------->|
+    |                | Introspection  |
+    |                |    Request     |
+    |                |                |
+    |            C:  +<---------------+
+    |                | Introspection  |
+    |                |   Response     |
+    |                | + client_token |
+D:  |<---------------+                |
+    |  2.01 Created  |                |
+    | + client_token |
+    ]]></artwork>
+    </figure>
+    </t>
+
+    <t>The client token is encoded in CBOR as a map containing the
+    following parameters:  
+
+    <list style="hanging">
+      <t hangText="cnf"><vspace blankLines="0"/>
+      REQUIRED. Contains information about the proof-of-possession key.
+      See <xref target="paramCnf"/>.<vspace blankLines="1"/></t>
+      
+      <t hangText="token_type"><vspace blankLines="0"/>
+      OPTIONAL. See <xref target="paramTokenType"/>.<vspace
+      blankLines="1"/></t> 
+
+      <t hangText="alg"><vspace blankLines="0"/>
+      OPTIONAL. See <xref target="paramTokenType"/>.<vspace
+      blankLines="1"/></t>
+
+      <t hangText="profile"><vspace blankLines="0"/>
+      REQUIRED. See <xref target="paramProfile"/>.<vspace
+      blankLines="1"/></t>
+ 
+      <t hangText="rsCnf"><vspace blankLines="0"/>
+      OPTIONAL. Contains information about the key that the RS uses
+      to authenticate towards the client. This uses the same encoding
+      as the 'cnf' parameter.  See <xref target="paramProfile"/>.</t>
+      
+    </list>
+    </t>
+  </section>
+
   <section anchor="introParamsCbor" 
 	   title="Mapping Introspection parameters to CBOR">
     <t>The introspection request and response parameters are mapped to CBOR
     types as follows and are given an integer key value to save space.
-    
+
     <figure align="center" anchor="fig:cborIntrospectionParameters"
-	    title="CBOR Mappings to Token Introspection Parameters."> 
-        <artwork align="left"><![CDATA[
-          /----------------+----------+---------------\
-          | Parameter name | CBOR Key | Major Type    |
-          |----------------+----------+---------------|
-          | active         | 1        | 0             |
-          | username       | 2        | 3             |
-          | client_id      | 3        | 3             |
-          | scope          | 4        | 3             |
-          | token_type     | 5        | 3             |
-          | exp            | 6        | 6 tag value 1 |
-          | iat            | 7        | 6 tag value 1 |
-          | nbf            | 8        | 6 tag value 1 |
-          | sub            | 9        | 3             |
-          | aud            | 10       | 3             |
-          | iss            | 11       | 3             |
-          | jti            | 12       | 3             |
-          | alg            | 13       | 3             |
-          | cnf            | 14       | 3             |
-          | aud            | 15       | 3             |
-          \----------------+----------+---------------/
+            title="CBOR Mappings to Token Introspection Parameters.">
+      <artwork align="left"><![CDATA[
+          /----------------+----------+-----------------\
+          | Parameter name | CBOR Key | Major Type      |
+          |----------------+----------+-----------------|
+          | active         | 1        | 0 (uint)        |
+          | username       | 2        | 3 (text string) |
+          | client_id      | 3        | 3               |
+          | scope          | 4        | 3               |
+          | token_type     | 5        | 3               |
+          | exp            | 6        | 6 tag value 1   |
+          | iat            | 7        | 6 tag value 1   |
+          | nbf            | 8        | 6 tag value 1   |
+          | sub            | 9        | 3               |
+          | aud            | 10       | 3               |
+          | iss            | 11       | 3               |
+          | jti            | 12       | 3               |
+          | alg            | 13       | 3               |
+          | cnf            | 14       | 5 (map)         |
+          | aud            | 15       | 3               |
+	  | client_token   | 16       | 3               |
+	  | rsCnf          | 17       | 5               |
+          \----------------+----------+-----------------/
         ]]></artwork>
       </figure>
     </t>
