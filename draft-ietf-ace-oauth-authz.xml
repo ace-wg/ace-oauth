@@ -28,7 +28,7 @@
 <!ENTITY I-D.ietf-cose-msg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-cose-msg.xml">
 <!ENTITY I-D.selander-ace-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.selander-ace-object-security.xml">
 <!ENTITY I-D.ietf-oauth-pop-architecture SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-pop-architecture.xml">
-<!ENTITY I-D.wahlstroem-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.wahlstroem-ace-cbor-web-token.xml">
+<!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cbor-web-token.xml">
 <!ENTITY I-D.bormann-core-ace-aif SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.bormann-core-ace-aif.xml">
 <!ENTITY I-D.ietf-core-block SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-block.xml">
 <!ENTITY I-D.seitz-ace-core-authz SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.seitz-ace-core-authz.xml">
@@ -440,20 +440,20 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       </t>
 
 
-      <t hangText="Claims:"><vspace blankLines="1"/>
+      <t hangText="Parameters:"><vspace blankLines="1"/>
 
         The information carried in the access token in the form of type-value
-        pairs is called claims.  An access token may for example include a claim
-        about the AS that issued the token (the "iss" claim) and what audience
-        the access token is intended for (the "aud" claim).  The audience of an
-        access token can be a specific resource or one or many resource
-        servers.  The resource owner policies influence the what claims are put
-        into the access token by the authorization server.
+        pairs is called parameters.  An access token may for example include a
+	parameter about the AS that issued the token (the "iss" parameter) and
+	what audience the access token is intended for (the "aud" parameter).
+	The audience of an access token can be a specific resource or one or
+	many resource servers.  The resource owner policies influence the what
+	parameters are put into the access token by the authorization server.
         <vspace blankLines="1"/>
         While the structure and encoding of the access token varies throughout
         deployments, a standardized format has been defined with the JSON Web
-        Token (JWT) <xref target="RFC7519"/> where claims are encoded as a JSON
-        object.  In <xref target="I-D.wahlstroem-ace-cbor-web-token"/> an
+        Token (JWT) <xref target="RFC7519"/> where parameters are encoded as a
+	JSON object.  In <xref target="I-D.ietf-ace-cbor-web-token"/> an
 	equivalent format using CBOR encoding (CWT) has been defined.
 	<vspace blankLines="0"/>
       </t>
@@ -517,7 +517,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
     <t hangText="Object Security of Content (OSCON)"><vspace blankLines="1"/>
     For the case of wrapping of application layer payload data ("content")
-    only, such as resource representations or claims of access tokens,
+    only, such as resource representations or parameters of access tokens,
     the same COSE profile can be applied to obtain end-to-end
     confidentiality, integrity and replay protection.
     <xref target="I-D.selander-ace-object-security"/> defines this functionality
@@ -661,7 +661,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
       <vspace blankLines="1"/>
       The RS verifies that the token is integrity protected by the AS and
-      compares the claims contained in the access token with the resource
+      compares the parameters contained in the access token with the resource
       request. If the RS is online, validation can be handed over to the AS
       using token introspection (see messages D and E) over HTTP or CoAP, in
       which case the different parts of step C may be interleaved with
@@ -681,10 +681,10 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     </t>
 
     <t hangText="Token Introspection Response (E):"><vspace blankLines="1"/>
-      The AS validates the token and returns the most recent claims, such as scope,
-      audience, validity etc. associated with it
-      back to the RS.  The RS then uses the received claims to process the
-      request to either accept or to deny it.<vspace blankLines="0"/>
+      The AS validates the token and returns the most recent parameters, such
+      as scope, audience, validity etc. associated with it back to the RS.  The
+      RS then uses the received parameters to process the request to either
+      accept or to deny it.<vspace blankLines="0"/> 
     </t>
 
     <t hangText="Protected Resource (F):"><vspace blankLines="1"/>
@@ -1444,7 +1444,7 @@ D:  |<---------------+                |
 
 <section title="The Access Token">
   <t>This framework RECOMMENDS the use of CBOR web token (CWT) as
-    specified in <xref target="I-D.wahlstroem-ace-cbor-web-token"/>.
+    specified in <xref target="I-D.ietf-ace-cbor-web-token"/>.
   </t>
 
 
@@ -2105,7 +2105,7 @@ D:  |<---------------+                |
 
       &I-D.ietf-oauth-pop-architecture;
 
-      &I-D.wahlstroem-ace-cbor-web-token;
+      &I-D.ietf-ace-cbor-web-token;
 
       &I-D.ietf-oauth-introspection;
 
@@ -2421,7 +2421,7 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
 
       <t>Note: In this example we assume that the client knows what resource it
       wants to access, and is therefore able to request specific
-      audience and scope claims for the access token.</t>
+      audience and scope parameters for the access token.</t>
     </list></t>
 
     <t><figure align="center" anchor="fig:RSOffline"
@@ -2595,7 +2595,7 @@ F:  |<--------+ Header: 2.05 Content
 
       <t>Note: In this example the client does not know the exact door it
         will be used to access since the token request is not send at the
-        time of access. So the scope and audience claims is set quite
+        time of access. So the scope and audience parameters is set quite
         wide to start with and new values different form the
         original once can be returned from introspection later on.</t>
             <t>
@@ -2681,7 +2681,7 @@ Response-Payload:
   is not detailed in this example.
         </t>
 
-        <t>E: The AS provides the introspection response containing claims
+        <t>E: The AS provides the introspection response containing parameters
   about the token.  This includes the confirmation key (cnf) claim
         that allows the RS to verify the client's proof of possession in
   step F.</t>
