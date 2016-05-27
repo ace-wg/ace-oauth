@@ -290,7 +290,8 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   not appropriate.  CoAP typically runs on top of UDP which further reduces
   overhead and message exchanges.  Transport layer security can be provided
   either by DTLS 1.2 <xref target="RFC6347"/> or TLS 1.2
-  <xref target="RFC5246"/>.
+  <xref target="RFC5246"/>. Application layer security can be provided by OSCOAP
+  <xref target="I-D.selander-ace-object-security"/>.
   </t>
 
   <t>A third building block is CBOR <xref target="RFC7049"/> for encodings
@@ -301,12 +302,15 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   <xref target="I-D.ietf-cose-msg"/> is also based on CBOR.
   </t>
 
-  <t>A fourth building block is application layer security, which is used
-  where transport layer security is insufficient.  At the time of writing
-  the preferred approach for securing CoAP at the application layer is via the
-  use of COSE <xref target="I-D.ietf-cose-msg"/>, which adds object security to
-  CBOR-encoded data.  More details about applying COSE to CoAP can be found in
-  OSCOAP <xref target="I-D.selander-ace-object-security"/>.
+  <t>A fourth building block is object security,  which is already used
+    in OAuth 2.0 with PoP tokens <xref target="I-D.ietf-oauth-pop-architecture"/>,
+    but is here extended to so called "Client Tokens" (<xref target="clientToken"/>).
+    Also, this specification allows the use of object security instead of transport
+    layer security between any nodes in the architecture. A preferred compact secure
+    message format is COSE <xref target="I-D.ietf-cose-msg"/>, which adds
+    object security to CBOR-encoded data.  More details about applying COSE to
+    CoAP can be found in OSCOAP
+    <xref target="I-D.selander-ace-object-security"/>.
   </t>
 
   <t>With the building blocks listed above, solutions satisfying various
@@ -488,54 +492,26 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     through blockwise transfers <xref target="I-D.ietf-core-block"/>.  However,
     this method does not allow the fragmentation of large CoAP options,
     therefore data encoded in options has to be kept small.
-   <!-- Note that the use of block transfers prevents
-        end-to-end security since
-    some operations by proxies requires access to meta-data. --> </t>
-
-</section>
-
-<section anchor="objectsecurity" title="Object Security">
-
-  <t>Transport layer security is not always sufficient and application layer
-  security has to be provided.  COSE <xref target="I-D.ietf-cose-msg"/> defines
-  a message format for cryptographic protection of data using CBOR encoding.
-  There are two main approaches for application layer security:
-
-  <list style="hanging">
-    <t hangText="Object Security of CoAP (OSCOAP)"><vspace blankLines="1"/>
-    OSCOAP <xref target="I-D.selander-ace-object-security"/> is a method for
-    protecting CoAP request/response message exchanges, including CoAP
-    payloads, CoAP header fields as well as CoAP options.  OSCOAP provides
-    end-to-end confidentiality, integrity and replay protection, and a secure
-    binding between CoAP request and response messages.
-    <vspace blankLines="1"/>
-    A CoAP message
-    protected with OSCOAP contains the CoAP option "Object-Security"
-    which signals that the CoAP message carries a COSE message
-    (<xref target="I-D.ietf-cose-msg"/>).  OSCOAP defines a profile of COSE
-    which includes replay protection.<vspace blankLines="1"/></t>
-
-    <t hangText="Object Security of Content (OSCON)"><vspace blankLines="1"/>
-    For the case of wrapping of application layer payload data ("content")
-    only, such as resource representations or parameters of access tokens,
-    the same COSE profile can be applied to obtain end-to-end
-    confidentiality, integrity and replay protection.
-    <xref target="I-D.selander-ace-object-security"/> defines this functionality
-    as Object Security of Content (OSCON).
-    <vspace blankLines="1"/>
-    In this case, the message is not
-    bound to the underlying application layer protocol and can therefore be used
-    with HTTP, CoAP, Bluetooth Smart, etc.  While OSCOAP integrity protects
-    specific CoAP message meta-data like request/response code, and binds a
-    response to a specific request, OSCON protects only payload/content,
-    therefore those security features are lost.  The advantages are that an
-    OSCON message can be passed across different protocols, from request to
-    response, and used to secure group communications.
-   <!-- <vspace blankLines="1"/>
-    OSCON is, for example, used in this memo for protection of CBOR Web Tokens
-    (CWT) and in example <xref target="ExRSKindaOff"/>.-->
-    </t>
-  </list></t>
+ </t>
+  
+  <t>Transport layer security for CoAP can be provided by DTLS 1.2
+    <xref target="RFC6347"/> or TLS 1.2 <xref target="RFC5246"/>.
+    CoAP defines a number of proxy operations which requires transport layer
+    security to be terminated at the proxy. One approach for protecting CoAP communication
+    end-to-end through proxies, and also to support security for CoAP over
+    different transport in a uniform way, is to provide security on application
+    layer using an object-based security mechanism such as CBOR Encoded Message
+    Syntax (COSE) <xref target="I-D.ietf-cose-msg"/>.
+  </t>
+  
+  <t>
+    One application of COSE is OSCOAP
+    <xref target="I-D.selander-ace-object-security"/>, which
+    provides end-to-end confidentiality, integrity and replay protection, and a
+    secure binding between CoAP request and response messages. In OSCOAP, the
+    CoAP messages are wrapped in COSE objects and sent using CoAP.
+  </t>
+  
 </section>
 </section>
 
