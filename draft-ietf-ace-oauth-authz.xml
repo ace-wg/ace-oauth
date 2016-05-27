@@ -447,11 +447,15 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       <t hangText="Parameters:"><vspace blankLines="1"/>
 
         The information carried in the access token in the form of type-value
-        pairs is called parameters.  An access token may for example include a
+        pairs is called parameters.
+        [FIXME: This gives the impression that "parameter" is only used to
+        describe the attributes in the access token and not in messages in
+        general.]
+    An access token may for example include a
 	parameter about the AS that issued the token (the "iss" parameter) and
 	what audience the access token is intended for (the "aud" parameter).
 	The audience of an access token can be a specific resource or one or
-	many resource servers.  The resource owner policies influence the what
+	many resource servers.  The resource owner policies influence what
 	parameters are put into the access token by the authorization server.
         <vspace blankLines="1"/>
         While the structure and encoding of the access token varies throughout
@@ -591,7 +595,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   ]]></artwork>
 </figure></t>
 
-<t>
+<t>FIXME: consider include client token in figure
   <list style="hanging">
     <t hangText="Requesting an Access Token (A):"><vspace blankLines="1"/>
       The client makes an access token request to the /token resource at the AS.
@@ -614,7 +618,9 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       between client and RS may be based on pre-provisioned keys/security
       contexts or dynamically established.  The RS authenticates the client via
       the PoP token; and the client authenticates the RS according to the
-      profile that was specified in the Client Information.
+      profile that was specified in the Client Information. FIXME: Could we  say
+      that client and RS mutually authenticates using the security protocol of
+      the profile and the keys obtained in access token or client information.
       <vspace blankLines="0"/>
     </t>
 
@@ -660,14 +666,14 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       The AS validates the token and returns the most recent parameters, such
       as scope, audience, validity etc. associated with it back to the RS.  The
       RS then uses the received parameters to process the request to either
-      accept or to deny it.<vspace blankLines="0"/> 
+      accept or to deny it. FIXME: Mention client token.<vspace blankLines="0"/>
     </t>
 
     <t hangText="Protected Resource (F):"><vspace blankLines="1"/>
       If the request from the client is authorized, the RS fulfills the request
       and returns a response with the appropriate response code.  The RS uses the
       dynamically established keys to protect the response, according to used
-      communication security protocol.
+      communication security protocol. FIXME: Mention client token.
     </t>
   </list>
   </t>
@@ -748,7 +754,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 </section> <!--Framework-->
   
-<section anchor="tokenResource" title="The Token Resource">
+<section anchor="tokenResource" title="The 'Token' Resource">
   
   <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
   access token requests.  This framework extends the functionality of the
@@ -756,9 +762,20 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   establish shared keys or to exchange their public keys.
   </t>
   
+  <t>Communication between the client and the token resource at the
+    AS MUST be integrity protected and encrypted.  Furthermore AS and client
+    MUST perform mutual authentication.  Profiles of this framework are expected
+    to specify how authentication and communication security is implemented.
+  </t>
+
+<t>The figures of this section uses CBOR diagnostic
+  notation without the integer abbreviations for the parameters or their
+  values for better readability.
+</t>
+
   <section anchor="tokenRequest" title="Client-to-AS Request">
       <t>When requesting an access token from the AS, the client MAY 
-      include the follwoing parameters in the request in addition to 
+      include the following parameters in the request in addition to
       the ones required or optional according to the OAuth 2.0 specification
       <xref target="RFC6749"/>:
       
@@ -782,22 +799,19 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 	OPTIONAL.  This field contains information about a public key the
 	client would like to bind to the access token.  If the client requests
 	an asymmetric proof-of-possession algorithm, but does not provide a
-	pbulic key, the AS MUST respond with an error message.  See <xref
+	public key, the AS MUST respond with an error message.  See <xref
 	target="tokenParams"/> for more details on the formatting of the 'cnf'
 	parameter.</t> 
       </list>
     </t>
     
     <t>These new parameters are optional in the case where the AS has prior
-    knowledge of the capabilities of the client otherwise these parameters are
+    knowledge of the capabilities of the client, otherwise these parameters are
     required.  This prior knowledge may, for example, be set by the use of a
-    dynamic client registration protocol exchange.</t> 
+      dynamic client registration protocol exchange. FIXME: provide reference</t>
 
     <t>The following examples illustrate different types of requests
-    for proof-of-possession tokens.  Note that all figures use CBOR diagnostic
-    notation without the integer abbreviations for the parameters or their
-    values for better readability. Also note that some protection of these
-    messages e.g. DTLS is assumed but not visible in these examples.</t>
+    for proof-of-possession tokens. </t>
 
     <t><xref target="fig:symmATreq"/> shows a request for a token
     with a symmetric proof-of-possession key.
@@ -841,7 +855,7 @@ Payload:
   "client_id" : "myclient",
   "token_type" : "pop",
   "alg" : "ES256",
-  "profile" : "coap_dtls"
+  "profile" : "coap_oscoap"
   "cnf" : {
     "COSE_Key" : {
       "kty" : "EC", 
@@ -875,7 +889,7 @@ Payload:
   "client_id" : "myclient",
   "token_type" : "pop",
   "alg" : "ES256",
-  "profile" : "coap_dtls"
+  "profile" : "coap_oscoap"
   "cnf" : {
     "kid" : b64'6kg0dXJM13U'
   }
@@ -889,7 +903,9 @@ Payload:
     <t>If the access token request has been successfully verified by the
     AS and the client is authorized to obtain a PoP token for the indicated
     audience and scopes (if any), the AS issues an access token and
-    optionally a refresh token.  If client authentication failed or is
+    optionally a refresh token. [FIXME: Refresh tokens are not mentioned anywhere
+    else in this draft, if they are relevant explain how they are used, else
+    remove this option.] If client authentication failed or is
     invalid, the authorization server returns an error response as described
     in <xref target="errorsToken"/>.</t>
     
@@ -906,7 +922,10 @@ Payload:
 	OPTIONAL.  This field contains information about the proof-of
 	possession key for this access token.  If the proof-of-possession
 	method requires a key that the client does not already possess this
-	parameter is REQUIRED. See <xref target="tokenParams"/> for the 
+    parameter is REQUIRED. [FIXME: I think the cnf parameter is always required,
+    at minimum containing a key reference, so the client knows which key to use
+    with this access token. See FIXME in section on client token]
+    ]See <xref target="tokenParams"/> for the
 	formatting of this parameter.</t> 
       </list>
     </t>
@@ -919,10 +938,8 @@ Payload:
     server.</t> 
 
     <t>The following examples illustrate different types of responses
-    for proof-of-possession tokens.  Note that all figures use CBOR diagnostic
-    notation without the integer abbreviations for the parameters or their
-    values for better readability. Also note that some protection of these
-    messages e.g. DTLS is assumed but not visible in these examples.</t>
+    for proof-of-possession tokens.
+    </t>
     
     <t><xref target="fig:symmATres"/> shows a response containing a token
     and a 'cnf' parameter with a symmetric proof-of-possession key.
@@ -959,7 +976,7 @@ Payload:
     are equivalent to the ones for HTTP-based interactions as defined in
     section  5.2 of <xref target="RFC6749"/>, with the following differences:
     The Content-Type MUST be set to "application/cbor", the payload MUST be
-    encoded in a CBOR map and the CoAP response code code 4.00 Bad Request
+    encoded in a CBOR map and the CoAP response code 4.00 Bad Request
     MUST be used unless specified otherwise.</t>
   </section>
 
@@ -1006,14 +1023,14 @@ Payload:
       'alg' parameter.</t>
 
       <t>This document registers the new value "pop" for the OAuth Access
-      Token Types registry, specifying a Proof-of-Possession token.  How the
+        Token Types registry, [FIXME: Compare below] specifying a Proof-of-Possession token.  How the
       proof-of-possession is performed is specified by the 'alg' parameter.  
       Profiles of this framework are responsible for defining values for the 
       'alg' parameter together with the corresponding proof-of-possession
       mechanisms. FIXME: add to IANA section</t> 
 
       <t> This framework does not register a new value for the OAuth Access
-      Token Types registry nor does it define values to be used for the
+      Token Types registry [FIXME: Compare above] nor does it define values to be used for the
       'alg' parameter since this is the responsibility of specifications
       defining the mechanism for clients interacting with resource servers.</t>
     
@@ -1057,10 +1074,7 @@ Payload:
       'cnf' from <xref target="RFC7800"/> by defining CBOR/COSE encodings
       and the use of 'cnf' for transporting keys in the client  
       information.</t>  
-      
-      <t>Note that all examples shown below are in CBOR diagnostic notation
-      without abbreviations of parameters or their values, for increased
-      readability.</t>
+ 
 
       <t>A CBOR encoded payload MAY contain the 'cnf' parameter with the
       following contents:
@@ -1068,10 +1082,10 @@ Payload:
       <list style="hanging">
 	<t hangText="COSE_Key">In this case the 'cnf' parameter contains
 	 the proof-of-possession key to be used by the client.  An example 
-	 is shown in figure <xref target="fig:cnfKey"/>.
+	 is shown in <xref target="fig:cnfKey"/>.
        
 	 <figure align="center" anchor="fig:cnfKey" 
-	       title="Confirmation paramter containing a public key">
+	       title="Confirmation parameter containing a public key">
 	 <artwork align="left"><![CDATA[
 "cnf" : {
   "COSE_Key" : {
@@ -1083,10 +1097,11 @@ Payload:
   }
 }
         ]]></artwork>
-      </figure></t>
+      </figure>
+    </t>
 	 
 	<t hangText="COSE_Encrypted">In this case the 'cnf' parameter
-	contains an encrypted key destined for the client.  The client is
+	contains an encrypted symmetriic key destined for the client.  The client is
 	assumed to be able to decrypt the cihpertext of this parameter.
 	The parameter is encoded as COSE_Encrypt object wrapping a COSE_Key
 	object.  <xref target="fig:cnfEnc"/> shows an example of this type of
@@ -1184,7 +1199,7 @@ Payload:
   </section>  
 </section><!-- Token endpoint -->
 
-<section anchor="introspectionResource" title="Introspection">
+<section anchor="introspectionResource" title="The 'Introspect' Resource">
   <t>Token introspection <xref target="RFC7662"/> is used by the RS and
   potentially the client to query the AS for metadata about a given token
   e.g. validity or scope. Analogous to the protocol defined in
@@ -1194,24 +1209,27 @@ Payload:
   <t>Communication between the RS and the introspection resource at the
   AS MUST be integrity protected and encrypted.  Furthermore AS and RS
   MUST perform mutual authentication.  Profiles of this framework are expected
-  to specify how this protection and authentication is implemented.</t>
-    
+  to specify how authentication and communication security is implemented.</t>
+  
+  <t>The figures of this section uses CBOR diagnostic
+  notation without the integer abbreviations for the parameters or their
+  values for better readability.
+  </t>
+  
   <section anchor="introRS2AS" title="RS-to-AS Request">
     <t>The RS sends a CoAP POST request to the introspection resource 
     at the AS, with parameters sent as "application/cbor" data.  The 
-    RS sends a parameter representing the access token along with optional
+    RS sends a parameter representing the access token [FIXME: The RS sends the
+    access token, not a parameter representing the access token] along with optional
     parameters representing additional context that is known by the RS to
     aid the AS in its response.</t>
 
-    <t>The same paramters are required and optional as in section 2.1
+    <t>The same parameters are required and optional as in section 2.1
     of RFC 7662 <xref target="RFC7662"/>.</t>
 
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
     introspection resource at the AS to query about an OAuth 2.0
-    proof-of-possession token.  Note that the figure uses CBOR diagnostic
-    notation without the integer abbreviations for the parameters or their
-    values for better readability. Also note that some protection of these
-    messages e.g. DTLS is assumed but not visible in this example.
+    proof-of-possession token.
 
     <figure align="center" anchor="fig:introReq"
             title="Example introspection request.">
@@ -1248,7 +1266,9 @@ Payload:
       <t hangText="profile"><vspace blankLines="0"/>
       OPTIONAL.  This indicates the profile that the RS MUST use with the 
       client.  See <xref target="tokenParams"/> for more details on the
-      formatting of this parameter.<vspace blankLines="1"/></t>
+        formatting of this parameter. FIXME: Why is this parameter present?
+        Isn't it the client that should have info about profile?
+        <vspace blankLines="1"/></t>
 
       <t hangText="client_token"><vspace blankLines="0"/>
       OPTIONAL.  This parameter contains information that the RS
@@ -1259,10 +1279,7 @@ Payload:
       
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
-    Note that the figure uses CBOR diagnostic notation without the integer
-    abbreviations for the parameters or their values for better
-    readability. Also note that some protection of these messages e.g. DTLS is
-    assumed but not visible in this example.
+
 
     <figure align="center" anchor="fig:introRes"
             title="Example introspection response.">
@@ -1306,7 +1323,8 @@ Payload:
       <xref target="RFC6749"/>.</t>
       
       <t>If the credentials used by the RS do not contain sufficient
-      privileges or are otherwise invalid for this request, the AS MUST
+        privileges or are otherwise invalid for this request, [FIXME: I don't
+        understand what this means; what credentials and previleges] the AS MUST
       respond with the CoAP response code 4.03 (Forbidden).  In this 
       case no payload is returned.</t>
     </list>
@@ -1321,7 +1339,7 @@ Payload:
 
   <section anchor="clientToken" title="Client Token">
     <t>In cases where the client has limited connectivity and
-    is requesting access to various, previously unknown resource servers, using
+    is requesting access to a previously unknown resource servers, using
     a long term token, there are situations where it would be beneficial to
     relay the proof-of-possession key and other relevant information from
     the AS to the client through the RS.  The client_token parameter
@@ -1376,7 +1394,12 @@ D:  |<---------------+                |
       <t hangText="rs_cnf"><vspace blankLines="0"/>
       OPTIONAL. Contains information about the key that the RS uses
       to authenticate towards the client. This uses the same encoding
-      as the 'cnf' parameter.  See <xref target="paramProfile"/>.</t>
+        as the 'cnf' parameter.  See <xref target="paramProfile"/>. [FIXME:
+        I don't think this parameter is necessary: If the key is symmetric, then
+      it will be contained in the 'cnf' claim. If the key is asymmetric, then
+        the 'cnf' will contain the public key of the RS, in which case the key
+        the client is supposed to use is already associated to the access token,
+      see discussion about 'cnf' in Token response being REQUIRED]</t>
     </list>
     </t>
   </section>
@@ -1432,7 +1455,7 @@ D:  |<---------------+                |
   application specific and expected to be known to the RS running 
   that application.</t>
 
-<section title="The Authorization Information Resource">
+<section title="The 'Authorization Information' Resource">
   <t>The access token, containing authorization information and information of
   the key used by the client, is transported to the RS so that the RS can
   authenticate and authorize the client request. This section defines a method
@@ -1454,7 +1477,7 @@ D:  |<---------------+                |
   
   <t>The RS MAY make an introspection request to validate the token before
   responding to the POST /authz-info request. If the introspection response
-  contains a client token <xref target="clientToken"/> then this token
+  contains a client token (<xref target="clientToken"/>) then this token
   SHALL be included in the payload of the 2.04 (Changed) response.
   </t>
 </section>
