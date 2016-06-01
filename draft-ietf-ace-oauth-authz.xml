@@ -531,11 +531,13 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 <t>
     The ACE framework is based on the OAuth 2.0 protocol interactions using
-    the /token and /introspect resources.
-    A client obtains an access token from an AS using /token and presents the token
-    to an RS to gain access to a protected resource. Alternatively, or additionally,
-    the RS can use an obtained access token with the AS /introspect resource to get
-    information about the state and content of the access token.
+    the /token and /introspect endpoints.
+    A client obtains an access token from an AS using the /token endpoint and 
+    subsequently presents the access token
+    to an RS to gain access to a protected resource. 
+    The RS, after receiving an access token, may present it to the AS via the /introspect endpoint to get
+    information about the state and content of the access token. In other deployments
+    the RS may process the access token locally without the need to contact an AS. 
     These interactions are
     shown in <xref target="fig:protocolFlow"/>.  An overview of various OAuth
     concepts is provided in <xref target="oauth2Overview"/>.
@@ -549,14 +551,15 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 </t>
 
 <t>
-  The ACE framework supports a wide variety of communication security between client,
+  This framework supports a wide variety of communication security mechanisms 
+  between the ACE entities, such as client,
   authorization server, and resource server. We assume that the client has been
-  registered to an AS.  Registration means that the two share credentials,
-  configuration parameters and that some form of authorization has taken
-  place.  These credentials are used to protect the token request by the
-  client and the token response from AS to the client. </t>
+  registered (also called enrolled or onboarded) to an AS using a mechanism defined outside the scope of this document.
+  In practice, various techniques for onboarding have been used, such as factory-based provisioning or the use of 
+  commissioning tools. Regardless of the onboarding technique, this registration procedure implies that the client and the AS share credentials, and
+  configuration parameters.  These credentials are used to mutually authenticate each other and to protect messages exchanged between the client and the AS. </t>
 
- <t>It is also assumed that the RS has been registered with the AS.
+ <t>It is also assumed that the RS has been registered with the AS, potentially in a similar way as the client has been registered with the AS. 
  Established keying material between the AS and the RS allows the AS to apply
  cryptographic protection to the access token to ensure that its content cannot
  be modified, and if needed, that the content is confidentiality protected.</t>
@@ -570,18 +573,20 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     At the start of the protocol there is an optional discovery step where the
     client discovers the resource server and the resources this server hosts.
     In this step the client might also determine what permissions are needed to
-    access the protected resource.  The exact procedure SHOULD be defined in the
-    ACE profile and depends on the
-    protocols being used and the specific deployment environment.  In Bluetooth
-    Smart, for example, advertisements are broadcasted by a peripheral,
-    including information about the supported services.  In CoAP, as a second
+    access the protected resource.  The detailed procedures for this discovery process 
+    may be defined in an
+    ACE profile and depend on the
+    protocols being used and the specific deployment environment.</t> 
+<t> In Bluetooth
+    Low Energy, for example, advertisements are broadcasted by a peripheral,
+    including information about the primary services.  In CoAP, as a second
     example, a client can makes a request to "/.well-known/core" to obtain
     information about available resources, which are returned in a
     standardized format as described in <xref target="RFC6690"/>.
 </t>
 
 <t><figure align="center" anchor="fig:protocolFlow"
-           title="Overview of the basic protocol flow">
+           title="Basic Protocol Flow.">
   <artwork align="left"><![CDATA[
 +--------+                                     +---------------+
 |        |---(A)-- Token Request ------------->|               |
@@ -601,40 +606,39 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   ]]></artwork>
 </figure></t>
 
-<t>FIXME: consider include client token in figure
+<t>(FIXME: The Client Token is missing in the figure.)
   <list style="hanging">
     <t hangText="Requesting an Access Token (A):"><vspace blankLines="1"/>
-      The client makes an access token request to the /token resource at the AS.
-      This memo assumes
+      The client makes an access token request to the /token endpoint at the AS.
+      This framework assumes
       the use of PoP tokens (see <xref target="oauth2Overview"/> for a short
       description) wherein the AS binds a key to an access token.  The client
       may include permissions it seeks to obtain, and information about the
-      credentials it wants to use (e.g. symmetric/asymmetric
+      credentials it wants to use (e.g., symmetric/asymmetric
       cryptography or a reference to a specific credential).<vspace blankLines="0"/>
     </t>
 
     <t hangText="Access Token Response (B):"><vspace blankLines="1"/>
       If the AS successfully processes the request from the client, it returns
-      an access token.  It also includes various parameters, which we call
+      an access token.  It also returns various parameters, referred as
       "Client Information".  In addition to the response parameters defined by
-      OAuth 2.0 and the PoP token extension, we consider new kinds of response
-      parameters in <xref target="tokenParams"/>, including information on
-      which profile the client should use with the resource server(s)
-      that it has just been authorized to access.  Communication security
-      between client and RS may be based on pre-provisioned keys/security
-      contexts or dynamically established.  The RS authenticates the client via
+      OAuth 2.0 and the PoP token extension, further response
+      parameters, such as information on
+      which profile the client should use with the resource server(s). More 
+      informatino about these parameters can be found in in <xref target="tokenParams"/>. 
+      The RS authenticates the client via
       the PoP token; and the client authenticates the RS according to the
-      profile that was specified in the Client Information. FIXME: Could we  say
+      profile that was specified in the Client Information. (FIXME: Could we say
       that client and RS mutually authenticates using the security protocol of
-      the profile and the keys obtained in access token or client information.
+      the profile and the keys obtained in access token or client information.)
       <vspace blankLines="0"/>
     </t>
 
     <t hangText="Resource Request (C):"><vspace blankLines="1"/>
       The client interacts with the RS to request access to the protected
       resource and provides the access token.  The protocol to use
-      between the client and the RS is not restricted to CoAP; HTTP, HTTP/2,
-      Bluetooth Smart etc., are also possible candidates.
+      between the client and the RS is not restricted to CoAP. HTTP, HTTP/2,
+      QUIC, MQTT, Bluetooth Low Energy, etc., are also viable candidates.
       <vspace blankLines="1"/>
       Depending on the device limitations and the selected protocol this
       exchange may be split up into two parts:
@@ -658,7 +662,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
     <t hangText="Token Introspection Request (D):"><vspace blankLines="1"/>
       A resource server may be configured to introspect the access token by
-      including it in a request to the /introspect resource at that AS.
+      including it in a request to the /introspect endpoint at that AS.
       Token introspection over
       CoAP is defined in <xref target="introspectionResource"/> and for HTTP in
       <xref target="RFC7662"/>. 
@@ -672,14 +676,14 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       The AS validates the token and returns the most recent parameters, such
       as scope, audience, validity etc. associated with it back to the RS.  The
       RS then uses the received parameters to process the request to either
-      accept or to deny it. FIXME: Mention client token.<vspace blankLines="0"/>
+      accept or to deny it. (FIXME: Mention client token.)<vspace blankLines="0"/>
     </t>
 
     <t hangText="Protected Resource (F):"><vspace blankLines="1"/>
       If the request from the client is authorized, the RS fulfills the request
       and returns a response with the appropriate response code.  The RS uses the
       dynamically established keys to protect the response, according to used
-      communication security protocol. FIXME: Mention client token.
+      communication security protocol. (FIXME: Mention client token.)
     </t>
   </list>
   </t>
