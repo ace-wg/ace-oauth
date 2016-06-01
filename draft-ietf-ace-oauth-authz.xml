@@ -21,16 +21,14 @@
 <!ENTITY RFC7231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7231.xml">
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
-<!ENTITY RFC7662 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7662.xml">
 <!ENTITY RFC7800 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7800.xml">
 <!-- <!ENTITY I-D.ietf-ace-usecases SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-usecases.xml"> -->
-<!ENTITY I-D.ietf-oauth-introspection SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-introspection.xml">
+<!ENTITY RFC7662 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7662.xml">
 <!ENTITY I-D.ietf-ace-actors SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-actors.xml">
 <!ENTITY I-D.ietf-cose-msg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-cose-msg.xml">
 <!ENTITY I-D.selander-ace-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.selander-ace-object-security.xml">
 <!ENTITY I-D.ietf-oauth-pop-architecture SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-pop-architecture.xml">
 <!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cbor-web-token.xml">
-<!ENTITY I-D.bormann-core-ace-aif SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.bormann-core-ace-aif.xml">
 <!ENTITY I-D.ietf-core-block SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-block.xml">
 <!ENTITY I-D.seitz-ace-core-authz SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.seitz-ace-core-authz.xml">
 ]>
@@ -294,27 +292,27 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   <t>Another building block is the lightweight web transfer protocol CoAP
   <xref target="RFC7252"/> for those communication environments where HTTP is
   not appropriate.  CoAP typically runs on top of UDP which further reduces
-  overhead and message exchanges.  Transport layer security can be provided
-  either by DTLS 1.2 <xref target="RFC6347"/> or TLS 1.2
-  <xref target="RFC5246"/>. Application layer security can be provided by OSCOAP
-  <xref target="I-D.selander-ace-object-security"/>.
+  overhead and message exchanges. While this specification defines extensions 
+for the use of OAuth over CoAP, we do envision further underlying protocols to be 
+supported in the future, such as MQTT or QUIC. For communication security DTLS 1.2 <xref target="RFC6347"/> or TLS 1.2
+  <xref target="RFC5246"/>. Application layer security for CoAP can be provided by OSCOAP
+  <xref target="I-D.selander-ace-object-security"/>. 
   </t>
 
   <t>A third building block is CBOR <xref target="RFC7049"/> for encodings
   where JSON <xref target="RFC7159"/> is not sufficiently compact.  CBOR is a
-  binary encoding designed for extremely small code size and fairly small
-  message size.  OAuth 2.0 allows access tokens to use different encodings and
-  this document defines such an alternative encoding.  The COSE message format
-  <xref target="I-D.ietf-cose-msg"/> is also based on CBOR.
+  binary encoding designed for small code and message size. OAuth 2.0 allows access tokens to use different encodings and
+  this document defines such an alternative encoding. To protect these CBOR-encoded access tokens the CBOR encoded message syntax
+  <xref target="I-D.ietf-cose-msg"/> is re-used.
   </t>
 
-  <t>A fourth building block is object security,  which is already used
-    in OAuth 2.0 with PoP tokens <xref target="I-D.ietf-oauth-pop-architecture"/>,
-    but is here extended to so called "Client Tokens" (<xref target="clientToken"/>).
-    Also, this specification allows the use of object security instead of transport
+  <t>As a fourth building block we use proof-of-possession (PoP) tokens <xref target="I-D.ietf-oauth-pop-architecture"/>, which 
+is an extension to the OAuth access tokens. Additionally, those PoP tokens are 
+    extended with called "Client Tokens" (see <xref target="clientToken"/>).
+    As an additional security enhancement, this specification allows the use of object security instead of transport
     layer security between any nodes in the architecture. A preferred compact secure
     message format is COSE <xref target="I-D.ietf-cose-msg"/>, which adds
-    object security to CBOR-encoded data.  More details about applying COSE to
+    object security to CBOR-encoded data. More details about applying COSE to
     CoAP can be found in OSCOAP
     <xref target="I-D.selander-ace-object-security"/>.
   </t>
@@ -324,7 +322,6 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   described in detail in RFC 7228 <xref target="RFC7228"/> and a description
   of how the building blocks mentioned above relate to the various constraints
   can be found in <xref target="constraints"/>.</t>
-
 
   <t>Luckily, not every IoT device suffers from all constraints.  The ACE
   framework nevertheless takes all these aspects into account and allows
@@ -349,24 +346,22 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     <t>A number of OAuth 2.0 terms are used within this memo:
       
       <list style="hanging">
-        <t hangText="/token and /introspect:"><vspace blankLines="1"/>
-          The AS resource (in OAuth 2.0 called "endpoint") /token is the resource
-          targeted by a Client requesting an access token for use when accessing a
-          resource on the RS. The client makes a POST request to /token on the AS and
-          receives the access token in the POST response.
+        <t hangText="The token and introspect Endpoints:"><vspace blankLines="1"/>
+          The AS hosts the /token endpoint that allows a client to request access tokens. The client makes a POST request to the /token endpoint on the AS and
+          receives the access token in the response (if the request was successful).
           <vspace blankLines="1"/>
-          The AS resource /introspect is the resource targeted by an RS when
+          The token introspection endpoint, /introspect, is used by the RS when
           requesting additional information regarding a received access token.
           The RS makes a POST request to /introspect on the AS and receives
-          such information in the POST response. (See "Introspection" below.)
+          information about the access token contain in the response. (See "Introspection" below.)
           <vspace blankLines="1"/>
         </t>
 
         <t hangText="Access Tokens:"><vspace blankLines="1"/>
-        Access tokens are credentials used to access protected resources.  An
+        Access tokens are credentials needed to access protected resources.  An
         access token is a data structure representing authorization permissions
-        issued to the client.  Access tokens are generated by the authorization
-        server and consumed by the resource server.  The access token is opaque
+        issued by the AS to the client.  Access tokens are generated by the authorization
+        server and consumed by the resource server.  The access token content is opaque
         to the client.
         <vspace blankLines="1"/>
         Access tokens can have different formats, and various methods
@@ -398,6 +393,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         well as on the security requirements of the use case.
 
         <list style="hanging">
+
           <t hangText="Symmetric PoP key:">
               The AS generates a random symmetric PoP key, encrypts it for the
               RS and includes it inside an access token.  The PoP key is also
@@ -416,9 +412,10 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 	      key for the proof of possession.
           </t>
         </list>
+
         <vspace blankLines="1"/> The access token is
-        protected against modifications using a MAC or a digital signature
-        of the AS.  The choice of PoP key does not necessarily imply a specific
+        protected against modifications using a MAC or a digital signature, which is 
+        added by the AS.  The choice of PoP key does not necessarily imply a specific
         credential type for the integrity protection of the token.  More
         information about PoP tokens can be found in
         <xref target="I-D.ietf-oauth-pop-architecture"/>.<vspace
@@ -428,10 +425,10 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       <t hangText="Scopes and Permissions:"><vspace blankLines="1"/>
          In OAuth 2.0, the client specifies the type of permissions it is
          seeking to obtain (via the scope parameter) in the access request.  In
-         turn, the AS may use the "scope" response parameter to inform the
+         turn, the AS may use the scope response parameter to inform the
          client of the scope of the access token issued.  As the client could
 	 be a constrained device as well, this memo uses CBOR encoded messages
-         defined in <xref target="oauthProfile" /> to
+         for CoAP, defined in <xref target="oauthProfile" />, to
          request scopes and to be informed what scopes the access token was
          actually authorized for by the AS.
          <vspace blankLines="1"/>
@@ -450,19 +447,19 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
       </t>
 
 
-      <t hangText="Parameters:"><vspace blankLines="1"/>
+      <t hangText="Claims:"><vspace blankLines="1"/>
 
-        The information carried in the access token in the form of type-value
-        pairs is called parameters.
-        [FIXME: This gives the impression that "parameter" is only used to
+        Information carried in the access token, called claims, is in the form of type-value
+        pairs.
+        [FIXME: This statement may give the impression that "parameter" is only used to
         describe the attributes in the access token and not in messages in
         general.]
-    An access token may for example include a
-	parameter about the AS that issued the token (the "iss" parameter) and
-	what audience the access token is intended for (the "aud" parameter).
+    An access token may, for example, include a
+	claim identifying the AS that issued the token (via the "iss" parameter) and
+	what audience the access token is intended for (via the "aud" parameter).
 	The audience of an access token can be a specific resource or one or
 	many resource servers.  The resource owner policies influence what
-	parameters are put into the access token by the authorization server.
+	claims are put into the access token by the authorization server.
         <vspace blankLines="1"/>
         While the structure and encoding of the access token varies throughout
         deployments, a standardized format has been defined with the JSON Web
@@ -479,7 +476,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
         authorization decisions are very dynamic and/or where the received
         access token itself is a reference rather than a self-contained
         token.   More information about introspection in OAuth 2.0 can be
-        found in <xref target="I-D.ietf-oauth-introspection"/>.
+        found in <xref target="RFC7662"/>.
       </t>
     </list>
   </t>
@@ -500,7 +497,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
     <t>CoAP supports application-layer fragmentation of the CoAP payloads
     through blockwise transfers <xref target="I-D.ietf-core-block"/>.  However,
-    this method does not allow the fragmentation of large CoAP options,
+    block-wise transfer does not increase the size limits of CoAP options,
     therefore data encoded in options has to be kept small.
  </t>
   
@@ -511,7 +508,7 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
     end-to-end through proxies, and also to support security for CoAP over
     different transport in a uniform way, is to provide security on application
     layer using an object-based security mechanism such as CBOR Encoded Message
-    Syntax (COSE) <xref target="I-D.ietf-cose-msg"/>.
+    Syntax <xref target="I-D.ietf-cose-msg"/>.
   </t>
   
   <t>
@@ -2175,7 +2172,7 @@ D:  |<---------------+                |
 
       &I-D.ietf-ace-cbor-web-token;
 
-      &I-D.ietf-oauth-introspection;
+      &RFC7662;
 
       &RFC2119;
 
@@ -2183,8 +2180,6 @@ D:  |<---------------+                |
 
       &RFC7252;
 
-      &RFC7662;
-      
       &RFC7800;
 
     </references>
