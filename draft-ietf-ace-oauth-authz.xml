@@ -13,17 +13,19 @@
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6690 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6690.xml">
 <!ENTITY RFC6749 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6749.xml">
-<!ENTITY RFC7744 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7744.xml">
 <!ENTITY RFC6819 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6819.xml">
 <!ENTITY RFC7049 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7049.xml">
 <!ENTITY RFC7159 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7159.xml">
 <!ENTITY RFC7228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7228.xml">
 <!ENTITY RFC7231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7231.xml">
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
-<!ENTITY RFC7519 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
-<!ENTITY RFC7800 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7800.xml">
-<!-- <!ENTITY I-D.ietf-ace-usecases SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-usecases.xml"> -->
+<!ENTITY RFC7519 SYSTEM
+"http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
+<!ENTITY RFC7591 SYSTEM
+"http://xml.resource.org/public/rfc/bibxml/reference.RFC.7591.xml">
 <!ENTITY RFC7662 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7662.xml">
+<!ENTITY RFC7744 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7744.xml">
+<!ENTITY RFC7800 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7800.xml">
 <!ENTITY I-D.ietf-ace-actors SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-actors.xml">
 <!ENTITY I-D.ietf-cose-msg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-cose-msg.xml">
 <!ENTITY I-D.selander-ace-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.selander-ace-object-security.xml">
@@ -450,21 +452,17 @@ is an extension to the OAuth access tokens. Additionally, those PoP tokens are
 
       <t hangText="Claims:"><vspace blankLines="1"/>
 
-        Information carried in the access token, called claims, is in the form of type-value
-        pairs.
-        [FIXME: This statement may give the impression that "parameter" is only used to
-        describe the attributes in the access token and not in messages in
-        general.]
-    An access token may, for example, include a
-	claim identifying the AS that issued the token (via the "iss" parameter) and
-	what audience the access token is intended for (via the "aud" parameter).
+      Information carried in the access token, called claims, is in the form of
+      type-value pairs.  An access token may, for example, include a claim
+      identifying the AS that issued the token (via the "iss" claim) and
+      what audience the access token is intended for (via the "aud" claim). 
 	The audience of an access token can be a specific resource or one or
 	many resource servers.  The resource owner policies influence what
 	claims are put into the access token by the authorization server.
         <vspace blankLines="1"/>
         While the structure and encoding of the access token varies throughout
         deployments, a standardized format has been defined with the JSON Web
-        Token (JWT) <xref target="RFC7519"/> where parameters are encoded as a
+        Token (JWT) <xref target="RFC7519"/> where claims are encoded as a
 	JSON object.  In <xref target="I-D.ietf-ace-cbor-web-token"/> an
 	equivalent format using CBOR encoding (CWT) has been defined.
 	<vspace blankLines="0"/>
@@ -586,25 +584,27 @@ is an extension to the OAuth access tokens. Additionally, those PoP tokens are
 <t><figure align="center" anchor="fig:protocolFlow"
            title="Basic Protocol Flow.">
   <artwork align="left"><![CDATA[
-+--------+                                     +---------------+
-|        |---(A)-- Token Request ------------->|               |
-|        |                                     | Authorization |
-|        |<--(B)-- Access Token ---------------|    Server     |
-|        |       + Client Information          |               |
-|        |                                     +---------------+
-|        |                                            ^ |
-|        |        Introspection Request & Response (D)| |(E)
-| Client |                                            | v
-|        |                                     +--------------+
-|        |---(C)-- Token + Request ----------->|              |
-|        |                                     |   Resource   |
-|        |<--(F)-- Protected Resource ---------|    Server    |
-|        |                                     |              |
-+--------+                                     +--------------+
++--------+                               +---------------+
+|        |---(A)-- Token Request ------->|               |
+|        |                               | Authorization |
+|        |<--(B)-- Access Token ---------|    Server     |
+|        |       + Client Information    |               |
+|        |                               +---------------+
+|        |                                      ^ |
+|        |            Introspection Request  (D)| |
+| Client |                                      | |
+|        |             Response + Client Token  | |(E) 
+|        |                                      | v 
+|        |                               +--------------+
+|        |---(C)-- Token + Request ----->|              |
+|        |                               |   Resource   |
+|        |<--(F)-- Protected Resource ---|    Server    |
+|        |                               |              |
++--------+                               +--------------+
   ]]></artwork>
 </figure></t>
 
-<t>(FIXME: The Client Token is missing in the figure.)
+<t>
   <list style="hanging">
     <t hangText="Requesting an Access Token (A):"><vspace blankLines="1"/>
       The client makes an access token request to the /token endpoint at the AS.
@@ -623,12 +623,7 @@ is an extension to the OAuth access tokens. Additionally, those PoP tokens are
       OAuth 2.0 and the PoP token extension, further response
       parameters, such as information on
       which profile the client should use with the resource server(s). More
-      informatino about these parameters can be found in in <xref target="tokenParams"/>.
-      The RS authenticates the client via
-      the PoP token; and the client authenticates the RS according to the
-      profile that was specified in the Client Information. (FIXME: Could we say
-      that client and RS mutually authenticates using the security protocol of
-      the profile and the keys obtained in access token or client information.)
+      information about these parameters can be found in in <xref target="tokenParams"/>.
       <vspace blankLines="0"/>
     </t>
 
@@ -650,11 +645,14 @@ is an extension to the OAuth access tokens. Additionally, those PoP tokens are
 </list>
 
       <vspace blankLines="1"/>
-      The RS verifies that the token is integrity protected by the AS and
-      compares the parameters contained in the access token with the resource
-      request. If the RS is online, validation can be handed over to the AS
-      using token introspection (see messages D and E) over HTTP or CoAP, in
-      which case the different parts of step C may be interleaved with
+      The Client and the RS mutually authenticate using the security protocol
+      specified in the profile (see step B) and the keys obtained in the access
+      token or the client information or the client token.  The RS verifies
+      that the token is integrity protected by the AS and compares the claims
+      contained in the access token with the resource request. If the RS is
+      online, validation can be handed over to the AS using token introspection
+      (see messages D and E) over HTTP or CoAP, in  which case the different
+      parts of step C may be interleaved with 
       introspection.<vspace blankLines="0"/>
     </t>
 
@@ -674,14 +672,18 @@ is an extension to the OAuth access tokens. Additionally, those PoP tokens are
       The AS validates the token and returns the most recent parameters, such
       as scope, audience, validity etc. associated with it back to the RS.  The
       RS then uses the received parameters to process the request to either
-      accept or to deny it. (FIXME: Mention client token.)<vspace blankLines="0"/>
+      accept or to deny it. The AS can additionally return information that the
+      RS needs to pass on to the client in the form of a client token.  The
+      latter is used to establish keys for mutual authentication between
+      client and RS, when the client has no direct connectivity to the
+      AS.<vspace blankLines="0"/>
     </t>
 
     <t hangText="Protected Resource (F):"><vspace blankLines="1"/>
       If the request from the client is authorized, the RS fulfills the request
-      and returns a response with the appropriate response code.  The RS uses the
-      dynamically established keys to protect the response, according to used
-      communication security protocol. (FIXME: Mention client token.)
+      and returns a response with the appropriate response code.  The RS uses
+      the dynamically established keys to protect the response, according to
+      used communication security protocol. 
     </t>
   </list>
   </t>
@@ -816,7 +818,8 @@ is an extension to the OAuth access tokens. Additionally, those PoP tokens are
     <t>These new parameters are optional in the case where the AS has prior
     knowledge of the capabilities of the client, otherwise these parameters are
     required.  This prior knowledge may, for example, be set by the use of a
-      dynamic client registration protocol exchange. FIXME: provide reference</t>
+      dynamic client registration protocol exchange <xref
+      target="RFC7591"/>.</t> 
 
     <t>The following examples illustrate different types of requests
     for proof-of-possession tokens. </t>
@@ -910,12 +913,9 @@ Payload:
   <section anchor="tokenResponse" title="AS-to-Client Response">
     <t>If the access token request has been successfully verified by the
     AS and the client is authorized to obtain a PoP token for the indicated
-    audience and scopes (if any), the AS issues an access token and
-    optionally a refresh token. [FIXME: Refresh tokens are not mentioned anywhere
-    else in this draft, if they are relevant explain how they are used, else
-    remove this option.] If client authentication failed or is
-    invalid, the authorization server returns an error response as described
-    in <xref target="errorsToken"/>.</t>
+    audience and scopes (if any), the AS issues an access token.  If client
+    authentication failed or is  invalid, the authorization server returns an
+    error response as described in <xref target="errorsToken"/>.</t>
 
     <t>The following parameters may also be part of a successful response in
     addition to those defined in section 5.1 of <xref target="RFC6749"/>:
@@ -927,19 +927,14 @@ Payload:
 	this parameter.<vspace blankLines="1"/></t>
 
 	<t hangText="cnf"><vspace blankLines="0"/>
-	OPTIONAL.  This field contains information about the proof-of
-	possession key for this access token.  If the proof-of-possession
-	method requires a key that the client does not already possess this
-    parameter is REQUIRED. [FIXME: I think the cnf parameter is always required,
-    at minimum containing a key reference, so the client knows which key to use
-    with this access token. See FIXME in section on client token]
-    ]See <xref target="tokenParams"/> for the
-	formatting of this parameter.</t>
+	REQUIRED.  This field contains information about the proof-of
+	possession key for this access token.  See <xref target="tokenParams"/>
+	for the formatting of this parameter.</t>
       </list>
     </t>
 
-    <t>Note that the access token can also contain a 'cnf' parameter,
-    however, the two parameters are consumed by different parties.  The
+    <t>Note that the access token can also contains a 'cnf' claim,
+    however, these two values are consumed by different parties.  The
     access token is created by the AS and processed by the RS (and opaque to
     the client) whereas the Client Information is created by the AS and
     processed by the client; it is never forwarded to the resource
@@ -962,7 +957,7 @@ Payload:
 {
   "access_token" : b64'SlAV32hkKG ...
    (remainder of CWT omitted for brevity;
-   CWT contains COSE_Key in the 'cnf' parameter)',
+   CWT contains COSE_Key in the 'cnf' claim)',
   "token_type" : "pop",
   "alg" : "HS256",
   "expires_in" : "3600",
@@ -1031,16 +1026,11 @@ Payload:
       'alg' parameter.</t>
 
       <t>This document registers the new value "pop" for the OAuth Access
-        Token Types registry, [FIXME: Compare below] specifying a Proof-of-Possession token.  How the
+        Token Types registry,  specifying a Proof-of-Possession token.  How the
       proof-of-possession is performed is specified by the 'alg' parameter.
       Profiles of this framework are responsible for defining values for the
       'alg' parameter together with the corresponding proof-of-possession
       mechanisms. FIXME: add to IANA section</t>
-
-      <t> This framework does not register a new value for the OAuth Access
-      Token Types registry [FIXME: Compare above] nor does it define values to be used for the
-      'alg' parameter since this is the responsibility of specifications
-      defining the mechanism for clients interacting with resource servers.</t>
 
       <t>The values in the 'alg' parameter are case-sensitive.  If the client
       supports more than one algorithm then each individual value MUST be
@@ -1216,8 +1206,10 @@ Payload:
 
   <t>Communication between the RS and the introspection resource at the
   AS MUST be integrity protected and encrypted.  Furthermore AS and RS
-  MUST perform mutual authentication.  Profiles of this framework are expected
-  to specify how authentication and communication security is implemented.</t>
+  MUST perform mutual authentication.  Finally the AS SHOULD to verify that the
+  RS has the right to access introspection information about the provided  
+  token.  Profiles of this framework are expected to specify how
+  authentication and communication security is implemented.</t>
 
   <t>The figures of this section uses CBOR diagnostic
   notation without the integer abbreviations for the parameters or their
@@ -1226,11 +1218,10 @@ Payload:
 
   <section anchor="introRS2AS" title="RS-to-AS Request">
     <t>The RS sends a CoAP POST request to the introspection resource
-    at the AS, with parameters sent as "application/cbor" data.  The
-    RS sends a parameter representing the access token [FIXME: The RS sends the
-    access token, not a parameter representing the access token] along with optional
-    parameters representing additional context that is known by the RS to
-    aid the AS in its response.</t>
+    at the AS, with payload sent as "application/cbor" data.  The payload
+    is a CBOR map with a 'token' parameter containing the access token along
+    with optional  parameters representing additional context that is known by
+    the RS to aid the AS in its response.</t>
 
     <t>The same parameters are required and optional as in section 2.1
     of RFC 7662 <xref target="RFC7662"/>.</t>
@@ -1274,8 +1265,12 @@ Payload:
       <t hangText="profile"><vspace blankLines="0"/>
       OPTIONAL.  This indicates the profile that the RS MUST use with the
       client.  See <xref target="tokenParams"/> for more details on the
-        formatting of this parameter. FIXME: Why is this parameter present?
-        Isn't it the client that should have info about profile?
+        formatting of this parameter. 
+<!-- FIXME: Why is this parameter present?
+        Isn't it the client that should have info about profile? 
+     ANSWER (LS): The RS could support multiple profiles and needs to
+     know which was negotiated between the client and the AS.
+-->
         <vspace blankLines="1"/></t>
 
       <t hangText="client_token"><vspace blankLines="0"/>
@@ -1330,11 +1325,9 @@ Payload:
       the required and optional parameters from section 5.2 in RFC 6749
       <xref target="RFC6749"/>.</t>
 
-      <t>If the credentials used by the RS do not contain sufficient
-        privileges or are otherwise invalid for this request, [FIXME: I don't
-        understand what this means; what credentials and previleges] the AS MUST
-      respond with the CoAP response code 4.03 (Forbidden).  In this
-      case no payload is returned.</t>
+      <t>If the RS does not have the right to perform this introspection
+      request, the AS MUST respond with the CoAP response code 4.03
+      (Forbidden).  In this case no payload is returned.</t>
     </list>
     </t>
 
@@ -1380,7 +1373,7 @@ D:  |<---------------+                |
     </t>
 
     <t>The client token is encoded in CBOR as a map containing the
-    following parameters:
+    following claims:
 
     <list style="hanging">
       <t hangText="cnf"><vspace blankLines="0"/>
@@ -1456,8 +1449,8 @@ D:  |<---------------+                |
   </t>
 
   <t>In order to facilitate offline processing of access tokens,
-  this draft specfifies the "scope" parameter for access tokens
-  that explicitly encodes the scope of a given access token.  This parameter
+  this draft specfifies the "scope" claim for access tokens
+  that explicitly encodes the scope of a given access token.  This claim
   follows the same encoding rules as defined in section 3.3 of <xref
   target="RFC6749"/>.  The meaning of a specific scope value is
   application specific and expected to be known to the RS running
@@ -2222,6 +2215,8 @@ D:  |<---------------+                |
 
       &RFC7519;
 
+      &RFC7591;
+
     </references>
 
     <section title="Design Justification" anchor="constraints">
@@ -2489,7 +2484,7 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
 
       <t>Note: In this example we assume that the client knows what resource it
       wants to access, and is therefore able to request specific
-      audience and scope parameters for the access token.</t>
+      audience and scope claims for the access token.</t>
     </list></t>
 
     <t><figure align="center" anchor="fig:RSOffline"
@@ -2750,7 +2745,7 @@ Response-Payload:
         </t>
 
         <t>E: The AS provides the introspection response containing parameters
-  about the token.  This includes the confirmation key (cnf) claim
+  about the token.  This includes the confirmation key (cnf) parameter
         that allows the RS to verify the client's proof of possession in
   step F.</t>
 
