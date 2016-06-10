@@ -183,9 +183,10 @@
 
     <abstract>
       <t>This specification defines the ACE framework for authentication and authorization
-        in Internet of Things (IoT) deployments based on OAuth 2.0, thus bringing a well-known and
-      widely used security solution to IoT devices.  Where possible vanilla
-      OAuth 2.0 is used, but where the limitations of IoT devices require it,
+        in Internet of Things (IoT) deployments. The ACE framework is based on
+        a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and
+      widely used authorization solution suitable for IoT devices.  Existing specifications
+      are used where possible, but where the limitations of IoT devices require it,
       profiles and extensions are provided.
       </t>
     </abstract>
@@ -214,7 +215,9 @@
 
    <t>While prior work on authorization solutions for the Web and for the mobile
    environment also applies to the IoT environment many IoT devices are constrained,
-   for example in terms of processing capabilities, available memory, etc. </t>
+   for example in terms of processing capabilities, available memory, etc.
+   For web applications on constrained nodes this specification makes use of
+   CoAP <xref target="RFC7252"/>.</t>
 
    <t>A detailed treatment of constraints can be found in <xref target="RFC7228"/>, and the
    different IoT deployments present a
@@ -224,7 +227,8 @@
    end there are mains-powered devices, and all levels in between.</t>
 
    <t>Hence, IoT devices may be very different in terms of available processing
-   and message exchange capabilities and may support different use cases <xref target="RFC7744"/>.</t>
+   and message exchange capabilities and there is a need to support many
+     different authorization use cases <xref target="RFC7744"/>.</t>
 
    <t>This specification describes a framework for authentication and authorization
    in constrained environments (ACE) built on re-use of OAuth 2.0
@@ -296,29 +300,26 @@ or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   not appropriate.  CoAP typically runs on top of UDP which further reduces
   overhead and message exchanges. While this specification defines extensions
 for the use of OAuth over CoAP, we do envision further underlying protocols to be
-supported in the future, such as MQTT or QUIC. For communication security DTLS <xref target="RFC6347"/> or TLS
-  <xref target="RFC5246"/>. Application layer security for CoAP can be provided by OSCOAP
-  <xref target="I-D.selander-ace-object-security"/>.
-  </t>
+supported in the future, such as MQTT or QUIC.</t>
 
   <t>A third building block is CBOR <xref target="RFC7049"/> for encodings
   where JSON <xref target="RFC7159"/> is not sufficiently compact.  CBOR is a
-  binary encoding designed for small code and message size.  OAuth 2.0 does not
-  dictate the access token format or encoding, but JWT is commonly used for self contained tokens.
-  In this document CWT is the default token encoding for self contained tokens, CBOR encoded and COSE
-  <xref target="I-D.ietf-cose-msg"/> protected. CBOR is also used for encoding CoAP POST parameters and CoAP responses.
+  binary encoding designed for small code and message size, which may be used for encoding of
+  self contained tokens, and also for encoding CoAP POST parameters and CoAP responses.
   </t>
 
-  <t>As a fourth building block we use proof-of-possession (PoP) tokens <xref target="I-D.ietf-oauth-pop-architecture"/>, which
-is an extension to the OAuth access tokens. Additionally, those PoP tokens are
-    extended with called "Client Tokens" (see <xref target="clientToken"/>).
-    As an additional security enhancement, this specification allows the use of object security instead of transport
-    layer security between any nodes in the architecture. A preferred compact secure
-    message format is COSE <xref target="I-D.ietf-cose-msg"/>, which adds
-    object security to CBOR-encoded data. More details about applying COSE to
-    CoAP can be found in OSCOAP
-    <xref target="I-D.selander-ace-object-security"/>.
-  </t>
+  <t>A fourth building block is the compact CBOR-based secure message format COSE
+    <xref target="I-D.ietf-cose-msg"/>, which enables application layer security
+    as an alternative or complement to transport layer security (DTLS
+    <xref target="RFC6347"/> or TLS <xref target="RFC5246"/>). COSE is used to
+    secure self contained tokens such as proof-of-possession (PoP) tokens
+    <xref target="I-D.ietf-oauth-pop-architecture"/>, which
+    is an extension to the OAuth access tokens, and "client tokens" which are
+    defined in this framework (see <xref target="clientToken"/>). The default
+    access token format is defined in CBOR web token (CWT)
+    <xref target="I-D.ietf-ace-cbor-web-token"/>.
+    Application layer security for CoAP using COSE can be provided with OSCOAP
+    <xref target="I-D.selander-ace-object-security"/>.</t>
 
   <t>With the building blocks listed above, solutions satisfying various
   IoT device and network constraints are possible.  A list of constraints is
