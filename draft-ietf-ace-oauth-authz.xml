@@ -60,7 +60,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-01" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-02" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -267,16 +267,18 @@ target="RFC4949"/>.
   <t>Terminology for entities in the architecture is defined in OAuth
 2.0 <xref target="RFC6749"/> and <xref target="I-D.ietf-ace-actors"/>,
 such as client (C), resource server (RS), and authorization server
-(AS).  OAuth 2.0 uses the term "endpoint" to denote HTTP resources such as
-/token and /introspect at the AS, but we will use the term "resource" in this
-specification to avoid confusion with the CoAP <xref target="RFC7252"/> term
-"endpoint".</t>
+(AS).</t>
+
+<t>Note that the term "endpoint" is used here following its OAuth
+definition, which is to denote resources such as /token and
+/introspect at the AS and /authz-info at the RS.  The CoAP <xref
+target="RFC7252"/> definition, which is "An entity participating in the CoAP protocol" is not used in this memo.</t>
 
 <t>
-Since this specification focuses on the problem of access control to resources, we
-simplify the actors by assuming that the client authorization server (CAS)
-functionality is not stand-alone but subsumed by either the authorization server
-or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
+Since this specification focuses on the problem of access control to resources,
+we simplify the actors by assuming that the client authorization server (CAS)
+functionality is not stand-alone but subsumed by either the authorization
+server or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 </t>
 
 </section>
@@ -1102,7 +1104,7 @@ Payload:
 	<t hangText="COSE_Encrypted">In this case the 'cnf' parameter
 	contains an encrypted symmetriic key destined for the client.  The client is
 	assumed to be able to decrypt the cihpertext of this parameter.
-	The parameter is encoded as COSE_Encrypt object wrapping a COSE_Key
+	The parameter is encoded as COSE_Encrypted object wrapping a COSE_Key
 	object.  <xref target="fig:cnfEnc"/> shows an example of this type of
 	encoding.
 
@@ -1297,7 +1299,7 @@ Payload:
   "token_type" : "pop",
   "alg" : "HS256",
   "profile" : "coap_dtls",
-  "client_token" : b64'testtest ...
+  "client_token" : b64'2QPhg0OhAQo ...
   (remainder of client token omitted for brevity)',
   "cnf" : {
     "COSE_Key" : {
@@ -1340,6 +1342,9 @@ Payload:
   </section>
 
   <section anchor="clientToken" title="Client Token">
+    <t>EDITORIAL NOTE: We have tentatively introduced this concept and
+    would specifically like feedback if this is viewed as a useful addition
+    to the framework.</t>
     <t>In cases where the client has limited connectivity and
     is requesting access to a previously unknown resource servers, using
     a long term token, there are situations where it would be beneficial to
@@ -1357,7 +1362,7 @@ Payload:
     |                |                |
 A:  +--------------->|                |
     |  POST          |                |
-    |  token         |                |
+    |  Access Token  |                |
     |            B:  +--------------->|
     |                | Introspection  |
     |                |    Request     |
@@ -1365,21 +1370,22 @@ A:  +--------------->|                |
     |            C:  +<---------------+
     |                | Introspection  |
     |                |   Response     |
-    |                | + client_token |
+    |                | + Client Token |
 D:  |<---------------+                |
     |  2.01 Created  |                |
-    | + client_token |
+    | + Client Token |
     ]]></artwork>
     </figure>
     </t>
 
-    <t>The client token is encoded in CBOR as a map containing the
-    following claims:
+    <t>The client token is a COSE_Encrytped object, containing as payload
+    a CBOR map with the following claims:
 
     <list style="hanging">
       <t hangText="cnf"><vspace blankLines="0"/>
-      REQUIRED. Contains information about the proof-of-possession key.
-      See <xref target="paramCnf"/>.<vspace blankLines="1"/></t>
+      REQUIRED. Contains information about the proof-of-possession key the
+      client is to use with its access token.  See <xref
+      target="paramCnf"/>.<vspace blankLines="1"/></t> 
 
       <t hangText="token_type"><vspace blankLines="0"/>
       OPTIONAL. See <xref target="paramTokenType"/>.<vspace
@@ -1392,14 +1398,20 @@ D:  |<---------------+                |
       <t hangText="profile"><vspace blankLines="0"/>
       REQUIRED. See <xref target="paramProfile"/>.<vspace
       blankLines="1"/></t>
-<!--
+
       <t hangText="rs_cnf"><vspace blankLines="0"/>
       OPTIONAL. Contains information about the key that the RS uses
-      to authenticate towards the client. This uses the same encoding
-        as the 'cnf' parameter.  See <xref target="paramProfile"/>.</t>
--->
+      to authenticate towards the client.  If the key is symmetric then
+      this claim MUST NOT be part of the Client Token, since this is the 
+      same key as the one specified through the 'cnf' claim.  This claim uses
+      the same encoding as the 'cnf' parameter.  See <xref
+      target="paramProfile"/>.</t> 
     </list>
     </t>
+
+    <t>The AS encrypts this token using a key shared between the AS and the
+    client, so that only the client can decrypt it and access its payload.
+    How this key is established is out of scope of this framework.</t>
   </section>
 
   <section anchor="introParamsCbor"
@@ -2102,9 +2114,9 @@ D:  |<---------------+                |
       </section>
       <section anchor="CoAPOptionNumberRegistration" title="CoAP Option Number Registration">
       	<t>
-      		This section registers the "Access-Token" CoAP Option Number [RFC2046] in
-      		"CoRE Parameters" sub-registry "CoAP Option Numbers" in the manner described
-      		in [RFC7252].
+      	  This section registers the "Access-Token" CoAP Option Number
+	  in the "CoRE Parameters" sub-registry "CoAP Option Numbers" in
+	  the manner described in <xref target="RFC7252"/>.
       	</t>
         <t>
           <list style="hanging">
@@ -2115,10 +2127,10 @@ D:  |<---------------+                |
               TBD
             </t>
             <t hangText="Reference"><vspace blankLines="1"/>
-              [draft-ietf-ace-oauth-authz]
+              [This document].
             </t>
             <t hangText="Meaning in Request"><vspace blankLines="1"/>
-              Contains an Access Token according to [draft-ietf-ace-oauth-authz]
+              Contains an Access Token according to [This document]
               containing access permissions of the client.
             </t>
             <t hangText="Meaning in Response"><vspace blankLines="1"/>
@@ -2177,8 +2189,6 @@ D:  |<---------------+                |
 
       &I-D.selander-ace-object-security;
 
-      &I-D.ietf-oauth-pop-architecture;
-
       &I-D.ietf-ace-cbor-web-token;
 
       &RFC7662;
@@ -2199,9 +2209,10 @@ D:  |<---------------+                |
       &RFC7250;
 
 -->
+      &I-D.ietf-oauth-pop-architecture;
 
       &I-D.seitz-ace-core-authz;
-&RFC7744;
+
       &I-D.ietf-ace-actors;
 
       &I-D.ietf-core-block;
@@ -2227,6 +2238,8 @@ D:  |<---------------+                |
       &RFC7519;
 
       &RFC7591;
+
+      &RFC7744;
 
     </references>
 
