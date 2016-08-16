@@ -718,12 +718,12 @@ supported in the future, such as MQTT or QUIC.</t>
 
       <t hangText="Proof-of-Possession"><vspace blankLines="1"/>
         The ACE framework by default implements proof-of-possession for
-	access tokens, i.e. that the authenticated token holder is bound to
-	the token.  The binding is provided by the "cnf" claim indicating what
-	key is used for mutual authentication. If clients need to update a
-	token, e.g. to get additional rights, they can request that the AS
-	binds the new access token to the same credential as the previous
-	token.
+	access tokens, i.e. that the token holder can prove being a holder of
+	the key bound to the token.  The binding is provided by the "cnf" claim
+	indicating what key is used for mutual authentication. If clients need
+	to update a token, e.g. to get additional rights, they can request that
+	the AS binds the new access token to the same credential as the
+	previous token.
         <vspace blankLines="0"/>
       </t>
 
@@ -758,14 +758,14 @@ supported in the future, such as MQTT or QUIC.</t>
   use of the following alternative instead of Uri-query parameters: The sender
   (client or RS) encodes the parameters of its request as a CBOR map and
   submits that map as the payload  of the POST request.  The Content-format
-  MUST be "application/cbor" in that case.
+  MUST be "application/cbor" in that case. FIXME: This depends on the profile
   </t>
 
   <t>The OAuth 2.0 AS uses a JSON structure in the payload of its responses
   both to client and RS.  This framework RECOMMENDS the use of CBOR
   <xref target="RFC7049"/> instead.  The requesting device can explicitly
   request this encoding by setting the CoAP Accept option in the request to
-  "application/cbor".</t>
+  "application/cbor".  FIXME: This depends on the profile</t>
 
 </section> <!--Framework-->
 
@@ -839,7 +839,7 @@ supported in the future, such as MQTT or QUIC.</t>
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor"
+Content-Type: "application/cbor" FIXME?
 Payload:
 {
   "grant_type" : "client_credentials",
@@ -863,7 +863,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor"
+Content-Type: "application/cbor" FIXME?
 Payload:
 {
   "grant_type" : "token",
@@ -896,7 +896,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor"
+Content-Type: "application/cbor" FIXME?
 Payload:
 {
   "grant_type" : "client_credentials",
@@ -957,7 +957,7 @@ Payload:
 		   symmetric key.">
       <artwork align="left"><![CDATA[
 Header: Created (Code=2.01)
-Content-Type: "application/cbor"
+Content-Type: "application/cbor" FIXME?
 Payload:
 {
   "access_token" : b64'SlAV32hkKG ...
@@ -985,7 +985,8 @@ Payload:
     section  5.2 of <xref target="RFC6749"/>, with the following differences:
     The Content-Type MUST be set to "application/cbor", the payload MUST be
     encoded in a CBOR map and the CoAP response code 4.00 Bad Request
-    MUST be used unless specified otherwise.</t>
+    MUST be used unless specified otherwise.  FIXME: Content-format depends on
+    the profile.</t>
   </section>
 
   <section anchor="tokenParams"
@@ -1241,7 +1242,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "introspect"
-Content-Type: "application/cbor"
+Content-Type: "application/cbor" FIXME?
 Payload:
 {
   "token" : b64'7gj0dXJQ43U',
@@ -1293,7 +1294,7 @@ Payload:
             title="Example introspection response.">
       <artwork align="left"><![CDATA[
 Header: Created Code=2.01)
-Content-Type: "application/cbor"
+Content-Type: "application/cbor" FIXME?
 Payload:
 {
   "active" : true,
@@ -1323,7 +1324,8 @@ Payload:
     <list style="symbols">
 
       <t>If content is sent, the Content-Type MUST be set to
-      "application/cbor",  and the payload MUST be encoded in a CBOR map.</t>
+      "application/cbor",  and the payload MUST be encoded in a CBOR map.
+      FIXME: Content type depends on the profile.</t>
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
       with the CoAP response code code 4.01 (Unauthorized) and use
@@ -2522,11 +2524,11 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
-    |         | Content-Type: application/cbor
+    |         | Content-Type: application/cbor FIXME?
     |         | Payload: <Request-Payload>
     |         |
 B:  |<--------+ Header: 2.05 Content
-    |  2.05   | Content-Type: application/cbor
+    |  2.05   | Content-Type: application/cbor FIXME?
     |         | Payload: <Response-Payload>
     |         |
         ]]></artwork>
@@ -2713,11 +2715,11 @@ F:  |<--------+ Header: 2.05 Content
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
-    |         | Content-Type: application/cbor
+    |         | Content-Type: application/cbor  FIXME?
     |         | Payload: <Request-Payload>
     |         |
 B:  |<--------+ Header: 2.05 Content
-    |         | Content-Type: application/cbor
+    |         | Content-Type: application/cbor  FIXME?
     |  2.05   | Payload: <Response-Payload>
     |         |
     ]]></artwork>
@@ -2786,7 +2788,7 @@ Response-Payload:
     |         |
 C:  +-------->| Header: POST (T=CON, Code=0.02)
     |  POST   | Uri-Path:"authz-info"
-    |         | Content-Type: "application/cbor"
+    |         | Content-Type: "application/cbor" FIXME?
     |         | Payload: b64'SlAV32hkKG ...''
     |         |
     |         |     Authorization
@@ -2794,11 +2796,11 @@ C:  +-------->| Header: POST (T=CON, Code=0.02)
     |         |          |
 D:  |         +--------->| Header: POST (Code=0.02)
     |         |  POST    | Uri-Path: "introspect"
-    |         |          | Content-Type: "application/cbor"
+    |         |          | Content-Type: "application/cbor" FIXME?
     |         |          | Payload: <Request-Payload>
     |         |          |
 E:  |         |<---------+ Header: 2.05 Content
-    |         |  2.05    | Content-Type: "application/cbor"
+    |         |  2.05    | Content-Type: "application/cbor" FIXME?
     |         |          | Payload: <Response-Payload>
     |         |          |
     |         |
