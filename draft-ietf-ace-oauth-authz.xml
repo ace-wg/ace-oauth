@@ -665,7 +665,7 @@ supported in the future, such as MQTT or QUIC.</t>
       A resource server may be configured to introspect the access token by
       including it in a request to the /introspect endpoint at that AS.
       Token introspection over
-      CoAP is defined in <xref target="introspectionResource"/> and for HTTP in
+      CoAP is defined in <xref target="introspectionEndpoint"/> and for HTTP in
       <xref target="RFC7662"/>.
       <vspace blankLines="1"/>
       Note that token introspection is an optional step and can be omitted if
@@ -753,7 +753,7 @@ supported in the future, such as MQTT or QUIC.</t>
   </t>
 
   <t>In OAuth 2.0 the communication with the Token and the Introspection
-  resources at the AS is assumed to be via HTTP and may use Uri-query
+  endpoints at the AS is assumed to be via HTTP and may use Uri-query
   parameters.  This framework RECOMMENDS to use CoAP instead and RECOMMENDS the
   use of the following alternative instead of Uri-query parameters: The sender
   (client or RS) encodes the parameters of its request as a CBOR map and
@@ -769,15 +769,15 @@ supported in the future, such as MQTT or QUIC.</t>
 
 </section> <!--Framework-->
 
-<section anchor="tokenResource" title="The 'Token' Resource">
+<section anchor="tokenEndpoint" title="The 'Token' Endpoint">
 
-  <t>In plain OAuth 2.0 the AS provides the /token resource for submitting
+  <t>In plain OAuth 2.0 the AS provides the /token endpoint for submitting
   access token requests.  This framework extends the functionality of the
-  /token resource, giving the AS the possibility to help client and RS to
+  /token endpoint, giving the AS the possibility to help client and RS to
   establish shared keys or to exchange their public keys.
   </t>
 
-  <t>Communication between the client and the token resource at the
+  <t>Communication between the client and the /token endpoint at the
     AS MUST be integrity protected and encrypted.  Furthermore AS and client
     MUST perform mutual authentication.  Profiles of this framework are expected
     to specify how authentication and communication security is implemented.
@@ -1203,14 +1203,14 @@ Payload:
   </section>
 </section><!-- Token endpoint -->
 
-<section anchor="introspectionResource" title="The 'Introspect' Resource">
+<section anchor="introspectionEndpoint" title="The 'Introspect' Endpoint">
   <t>Token introspection <xref target="RFC7662"/> is used by the RS and
   potentially the client to query the AS for metadata about a given token
   e.g. validity or scope. Analogous to the protocol defined in
   RFC 7662 <xref target="RFC7662"/> for HTTP and JSON, this section defines
   adaptations to more constrained  environments using CoAP and CBOR.</t>
 
-  <t>Communication between the RS and the introspection resource at the
+  <t>Communication between the RS and the introspection endpoint at the
   AS MUST be integrity protected and encrypted.  Furthermore AS and RS
   MUST perform mutual authentication.  Finally the AS SHOULD verify that the
   RS has the right to access introspection information about the provided  
@@ -1223,7 +1223,7 @@ Payload:
   </t>
 
   <section anchor="introRS2AS" title="RS-to-AS Request">
-    <t>The RS sends a CoAP POST request to the introspection resource
+    <t>The RS sends a CoAP POST request to the introspection endpoint
     at the AS, with payload sent as "application/cbor" data.  The payload
     is a CBOR map with a 'token' parameter containing the access token along
     with optional  parameters representing additional context that is known by
@@ -1233,7 +1233,7 @@ Payload:
     of RFC 7662 <xref target="RFC7662"/>.</t>
 
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
-    introspection resource at the AS to query about an OAuth 2.0
+    introspection endpoint at the AS to query about an OAuth 2.0
     proof-of-possession token.
 
     <figure align="center" anchor="fig:introReq"
@@ -1451,7 +1451,7 @@ D:  |<---------------+                |
     </t>
   </section>
 
-</section><!-- introspect resource -->
+</section><!-- introspect endpoint -->
 
 
 
@@ -1468,7 +1468,7 @@ D:  |<---------------+                |
   application specific and expected to be known to the RS running
   that application.</t>
 
-<section title="The 'Authorization Information' Resource">
+<section title="The 'Authorization Information' Endpoint">
   <t>The access token, containing authorization information and information of
   the key used by the client, is transported to the RS so that the RS can
   authenticate and authorize the client request. This section defines a method
@@ -1476,7 +1476,7 @@ D:  |<---------------+                |
   ACE profile MAY define other methods for token transport.
   </t>
 
-  <t>This method REQUIRES the RS to implement an /authz-info resource. A client
+  <t>This method REQUIRES the RS to implement an /authz-info endpoint. A client
   using this method MUST make a POST request to /authz-info on the RS with
   the access token in the payload. The RS receiving the token MUST verify the
   validity of the token.  If the token is valid, the RS MUST respond to the
@@ -1510,7 +1510,7 @@ D:  |<---------------+                |
 
     <t>The RS verifies the validity of the token by performing an
       introspection request as specified in <xref
-      target="introspectionResource"/>.  This requires the RS to have a
+      target="introspectionEndpoint"/>.  This requires the RS to have a
       reliable network connection to the AS and to be able to handle two
       secure sessions in parallel (C to RS and AS to RS).</t>
 
@@ -1708,10 +1708,10 @@ D:  |<---------------+                |
       </t>
       </section>
 
-      <section anchor="IANATokenResourceCBORMappingsRegistry" title="ACE Profile Registry">
+      <section anchor="IANATokenEndpointCBORMappingsRegistry" title="ACE Profile Registry">
         <t>A new registry will be requested from IANA, entitled "ACE Profile Registry".  The registry is to be created as Expert Review Required.</t>
 
-        <section anchor="IANATokenResourceCBORMappingsRegistryTemplate" title="Registration Template">
+        <section anchor="IANATokenEndpointCBORMappingsRegistryTemplate" title="Registration Template">
           <t>
             <list style='hanging'>
               <t hangText='Profile name:'>
@@ -1740,7 +1740,7 @@ D:  |<---------------+                |
       </section>
 
       <section anchor="IANAOAuthParameterMappingsRegistry" title="OAuth Parameter Mappings Registry">
-        <t>A new registry will be requested from IANA, entitled "Token Resource CBOR Mappings Registry".  The registry is to be created as Expert Review Required.</t>
+        <t>A new registry will be requested from IANA, entitled "Token Endpoint CBOR Mappings Registry".  The registry is to be created as Expert Review Required.</t>
 
         <section anchor="IANAOAuthParameterMappingsRegistryTemplate" title="Registration Template">
           <t>
@@ -1765,7 +1765,7 @@ D:  |<---------------+                |
           </t>
         </section>
 
-        <section anchor="IANATokenResourceCBORMappingsRegistryInitial" title="Initial Registry Contents">
+        <section anchor="IANATokenEndpointCBORMappingsRegistryInitial" title="Initial Registry Contents">
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
@@ -1950,10 +1950,12 @@ D:  |<---------------+                |
         </section>
       </section>
 
-      <section anchor="IANAIntrospectionResourceCBORMappingsRegistry" title="Introspection Resource CBOR Mappings Registry">
-        <t>A new registry will be requested from IANA, entitled "Introspection Resource CBOR Mappings Registry".  The registry is to be created as Expert Review Required.</t>
+      <section anchor="IANAIntrospectionEndpointCBORMappingsRegistry" title="Introspection Endpoint CBOR Mappings Registry">
+        <t>A new registry will be requested from IANA, entitled "Introspection
+	Endpoint CBOR Mappings Registry".  The registry is to be created as
+	Expert Review Required.</t> 
 
-        <section anchor="IANAIntrospectionResourceCBORMappingsRegistryTemplate" title="Registration Template">
+        <section anchor="IANAIntrospectionEndpointCBORMappingsRegistryTemplate" title="Registration Template">
           <t>
             <list style='hanging'>
               <t hangText='Response parameter name:'>
@@ -1976,7 +1978,7 @@ D:  |<---------------+                |
           </t>
         </section>
 
-        <section anchor="IANAIntrospectionResourceCBORMappingsRegistryInitial" title="Initial Registry Contents">
+        <section anchor="IANAIntrospectionEndpointCBORMappingsRegistryInitial" title="Initial Registry Contents">
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
@@ -2404,7 +2406,7 @@ D:  |<---------------+                |
 		<t>Authenticate towards the RS (this could coincide with the
 		proof of possession process).</t>
 		<t>Transmit the token as specified by the AS (default is to an
-		authorization information resource, alternative options are as
+		authorization information endpoint, alternative options are as
 		a CoAP option or in the DTLS handshake).</t>
 		<t>Perform the proof-of-possession procedure as specified for
 		the type of used token (this may already have been taken care
@@ -2595,7 +2597,7 @@ Response-Payload :
     <xref target="fig:RSOfflineDTLSRequestAndResponse"/>.
 
     <list style="hanging">
-      <t>C: The client then sends the PoP token to the /authz-info resource at
+      <t>C: The client then sends the PoP token to the /authz-info endpoint at
       the RS.  This is a plain CoAP request, i.e. no transport or application
       layer security between client and RS, since the token is integrity protected
       between AS and RS.  The RS verifies that the PoP token was created by a
@@ -2760,13 +2762,13 @@ Response-Payload:
 
     <t><list style="hanging">
         <t>C: Next, the client POSTs the access token to the /authz-info
-        resource in the RS.  This is a plain CoAP request, i.e. no
+        endpoint in the RS.  This is a plain CoAP request, i.e. no
         DTLS between client and RS.  Since the token is an opaque string,
         the RS cannot verify it on its own, and thus defers to respond the
         client with a status code until after step E.</t>
 
         <t>D: The RS forwards the token to the /introspect
-        resource on the AS.  Introspection assumes a secure connection
+        endpoint on the AS.  Introspection assumes a secure connection
         between the AS and the RS, e.g. using transport of application layer security,  which
   is not detailed in this example.
         </t>
