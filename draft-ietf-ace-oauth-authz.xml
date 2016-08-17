@@ -1176,27 +1176,27 @@ Payload:
         /-------------------+----------+-----------------\
         | Parameter name    | CBOR Key | Major Type      |
         |-------------------+----------+-----------------|
-        | client_id         | 1        | 3 (text string) |
-        | client_secret     | 2        | 2 (byte string) |
-        | response_type     | 3        | 3               |
-        | redirect_uri      | 4        | 3               |
-        | scope             | 5        | 3               |
-        | state             | 6        | 3               |
-        | code              | 7        | 2               |
-        | error_description | 8        | 3               |
-        | error_uri         | 9        | 3               |
-        | grant_type        | 10       | 0 (unit)        |
-        | access_token      | 11       | 3               |
-        | token_type        | 12       | 0               |
-        | expires_in        | 13       | 0               |
-        | username          | 14       | 3               |
-        | password          | 15       | 3               |
-        | refresh_token     | 16       | 3               |
-        | alg               | 17       | 3               |
-        | cnf               | 18       | 5 (map)         |
-        | aud               | 19       | 3               |
-        | profile           | 20       | 0               |
-        \---------------+--------------+-----------------/
+        | aud               | 3        | 3               |
+        | client_id         | 8        | 3 (text string) |
+        | client_secret     | 9        | 2 (byte string) |
+        | response_type     | 10       | 3               |
+        | redirect_uri      | 11       | 3               |
+        | scope             | 12       | 3               |
+        | state             | 13       | 3               |
+        | code              | 14       | 2               |
+        | error_description | 15       | 3               |
+        | error_uri         | 16       | 3               |
+        | grant_type        | 17       | 0 (unit)        |
+        | access_token      | 18       | 3               |
+        | token_type        | 19       | 0               |
+        | expires_in        | 20       | 0               |
+        | username          | 21       | 3               |
+        | password          | 22       | 3               |
+        | refresh_token     | 23       | 3               |
+        | alg               | 24       | 3               |
+        | cnf               | 25       | 5 (map)         |
+        | profile           | 26       | 0               |
+        \-------------------+----------+-----------------/
       ]]></artwork>
     </figure>
   </t>
@@ -1429,22 +1429,22 @@ D:  |<---------------+                |
           /----------------+----------+-----------------\
           | Parameter name | CBOR Key | Major Type      |
           |----------------+----------+-----------------|
-          | active         | 1        | 0 (uint)        |
-          | username       | 2        | 3 (text string) |
-          | client_id      | 3        | 3               |
-          | scope          | 4        | 3               |
-          | token_type     | 5        | 3               |
-          | exp            | 6        | 6 tag value 1   |
-          | iat            | 7        | 6 tag value 1   |
-          | nbf            | 8        | 6 tag value 1   |
-          | sub            | 9        | 3               |
-          | aud            | 10       | 3               |
-          | iss            | 11       | 3               |
-          | cti            | 12       | 3               |
-          | alg            | 13       | 3               |
-          | cnf            | 14       | 5 (map)         |
-          | client_token   | 15       | 3               |
-          | rs_cnf         | 16       | 5               |
+          | iss            | 1        | 3 (text string) |
+          | sub            | 2        | 3               |   
+          | aud            | 3        | 3               |
+          | exp            | 4        | 6 tag value 1   |
+          | nbf            | 5        | 6 tag value 1   |
+          | iat            | 6        | 6 tag value 1   |
+          | cti            | 7        | 2 (byte string) |
+          | client_id      | 8        | 3               |
+          | scope          | 12       | 3               |
+          | token_type     | 19       | 3               |
+          | username       | 21       | 3               |
+          | alg            | 24       | 3               |
+          | cnf            | 25       | 5 (map)         |
+          | active         | 27       | 0 (uint)        |
+          | client_token   | 28       | 3               |
+          | rs_cnf         | 29       | 5               |
           \----------------+----------+-----------------/
         ]]></artwork>
       </figure>
@@ -1503,28 +1503,29 @@ D:  |<---------------+                |
 
   <t><list style="symbols">
     <t>The token is a CWT/JWT and includes a 'exp' claim and possibly the
-      'nbf' claim.  The RS verifies these by comparing them to values from
-      its internal clock as defined in <xref target="RFC7519"/>.  In this
-      case the RS internal clock must reflect the current date and time, or at
-      least be synchronized with the AS's clock.</t>
+    'nbf' claim.  The RS verifies these by comparing them to values from
+    its internal clock as defined in <xref target="RFC7519"/>.  In this
+    case the RS's internal clock must reflect the current date and time, or
+    at least be synchronized with the AS's clock.  How this clock
+    synchronization would be performed is out of scope for this memo.</t>
 
     <t>The RS verifies the validity of the token by performing an
-      introspection request as specified in <xref
-      target="introspectionEndpoint"/>.  This requires the RS to have a
-      reliable network connection to the AS and to be able to handle two
-      secure sessions in parallel (C to RS and AS to RS).</t>
-
+    introspection request as specified in <xref
+    target="introspectionEndpoint"/>.  This requires the RS to have a
+    reliable network connection to the AS and to be able to handle two
+    secure sessions in parallel (C to RS and AS to RS).</t>
+    
     <t>The RS and the AS both store a sequence number linked to their common
-      security association.  The AS increments this number for each access
-      token it issues and includes it in the access token, which is a
-      CWT/JWT.  The RS keeps track of the most recently received sequence
-      number, and only accepts tokens as valid, that are in a certain range
-      around this number.  This method does only require the RS to keep track
-      of the sequence number.  The method does not provide timely expiration,
-      but it makes sure that older tokens cease to be valid after a certain
-      number of newer ones got issued.  For a constrained RS with no network
-      connectivity and no means of reliably measuring time, this is the best
-      that can be achieved.</t>
+    security association.  The AS increments this number for each access
+    token it issues and includes it in the access token, which is a
+    CWT/JWT.  The RS keeps track of the most recently received sequence
+    number, and only accepts tokens as valid, that are in a certain range
+    around this number.  This method does only require the RS to keep track
+    of the sequence number.  The method does not provide timely expiration,
+    but it makes sure that older tokens cease to be valid after a certain
+    number of newer ones got issued.  For a constrained RS with no network
+    connectivity and no means of reliably measuring time, this is the best
+    that can be achieved.</t>
 
   </list></t>
 </section>
@@ -1563,7 +1564,7 @@ D:  |<---------------+                |
         <list style='symbols'>
           <t>Name: <spanx style="verb">cnf</spanx></t>
           <t>Description: Key to use to prove the right to use an access token,
-	  as defined in <xref target="RFC7800"/>. </t>
+   as defined in <xref target="RFC7800"/>. </t>
           <t>Change Controller: IESG</t>
           <t>Specification Document(s): this document</t>
         </list>
@@ -1578,11 +1579,11 @@ D:  |<---------------+                |
         </list>
       </t>
       <t>
-	<?rfc subcompact="yes"?>
+        <?rfc subcompact="yes"?>
         <list style='symbols'>
           <t>Name: <spanx style="verb">profile</spanx></t>
           <t>Description: The communication and communication security
-	  profile used between client and RS, as defined in ACE profiles.</t>
+   profile used between client and RS, as defined in ACE profiles.</t>
           <t>Change Controller: IESG</t>
           <t>Specification Document(s): this document</t>
         </list>
@@ -1770,69 +1771,6 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Parameter name: <spanx style="verb">client_id</spanx></t>
-              <t>CBOR key value: 1</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">client_secret</spanx></t>
-              <t>CBOR key value: 2</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">response_type</spanx></t>
-              <t>CBOR key value: 3</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">redirect_uri</spanx></t>
-              <t>CBOR key value: 4</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">scope</spanx></t>
-              <t>CBOR key value: 5</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">state</spanx></t>
-              <t>CBOR key value: 6</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">code</spanx></t>
-              <t>CBOR key value: 7</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">error_description</spanx></t>
               <t>CBOR key value: 8</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1841,7 +1779,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">error_uri</spanx></t>
+              <t>Parameter name: <spanx style="verb">client_secret</spanx></t>
               <t>CBOR key value: 9</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1850,7 +1788,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">grant_type</spanx></t>
+              <t>Parameter name: <spanx style="verb">response_type</spanx></t>
               <t>CBOR key value: 10</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1859,7 +1797,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">access_token</spanx></t>
+              <t>Parameter name: <spanx style="verb">redirect_uri</spanx></t>
               <t>CBOR key value: 11</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1868,7 +1806,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">token_type</spanx></t>
+              <t>Parameter name: <spanx style="verb">scope</spanx></t>
               <t>CBOR key value: 12</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1877,7 +1815,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">expires_in</spanx></t>
+              <t>Parameter name: <spanx style="verb">state</spanx></t>
               <t>CBOR key value: 13</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1886,7 +1824,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">username</spanx></t>
+              <t>Parameter name: <spanx style="verb">code</spanx></t>
               <t>CBOR key value: 14</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1895,7 +1833,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">password</spanx></t>
+              <t>Parameter name: <spanx style="verb">error_description</spanx></t>
               <t>CBOR key value: 15</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1904,7 +1842,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">refresh_token</spanx></t>
+              <t>Parameter name: <spanx style="verb">error_uri</spanx></t>
               <t>CBOR key value: 16</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1913,7 +1851,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">alg</spanx></t>
+              <t>Parameter name: <spanx style="verb">grant_type</spanx></t>
               <t>CBOR key value: 17</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1922,7 +1860,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
+              <t>Parameter name: <spanx style="verb">access_token</spanx></t>
               <t>CBOR key value: 18</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1931,7 +1869,7 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">aud</spanx></t>
+              <t>Parameter name: <spanx style="verb">token_type</spanx></t>
               <t>CBOR key value: 19</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1940,8 +1878,71 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">profile</spanx></t>
+              <t>Parameter name: <spanx style="verb">expires_in</spanx></t>
               <t>CBOR key value: 20</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">username</spanx></t>
+              <t>CBOR key value: 21</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">password</spanx></t>
+              <t>CBOR key value: 22</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">refresh_token</spanx></t>
+              <t>CBOR key value: 23</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">alg</spanx></t>
+              <t>CBOR key value: 24</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
+              <t>CBOR key value: 25</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">aud</spanx></t>
+              <t>CBOR key value: 3</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">profile</spanx></t>
+              <t>CBOR key value: 26</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -1983,7 +1984,7 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">active</spanx></t>
-              <t>CBOR key value: 1</t>
+              <t>CBOR key value: 27</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -1992,7 +1993,7 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">username</spanx></t>
-              <t>CBOR key value: 2</t>
+              <t>CBOR key value: 21</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2001,51 +2002,6 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">client_id</spanx></t>
-              <t>CBOR key value: 3</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">scope</spanx></t>
-              <t>CBOR key value: 4</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">token_type</spanx></t>
-              <t>CBOR key value: 5</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">exp</spanx></t>
-              <t>CBOR key value: 6</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">iat</spanx></t>
-              <t>CBOR key value: 7</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">nbf</spanx></t>
               <t>CBOR key value: 8</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2054,8 +2010,53 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
+              <t>Response parameter name: <spanx style="verb">scope</spanx></t>
+              <t>CBOR key value: 12</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Response parameter name: <spanx style="verb">token_type</spanx></t>
+              <t>CBOR key value: 19</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Response parameter name: <spanx style="verb">exp</spanx></t>
+              <t>CBOR key value: 4</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Response parameter name: <spanx style="verb">iat</spanx></t>
+              <t>CBOR key value: 6</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Response parameter name: <spanx style="verb">nbf</spanx></t>
+              <t>CBOR key value: 5</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">sub</spanx></t>
-              <t>CBOR key value: 9</t>
+              <t>CBOR key value: 2</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2064,7 +2065,7 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">aud</spanx></t>
-              <t>CBOR key value: 10</t>
+              <t>CBOR key value: 3</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2073,7 +2074,7 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">iss</spanx></t>
-              <t>CBOR key value: 11</t>
+              <t>CBOR key value: 1</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2081,8 +2082,8 @@ D:  |<---------------+                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">jti</spanx></t>
-              <t>CBOR key value: 12</t>
+              <t>Response parameter name: <spanx style="verb">cti</spanx></t>
+              <t>CBOR key value: 7</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2092,7 +2093,7 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Parameter name: <spanx style="verb">alg</spanx></t>
-              <t>CBOR key value: 13</t>
+              <t>CBOR key value: 24</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2101,16 +2102,7 @@ D:  |<---------------+                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Parameter name: <spanx style="verb">cnf</spanx></t>
-              <t>CBOR key value: 14</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">aud</spanx></t>
-              <t>CBOR key value: 15</t>
+              <t>CBOR key value: 25</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
