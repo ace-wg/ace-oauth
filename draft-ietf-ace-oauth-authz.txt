@@ -92,7 +92,7 @@ Table of Contents
      7.2.  AS-to-RS Response . . . . . . . . . . . . . . . . . . . .  23
      7.3.  Error Response  . . . . . . . . . . . . . . . . . . . . .  24
      7.4.  Client Token  . . . . . . . . . . . . . . . . . . . . . .  25
-     7.5.  Mapping Introspection parameters to CBOR  . . . . . . . .  26
+     7.5.  Mapping Introspection parameters to CBOR  . . . . . . . .  27
    8.  The Access Token  . . . . . . . . . . . . . . . . . . . . . .  27
      8.1.  The 'Authorization Information' Endpoint  . . . . . . . .  27
      8.2.  Token Expiration  . . . . . . . . . . . . . . . . . . . .  28
@@ -936,16 +936,16 @@ Internet-Draft                     ACE                    September 2016
       parameter.
 
    cnf
-      REQUIRED.  This field contains information about the proof-of
-      possession key for this access token.  See Section 6.4 for the
+      REQUIRED.  If a symmetric proof-of-possession algorithms was
+      selected, this field contains the proof-of-possession key.  If an
+      asymmetric algorithm was selected, this field contains information
+      about the public key of the RS.  See Section 6.4 for the
       formatting of this parameter.
 
    Note that the access token can also contains a 'cnf' claim, however,
    these two values are consumed by different parties.  The access token
    is created by the AS and processed by the RS (and opaque to the
    client) whereas the Client Information is created by the AS and
-   processed by the client; it is never forwarded to the resource
-   server.
 
 
 
@@ -953,6 +953,9 @@ Seitz, et al.             Expires March 5, 2017                [Page 17]
 
 Internet-Draft                     ACE                    September 2016
 
+
+   processed by the client; it is never forwarded to the resource
+   server.
 
    The following examples illustrate different types of responses for
    proof-of-possession tokens.
@@ -998,9 +1001,6 @@ Internet-Draft                     ACE                    September 2016
    This section defines parameters that can be used in access token
    requests and responses, as well as abbreviations for more compact
    encoding of existing parameters and common values.
-
-
-
 
 
 
@@ -1092,9 +1092,11 @@ Internet-Draft                     ACE                    September 2016
 6.4.4.  Confirmation
 
    The "cnf" parameter identifies or provides the key used for proof-of-
-   possession.  This framework extends the definition of 'cnf' from
-   [RFC7800] by defining CBOR/COSE encodings and the use of 'cnf' for
-   transporting keys in the client information.
+   possession or for authenticating the RS depending on the proof-of-
+   possession algorithm and the context cnf is used in.  This framework
+   extends the definition of 'cnf' from [RFC7800] by adding CBOR/COSE
+   encodings and the use of 'cnf' for transporting keys in the client
+   information.
 
    A CBOR encoded payload MAY contain the 'cnf' parameter with the
    following contents:
@@ -1102,6 +1104,23 @@ Internet-Draft                     ACE                    September 2016
    COSE_Key  In this case the 'cnf' parameter contains the proof-of-
       possession key to be used by the client.  An example is shown in
       Figure 8.
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires March 5, 2017                [Page 20]
+
+Internet-Draft                     ACE                    September 2016
+
 
    "cnf" : {
      "COSE_Key" : {
@@ -1114,14 +1133,6 @@ Internet-Draft                     ACE                    September 2016
    }
 
          Figure 8: Confirmation parameter containing a public key
-
-
-
-Seitz, et al.             Expires March 5, 2017                [Page 20]
-
-Internet-Draft                     ACE                    September 2016
-
-
    COSE_Encrypted  In this case the 'cnf' parameter contains an
       encrypted symmetric key destined for the client.  The client is
       assumed to be able to decrypt the cihpertext of this parameter.
@@ -1158,17 +1169,6 @@ Internet-Draft                     ACE                    September 2016
       that is assumed to be previously known by the recipient.  This
       allows clients that perform repeated requests for an access token
       for the same audience but e.g. with different scopes to omit key
-      transport in the access token, token request and token response.
-      Figure 11 shows such an example.
-
-   "cnf" : {
-     "kid" : b64'39Gqlw'
-   }
-
-      Figure 11: A Confirmation parameter with just a key identifier
-
-
-
 
 
 
@@ -1177,6 +1177,15 @@ Seitz, et al.             Expires March 5, 2017                [Page 21]
 
 Internet-Draft                     ACE                    September 2016
 
+
+      transport in the access token, token request and token response.
+      Figure 11 shows such an example.
+
+   "cnf" : {
+     "kid" : b64'39Gqlw'
+   }
+
+      Figure 11: A Confirmation parameter with just a key identifier
 
 6.5.  Mapping parameters to CBOR
 
@@ -1216,6 +1225,15 @@ Internet-Draft                     ACE                    September 2016
    Token introspection [RFC7662] is used by the RS and potentially the
    client to query the AS for metadata about a given token e.g. validity
    or scope.  Analogous to the protocol defined in RFC 7662 [RFC7662]
+
+
+
+
+Seitz, et al.             Expires March 5, 2017                [Page 22]
+
+Internet-Draft                     ACE                    September 2016
+
+
    for HTTP and JSON, this section defines adaptations to more
    constrained environments using CoAP and CBOR.
 
@@ -1225,14 +1243,6 @@ Internet-Draft                     ACE                    September 2016
    that the RS has the right to access introspection information about
    the provided token.  Profiles of this framework are expected to
    specify how authentication and communication security is implemented.
-
-
-
-
-Seitz, et al.             Expires March 5, 2017                [Page 22]
-
-Internet-Draft                     ACE                    September 2016
-
 
    The figures of this section uses CBOR diagnostic notation without the
    integer abbreviations for the parameters or their values for better
@@ -1272,6 +1282,14 @@ Internet-Draft                     ACE                    September 2016
    7662 [RFC7662] with the following additions:
 
    alg
+
+
+
+Seitz, et al.             Expires March 5, 2017                [Page 23]
+
+Internet-Draft                     ACE                    September 2016
+
+
       OPTIONAL.  See Section 6.4 for more details.
 
    cnf
@@ -1281,15 +1299,6 @@ Internet-Draft                     ACE                    September 2016
       parameter.
 
    profile
-
-
-
-
-Seitz, et al.             Expires March 5, 2017                [Page 23]
-
-Internet-Draft                     ACE                    September 2016
-
-
       OPTIONAL.  This indicates the profile that the RS MUST use with
       the client.  See Section 6.4 for more details on the formatting of
       this parameter.
@@ -1329,15 +1338,6 @@ Internet-Draft                     ACE                    September 2016
    equivalent to the ones for HTTP-based interactions as defined in
    section 2.3 of [RFC7662], with the following differences:
 
-   o  If content is sent, the Content-Type MUST be set to "application/
-      cbor", and the payload MUST be encoded in a CBOR map.  FIXME:
-      Content type depends on the profile.
-   o  If the credentials used by the RS are invalid the AS MUST respond
-      with the CoAP response code code 4.01 (Unauthorized) and use the
-      required and optional parameters from section 5.2 in RFC 6749
-      [RFC6749].
-
-
 
 
 
@@ -1346,6 +1346,13 @@ Seitz, et al.             Expires March 5, 2017                [Page 24]
 Internet-Draft                     ACE                    September 2016
 
 
+   o  If content is sent, the Content-Type MUST be set to "application/
+      cbor", and the payload MUST be encoded in a CBOR map.  FIXME:
+      Content type depends on the profile.
+   o  If the credentials used by the RS are invalid the AS MUST respond
+      with the CoAP response code code 4.01 (Unauthorized) and use the
+      required and optional parameters from section 5.2 in RFC 6749
+      [RFC6749].
    o  If the RS does not have the right to perform this introspection
       request, the AS MUST respond with the CoAP response code 4.03
       (Forbidden).  In this case no payload is returned.
@@ -1370,6 +1377,31 @@ Internet-Draft                     ACE                    September 2016
    carry such information, and is intended to be used as described in
    Figure 15.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires March 5, 2017                [Page 25]
+
+Internet-Draft                     ACE                    September 2016
+
+
                      Resource       Authorization
     Client            Server           Server
        |                |                |
@@ -1393,14 +1425,6 @@ Internet-Draft                     ACE                    September 2016
 
    The client token is a COSE_Encrytped object, containing as payload a
    CBOR map with the following claims:
-
-
-
-
-Seitz, et al.             Expires March 5, 2017                [Page 25]
-
-Internet-Draft                     ACE                    September 2016
-
 
    cnf
       REQUIRED.  Contains information about the proof-of-possession key
@@ -1427,36 +1451,17 @@ Internet-Draft                     ACE                    September 2016
    payload.  How this key is established is out of scope of this
    framework.
 
-7.5.  Mapping Introspection parameters to CBOR
-
-   The introspection request and response parameters are mapped to CBOR
-   types as follows and are given an integer key value to save space.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 Seitz, et al.             Expires March 5, 2017                [Page 26]
 
 Internet-Draft                     ACE                    September 2016
 
+
+7.5.  Mapping Introspection parameters to CBOR
+
+   The introspection request and response parameters are mapped to CBOR
+   types as follows and are given an integer key value to save space.
 
              /----------------+----------+-----------------\
              | Parameter name | CBOR Key | Major Type      |
@@ -1502,11 +1507,6 @@ Internet-Draft                     ACE                    September 2016
    the RS using CoAP that MAY be used.  An ACE profile MAY define other
    methods for token transport.
 
-   This method REQUIRES the RS to implement an /authz-info endpoint.  A
-   client using this method MUST make a POST request to /authz-info on
-   the RS with the access token in the payload.  The RS receiving the
-
-
 
 
 Seitz, et al.             Expires March 5, 2017                [Page 27]
@@ -1514,6 +1514,9 @@ Seitz, et al.             Expires March 5, 2017                [Page 27]
 Internet-Draft                     ACE                    September 2016
 
 
+   This method REQUIRES the RS to implement an /authz-info endpoint.  A
+   client using this method MUST make a POST request to /authz-info on
+   the RS with the access token in the payload.  The RS receiving the
    token MUST verify the validity of the token.  If the token is valid,
    the RS MUST respond to the POST request with 2.04 (Changed).
 
@@ -1557,9 +1560,6 @@ Internet-Draft                     ACE                    September 2016
       issued.  For a constrained RS with no network connectivity and no
       means of reliably measuring time, this is the best that can be
       achieved.
-
-
-
 
 
 
