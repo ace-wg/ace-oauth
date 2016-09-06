@@ -81,7 +81,7 @@ Table of Contents
      6.1.  Client-to-AS Request  . . . . . . . . . . . . . . . . . .  14
      6.2.  AS-to-Client Response . . . . . . . . . . . . . . . . . .  17
      6.3.  Error Response  . . . . . . . . . . . . . . . . . . . . .  18
-     6.4.  New Request and Response Parameters . . . . . . . . . . .  18
+     6.4.  New Request and Response Parameters . . . . . . . . . . .  19
        6.4.1.  Grant Type  . . . . . . . . . . . . . . . . . . . . .  19
        6.4.2.  Token Type and Algorithms . . . . . . . . . . . . . .  19
        6.4.3.  Profile . . . . . . . . . . . . . . . . . . . . . . .  20
@@ -90,7 +90,7 @@ Table of Contents
    7.  The 'Introspect' Endpoint . . . . . . . . . . . . . . . . . .  22
      7.1.  RS-to-AS Request  . . . . . . . . . . . . . . . . . . . .  23
      7.2.  AS-to-RS Response . . . . . . . . . . . . . . . . . . . .  23
-     7.3.  Error Response  . . . . . . . . . . . . . . . . . . . . .  24
+     7.3.  Error Response  . . . . . . . . . . . . . . . . . . . . .  25
      7.4.  Client Token  . . . . . . . . . . . . . . . . . . . . . .  25
      7.5.  Mapping Introspection parameters to CBOR  . . . . . . . .  27
    8.  The Access Token  . . . . . . . . . . . . . . . . . . . . . .  27
@@ -734,14 +734,15 @@ Internet-Draft                     ACE                    September 2016
    RECOMMENDS the use of the following alternative instead of Uri-query
    parameters: The sender (client or RS) encodes the parameters of its
    request as a CBOR map and submits that map as the payload of the POST
-   request.  The Content-format MUST be "application/cbor" in that case.
-   FIXME: This depends on the profile
+   request.  The Content-format depends on the security applied to the
+   content and must be specified by the corresponding profile.
 
    The OAuth 2.0 AS uses a JSON structure in the payload of its
    responses both to client and RS.  This framework RECOMMENDS the use
    of CBOR [RFC7049] instead.  The requesting device can explicitly
    request this encoding by setting the CoAP Accept option in the
-   request to "application/cbor".  FIXME: This depends on the profile
+   request to "application/cbor".  Depending on the profile, the content
+   may arrive in a different format wrapping a CBOR payload.
 
 6.  The 'Token' Endpoint
 
@@ -776,8 +777,7 @@ Internet-Draft                     ACE                    September 2016
    profile
       OPTIONAL.  This indicates the profile that the client would like
       to use with the RS.  See Section 6.4 for more details on the
-      formatting of this parameter.  If the RS cannot support the
-      requested profile, the AS MUST reply with an error message.
+
 
 
 
@@ -785,6 +785,9 @@ Seitz, et al.            Expires March 10, 2017                [Page 14]
 
 Internet-Draft                     ACE                    September 2016
 
+
+      formatting of this parameter.  If the RS cannot support the
+      requested profile, the AS MUST reply with an error message.
 
    cnf
       OPTIONAL.  This field contains information about a public key the
@@ -804,12 +807,14 @@ Internet-Draft                     ACE                    September 2016
    proof-of-possession tokens.
 
    Figure 2 shows a request for a token with a symmetric proof-of-
-   possession key.
+   possession key.  Note that in this example we assume a DTLS-based
+   communication security profile, therefore the Content-Type is
+   "application/cbor".
 
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
    Uri-Path: "token"
-   Content-Type: "application/cbor" FIXME?
+   Content-Type: "application/cbor"
    Payload:
    {
      "grant_type" : "client_credentials",
@@ -825,14 +830,9 @@ Internet-Draft                     ACE                    September 2016
                                    key.
 
    Figure 3 shows a request for a token with an asymmetric proof-of-
-   possession key.
-
-
-
-
-
-
-
+   possession key.  Note that in this example we assume an object
+   security-based profile, therefore the Content-Type is "application/
+   cose+cbor".
 
 
 
@@ -845,7 +845,7 @@ Internet-Draft                     ACE                    September 2016
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
    Uri-Path: "token"
-   Content-Type: "application/cbor" FIXME?
+   Content-Type: "application/cose+cbor"
    Payload:
    {
      "grant_type" : "client_credentials",
@@ -869,9 +869,9 @@ Internet-Draft                     ACE                    September 2016
                                    key.
 
    Figure 4 shows a request for a token where a previously communicated
-   proof-of-possession key is only referenced.
-
-
+   proof-of-possession key is only referenced.  Note that we assume a
+   DTLS-based communication security profile for this example, therefore
+   the Content-Type is "application/cbor".
 
 
 
@@ -901,7 +901,7 @@ Internet-Draft                     ACE                    September 2016
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
    Uri-Path: "token"
-   Content-Type: "application/cbor" FIXME?
+   Content-Type: "application/cbor"
    Payload:
    {
      "grant_type" : "client_credentials",
@@ -961,10 +961,12 @@ Internet-Draft                     ACE                    September 2016
    proof-of-possession tokens.
 
    Figure 5 shows a response containing a token and a 'cnf' parameter
-   with a symmetric proof-of-possession key.
+   with a symmetric proof-of-possession key.  Note that we assume a
+   DTLS-based communication security profile for this example, therefore
+   the Content-Type is "application/cbor".
 
    Header: Created (Code=2.01)
-   Content-Type: "application/cbor" FIXME?
+   Content-Type: "application/cbor"
    Payload:
    {
      "access_token" : b64'SlAV32hkKG ...
@@ -991,16 +993,14 @@ Internet-Draft                     ACE                    September 2016
    The error responses for CoAP-based interactions with the AS are
    equivalent to the ones for HTTP-based interactions as defined in
    section 5.2 of [RFC6749], with the following differences: The
-   Content-Type MUST be set to "application/cbor", the payload MUST be
-   encoded in a CBOR map and the CoAP response code 4.00 Bad Request
-   MUST be used unless specified otherwise.  FIXME: Content-format
-   depends on the profile.
+   Content-Type MUST be set to the value specified by the communication
+   security profile, the payload MUST be encoded in a CBOR map and the
+   CoAP response code 4.00 Bad Request MUST be used unless specified
+   otherwise.
 
-6.4.  New Request and Response Parameters
 
-   This section defines parameters that can be used in access token
-   requests and responses, as well as abbreviations for more compact
-   encoding of existing parameters and common values.
+
+
 
 
 
@@ -1009,6 +1009,12 @@ Seitz, et al.            Expires March 10, 2017                [Page 18]
 
 Internet-Draft                     ACE                    September 2016
 
+
+6.4.  New Request and Response Parameters
+
+   This section defines parameters that can be used in access token
+   requests and responses, as well as abbreviations for more compact
+   encoding of existing parameters and common values.
 
 6.4.1.  Grant Type
 
@@ -1050,12 +1056,6 @@ Internet-Draft                     ACE                    September 2016
    values for the 'alg' parameter together with the corresponding proof-
    of-possession mechanisms.
 
-   The values in the 'alg' parameter are case-sensitive.  If the client
-   supports more than one algorithm then each individual value MUST be
-   separated by a space.
-
-
-
 
 
 
@@ -1065,6 +1065,10 @@ Seitz, et al.            Expires March 10, 2017                [Page 19]
 
 Internet-Draft                     ACE                    September 2016
 
+
+   The values in the 'alg' parameter are case-sensitive.  If the client
+   supports more than one algorithm then each individual value MUST be
+   separated by a space.
 
 6.4.3.  Profile
 
@@ -1104,10 +1108,6 @@ Internet-Draft                     ACE                    September 2016
    COSE_Key  In this case the 'cnf' parameter contains the proof-of-
       possession key to be used by the client.  An example is shown in
       Figure 8.
-
-
-
-
 
 
 
@@ -1261,12 +1261,14 @@ Internet-Draft                     ACE                    September 2016
 
    For example, Figure 13 shows a RS calling the token introspection
    endpoint at the AS to query about an OAuth 2.0 proof-of-possession
-   token.
+   token.  Note that we assume a object security-based communication
+   security profile for this example, therefore the Content-Type is
+   "application/cose+cbor".
 
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
    Uri-Path: "introspect"
-   Content-Type: "application/cbor" FIXME?
+   Content-Type: "application/cose+cbor"
    Payload:
    {
      "token" : b64'7gj0dXJQ43U',
@@ -1281,8 +1283,6 @@ Internet-Draft                     ACE                    September 2016
    the same required and optional parameters as in section 2.2. of RFC
    7662 [RFC7662] with the following additions:
 
-   alg
-
 
 
 Seitz, et al.            Expires March 10, 2017                [Page 23]
@@ -1290,6 +1290,7 @@ Seitz, et al.            Expires March 10, 2017                [Page 23]
 Internet-Draft                     ACE                    September 2016
 
 
+   alg
       OPTIONAL.  See Section 6.4 for more details.
 
    cnf
@@ -1308,10 +1309,12 @@ Internet-Draft                     ACE                    September 2016
       pass on to the client.  See Section 7.4 for more details.
 
    For example, Figure 14 shows an AS response to the introspection
-   request in Figure 13.
+   request in Figure 13.  Note that we assume a DTLS-based communication
+   security profile for this example, therefore the Content-Type is
+   "application/cbor".
 
    Header: Created Code=2.01)
-   Content-Type: "application/cbor" FIXME?
+   Content-Type: "application/cbor"
    Payload:
    {
      "active" : true,
@@ -1332,11 +1335,8 @@ Internet-Draft                     ACE                    September 2016
 
                 Figure 14: Example introspection response.
 
-7.3.  Error Response
 
-   The error responses for CoAP-based interactions with the AS are
-   equivalent to the ones for HTTP-based interactions as defined in
-   section 2.3 of [RFC7662], with the following differences:
+
 
 
 
@@ -1346,9 +1346,15 @@ Seitz, et al.            Expires March 10, 2017                [Page 24]
 Internet-Draft                     ACE                    September 2016
 
 
-   o  If content is sent, the Content-Type MUST be set to "application/
-      cbor", and the payload MUST be encoded in a CBOR map.  FIXME:
-      Content type depends on the profile.
+7.3.  Error Response
+
+   The error responses for CoAP-based interactions with the AS are
+   equivalent to the ones for HTTP-based interactions as defined in
+   section 2.3 of [RFC7662], with the following differences:
+
+   o  If content is sent, the Content-Type MUST be set according to the
+      specification of the communication security profile, and the
+      payload MUST be encoded in a CBOR map.
    o  If the credentials used by the RS are invalid the AS MUST respond
       with the CoAP response code code 4.01 (Unauthorized) and use the
       required and optional parameters from section 5.2 in RFC 6749
@@ -1376,12 +1382,6 @@ Internet-Draft                     ACE                    September 2016
    the client through the RS.  The client_token parameter is designed to
    carry such information, and is intended to be used as described in
    Figure 15.
-
-
-
-
-
-
 
 
 
@@ -2484,20 +2484,20 @@ Internet-Draft                     ACE                    September 2016
        |         |
    A:  +-------->| Header: POST (Code=0.02)
        |  POST   | Uri-Path:"token"
-       |         | Content-Type: application/cbor FIXME?
+       |         | Content-Type: application/cbor
        |         | Payload: <Request-Payload>
        |         |
    B:  |<--------+ Header: 2.05 Content
-       |  2.05   | Content-Type: application/cbor FIXME?
+       |  2.05   | Content-Type: application/cbor
        |         | Payload: <Response-Payload>
        |         |
 
       Figure 17: Token Request and Response Using Client Credentials.
 
    The information contained in the Request-Payload and the Response-
-   Payload is shown in Figure 18.
-
-
+   Payload is shown in Figure 18.  Note that we assume a DTLS-based
+   communication security profile for this example, therefore the
+   Content-Type is "application/cbor".
 
 
 
@@ -2696,11 +2696,11 @@ Internet-Draft                     ACE                    September 2016
        |         |
    A:  +-------->| Header: POST (Code=0.02)
        |  POST   | Uri-Path:"token"
-       |         | Content-Type: application/cbor  FIXME?
+       |         | Content-Type: application/cbor
        |         | Payload: <Request-Payload>
        |         |
    B:  |<--------+ Header: 2.05 Content
-       |         | Content-Type: application/cbor  FIXME?
+       |         | Content-Type: application/cbor
        |  2.05   | Payload: <Response-Payload>
        |         |
 
@@ -2768,7 +2768,7 @@ Internet-Draft                     ACE                    September 2016
        |         |
    C:  +-------->| Header: POST (T=CON, Code=0.02)
        |  POST   | Uri-Path:"authz-info"
-       |         | Content-Type: "application/cbor" FIXME?
+       |         | Content-Type: "application/cbor"
        |         | Payload: b64'SlAV32hkKG ...''
        |         |
        |         |     Authorization
@@ -2776,11 +2776,11 @@ Internet-Draft                     ACE                    September 2016
        |         |          |
    D:  |         +--------->| Header: POST (Code=0.02)
        |         |  POST    | Uri-Path: "introspect"
-       |         |          | Content-Type: "application/cbor" FIXME?
+       |         |          | Content-Type: "application/cbor"
        |         |          | Payload: <Request-Payload>
        |         |          |
    E:  |         |<---------+ Header: 2.05 Content
-       |         |  2.05    | Content-Type: "application/cbor" FIXME?
+       |         |  2.05    | Content-Type: "application/cbor"
        |         |          | Payload: <Response-Payload>
        |         |          |
        |         |

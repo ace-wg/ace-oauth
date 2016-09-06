@@ -758,14 +758,16 @@ supported in the future, such as MQTT or QUIC.</t>
   use of the following alternative instead of Uri-query parameters: The sender
   (client or RS) encodes the parameters of its request as a CBOR map and
   submits that map as the payload  of the POST request.  The Content-format
-  MUST be "application/cbor" in that case. FIXME: This depends on the profile
+  depends on the security applied to the content and must be specified by the
+  corresponding profile.
   </t>
 
   <t>The OAuth 2.0 AS uses a JSON structure in the payload of its responses
   both to client and RS.  This framework RECOMMENDS the use of CBOR
   <xref target="RFC7049"/> instead.  The requesting device can explicitly
   request this encoding by setting the CoAP Accept option in the request to
-  "application/cbor".  FIXME: This depends on the profile</t>
+  "application/cbor".  Depending on the profile, the content may arrive in a
+  different format wrapping a CBOR payload.</t>
 
 </section> <!--Framework-->
 
@@ -830,7 +832,9 @@ supported in the future, such as MQTT or QUIC.</t>
     for proof-of-possession tokens. </t>
 
     <t><xref target="fig:symmATreq"/> shows a request for a token
-    with a symmetric proof-of-possession key.
+    with a symmetric proof-of-possession key.  Note that in this example
+    we assume a DTLS-based communication security profile, therefore
+    the Content-Type is "application/cbor".
 
     <figure align="center" anchor="fig:symmATreq"
             title="Example request for an access token bound to a
@@ -839,7 +843,7 @@ supported in the future, such as MQTT or QUIC.</t>
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor" FIXME?
+Content-Type: "application/cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
@@ -854,7 +858,9 @@ Payload:
     </figure></t>
 
     <t><xref target="fig:asymmATreq"/> shows a request for a token with an
-    asymmetric proof-of-possession key.
+    asymmetric proof-of-possession key.  Note that in this example we assume
+    an object security-based profile, therefore the Content-Type is
+    "application/cose+cbor".
 
     <figure align="center" anchor="fig:asymmATreq"
             title="Example request for an access token bound to an
@@ -863,7 +869,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor" FIXME?
+Content-Type: "application/cose+cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
@@ -887,7 +893,9 @@ Payload:
 
     <t><xref target="fig:kidATreq"/> shows a request for a token
     where a previously communicated proof-of-possession key is only
-    referenced.
+    referenced.  Note that we assume a DTLS-based communication security
+    profile for this example, therefore the Content-Type is
+    "application/cbor". 
 
     <figure align="center" anchor="fig:kidATreq"
             title="Example request for an access token bound to a
@@ -896,7 +904,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor" FIXME?
+Content-Type: "application/cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
@@ -952,14 +960,16 @@ Payload:
     </t>
 
     <t><xref target="fig:symmATres"/> shows a response containing a token
-    and a 'cnf' parameter with a symmetric proof-of-possession key.
+    and a 'cnf' parameter with a symmetric proof-of-possession key.  Note that
+    we assume a DTLS-based communication security profile for this example,
+    therefore the Content-Type is "application/cbor".
 
     <figure align="center" anchor="fig:symmATres"
             title="Example AS response with an access token bound to a
 		   symmetric key.">
       <artwork align="left"><![CDATA[
 Header: Created (Code=2.01)
-Content-Type: "application/cbor" FIXME?
+Content-Type: "application/cbor"
 Payload:
 {
   "access_token" : b64'SlAV32hkKG ...
@@ -985,10 +995,10 @@ Payload:
     <t>The error responses for CoAP-based interactions with the AS
     are equivalent to the ones for HTTP-based interactions as defined in
     section  5.2 of <xref target="RFC6749"/>, with the following differences:
-    The Content-Type MUST be set to "application/cbor", the payload MUST be
-    encoded in a CBOR map and the CoAP response code 4.00 Bad Request
-    MUST be used unless specified otherwise.  FIXME: Content-format depends on
-    the profile.</t>
+    The Content-Type MUST be set to the value specified by the communication
+    security profile, the payload MUST be encoded in a CBOR map and the CoAP
+    response code 4.00 Bad Request MUST be used unless specified otherwise.
+    </t>
   </section>
 
   <section anchor="tokenParams"
@@ -1236,7 +1246,9 @@ Payload:
 
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
     introspection endpoint at the AS to query about an OAuth 2.0
-    proof-of-possession token.
+    proof-of-possession token.  Note that we assume a object security-based
+    communication security profile for this example, therefore the Content-Type
+    is "application/cose+cbor".  
 
     <figure align="center" anchor="fig:introReq"
             title="Example introspection request.">
@@ -1244,7 +1256,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "introspect"
-Content-Type: "application/cbor" FIXME?
+Content-Type: "application/cose+cbor"
 Payload:
 {
   "token" : b64'7gj0dXJQ43U',
@@ -1290,13 +1302,15 @@ Payload:
 
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
+    Note that we assume a DTLS-based communication security profile for this
+    example, therefore the Content-Type is "application/cbor". 
 
 
     <figure align="center" anchor="fig:introRes"
             title="Example introspection response.">
       <artwork align="left"><![CDATA[
 Header: Created Code=2.01)
-Content-Type: "application/cbor" FIXME?
+Content-Type: "application/cbor"
 Payload:
 {
   "active" : true,
@@ -1325,9 +1339,9 @@ Payload:
 
     <list style="symbols">
 
-      <t>If content is sent, the Content-Type MUST be set to
-      "application/cbor",  and the payload MUST be encoded in a CBOR map.
-      FIXME: Content type depends on the profile.</t>
+      <t>If content is sent, the Content-Type MUST be set according to the
+      specification of the communication security profile, and the payload MUST
+      be encoded in a CBOR map.</t>  
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
       with the CoAP response code code 4.01 (Unauthorized) and use
@@ -2520,18 +2534,20 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
-    |         | Content-Type: application/cbor FIXME?
+    |         | Content-Type: application/cbor
     |         | Payload: <Request-Payload>
     |         |
 B:  |<--------+ Header: 2.05 Content
-    |  2.05   | Content-Type: application/cbor FIXME?
+    |  2.05   | Content-Type: application/cbor
     |         | Payload: <Response-Payload>
     |         |
         ]]></artwork>
     </figure></t>
 
     <t>The information contained in the Request-Payload and the
-    Response-Payload is shown in <xref target="fig:RSOfflineReq"/>.
+    Response-Payload is shown in <xref target="fig:RSOfflineReq"/>. 
+    Note that we assume a DTLS-based communication security profile for this
+    example, therefore the Content-Type is "application/cbor". 
 
      <figure align="center" anchor="fig:RSOfflineReq"
              title="Request and Response Payload Details.">
@@ -2711,11 +2727,11 @@ F:  |<--------+ Header: 2.05 Content
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
-    |         | Content-Type: application/cbor  FIXME?
+    |         | Content-Type: application/cbor
     |         | Payload: <Request-Payload>
     |         |
 B:  |<--------+ Header: 2.05 Content
-    |         | Content-Type: application/cbor  FIXME?
+    |         | Content-Type: application/cbor
     |  2.05   | Payload: <Response-Payload>
     |         |
     ]]></artwork>
@@ -2784,7 +2800,7 @@ Response-Payload:
     |         |
 C:  +-------->| Header: POST (T=CON, Code=0.02)
     |  POST   | Uri-Path:"authz-info"
-    |         | Content-Type: "application/cbor" FIXME?
+    |         | Content-Type: "application/cbor"
     |         | Payload: b64'SlAV32hkKG ...''
     |         |
     |         |     Authorization
@@ -2792,11 +2808,11 @@ C:  +-------->| Header: POST (T=CON, Code=0.02)
     |         |          |
 D:  |         +--------->| Header: POST (Code=0.02)
     |         |  POST    | Uri-Path: "introspect"
-    |         |          | Content-Type: "application/cbor" FIXME?
+    |         |          | Content-Type: "application/cbor"
     |         |          | Payload: <Request-Payload>
     |         |          |
 E:  |         |<---------+ Header: 2.05 Content
-    |         |  2.05    | Content-Type: "application/cbor" FIXME?
+    |         |  2.05    | Content-Type: "application/cbor"
     |         |          | Payload: <Response-Payload>
     |         |          |
     |         |
