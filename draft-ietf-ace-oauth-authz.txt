@@ -5,14 +5,14 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                      SICS
 Intended status: Standards Track                             G. Selander
-Expires: March 10, 2017                                         Ericsson
+Expires: March 24, 2017                                         Ericsson
                                                            E. Wahlstroem
                                                         Nexus Technology
                                                               S. Erdtman
                                                               Spotify AB
                                                            H. Tschofenig
                                                                 ARM Ltd.
-                                                       September 6, 2016
+                                                      September 20, 2016
 
 
   Authentication and Authorization for Constrained Environments (ACE)
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 10, 2017.
+   This Internet-Draft will expire on March 24, 2017.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 1]
+Seitz, et al.            Expires March 24, 2017                 [Page 1]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -82,10 +82,11 @@ Table of Contents
      6.2.  AS-to-Client Response . . . . . . . . . . . . . . . . . .  17
      6.3.  Error Response  . . . . . . . . . . . . . . . . . . . . .  18
      6.4.  New Request and Response Parameters . . . . . . . . . . .  19
-       6.4.1.  Grant Type  . . . . . . . . . . . . . . . . . . . . .  19
-       6.4.2.  Token Type and Algorithms . . . . . . . . . . . . . .  19
-       6.4.3.  Profile . . . . . . . . . . . . . . . . . . . . . . .  20
-       6.4.4.  Confirmation  . . . . . . . . . . . . . . . . . . . .  20
+       6.4.1.  Audience  . . . . . . . . . . . . . . . . . . . . . .  19
+       6.4.2.  Grant Type  . . . . . . . . . . . . . . . . . . . . .  19
+       6.4.3.  Token Type and Algorithms . . . . . . . . . . . . . .  19
+       6.4.4.  Profile . . . . . . . . . . . . . . . . . . . . . . .  20
+       6.4.5.  Confirmation  . . . . . . . . . . . . . . . . . . . .  20
      6.5.  Mapping parameters to CBOR  . . . . . . . . . . . . . . .  22
    7.  The 'Introspect' Endpoint . . . . . . . . . . . . . . . . . .  22
      7.1.  RS-to-AS Request  . . . . . . . . . . . . . . . . . . . .  23
@@ -105,15 +106,15 @@ Table of Contents
        10.4.1.  Registration Template  . . . . . . . . . . . . . . .  30
        10.4.2.  Initial Registry Contents  . . . . . . . . . . . . .  31
      10.5.  JSON Web Token Claims  . . . . . . . . . . . . . . . . .  31
-     10.6.  ACE Profile Registry . . . . . . . . . . . . . . . . . .  31
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 2]
+Seitz, et al.            Expires March 24, 2017                 [Page 2]
 
 Internet-Draft                     ACE                    September 2016
 
 
+     10.6.  ACE Profile Registry . . . . . . . . . . . . . . . . . .  31
        10.6.1.  Registration Template  . . . . . . . . . . . . . . .  31
      10.7.  OAuth Parameter Mappings Registry  . . . . . . . . . . .  32
        10.7.1.  Registration Template  . . . . . . . . . . . . . . .  32
@@ -161,15 +162,15 @@ Internet-Draft                     ACE                    September 2016
 
    A detailed treatment of constraints can be found in [RFC7228], and
    the different IoT deployments present a continuous range of device
-   and network capabilities.  Taking energy consumption as an example:
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 3]
+Seitz, et al.            Expires March 24, 2017                 [Page 3]
 
 Internet-Draft                     ACE                    September 2016
 
 
+   and network capabilities.  Taking energy consumption as an example:
    At one end there are energy-harvesting or battery powered devices
    which have a tight power budget, on the other end there are mains-
    powered devices, and all levels in between.
@@ -217,15 +218,15 @@ Internet-Draft                     ACE                    September 2016
 
    Since this specification focuses on the problem of access control to
    resources, we simplify the actors by assuming that the client
-   authorization server (CAS) functionality is not stand-alone but
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 4]
+Seitz, et al.            Expires March 24, 2017                 [Page 4]
 
 Internet-Draft                     ACE                    September 2016
 
 
+   authorization server (CAS) functionality is not stand-alone but
    subsumed by either the authorization server or the client (see
    section 2.2 in [I-D.ietf-ace-actors]).
 
@@ -273,15 +274,15 @@ Internet-Draft                     ACE                    September 2016
 
    Luckily, not every IoT device suffers from all constraints.  The ACE
    framework nevertheless takes all these aspects into account and
-   allows several different deployment variants to co-exist rather than
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 5]
+Seitz, et al.            Expires March 24, 2017                 [Page 5]
 
 Internet-Draft                     ACE                    September 2016
 
 
+   allows several different deployment variants to co-exist rather than
    mandating a one-size-fits-all solution.  We believe this is important
    to cover the wide range of possible interworking use cases and the
    different requirements from a security point of view.  Once IoT
@@ -332,8 +333,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-
-Seitz, et al.            Expires March 10, 2017                 [Page 6]
+Seitz, et al.            Expires March 24, 2017                 [Page 6]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -389,7 +389,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 7]
+Seitz, et al.            Expires March 24, 2017                 [Page 7]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -445,7 +445,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 8]
+Seitz, et al.            Expires March 24, 2017                 [Page 8]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -501,7 +501,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                 [Page 9]
+Seitz, et al.            Expires March 24, 2017                 [Page 9]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -557,7 +557,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 10]
+Seitz, et al.            Expires March 24, 2017                [Page 10]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -613,7 +613,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 11]
+Seitz, et al.            Expires March 24, 2017                [Page 11]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -669,7 +669,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 12]
+Seitz, et al.            Expires March 24, 2017                [Page 12]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -725,7 +725,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 13]
+Seitz, et al.            Expires March 24, 2017                [Page 13]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -771,21 +771,23 @@ Internet-Draft                     ACE                    September 2016
    token_type
       OPTIONAL.  See Section 6.4 for more details.
 
+   aud
+      OPTIONAL.  See Section 6.4 for more details.
+
    alg
       OPTIONAL.  See Section 6.4 for more details.
 
    profile
-      OPTIONAL.  This indicates the profile that the client would like
-      to use with the RS.  See Section 6.4 for more details on the
 
 
 
-
-Seitz, et al.            Expires March 10, 2017                [Page 14]
+Seitz, et al.            Expires March 24, 2017                [Page 14]
 
 Internet-Draft                     ACE                    September 2016
 
 
+      OPTIONAL.  This indicates the profile that the client would like
+      to use with the RS.  See Section 6.4 for more details on the
       formatting of this parameter.  If the RS cannot support the
       requested profile, the AS MUST reply with an error message.
 
@@ -831,16 +833,17 @@ Internet-Draft                     ACE                    September 2016
 
    Figure 3 shows a request for a token with an asymmetric proof-of-
    possession key.  Note that in this example we assume an object
-   security-based profile, therefore the Content-Type is "application/
-   cose+cbor".
 
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 15]
+Seitz, et al.            Expires March 24, 2017                [Page 15]
 
 Internet-Draft                     ACE                    September 2016
 
+
+   security-based profile, therefore the Content-Type is "application/
+   cose+cbor".
 
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
@@ -890,10 +893,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-
-
-
-Seitz, et al.            Expires March 10, 2017                [Page 16]
+Seitz, et al.            Expires March 24, 2017                [Page 16]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -949,7 +949,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 17]
+Seitz, et al.            Expires March 24, 2017                [Page 17]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1005,7 +1005,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 18]
+Seitz, et al.            Expires March 24, 2017                [Page 18]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1016,7 +1016,12 @@ Internet-Draft                     ACE                    September 2016
    requests and responses, as well as abbreviations for more compact
    encoding of existing parameters and common values.
 
-6.4.1.  Grant Type
+6.4.1.  Audience
+
+   This parameter specifies for which audience the client is requesting
+   a token.
+
+6.4.2.  Grant Type
 
    The abbreviations in Figure 6 MAY be used in CBOR encodings instead
    of the string values defined in [RFC6749].
@@ -1032,7 +1037,7 @@ Internet-Draft                     ACE                    September 2016
 
             Figure 6: CBOR abbreviations for common grant types
 
-6.4.2.  Token Type and Algorithms
+6.4.3.  Token Type and Algorithms
 
    To allow clients to indicate support for specific token types and
    respective algorithms they need to interact with the AS.  They can
@@ -1053,24 +1058,22 @@ Internet-Draft                     ACE                    September 2016
    Token Types registry, specifying a Proof-of-Possession token.  How
    the proof-of-possession is performed is specified by the 'alg'
    parameter.  Profiles of this framework are responsible for defining
-   values for the 'alg' parameter together with the corresponding proof-
-   of-possession mechanisms.
 
 
 
-
-
-
-Seitz, et al.            Expires March 10, 2017                [Page 19]
+Seitz, et al.            Expires March 24, 2017                [Page 19]
 
 Internet-Draft                     ACE                    September 2016
 
+
+   values for the 'alg' parameter together with the corresponding proof-
+   of-possession mechanisms.
 
    The values in the 'alg' parameter are case-sensitive.  If the client
    supports more than one algorithm then each individual value MUST be
    separated by a space.
 
-6.4.3.  Profile
+6.4.4.  Profile
 
    The "profile" parameter identifies the communication protocol and the
    communication security protocol between the client and the RS.
@@ -1093,7 +1096,7 @@ Internet-Draft                     ACE                    September 2016
    and the client information in the access token response in order to
    support negotioation or signalling of profile specific parameters.
 
-6.4.4.  Confirmation
+6.4.5.  Confirmation
 
    The "cnf" parameter identifies or provides the key used for proof-of-
    possession or for authenticating the RS depending on the proof-of-
@@ -1114,10 +1117,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-
-
-
-Seitz, et al.            Expires March 10, 2017                [Page 20]
+Seitz, et al.            Expires March 24, 2017                [Page 20]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1173,7 +1173,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 21]
+Seitz, et al.            Expires March 24, 2017                [Page 21]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1229,7 +1229,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 22]
+Seitz, et al.            Expires March 24, 2017                [Page 22]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1285,7 +1285,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 23]
+Seitz, et al.            Expires March 24, 2017                [Page 23]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1341,7 +1341,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 24]
+Seitz, et al.            Expires March 24, 2017                [Page 24]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1397,7 +1397,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 25]
+Seitz, et al.            Expires March 24, 2017                [Page 25]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1428,23 +1428,23 @@ Internet-Draft                     ACE                    September 2016
 
    cnf
       REQUIRED.  Contains information about the proof-of-possession key
-      the client is to use with its access token.  See Section 6.4.4.
+      the client is to use with its access token.  See Section 6.4.5.
 
    token_type
-      OPTIONAL.  See Section 6.4.2.
+      OPTIONAL.  See Section 6.4.3.
 
    alg
-      OPTIONAL.  See Section 6.4.2.
+      OPTIONAL.  See Section 6.4.3.
 
    profile
-      REQUIRED.  See Section 6.4.3.
+      REQUIRED.  See Section 6.4.4.
 
    rs_cnf
       OPTIONAL.  Contains information about the key that the RS uses to
       authenticate towards the client.  If the key is symmetric then
       this claim MUST NOT be part of the Client Token, since this is the
       same key as the one specified through the 'cnf' claim.  This claim
-      uses the same encoding as the 'cnf' parameter.  See Section 6.4.3.
+      uses the same encoding as the 'cnf' parameter.  See Section 6.4.4.
 
    The AS encrypts this token using a key shared between the AS and the
    client, so that only the client can decrypt it and access its
@@ -1453,7 +1453,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 26]
+Seitz, et al.            Expires March 24, 2017                [Page 26]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1509,7 +1509,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 27]
+Seitz, et al.            Expires March 24, 2017                [Page 27]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1565,7 +1565,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 28]
+Seitz, et al.            Expires March 24, 2017                [Page 28]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1621,7 +1621,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 29]
+Seitz, et al.            Expires March 24, 2017                [Page 29]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1677,7 +1677,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 30]
+Seitz, et al.            Expires March 24, 2017                [Page 30]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1733,7 +1733,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 31]
+Seitz, et al.            Expires March 24, 2017                [Page 31]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1789,7 +1789,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 32]
+Seitz, et al.            Expires March 24, 2017                [Page 32]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1845,7 +1845,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 33]
+Seitz, et al.            Expires March 24, 2017                [Page 33]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1901,7 +1901,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 34]
+Seitz, et al.            Expires March 24, 2017                [Page 34]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -1957,7 +1957,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 35]
+Seitz, et al.            Expires March 24, 2017                [Page 35]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2013,7 +2013,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 36]
+Seitz, et al.            Expires March 24, 2017                [Page 36]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2069,14 +2069,14 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 37]
+Seitz, et al.            Expires March 24, 2017                [Page 37]
 
 Internet-Draft                     ACE                    September 2016
 
 
    [I-D.ietf-cose-msg]
               Schaad, J., "CBOR Object Signing and Encryption (COSE)",
-              draft-ietf-cose-msg-17 (work in progress), August 2016.
+              draft-ietf-cose-msg-18 (work in progress), September 2016.
 
    [I-D.selander-ace-object-security]
               Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
@@ -2111,8 +2111,8 @@ Internet-Draft                     ACE                    September 2016
    [I-D.ietf-ace-actors]
               Gerdes, S., Seitz, L., Selander, G., and C. Bormann, "An
               architecture for authorization in constrained
-              environments", draft-ietf-ace-actors-03 (work in
-              progress), March 2016.
+              environments", draft-ietf-ace-actors-04 (work in
+              progress), September 2016.
 
    [I-D.ietf-core-block]
               Bormann, C. and Z. Shelby, "Block-wise transfers in CoAP",
@@ -2125,7 +2125,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 38]
+Seitz, et al.            Expires March 24, 2017                [Page 38]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2181,7 +2181,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 39]
+Seitz, et al.            Expires March 24, 2017                [Page 39]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2237,7 +2237,7 @@ Appendix A.  Design Justification
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 40]
+Seitz, et al.            Expires March 24, 2017                [Page 40]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2293,7 +2293,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 41]
+Seitz, et al.            Expires March 24, 2017                [Page 41]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2349,7 +2349,7 @@ Appendix B.  Roles and Responsibilites
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 42]
+Seitz, et al.            Expires March 24, 2017                [Page 42]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2405,7 +2405,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 43]
+Seitz, et al.            Expires March 24, 2017                [Page 43]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2461,7 +2461,7 @@ C.1.  Local Token Validation
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 44]
+Seitz, et al.            Expires March 24, 2017                [Page 44]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2517,7 +2517,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 45]
+Seitz, et al.            Expires March 24, 2017                [Page 45]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2573,7 +2573,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 46]
+Seitz, et al.            Expires March 24, 2017                [Page 46]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2629,7 +2629,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 47]
+Seitz, et al.            Expires March 24, 2017                [Page 47]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2685,7 +2685,7 @@ C.2.  Introspection Aided Token Validation
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 48]
+Seitz, et al.            Expires March 24, 2017                [Page 48]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2741,7 +2741,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 49]
+Seitz, et al.            Expires March 24, 2017                [Page 49]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2797,7 +2797,7 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 50]
+Seitz, et al.            Expires March 24, 2017                [Page 50]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2853,7 +2853,7 @@ Appendix D.  Document Updates
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 51]
+Seitz, et al.            Expires March 24, 2017                [Page 51]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2909,7 +2909,7 @@ D.2.  Version -00 to -01
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 52]
+Seitz, et al.            Expires March 24, 2017                [Page 52]
 
 Internet-Draft                     ACE                    September 2016
 
@@ -2965,4 +2965,4 @@ Authors' Addresses
 
 
 
-Seitz, et al.            Expires March 10, 2017                [Page 53]
+Seitz, et al.            Expires March 24, 2017                [Page 53]
