@@ -566,7 +566,7 @@ Internet-Draft                     ACE                    September 2016
    |        |---(A)-- Token Request ------->|               |
    |        |                               | Authorization |
    |        |<--(B)-- Access Token ---------|    Server     |
-   |        |       + Client Information    |               |
+   |        |       + RS Information        |               |
    |        |                               +---------------+
    |        |                                      ^ |
    |        |            Introspection Request  (D)| |
@@ -596,7 +596,7 @@ Internet-Draft                     ACE                    September 2016
 
       If the AS successfully processes the request from the client, it
       returns an access token.  It also returns various parameters,
-      referred as "Client Information".  In addition to the response
+      referred as "RS Information".  In addition to the response
       parameters defined by OAuth 2.0 and the PoP token extension,
       further response parameters, such as information on which profile
       the client should use with the resource server(s).  More
@@ -625,18 +625,18 @@ Internet-Draft                     ACE                    September 2016
          referencing, the authorization information to the RS, that may
          be used for subsequent resource requests by the client, and
          (2) the client makes the resource access request, using the
-         communication security protocol and other client information
+         communication security protocol and other RS Information
          obtained from the AS.
 
       The Client and the RS mutually authenticate using the security
       protocol specified in the profile (see step B) and the keys
-      obtained in the access token or the client information or the
-      client token.  The RS verifies that the token is integrity
-      protected by the AS and compares the claims contained in the
-      access token with the resource request.  If the RS is online,
-      validation can be handed over to the AS using token introspection
-      (see messages D and E) over HTTP or CoAP, in which case the
-      different parts of step C may be interleaved with introspection.
+      obtained in the access token or the RS Information or the client
+      token.  The RS verifies that the token is integrity protected by
+      the AS and compares the claims contained in the access token with
+      the resource request.  If the RS is online, validation can be
+      handed over to the AS using token introspection (see messages D
+      and E) over HTTP or CoAP, in which case the different parts of
+      step C may be interleaved with introspection.
 
    Token Introspection Request (D):
 
@@ -945,7 +945,7 @@ Internet-Draft                     ACE                    September 2016
    Note that the access token can also contains a 'cnf' claim, however,
    these two values are consumed by different parties.  The access token
    is created by the AS and processed by the RS (and opaque to the
-   client) whereas the Client Information is created by the AS and
+
 
 
 
@@ -954,8 +954,8 @@ Seitz, et al.            Expires March 24, 2017                [Page 17]
 Internet-Draft                     ACE                    September 2016
 
 
-   processed by the client; it is never forwarded to the resource
-   server.
+   client) whereas the RS Information is created by the AS and processed
+   by the client; it is never forwarded to the resource server.
 
    The following examples illustrate different types of responses for
    proof-of-possession tokens.
@@ -1093,7 +1093,7 @@ Internet-Draft                     ACE                    September 2016
            Figure 7: Profile identifiers and their CBOR mappings
 
    Profiles MAY define additional parameters for both the token request
-   and the client information in the access token response in order to
+   and the RS Information in the access token response in order to
    support negotioation or signalling of profile specific parameters.
 
 6.4.5.  Confirmation
@@ -1102,8 +1102,8 @@ Internet-Draft                     ACE                    September 2016
    possession or for authenticating the RS depending on the proof-of-
    possession algorithm and the context cnf is used in.  This framework
    extends the definition of 'cnf' from [RFC7800] by adding CBOR/COSE
-   encodings and the use of 'cnf' for transporting keys in the client
-   information.
+   encodings and the use of 'cnf' for transporting keys in the RS
+   Information.
 
    A CBOR encoded payload MAY contain the 'cnf' parameter with the
    following contents:
@@ -2360,10 +2360,10 @@ Internet-Draft                     ACE                    September 2016
          +  Specify preferences for communication security
          +  If raw public key (rpk) or certificate is used, make sure
             the AS has the right rpk or certificate for this client.
-      *  Process the access token and client information (B)
+      *  Process the access token and RS Information (B)
 
          +  Check that the token has the right format (e.g.  CWT).
-         +  Check that the client information provides the necessary
+         +  Check that the RS Information provides the necessary
             security parameters (e.g.  PoP key, information on
             communication security protocols supported by the RS).
       *  Send the token and request to the RS (C)
@@ -2451,9 +2451,9 @@ C.1.  Local Token Validation
       parameter set to "tempSensorInLivingRoom", a value that the
       temperature sensor identifies itself with.  The AS evaluates the
       request and authorizes the client to access the resource.
-      B: The AS responds with a PoP token and client information.  The
-      PoP token contains the public key of the client, and the client
-      information contains the public key of the RS.  For communication
+      B: The AS responds with a PoP token and RS Information.  The PoP
+      token contains the public key of the client, and the RS
+      Information contains the public key of the RS.  For communication
       security this example uses DTLS RawPublicKey between the client
       and the RS.  The issued token will have a short validity time,
       i.e. 'exp' close to 'iat', to protect the RS from replay attacks
@@ -2676,10 +2676,10 @@ C.2.  Introspection Aided Token Validation
       question identifies itself with.  The AS generates an access token
       as on opaque string, which it can match to the specific client, a
       targeted audience and a symmetric key.
-      B: The AS responds with the an access token and client
-      information, the latter containing a symmetric key.  Communication
-      security between C and RS will be DTLS and PreSharedKey.  The PoP
-      key being used as the PreSharedKey.
+      B: The AS responds with the an access token and RS Information,
+      the latter containing a symmetric key.  Communication security
+      between C and RS will be DTLS and PreSharedKey.  The PoP key being
+      used as the PreSharedKey.
 
 
 

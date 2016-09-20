@@ -593,7 +593,7 @@ supported in the future, such as MQTT or QUIC.</t>
 |        |---(A)-- Token Request ------->|               |
 |        |                               | Authorization |
 |        |<--(B)-- Access Token ---------|    Server     |
-|        |       + Client Information    |               |
+|        |       + RS Information        |               |
 |        |                               +---------------+
 |        |                                      ^ |
 |        |            Introspection Request  (D)| |
@@ -624,7 +624,7 @@ supported in the future, such as MQTT or QUIC.</t>
     <t hangText="Access Token Response (B):"><vspace blankLines="1"/>
       If the AS successfully processes the request from the client, it returns
       an access token.  It also returns various parameters, referred as
-      "Client Information".  In addition to the response parameters defined by
+      "RS Information".  In addition to the response parameters defined by
       OAuth 2.0 and the PoP token extension, further response
       parameters, such as information on
       which profile the client should use with the resource server(s). More
@@ -646,13 +646,13 @@ supported in the future, such as MQTT or QUIC.</t>
       to the RS, that may be used for
       subsequent resource requests by the client, and </t>
 <t>(2) the client makes the resource access request, using the communication security protocol and other
-    client information obtained from the AS.</t>
+    RS Information obtained from the AS.</t>
 </list>
 
       <vspace blankLines="1"/>
       The Client and the RS mutually authenticate using the security protocol
       specified in the profile (see step B) and the keys obtained in the access
-      token or the client information or the client token.  The RS verifies
+      token or the RS Information or the client token.  The RS verifies
       that the token is integrity protected by the AS and compares the claims
       contained in the access token with the resource request. If the RS is
       online, validation can be handed over to the AS using token introspection
@@ -955,7 +955,7 @@ Payload:
     <t>Note that the access token can also contains a 'cnf' claim,
     however, these two values are consumed by different parties.  The
     access token is created by the AS and processed by the RS (and opaque to
-    the client) whereas the Client Information is created by the AS and
+    the client) whereas the RS Information is created by the AS and
     processed by the client; it is never forwarded to the resource
     server.</t>
 
@@ -1088,7 +1088,7 @@ Payload:
       </t>
 
       <t>Profiles MAY define additional parameters for both the token request
-      and the client information in the access token response in order to
+      and the RS Information in the access token response in order to
       support negotioation or signalling of profile specific parameters.
       </t>
     </section>
@@ -1099,7 +1099,7 @@ Payload:
       proof-of-possession algorithm and the context cnf is used in.  This
       framework extends  the definition of 'cnf' from <xref target="RFC7800"/>
       by adding CBOR/COSE encodings and the use of 'cnf' for transporting keys
-      in the client information.</t>
+      in the RS Information.</t>
 
       <t>A CBOR encoded payload MAY contain the 'cnf' parameter with the
       following contents:
@@ -2410,10 +2410,10 @@ D:  |<---------------+                |
 		the AS has the right rpk or certificate for this client.</t>
 	      </list>
 	    </t>
-	    <t>Process the access token and client information (B)
+	    <t>Process the access token and RS Information (B)
 	       <list style="symbols">
 		<t>Check that the token has the right format (e.g. CWT).</t>
-		<t>Check that the client information provides the necessary
+		<t>Check that the RS Information provides the necessary
 		security parameters (e.g. PoP key, information on
 		communication security protocols supported by the RS).</t>
 	      </list>
@@ -2514,8 +2514,8 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
       identifies itself with.  The AS evaluates the request and authorizes the
       client to access the resource.</t>
 
-      <t>B: The AS responds with a PoP token and client information.  The PoP
-      token contains the public key of the client, and the client information
+      <t>B: The AS responds with a PoP token and RS Information.  The PoP
+      token contains the public key of the client, and the RS Information
       contains the public key of the RS.  For communication security
       this example uses DTLS RawPublicKey between the client and the RS. The issued
       token will have a short validity time, i.e. 'exp' close to 'iat',
@@ -2718,7 +2718,7 @@ F:  |<--------+ Header: 2.05 Content
         AS generates an access token as on opaque string, which it can match to
         the specific client, a targeted audience and a symmetric key.</t>
 
-        <t>B: The AS responds with the an access token and client information,
+        <t>B: The AS responds with the an access token and RS Information,
         the latter containing a symmetric key.
         Communication security between C and RS will be DTLS and PreSharedKey.
         The PoP key being used as the PreSharedKey.
