@@ -21,8 +21,6 @@
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7519 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
-<!ENTITY RFC7591 SYSTEM
-"http://xml.resource.org/public/rfc/bibxml/reference.RFC.7591.xml">
 <!ENTITY RFC7662 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7662.xml">
 <!ENTITY RFC7744 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7744.xml">
 <!ENTITY RFC7800 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7800.xml">
@@ -772,8 +770,9 @@ supported in the future, such as MQTT or QUIC.</t>
 
   <t>Communication between the client and the /token endpoint at the
     AS MUST be integrity protected and encrypted.  Furthermore AS and client
-    MUST perform mutual authentication.  Profiles of this framework are expected
-    to specify how authentication and communication security is implemented.
+    MUST perform mutual authentication.  Profiles of this framework are
+    expected to specify how authentication and communication security is
+    implemented.
   </t>
 
 <t>The figures of this section uses CBOR diagnostic
@@ -782,46 +781,50 @@ supported in the future, such as MQTT or QUIC.</t>
 </t>
 
   <section anchor="tokenRequest" title="Client-to-AS Request">
-      <t>When requesting an access token from the AS, the client MAY
-      include the following parameters in the request in addition to
-      the ones required or optional according to the OAuth 2.0 specification
-      <xref target="RFC6749"/>:
+    <t>In addition to the parameters that are required or optional
+    according to the OAuth 2.0 specification section 4 <xref
+    target="RFC6749"/> this framework defines the following parameters
+    for requesting an access token from a /token endpoint:
 
       <list style="hanging">
-	<t hangText="token_type"><vspace blankLines="0"/>
-	  OPTIONAL.  See <xref target="tokenParams"/> for more details.
-	<vspace blankLines="1"/></t>
-
 	<t hangText="aud"><vspace blankLines="0"/>
-	  OPTIONAL.  See <xref target="tokenParams"/> for more details.
-	<vspace blankLines="1"/></t>
-
-	<t hangText="alg"><vspace blankLines="0"/>
-	OPTIONAL.  See <xref target="tokenParams"/> for more details.
+	REQUIRED.  Specifies the audience for which the client is
+	requesting an access token.
 	<vspace blankLines="1"/></t>
 
 	<t hangText="profile"><vspace blankLines="0"/>
 	OPTIONAL.  This indicates the profile that the client would like to use
-	with the RS.  See <xref target="tokenParams"/> for more details on the
+	with the RS.  See <xref target="paramProfile"/> for more details on the
 	formatting of this parameter.  If the RS cannot support the requested
-	profile, the AS MUST reply with an error message.
+	profile, the AS MUST reply with an error message with the error code
+	4.12 Precondition Failed.
+	<vspace blankLines="1"/></t>
+
+	<t hangText="alg"><vspace blankLines="0"/>
+	OPTIONAL.  This indicates the proof-of-possession algorithm
+	that the client would like to use with the RS.  See <xref
+	target="paramAlg"/> for more details on the formatting of this
+	parameter.  If the RS cannot support the requested profile, the AS MUST
+	reply with an error message with the error code 4.12 Precondition
+	Failed.
 	<vspace blankLines="1"/></t>
 
 	<t hangText="cnf"><vspace blankLines="0"/>
 	OPTIONAL.  This field contains information about a public key the
-	client would like to bind to the access token.  If the client requests
-	an asymmetric proof-of-possession algorithm, but does not provide a
-	public key, the AS MUST respond with an error message.  See <xref
-	target="tokenParams"/> for more details on the formatting of the 'cnf'
-	parameter.</t>
+	client would like to bind to the access token for proof-of-possession.
+	If the client requests an asymmetric proof-of-possession algorithm, but
+	does not provide a public key, the AS MUST respond with an error
+	message with the  error code 4.00 Bad Request.  See <xref
+	target="paramCnf"/> for more details on the formatting of the 'cnf'
+	parameter.</t> 
+
+	<t hangText="token_type"><vspace blankLines="0"/>
+	OPTIONAL.  This indicates that the client would like to use the given
+	token_type with the RS.  See <xref target="paramTokenType"/> for
+	details of this parameter.</t>
+	
       </list>
     </t>
-
-    <t>These new parameters are optional in the case where the AS has prior
-    knowledge of the capabilities of the client, otherwise these parameters are
-    required.  This prior knowledge may, for example, be set by the use of a
-      dynamic client registration protocol exchange <xref
-      target="RFC7591"/>.</t>
 
     <t>The following examples illustrate different types of requests
     for proof-of-possession tokens. </t>
@@ -844,10 +847,8 @@ Payload:
   "grant_type" : "client_credentials",
   "aud" : "tempSensor4711",
   "client_id" : "myclient",
-  "client_secret" : b64'FWRUVGZUZmZFRkWSRlVGhA',
-  "token_type" : "pop",
-  "alg" : "HS256",
-  "profile" : "coap_dtls"
+  "profile" : "coap_dtls",
+  "alg" : "TLS_PSK_WITH_AES_128_CCM_8"
 }
         ]]></artwork>
     </figure></t>
@@ -870,9 +871,8 @@ Payload:
   "grant_type" : "client_credentials",
   "aud" : "lockOfDoor0815",
   "client_id" : "myclient",
-  "token_type" : "pop",
+  "profile" : "coap_oscoap",
   "alg" : "ES256",
-  "profile" : "coap_oscoap"
   "cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
@@ -906,9 +906,6 @@ Payload:
   "aud" : "valve424",
   "scope" : "read",
   "client_id" : "myclient",
-  "token_type" : "pop",
-  "alg" : "ES256",
-  "profile" : "coap_oscoap"
   "cnf" : {
     "kid" : b64'6kg0dXJM13U'
   }
@@ -920,26 +917,44 @@ Payload:
 
   <section anchor="tokenResponse" title="AS-to-Client Response">
     <t>If the access token request has been successfully verified by the
-    AS and the client is authorized to obtain a PoP token for the indicated
+    AS and the client is authorized to obtain an access token for the indicated
     audience and scopes (if any), the AS issues an access token.  If client
     authentication failed or is  invalid, the authorization server returns an
     error response as described in <xref target="errorsToken"/>.</t>
 
-    <t>The following parameters may also be part of a successful response in
-    addition to those defined in section 5.1 of <xref target="RFC6749"/>:
+    <t>In addition to the parameters defined in section 5.1 of <xref
+    target="RFC6749"/>, the following parameters may also be part of a
+    successful response: 
 
     <list style="hanging">
 	<t hangText="profile"><vspace blankLines="0"/>
-	REQUIRED.  This indicates the profile that the client MUST use
-	towards the RS. See <xref target="tokenParams"/> for the formatting of
-	this parameter.<vspace blankLines="1"/></t>
+	This indicates the profile that the client MUST use
+	towards the RS. See <xref target="paramProfile"/> for the formatting of
+	this parameter.  This parameter is OPTIONAL if the client indicated
+	a preference in the request and the RS can fulfill this preference.
+	If the client did not indicate a preference this parameter is
+	REQUIRED.<vspace blankLines="1"/></t>
+
+	<t hangText="alg"><vspace blankLines="0"/>
+	This indicates the proof-of-possession algorithm that the client
+	MUST use towards the RS. See <xref target="paramAlg"/> for the
+	formatting of this parameter.  This parameter is OPTIONAL if the client
+	indicated a preference in the request and the RS can fulfill this
+	preference.  If the client did not indicate a preference this parameter
+	is REQUIRED.<vspace blankLines="1"/></t>
 
 	<t hangText="cnf"><vspace blankLines="0"/>
 	REQUIRED.  If a symmetric proof-of-possession algorithms was
 	selected, this field contains the proof-of-possession key.  If an
 	asymmetric algorithm was selected, this field contains information
-	about the public key of the RS.  See <xref target="tokenParams"/>
-	for the formatting of this parameter.</t>
+	about the public key used by the RS to authenticate.  See <xref
+	target="paramCnf"/> for the formatting of this parameter.</t>
+
+	<t hangText="token_type"><vspace blankLines="0"/>
+	By default implementations of this framework SHOULD assume
+	that the token_type is 'pop'.  If a specific use case requires another
+	token_type (e.g. 'Bearer') to be used then this parameter is REQUIRED.
+	</t>
       </list>
     </t>
 
@@ -970,10 +985,7 @@ Payload:
   "access_token" : b64'SlAV32hkKG ...
    (remainder of CWT omitted for brevity;
    CWT contains COSE_Key in the 'cnf' claim)',
-  "token_type" : "pop",
-  "alg" : "HS256",
   "expires_in" : "3600",
-  "profile" : "coap_dtls"
   "cnf" : {
     "COSE_Key" : {
       "kty" : "Symmetric",
@@ -990,8 +1002,9 @@ Payload:
     <t>The error responses for CoAP-based interactions with the AS
     are equivalent to the ones for HTTP-based interactions as defined in
     section  5.2 of <xref target="RFC6749"/>, with the following differences:
-    The Content-Type MUST be set to the value specified by the communication
-    security profile, the payload MUST be encoded in a CBOR map and the CoAP
+    The Content-Type is specified by the communication security profile used
+    between client and AS.  The raw payload before being processed by the
+    communication security protocol MUST be encoded in a CBOR map and the CoAP
     response code 4.00 Bad Request MUST be used unless specified otherwise.
     </t>
   </section>
@@ -1004,7 +1017,8 @@ Payload:
 
     <section anchor="paramAud" title="Audience">
       <t>This parameter specifies for which audience the client is requesting
-      a token.</t>
+      a token.  It should be encoded as CBOR text string (major type 3).  The
+      formatting and semantics of these strings are application specific.</t>
     </section>
 
     <section anchor="paramGrantType" title="Grant Type">
@@ -1027,37 +1041,26 @@ Payload:
       </figure></t>
     </section>
 
-    <section anchor="paramTokenType" title="Token Type and Algorithms">
-      <t>To allow clients to indicate support for specific token types and
-      respective algorithms they need to interact with the AS.  They can either
-      provide this information out-of-band or via the 'token_type' and
-      'alg' parameter in the client request.</t>
-
-      <t>The value in the 'alg' parameter together with value from the
-      'token_type' parameter allow the client to indicate the supported
-      algorithms for a given token type.  The token type refers to the
-      specification used by the client to interact with the resource server
-      to demonstrate possession of the key.  The 'alg' parameter provides
-      further information about the algorithm, such as whether a symmetric
-      or an asymmetric crypto-system is used.  Hence, a client supporting a
-      specific token type also knows how to populate the values to the
-      'alg' parameter.</t>
-
+    <section anchor="paramTokenType" title="Token Type">
+      <t>The 'token_type' parameter allows a client to request a specific type
+      of access token to be used with the RS (e.g. a bearer token).  The AS can
+      also use this parameter to indicate that the RS requires a specific token
+      type in the response.  The 'pop' token type is assumed by default.</t> 
+ 
       <t>This document registers the new value "pop" for the OAuth Access
         Token Types registry,  specifying a Proof-of-Possession token.  How the
-      proof-of-possession is performed is specified by the 'alg' parameter.
-      Profiles of this framework are responsible for defining values for the
-      'alg' parameter together with the corresponding proof-of-possession
-      mechanisms.</t>
+      proof-of-possession is performed is specified by profile through the
+      'alg' parameter.</t>
 
-      <t>The values in the 'alg' parameter are case-sensitive.  If the client
-      supports more than one algorithm then each individual value MUST be
-      separated by a space.</t>
+      <t>The values in the 'token_type' parameter are CBOR text strings
+      (major type 3).</t>
+      
     </section>
 
     <section anchor="paramProfile" title="Profile">
-      <t>The "profile" parameter identifies the communication protocol and the
-      communication security protocol between the client and the RS.</t>
+
+      <t>The 'profile' parameter identifies the communication protocol and the
+      communication security protocol between the client and the RS.</t> 
 
       <t>An initial set of profile identifiers and their CBOR encodings are
       specified in <xref target="fig:profile"/>.  Profiles using other
@@ -1082,6 +1085,23 @@ Payload:
       and the RS Information in the access token response in order to
       support negotioation or signalling of profile specific parameters.
       </t>
+    </section>
+
+      <section anchor="paramAlg" title="Algorithm">
+      <t>The 'alg' parameter specifies the algorithm that a client uses to
+      perform the proof-of-possession for the key linked to the access token
+      that has the 'pop' token type.</t>
+      
+      <t>It is expected that the values for the 'alg' parameter depend strongly
+      on the profile used between client and RS.  Therefore profiles of this
+      framework are responsible for defining values for the 'alg' parameter
+      together with the corresponding proof-of-possession protocols.</t> 
+
+      <t>The values for proof-of-possession algorithms are case-sensitive and
+      MAY NOT contain space characters.  If a client supports more than one
+      algorithm then each individual value MUST be separated by a space.  The
+      'alg' parameter in the response from the  AS MUST only specify one
+      algorithm.</t>  
     </section>
 
     <section anchor="paramCnf" title="Confirmation">
@@ -1274,18 +1294,18 @@ Payload:
 
     <list style="hanging">
       <t hangText="alg"><vspace blankLines="0"/>
-      OPTIONAL.  See <xref target="tokenParams"/> for more details.
+      OPTIONAL.  See <xref target="paramAlg"/> for more details.
       <vspace blankLines="1"/></t>
 
       <t hangText="cnf"><vspace blankLines="0"/>
       OPTIONAL.   This field contains information about the proof-of-possession
       key that binds the client to the access token.  See <xref
-      target="tokenParams"/> for more details on the formatting of the 'cnf'
+      target="paramCnf"/> for more details on the formatting of the 'cnf'
       parameter.<vspace blankLines="1"/></t>
 
       <t hangText="profile"><vspace blankLines="0"/>
       OPTIONAL.  This indicates the profile that the RS MUST use with the
-      client.  See <xref target="tokenParams"/> for more details on the
+      client.  See <xref target="paramProfile"/> for more details on the
         formatting of this parameter.
 <!-- FIXME: Why is this parameter present?
         Isn't it the client that should have info about profile?
@@ -1413,7 +1433,7 @@ C:  +--------------->|                |
       blankLines="1"/></t>
 
       <t hangText="alg"><vspace blankLines="0"/>
-      OPTIONAL. See <xref target="paramTokenType"/>.<vspace
+      OPTIONAL. See <xref target="paramProfile"/>.<vspace
       blankLines="1"/></t>
 
       <t hangText="profile"><vspace blankLines="0"/>
@@ -2294,8 +2314,6 @@ C:  +--------------->|                |
       &RFC7231;
 
       &RFC7519;
-
-      &RFC7591;
 
       &RFC7744;
 

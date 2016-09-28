@@ -81,12 +81,13 @@ Table of Contents
      6.1.  Client-to-AS Request  . . . . . . . . . . . . . . . . . .  14
      6.2.  AS-to-Client Response . . . . . . . . . . . . . . . . . .  17
      6.3.  Error Response  . . . . . . . . . . . . . . . . . . . . .  18
-     6.4.  New Request and Response Parameters . . . . . . . . . . .  19
-       6.4.1.  Audience  . . . . . . . . . . . . . . . . . . . . . .  19
+     6.4.  New Request and Response Parameters . . . . . . . . . . .  18
+       6.4.1.  Audience  . . . . . . . . . . . . . . . . . . . . . .  18
        6.4.2.  Grant Type  . . . . . . . . . . . . . . . . . . . . .  19
-       6.4.3.  Token Type and Algorithms . . . . . . . . . . . . . .  19
-       6.4.4.  Profile . . . . . . . . . . . . . . . . . . . . . . .  20
-       6.4.5.  Confirmation  . . . . . . . . . . . . . . . . . . . .  20
+       6.4.3.  Token Type  . . . . . . . . . . . . . . . . . . . . .  19
+       6.4.4.  Profile . . . . . . . . . . . . . . . . . . . . . . .  19
+       6.4.5.  Algorithm . . . . . . . . . . . . . . . . . . . . . .  20
+       6.4.6.  Confirmation  . . . . . . . . . . . . . . . . . . . .  20
      6.5.  Mapping parameters to CBOR  . . . . . . . . . . . . . . .  22
    7.  The 'Introspect' Endpoint . . . . . . . . . . . . . . . . . .  22
      7.1.  RS-to-AS Request  . . . . . . . . . . . . . . . . . . . .  23
@@ -105,7 +106,6 @@ Table of Contents
      10.4.  Token Type Mappings  . . . . . . . . . . . . . . . . . .  31
        10.4.1.  Registration Template  . . . . . . . . . . . . . . .  31
        10.4.2.  Initial Registry Contents  . . . . . . . . . . . . .  31
-     10.5.  JSON Web Token Claims  . . . . . . . . . . . . . . . . .  32
 
 
 
@@ -114,6 +114,7 @@ Seitz, et al.             Expires April 1, 2017                 [Page 2]
 Internet-Draft                     ACE                    September 2016
 
 
+     10.5.  JSON Web Token Claims  . . . . . . . . . . . . . . . . .  32
      10.6.  ACE Profile Registry . . . . . . . . . . . . . . . . . .  32
        10.6.1.  Registration Template  . . . . . . . . . . . . . . .  32
      10.7.  OAuth Parameter Mappings Registry  . . . . . . . . . . .  32
@@ -160,7 +161,6 @@ Internet-Draft                     ACE                    September 2016
    At one end there are energy-harvesting or battery powered devices
    which have a tight power budget, on the other end there are mains-
    powered devices, and all levels in between.
-
 
 
 
@@ -749,35 +749,35 @@ Internet-Draft                     ACE                    September 2016
 
 6.1.  Client-to-AS Request
 
-   When requesting an access token from the AS, the client MAY include
-   the following parameters in the request in addition to the ones
-   required or optional according to the OAuth 2.0 specification
-   [RFC6749]:
-
-   token_type
-      OPTIONAL.  See Section 6.4 for more details.
+   In addition to the parameters that are required or optional according
+   to the OAuth 2.0 specification section 4 [RFC6749] this framework
+   defines the following parameters for requesting an access token from
+   a /token endpoint:
 
    aud
-      OPTIONAL.  See Section 6.4 for more details.
-
-   alg
-      OPTIONAL.  See Section 6.4 for more details.
+      REQUIRED.  Specifies the audience for which the client is
+      requesting an access token.
 
    profile
       OPTIONAL.  This indicates the profile that the client would like
-      to use with the RS.  See Section 6.4 for more details on the
+      to use with the RS.  See Section 6.4.4 for more details on the
       formatting of this parameter.  If the RS cannot support the
-      requested profile, the AS MUST reply with an error message.
+      requested profile, the AS MUST reply with an error message with
+      the error code 4.12 Precondition Failed.
+
+   alg
+      OPTIONAL.  This indicates the proof-of-possession algorithm that
+      the client would like to use with the RS.  See Section 6.4.5 for
+      more details on the formatting of this parameter.  If the RS
+      cannot support the requested profile, the AS MUST reply with an
+      error message with the error code 4.12 Precondition Failed.
 
    cnf
       OPTIONAL.  This field contains information about a public key the
-      client would like to bind to the access token.  If the client
-      requests an asymmetric proof-of-possession algorithm, but does not
-      provide a public key, the AS MUST respond with an error message.
-      See Section 6.4 for more details on the formatting of the 'cnf'
-      parameter.
-
-
+      client would like to bind to the access token for proof-of-
+      possession.  If the client requests an asymmetric proof-of-
+      possession algorithm, but does not provide a public key, the AS
+      MUST respond with an error message with the error code 4.00 Bad
 
 
 
@@ -786,11 +786,12 @@ Seitz, et al.             Expires April 1, 2017                [Page 14]
 Internet-Draft                     ACE                    September 2016
 
 
-   These new parameters are optional in the case where the AS has prior
-   knowledge of the capabilities of the client, otherwise these
-   parameters are required.  This prior knowledge may, for example, be
-   set by the use of a dynamic client registration protocol exchange
-   [RFC7591].
+      Request.  See Section 6.4.6 for more details on the formatting of
+      the 'cnf' parameter.
+   token_type
+      OPTIONAL.  This indicates that the client would like to use the
+      given token_type with the RS.  See Section 6.4.3 for details of
+      this parameter.
 
    The following examples illustrate different types of requests for
    proof-of-possession tokens.
@@ -809,10 +810,8 @@ Internet-Draft                     ACE                    September 2016
      "grant_type" : "client_credentials",
      "aud" : "tempSensor4711",
      "client_id" : "myclient",
-     "client_secret" : b64'FWRUVGZUZmZFRkWSRlVGhA',
-     "token_type" : "pop",
-     "alg" : "HS256",
-     "profile" : "coap_dtls"
+     "profile" : "coap_dtls",
+     "alg" : "TLS_PSK_WITH_AES_128_CCM_8"
    }
 
     Figure 2: Example request for an access token bound to a symmetric
@@ -822,6 +821,7 @@ Internet-Draft                     ACE                    September 2016
    possession key.  Note that in this example we assume an object
    security-based profile, therefore the Content-Type is "application/
    cose+cbor".
+
 
 
 
@@ -851,9 +851,8 @@ Internet-Draft                     ACE                    September 2016
      "grant_type" : "client_credentials",
      "aud" : "lockOfDoor0815",
      "client_id" : "myclient",
-     "token_type" : "pop",
+     "profile" : "coap_oscoap",
      "alg" : "ES256",
-     "profile" : "coap_oscoap"
      "cnf" : {
        "COSE_Key" : {
          "kty" : "EC",
@@ -873,31 +872,6 @@ Internet-Draft                     ACE                    September 2016
    DTLS-based communication security profile for this example, therefore
    the Content-Type is "application/cbor".
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires April 1, 2017                [Page 16]
-
-Internet-Draft                     ACE                    September 2016
-
-
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
    Uri-Path: "token"
@@ -908,9 +882,6 @@ Internet-Draft                     ACE                    September 2016
      "aud" : "valve424",
      "scope" : "read",
      "client_id" : "myclient",
-     "token_type" : "pop",
-     "alg" : "ES256",
-     "profile" : "coap_oscoap"
      "cnf" : {
        "kid" : b64'6kg0dXJM13U'
      }
@@ -919,32 +890,61 @@ Internet-Draft                     ACE                    September 2016
        Figure 4: Example request for an access token bound to a key
                                 reference.
 
+
+
+
+Seitz, et al.             Expires April 1, 2017                [Page 16]
+
+Internet-Draft                     ACE                    September 2016
+
+
 6.2.  AS-to-Client Response
 
    If the access token request has been successfully verified by the AS
-   and the client is authorized to obtain a PoP token for the indicated
-   audience and scopes (if any), the AS issues an access token.  If
-   client authentication failed or is invalid, the authorization server
-   returns an error response as described in Section 6.3.
+   and the client is authorized to obtain an access token for the
+   indicated audience and scopes (if any), the AS issues an access
+   token.  If client authentication failed or is invalid, the
+   authorization server returns an error response as described in
+   Section 6.3.
 
-   The following parameters may also be part of a successful response in
-   addition to those defined in section 5.1 of [RFC6749]:
+   In addition to the parameters defined in section 5.1 of [RFC6749],
+   the following parameters may also be part of a successful response:
 
    profile
-      REQUIRED.  This indicates the profile that the client MUST use
-      towards the RS.  See Section 6.4 for the formatting of this
-      parameter.
+      This indicates the profile that the client MUST use towards the
+      RS.  See Section 6.4.4 for the formatting of this parameter.  This
+      parameter is OPTIONAL if the client indicated a preference in the
+      request and the RS can fulfill this preference.  If the client did
+      not indicate a preference this parameter is REQUIRED.
+
+   alg
+      This indicates the proof-of-possession algorithm that the client
+      MUST use towards the RS.  See Section 6.4.5 for the formatting of
+      this parameter.  This parameter is OPTIONAL if the client
+      indicated a preference in the request and the RS can fulfill this
+      preference.  If the client did not indicate a preference this
+      parameter is REQUIRED.
 
    cnf
       REQUIRED.  If a symmetric proof-of-possession algorithms was
       selected, this field contains the proof-of-possession key.  If an
       asymmetric algorithm was selected, this field contains information
-      about the public key of the RS.  See Section 6.4 for the
-      formatting of this parameter.
+      about the public key used by the RS to authenticate.  See
+      Section 6.4.6 for the formatting of this parameter.
+   token_type
+      By default implementations of this framework SHOULD assume that
+      the token_type is 'pop'.  If a specific use case requires another
+      token_type (e.g.  'Bearer') to be used then this parameter is
+      REQUIRED.
 
    Note that the access token can also contains a 'cnf' claim, however,
    these two values are consumed by different parties.  The access token
    is created by the AS and processed by the RS (and opaque to the
+   client) whereas the RS Information is created by the AS and processed
+   by the client; it is never forwarded to the resource server.
+
+   The following examples illustrate different types of responses for
+   proof-of-possession tokens.
 
 
 
@@ -953,12 +953,6 @@ Seitz, et al.             Expires April 1, 2017                [Page 17]
 
 Internet-Draft                     ACE                    September 2016
 
-
-   client) whereas the RS Information is created by the AS and processed
-   by the client; it is never forwarded to the resource server.
-
-   The following examples illustrate different types of responses for
-   proof-of-possession tokens.
 
    Figure 5 shows a response containing a token and a 'cnf' parameter
    with a symmetric proof-of-possession key.  Note that we assume a
@@ -972,10 +966,7 @@ Internet-Draft                     ACE                    September 2016
      "access_token" : b64'SlAV32hkKG ...
       (remainder of CWT omitted for brevity;
       CWT contains COSE_Key in the 'cnf' claim)',
-     "token_type" : "pop",
-     "alg" : "HS256",
      "expires_in" : "3600",
-     "profile" : "coap_dtls"
      "cnf" : {
        "COSE_Key" : {
          "kty" : "Symmetric",
@@ -993,22 +984,11 @@ Internet-Draft                     ACE                    September 2016
    The error responses for CoAP-based interactions with the AS are
    equivalent to the ones for HTTP-based interactions as defined in
    section 5.2 of [RFC6749], with the following differences: The
-   Content-Type MUST be set to the value specified by the communication
-   security profile, the payload MUST be encoded in a CBOR map and the
+   Content-Type is specified by the communication security profile used
+   between client and AS.  The raw payload before being processed by the
+   communication security protocol MUST be encoded in a CBOR map and the
    CoAP response code 4.00 Bad Request MUST be used unless specified
    otherwise.
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires April 1, 2017                [Page 18]
-
-Internet-Draft                     ACE                    September 2016
-
 
 6.4.  New Request and Response Parameters
 
@@ -1019,7 +999,16 @@ Internet-Draft                     ACE                    September 2016
 6.4.1.  Audience
 
    This parameter specifies for which audience the client is requesting
-   a token.
+   a token.  It should be encoded as CBOR text string (major type 3).
+   The formatting and semantics of these strings are application
+   specific.
+
+
+
+Seitz, et al.             Expires April 1, 2017                [Page 18]
+
+Internet-Draft                     ACE                    September 2016
+
 
 6.4.2.  Grant Type
 
@@ -1037,27 +1026,38 @@ Internet-Draft                     ACE                    September 2016
 
             Figure 6: CBOR abbreviations for common grant types
 
-6.4.3.  Token Type and Algorithms
+6.4.3.  Token Type
 
-   To allow clients to indicate support for specific token types and
-   respective algorithms they need to interact with the AS.  They can
-   either provide this information out-of-band or via the 'token_type'
-   and 'alg' parameter in the client request.
-
-   The value in the 'alg' parameter together with value from the
-   'token_type' parameter allow the client to indicate the supported
-   algorithms for a given token type.  The token type refers to the
-   specification used by the client to interact with the resource server
-   to demonstrate possession of the key.  The 'alg' parameter provides
-   further information about the algorithm, such as whether a symmetric
-   or an asymmetric crypto-system is used.  Hence, a client supporting a
-   specific token type also knows how to populate the values to the
-   'alg' parameter.
+   The 'token_type' parameter allows a client to request a specific type
+   of access token to be used with the RS (e.g. a bearer token).  The AS
+   can also use this parameter to indicate that the RS requires a
+   specific token type in the response.  The 'pop' token type is assumed
+   by default.
 
    This document registers the new value "pop" for the OAuth Access
    Token Types registry, specifying a Proof-of-Possession token.  How
-   the proof-of-possession is performed is specified by the 'alg'
-   parameter.  Profiles of this framework are responsible for defining
+   the proof-of-possession is performed is specified by profile through
+   the 'alg' parameter.
+
+   The values in the 'token_type' parameter are CBOR text strings (major
+   type 3).
+
+6.4.4.  Profile
+
+   The 'profile' parameter identifies the communication protocol and the
+   communication security protocol between the client and the RS.
+
+   An initial set of profile identifiers and their CBOR encodings are
+   specified in Figure 7.  Profiles using other combinations of
+   protocols are expected to define their own profile identifiers.
+
+
+
+
+
+
+
+
 
 
 
@@ -1065,22 +1065,6 @@ Seitz, et al.             Expires April 1, 2017                [Page 19]
 
 Internet-Draft                     ACE                    September 2016
 
-
-   values for the 'alg' parameter together with the corresponding proof-
-   of-possession mechanisms.
-
-   The values in the 'alg' parameter are case-sensitive.  If the client
-   supports more than one algorithm then each individual value MUST be
-   separated by a space.
-
-6.4.4.  Profile
-
-   The "profile" parameter identifies the communication protocol and the
-   communication security protocol between the client and the RS.
-
-   An initial set of profile identifiers and their CBOR encodings are
-   specified in Figure 7.  Profiles using other combinations of
-   protocols are expected to define their own profile identifiers.
 
            /--------------------+----------+--------------\
            | Profile identifier | CBOR Key | Major Type   |
@@ -1096,7 +1080,25 @@ Internet-Draft                     ACE                    September 2016
    and the RS Information in the access token response in order to
    support negotioation or signalling of profile specific parameters.
 
-6.4.5.  Confirmation
+6.4.5.  Algorithm
+
+   The 'alg' parameter specifies the algorithm that a client uses to
+   perform the proof-of-possession for the key linked to the access
+   token that has the 'pop' token type.
+
+   It is expected that the values for the 'alg' parameter depend
+   strongly on the profile used between client and RS.  Therefore
+   profiles of this framework are responsible for defining values for
+   the 'alg' parameter together with the corresponding proof-of-
+   possession protocols.
+
+   The values for proof-of-possession algorithms are case-sensitive and
+   MAY NOT contain space characters.  If a client supports more than one
+   algorithm then each individual value MUST be separated by a space.
+   The 'alg' parameter in the response from the AS MUST only specify one
+   algorithm.
+
+6.4.6.  Confirmation
 
    The "cnf" parameter identifies or provides the key used for proof-of-
    possession or for authenticating the RS depending on the proof-of-
@@ -1111,8 +1113,6 @@ Internet-Draft                     ACE                    September 2016
    COSE_Key  In this case the 'cnf' parameter contains the proof-of-
       possession key to be used by the client.  An example is shown in
       Figure 8.
-
-
 
 
 
@@ -1297,18 +1297,18 @@ Internet-Draft                     ACE                    September 2016
    7662 [RFC7662] with the following additions:
 
    alg
-      OPTIONAL.  See Section 6.4 for more details.
+      OPTIONAL.  See Section 6.4.5 for more details.
 
    cnf
       OPTIONAL.  This field contains information about the proof-of-
       possession key that binds the client to the access token.  See
-      Section 6.4 for more details on the formatting of the 'cnf'
+      Section 6.4.6 for more details on the formatting of the 'cnf'
       parameter.
 
    profile
       OPTIONAL.  This indicates the profile that the RS MUST use with
-      the client.  See Section 6.4 for more details on the formatting of
-      this parameter.
+      the client.  See Section 6.4.4 for more details on the formatting
+      of this parameter.
 
    client_token
       OPTIONAL.  This parameter contains information that the RS MUST
@@ -1442,13 +1442,13 @@ Internet-Draft                     ACE                    September 2016
 
    cnf
       REQUIRED.  Contains information about the proof-of-possession key
-      the client is to use with its access token.  See Section 6.4.5.
+      the client is to use with its access token.  See Section 6.4.6.
 
    token_type
       OPTIONAL.  See Section 6.4.3.
 
    alg
-      OPTIONAL.  See Section 6.4.3.
+      OPTIONAL.  See Section 6.4.4.
 
 
 
@@ -2226,11 +2226,11 @@ Internet-Draft                     ACE                    September 2016
               (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
               <http://www.rfc-editor.org/info/rfc7519>.
 
-   [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
-              P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
-              RFC 7591, DOI 10.17487/RFC7591, July 2015,
-              <http://www.rfc-editor.org/info/rfc7591>.
-
+   [RFC7744]  Seitz, L., Ed., Gerdes, S., Ed., Selander, G., Mani, M.,
+              and S. Kumar, "Use Cases for Authentication and
+              Authorization in Constrained Environments", RFC 7744,
+              DOI 10.17487/RFC7744, January 2016,
+              <http://www.rfc-editor.org/info/rfc7744>.
 
 
 
@@ -2241,12 +2241,6 @@ Seitz, et al.             Expires April 1, 2017                [Page 40]
 
 Internet-Draft                     ACE                    September 2016
 
-
-   [RFC7744]  Seitz, L., Ed., Gerdes, S., Ed., Selander, G., Mani, M.,
-              and S. Kumar, "Use Cases for Authentication and
-              Authorization in Constrained Environments", RFC 7744,
-              DOI 10.17487/RFC7744, January 2016,
-              <http://www.rfc-editor.org/info/rfc7744>.
 
 Appendix A.  Design Justification
 
@@ -2290,6 +2284,12 @@ Appendix A.  Design Justification
 
    Small Amount of Memory:
 
+      Microcontrollers embedded in IoT devices are often equipped with
+      small amount of RAM and flash memory, which places limitations
+      what kind of processing can be performed and how much code can be
+      put on those devices.  To reduce code size fewer and smaller
+      protocol implementations can be put on the firmware of such a
+      device.  In this case, CoAP may be used instead of HTTP, symmetric
 
 
 
@@ -2298,12 +2298,6 @@ Seitz, et al.             Expires April 1, 2017                [Page 41]
 Internet-Draft                     ACE                    September 2016
 
 
-      Microcontrollers embedded in IoT devices are often equipped with
-      small amount of RAM and flash memory, which places limitations
-      what kind of processing can be performed and how much code can be
-      put on those devices.  To reduce code size fewer and smaller
-      protocol implementations can be put on the firmware of such a
-      device.  In this case, CoAP may be used instead of HTTP, symmetric
       key cryptography instead of public key cryptography, and CBOR
       instead of JSON.  Authentication and key establishment protocol,
       e.g. the DTLS handshake, in comparison with assisted key
@@ -2346,6 +2340,12 @@ Appendix B.  Roles and Responsibilites
       *  Make sure that the RS is registered at the AS.
       *  Make sure that clients can discover the AS which is in charge
          of the RS.
+      *  Make sure that the AS has the necessary, up-to-date, access
+         control policies for the RS.
+
+   Requesting Party
+
+
 
 
 
@@ -2353,11 +2353,6 @@ Seitz, et al.             Expires April 1, 2017                [Page 42]
 
 Internet-Draft                     ACE                    September 2016
 
-
-      *  Make sure that the AS has the necessary, up-to-date, access
-         control policies for the RS.
-
-   Requesting Party
 
       *  Make sure that the client is provisioned the necessary
          credentials to authenticate to the AS.
@@ -2402,6 +2397,11 @@ Internet-Draft                     ACE                    September 2016
             communication security protocols supported by the RS).
       *  Send the token and request to the RS (C)
 
+         +  Authenticate towards the RS (this could coincide with the
+            proof of possession process).
+         +  Transmit the token as specified by the AS (default is to an
+            authorization information endpoint, alternative options are
+            as a CoAP option or in the DTLS handshake).
 
 
 
@@ -2410,11 +2410,6 @@ Seitz, et al.             Expires April 1, 2017                [Page 43]
 Internet-Draft                     ACE                    September 2016
 
 
-         +  Authenticate towards the RS (this could coincide with the
-            proof of possession process).
-         +  Transmit the token as specified by the AS (default is to an
-            authorization information endpoint, alternative options are
-            as a CoAP option or in the DTLS handshake).
          +  Perform the proof-of-possession procedure as specified for
             the type of used token (this may already have been taken
             care of through the authentication procedure).
@@ -2458,6 +2453,11 @@ Appendix C.  Deployment Examples
    security setups between clients, resource servers and authorization
    servers.  The main focus in the following subsections is on how
    authorization of a client request for a resource hosted by a RS is
+   performed.  This requires the the security of the requests and
+   responses between the clients and the RS to consider.
+
+   Note: CBOR diagnostic notation is used for examples of requests and
+   responses.
 
 
 
@@ -2465,12 +2465,6 @@ Seitz, et al.             Expires April 1, 2017                [Page 44]
 
 Internet-Draft                     ACE                    September 2016
 
-
-   performed.  This requires the the security of the requests and
-   responses between the clients and the RS to consider.
-
-   Note: CBOR diagnostic notation is used for examples of requests and
-   responses.
 
 C.1.  Local Token Validation
 
@@ -2513,6 +2507,12 @@ C.1.  Local Token Validation
       Note: In this example we assume that the client knows what
       resource it wants to access, and is therefore able to request
       specific audience and scope claims for the access token.
+
+
+
+
+
+
 
 
 
