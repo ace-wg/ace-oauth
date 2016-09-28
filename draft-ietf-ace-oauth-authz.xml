@@ -206,13 +206,6 @@
    authorization servers (AS). Managing authorization for
    a large number of devices and users is a complex task. </t>
 
-   <t>We envision that end consumers and enterprises will manage
-   access to resources on, or produced by, Internet of Things (IoT) devices
-   in the same style as they do today with data, services and applications
-   on the Web or with their mobile devices. This desire will increase with the
-   number of exposed services and capabilities provided by applications
-   hosted on the IoT devices.</t>
-
    <t>While prior work on authorization solutions for the Web and for the mobile
    environment also applies to the IoT environment many IoT devices are constrained,
    for example in terms of processing capabilities, available memory, etc.
@@ -287,8 +280,8 @@ server or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 
 <section anchor="overview" title="Overview">
 
-  <t>This specification describes the ACE framework for authorization in the Internet
-      of Things consisting of a set of building blocks.</t>
+  <t>This specification defines the ACE framework for authorization in the Internet
+      of Things environment. It consists of a set of building blocks.</t>
 
   <t>
   The basic block is the OAuth 2.0 <xref target="RFC6749"/>
@@ -388,7 +381,7 @@ supported in the future, such as MQTT or QUIC.</t>
         called PoP keys are then used by the client to demonstrate the
         possession of the secret to the RS when accessing the resource.  The
         RS, when receiving an access token, needs to verify that the key used
-        by the client matches the one included in the access token.  When this
+        by the client matches the one bound to the access token.  When this
         specification uses the term "access token" it is assumed to be a PoP token unless
         specifically stated otherwise.
 
@@ -401,17 +394,19 @@ supported in the future, such as MQTT or QUIC.</t>
         <list style="hanging">
 
           <t hangText="Symmetric PoP key:">
-              The AS generates a random symmetric PoP key, encrypts it for the
-              RS and includes it inside an access token.  The PoP key is also
+              The AS generates a random symmetric PoP key.  The key is either
+              stored to be returned on introspection calls or encrypted and
+              included in the access token.  The PoP key is also
               encrypted for the client and sent together with the access token
-              to the client.><vspace blankLines="0"/>
+              to the client.<vspace blankLines="0"/>
 
           </t>
           <t hangText="Asymmetric PoP key:">
               An asymmetric key pair is generated on the client and the public
               key is sent to the AS (if it does not already have knowledge of
               the client's public key).  Information about the public key,
-              which is the PoP key in this case, is then included inside the
+              which is the PoP key in this case, is either
+              stored to be returned on introspection calls or included inside the
               access token and sent back to the requesting client.  The RS
 	      can identify the client's public key from the information in the
 	      token, which allows the client to use the corresponding private
@@ -430,7 +425,7 @@ supported in the future, such as MQTT or QUIC.</t>
 
       <t hangText="Scopes and Permissions:"><vspace blankLines="1"/>
          In OAuth 2.0, the client specifies the type of permissions it is
-         seeking to obtain (via the scope parameter) in the access request.  In
+         seeking to obtain (via the scope parameter) in the access token request.  In
          turn, the AS may use the scope response parameter to inform the
          client of the scope of the access token issued.  As the client could
 	 be a constrained device as well, this specification uses CBOR encoded messages
@@ -455,10 +450,10 @@ supported in the future, such as MQTT or QUIC.</t>
 
       <t hangText="Claims:"><vspace blankLines="1"/>
 
-      Information carried in the access token, called claims, is in the form of
+      Information carried in the access token or returned from introspection, called claims, is in the form of
       type-value pairs.  An access token may, for example, include a claim
       identifying the AS that issued the token (via the "iss" claim) and
-      what audience the access token is intended for (via the "aud" claim). 
+      what audience the access token is intended for (via the "aud" claim).
 	The audience of an access token can be a specific resource or one or
 	many resource servers.  The resource owner policies influence what
 	claims are put into the access token by the authorization server.
@@ -509,8 +504,7 @@ supported in the future, such as MQTT or QUIC.</t>
     security to be terminated at the proxy. One approach for protecting CoAP communication
     end-to-end through proxies, and also to support security for CoAP over
     different transport in a uniform way, is to provide security on application
-    layer using an object-based security mechanism such as CBOR Encoded Message
-    Syntax <xref target="I-D.ietf-cose-msg"/>.
+    layer using an object-based security mechanism such as COSE <xref target="I-D.ietf-cose-msg"/>.
   </t>
 
   <t>
@@ -548,7 +542,7 @@ supported in the future, such as MQTT or QUIC.</t>
     could be pre-configured by the resource owner as authorization policies at
     the AS, which the AS evaluates when a token request arrives.  The resource
     owner and the requesting party (i.e. client owner) are not shown in <xref
-    target="fig:protocolFlow"/>. 
+    target="fig:protocolFlow"/>.
 </t>
 
 <t>
@@ -581,7 +575,7 @@ supported in the future, such as MQTT or QUIC.</t>
 <t> In Bluetooth
     Low Energy, for example, advertisements are broadcasted by a peripheral,
     including information about the primary services.  In CoAP, as a second
-    example, a client can makes a request to "/.well-known/core" to obtain
+    example, a client can make a request to "/.well-known/core" to obtain
     information about available resources, which are returned in a
     standardized format as described in <xref target="RFC6690"/>.
 </t>
@@ -598,8 +592,8 @@ supported in the future, such as MQTT or QUIC.</t>
 |        |                                      ^ |
 |        |            Introspection Request  (D)| |
 | Client |                                      | |
-|        |             Response + Client Token  | |(E) 
-|        |                                      | v 
+|        |             Response + Client Token  | |(E)
+|        |                                      | v
 |        |                               +--------------+
 |        |---(C)-- Token + Request ----->|              |
 |        |                               |   Resource   |
@@ -657,7 +651,7 @@ supported in the future, such as MQTT or QUIC.</t>
       contained in the access token with the resource request. If the RS is
       online, validation can be handed over to the AS using token introspection
       (see messages D and E) over HTTP or CoAP, in  which case the different
-      parts of step C may be interleaved with 
+      parts of step C may be interleaved with
       introspection.<vspace blankLines="0"/>
     </t>
 
@@ -688,7 +682,7 @@ supported in the future, such as MQTT or QUIC.</t>
       If the request from the client is authorized, the RS fulfills the request
       and returns a response with the appropriate response code.  The RS uses
       the dynamically established keys to protect the response, according to
-      used communication security protocol. 
+      used communication security protocol.
     </t>
   </list>
   </t>
@@ -740,7 +734,8 @@ supported in the future, such as MQTT or QUIC.</t>
   </t>
 
   <t>OAuth 2.0 requires the use of TLS both to protect the communication
-  between AS and client when requesting an access token and between AS and RS
+  between AS and client when requesting an access token; between client and RS
+  when accessing a resource and between AS and RS
   for introspection.  In constrained settings TLS is not always feasible,
   or desirable.  Nevertheless it is REQUIRED that the
   data exchanged with the AS is encrypted and integrity protected.  It is
@@ -830,7 +825,7 @@ supported in the future, such as MQTT or QUIC.</t>
     knowledge of the capabilities of the client, otherwise these parameters are
     required.  This prior knowledge may, for example, be set by the use of a
       dynamic client registration protocol exchange <xref
-      target="RFC7591"/>.</t> 
+      target="RFC7591"/>.</t>
 
     <t>The following examples illustrate different types of requests
     for proof-of-possession tokens. </t>
@@ -899,7 +894,7 @@ Payload:
     where a previously communicated proof-of-possession key is only
     referenced.  Note that we assume a DTLS-based communication security
     profile for this example, therefore the Content-Type is
-    "application/cbor". 
+    "application/cbor".
 
     <figure align="center" anchor="fig:kidATreq"
             title="Example request for an access token bound to a
@@ -1095,7 +1090,7 @@ Payload:
 
     <section anchor="paramCnf" title="Confirmation">
       <t>The "cnf" parameter identifies or provides the key used for
-      proof-of-possession or for authenticating the RS depending on the 
+      proof-of-possession or for authenticating the RS depending on the
       proof-of-possession algorithm and the context cnf is used in.  This
       framework extends  the definition of 'cnf' from <xref target="RFC7800"/>
       by adding CBOR/COSE encodings and the use of 'cnf' for transporting keys
@@ -1234,7 +1229,7 @@ Payload:
   <t>Communication between the RS and the introspection endpoint at the
   AS MUST be integrity protected and encrypted.  Furthermore AS and RS
   MUST perform mutual authentication.  Finally the AS SHOULD verify that the
-  RS has the right to access introspection information about the provided  
+  RS has the right to access introspection information about the provided
   token.  Profiles of this framework are expected to specify how
   authentication and communication security is implemented.</t>
 
@@ -1245,7 +1240,8 @@ Payload:
 
   <section anchor="introRS2AS" title="RS-to-AS Request">
     <t>The RS sends a CoAP POST request to the introspection endpoint
-    at the AS, with payload sent as "application/cbor" data.  The payload
+    at the AS, the Content-Type MUST be set according to the specification of
+    the communication security profile.  The payload
     is a CBOR map with a 'token' parameter containing the access token along
     with optional  parameters representing additional context that is known by
     the RS to aid the AS in its response.</t>
@@ -1257,7 +1253,7 @@ Payload:
     introspection endpoint at the AS to query about an OAuth 2.0
     proof-of-possession token.  Note that we assume a object security-based
     communication security profile for this example, therefore the Content-Type
-    is "application/cose+cbor".  
+    is "application/cose+cbor".
 
     <figure align="center" anchor="fig:introReq"
             title="Example introspection request.">
@@ -1294,9 +1290,9 @@ Payload:
       <t hangText="profile"><vspace blankLines="0"/>
       OPTIONAL.  This indicates the profile that the RS MUST use with the
       client.  See <xref target="tokenParams"/> for more details on the
-        formatting of this parameter. 
+        formatting of this parameter.
 <!-- FIXME: Why is this parameter present?
-        Isn't it the client that should have info about profile? 
+        Isn't it the client that should have info about profile?
      ANSWER (LS): The RS could support multiple profiles and needs to
      know which was negotiated between the client and the AS.
 -->
@@ -1312,7 +1308,7 @@ Payload:
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
     Note that we assume a DTLS-based communication security profile for this
-    example, therefore the Content-Type is "application/cbor". 
+    example, therefore the Content-Type is "application/cbor".
 
 
     <figure align="center" anchor="fig:introRes"
@@ -1350,7 +1346,7 @@ Payload:
 
       <t>If content is sent, the Content-Type MUST be set according to the
       specification of the communication security profile, and the payload MUST
-      be encoded in a CBOR map.</t>  
+      be encoded in a CBOR map.</t>
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
       with the CoAP response code code 4.01 (Unauthorized) and use
@@ -1389,18 +1385,18 @@ Payload:
  Client            Server           Server
     |                |                |
     |                |                |
-A:  +--------------->|                |
+C:  +--------------->|                |
     |  POST          |                |
     |  Access Token  |                |
-    |            B:  +--------------->|
+    |            D:  +--------------->|
     |                | Introspection  |
     |                |    Request     |
     |                |                |
-    |            C:  +<---------------+
+    |            E:  +<---------------+
     |                | Introspection  |
     |                |   Response     |
     |                | + Client Token |
-D:  |<---------------+                |
+    |<---------------+                |
     |  2.01 Created  |                |
     | + Client Token |
     ]]></artwork>
@@ -1414,7 +1410,7 @@ D:  |<---------------+                |
       <t hangText="cnf"><vspace blankLines="0"/>
       REQUIRED. Contains information about the proof-of-possession key the
       client is to use with its access token.  See <xref
-      target="paramCnf"/>.<vspace blankLines="1"/></t> 
+      target="paramCnf"/>.<vspace blankLines="1"/></t>
 
       <t hangText="token_type"><vspace blankLines="0"/>
       OPTIONAL. See <xref target="paramTokenType"/>.<vspace
@@ -1431,10 +1427,10 @@ D:  |<---------------+                |
       <t hangText="rs_cnf"><vspace blankLines="0"/>
       OPTIONAL. Contains information about the key that the RS uses
       to authenticate towards the client.  If the key is symmetric then
-      this claim MUST NOT be part of the Client Token, since this is the 
+      this claim MUST NOT be part of the Client Token, since this is the
       same key as the one specified through the 'cnf' claim.  This claim uses
       the same encoding as the 'cnf' parameter.  See <xref
-      target="paramProfile"/>.</t> 
+      target="paramProfile"/>.</t>
     </list>
     </t>
 
@@ -1455,7 +1451,7 @@ D:  |<---------------+                |
           | Parameter name | CBOR Key | Major Type      |
           |----------------+----------+-----------------|
           | iss            | 1        | 3 (text string) |
-          | sub            | 2        | 3               |   
+          | sub            | 2        | 3               |
           | aud            | 3        | 3               |
           | exp            | 4        | 6 tag value 1   |
           | nbf            | 5        | 6 tag value 1   |
@@ -1486,7 +1482,7 @@ D:  |<---------------+                |
   </t>
 
   <t>In order to facilitate offline processing of access tokens,
-  this draft specfifies the "scope" claim for access tokens
+  this draft specifies the "scope" claim for access tokens
   that explicitly encodes the scope of a given access token.  This claim
   follows the same encoding rules as defined in section 3.3 of <xref
   target="RFC6749"/>.  The meaning of a specific scope value is
@@ -1539,7 +1535,7 @@ D:  |<---------------+                |
     target="introspectionEndpoint"/>.  This requires the RS to have a
     reliable network connection to the AS and to be able to handle two
     secure sessions in parallel (C to RS and AS to RS).</t>
-    
+
     <t>The RS and the AS both store a sequence number linked to their common
     security association.  The AS increments this number for each access
     token it issues and includes it in the access token, which is a
@@ -1979,7 +1975,7 @@ D:  |<---------------+                |
       <section anchor="IANAIntrospectionEndpointCBORMappingsRegistry" title="Introspection Endpoint CBOR Mappings Registry">
         <t>A new registry will be requested from IANA, entitled "Introspection
 	Endpoint CBOR Mappings Registry".  The registry is to be created as
-	Expert Review Required.</t> 
+	Expert Review Required.</t>
 
         <section anchor="IANAIntrospectionEndpointCBORMappingsRegistryTemplate" title="Registration Template">
           <t>
@@ -2159,7 +2155,7 @@ D:  |<---------------+                |
               Not used in response
             </t>
             <t hangText="Safe-to-Forward"><vspace blankLines="1"/>
-              TBD
+              Yes
             </t>
             <t hangText="Format"><vspace blankLines="1"/>
               Based on the observer the format is perceived differently.
@@ -2412,7 +2408,6 @@ D:  |<---------------+                |
 	    </t>
 	    <t>Process the access token and RS Information (B)
 	       <list style="symbols">
-		<t>Check that the token has the right format (e.g. CWT).</t>
 		<t>Check that the RS Information provides the necessary
 		security parameters (e.g. PoP key, information on
 		communication security protocols supported by the RS).</t>
@@ -2459,7 +2454,7 @@ D:  |<---------------+                |
 		<t>Check that tokens belonging to the client actually
 		authorize the requested action.</t>
 		<t>Optionally: Check that the matching tokens are still valid (if this is
-		possible.</t>
+		possible.)</t>
 	      </list>
 	    </t>
 	    <t>Send a response following the agreed upon communication security.</t>
@@ -2508,7 +2503,11 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
       <t>A: The client first generates a public-private key pair used for
       communication security with the RS.</t>
 
-      <t>The client sends the POST request to /token at the AS.  The request
+      <t>The client sends the POST request to /token at the AS.  The security
+        of this request can be transport or application layer, it is up the
+        the comunication security profile to define. In the example trasport
+        layer identification of the AS is done and the client identifies with
+        client_id and client_secret as in classic OAuth.  The request
       contains the public key of the client and the Audience parameter set to
       "tempSensorInLivingRoom", a value that the temperature sensor
       identifies itself with.  The AS evaluates the request and authorizes the
@@ -2519,9 +2518,8 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
       contains the public key of the RS.  For communication security
       this example uses DTLS RawPublicKey between the client and the RS. The issued
       token will have a short validity time, i.e. 'exp' close to 'iat',
-      to protect the RS from replay attacks since it, that cannot
-      do introspection to check the tokens current validity. The token includes
-      the claim "scope" with the authorized access that an owner of the
+      to protect the RS from replay attacks. The token includes
+      the claim such as "scope" with the authorized access that an owner of the
       temperature device can enjoy.  In this example, the 'scope' claim, issued
       by the AS, informs the RS that the owner of the token, that can prove
       the possession of a key is authorized to make a GET request
@@ -2540,6 +2538,8 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
          Authorization
   Client    Server
     |         |
+    |<=======>| DTLS Connection Establishment
+    |         |   to identify the AS
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
@@ -2554,9 +2554,9 @@ B:  |<--------+ Header: 2.05 Content
     </figure></t>
 
     <t>The information contained in the Request-Payload and the
-    Response-Payload is shown in <xref target="fig:RSOfflineReq"/>. 
+    Response-Payload is shown in <xref target="fig:RSOfflineReq"/>.
     Note that we assume a DTLS-based communication security profile for this
-    example, therefore the Content-Type is "application/cbor". 
+    example, therefore the Content-Type is "application/cbor".
 
      <figure align="center" anchor="fig:RSOfflineReq"
              title="Request and Response Payload Details.">
@@ -2635,8 +2635,8 @@ C:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"authz-info"
     |         | Payload: SlAV32hkKG ...
     |         |
-    |<--------+ Header: 2.01 Created
-    |  2.01   |
+    |<--------+ Header: 2.04 Changed
+    |  2.04   |
     |         |
 ]]></artwork>
     </figure></t>
@@ -2677,7 +2677,7 @@ F:  |<--------+ Header: 2.05 Content
 
 <section anchor="introspectionAidedTokenValidation" title="Introspection Aided Token Validation">
 
-  <t>In this deployment scenario we assume that a client is not be able to
+  <t>In this deployment scenario we assume that a client is not able to
   access the AS at the time of the access request.  Since the RS is, however,
   connected to the back-end infrastructure it can make use of token
   introspection.  This access procedure involves steps A-F of
@@ -2690,8 +2690,8 @@ F:  |<--------+ Header: 2.05 Content
   server may use its online connectivity to validate the access token with the
   authorization server, which is shown in the example below.</t>
 
-    <t>In the example we show the interactions between an offline client
-    (key fob), a resource server (online lock), and an authorization server.  We
+    <t>In the example interactions between an offline client
+    (key fob), a RS (online lock), and an AS is shown.  We
     assume that there is a provisioning step where the client has access to the
     AS.  This corresponds to message exchanges A and B which are shown in
     <xref target="fig:cOffline"/>.
@@ -2716,7 +2716,10 @@ F:  |<--------+ Header: 2.05 Content
         request contains the Audience parameter set to  "PACS1337" (PACS, Physical Access System), a
         value the that the online door in question identifies itself with.  The
         AS generates an access token as on opaque string, which it can match to
-        the specific client, a targeted audience and a symmetric key.</t>
+        the specific client, a targeted audience and a symmetric key. The
+        security is provided by identifying the AS on transport layer using
+        a pre shared security context (psk, rpk or certificate) and then the
+        client is identified using client_id and client_secret as in classic OAuth</t>
 
         <t>B: The AS responds with the an access token and RS Information,
         the latter containing a symmetric key.
@@ -2789,8 +2792,10 @@ Response-Payload:
 
         <t>D: The RS forwards the token to the /introspect
         endpoint on the AS.  Introspection assumes a secure connection
-        between the AS and the RS, e.g. using transport of application layer security,  which
-  is not detailed in this example.
+        between the AS and the RS, e.g. using transport of application layer
+        security. In the example AS is identified using pre shared security
+        context (psk, rpk or certificate) while RS is acting as client and
+        is identified with client_id and client_secret.
         </t>
 
         <t>E: The AS provides the introspection response containing parameters
@@ -2815,12 +2820,12 @@ C:  +-------->| Header: POST (T=CON, Code=0.02)
     |         |     Authorization
     |         |       Server
     |         |          |
-D:  |         +--------->| Header: POST (Code=0.02)
+    |      D: +--------->| Header: POST (Code=0.02)
     |         |  POST    | Uri-Path: "introspect"
     |         |          | Content-Type: "application/cbor"
     |         |          | Payload: <Request-Payload>
     |         |          |
-E:  |         |<---------+ Header: 2.05 Content
+    |      E: |<---------+ Header: 2.05 Content
     |         |  2.05    | Content-Type: "application/cbor"
     |         |          | Payload: <Response-Payload>
     |         |          |
@@ -2906,7 +2911,7 @@ F:  |<--------+ Header: 2.04 Changed
 	  endpoints /token, /introspect and /authz-info.</t>
 	  <t>Pulled in material from draft-ietf-oauth-pop-key-distribution in
 	  order to define proof-of-possession key distribution.</t>
-	  <t>Introduced the 'cnf' parameter as defined in RFC7800 to reference 
+	  <t>Introduced the 'cnf' parameter as defined in RFC7800 to reference
 	  or transport keys used for proof of posession.</t>
 	  <t>Introduced the 'client-token' to transport client information
 	  from the AS to the client via the RS in conjunction with
