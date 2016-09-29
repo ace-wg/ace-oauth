@@ -300,9 +300,9 @@ supported in the future, such as MQTT or QUIC.</t>
   self contained tokens, and also for encoding CoAP POST parameters and CoAP responses.
   </t>
 
-  <t>A fourth building block is the compact CBOR-based secure message format COSE
-    <xref target="I-D.ietf-cose-msg"/>, which enables application layer security
-    as an alternative or complement to transport layer security (DTLS
+  <t>A fourth building block is the compact CBOR-based secure message format
+  COSE <xref target="I-D.ietf-cose-msg"/>, which enables application layer
+  security as an alternative or complement to transport layer security (DTLS
     <xref target="RFC6347"/> or TLS <xref target="RFC5246"/>). COSE is used to
     secure self contained tokens such as proof-of-possession (PoP) tokens,
     which is an extension to the OAuth access tokens, and "client tokens" which
@@ -788,39 +788,51 @@ supported in the future, such as MQTT or QUIC.</t>
 
       <list style="hanging">
 	<t hangText="aud"><vspace blankLines="0"/>
-	REQUIRED.  Specifies the audience for which the client is
-	requesting an access token.
+	OPTIONAL.  Specifies the audience for which the client is
+	requesting an access token.  If this parameter is missing it is
+	assumed that the client and the AS have a pre-established understanding
+	of the audience that an access token should address.  If a client
+	submits a request for an access token without specifying an "aud"
+	parameter, and the AS does not have a default "aud" value for 
+	this client, then the AS MUST respond with an error message 
+	with the CoAP response code 4.00 (Bad Request).
 	<vspace blankLines="1"/></t>
 
 	<t hangText="profile"><vspace blankLines="0"/>
-	OPTIONAL.  This indicates the profile that the client would like to use
-	with the RS.  See <xref target="paramProfile"/> for more details on the
-	formatting of this parameter.  If the RS cannot support the requested
-	profile, the AS MUST reply with an error message with the error code
-	4.12 Precondition Failed.
+	OPTIONAL.  This indicates the profiles that the client can support for
+	its communication with the RS.  It MUST be formatted as a CBOR
+	array of profile identifiers.  See <xref target="paramProfile"/> for
+	more details on profiles.  If the RS cannot support any of the
+	requested profiles, the AS MUST reply with an error message with the
+	CoAP response code 4.12 (Precondition Failed).
 	<vspace blankLines="1"/></t>
 
 	<t hangText="alg"><vspace blankLines="0"/>
-	OPTIONAL.  This indicates the proof-of-possession algorithm
-	that the client would like to use with the RS.  See <xref
-	target="paramAlg"/> for more details on the formatting of this
-	parameter.  If the RS cannot support the requested profile, the AS MUST
-	reply with an error message with the error code 4.12 Precondition
-	Failed.
+	OPTIONAL.  This indicates the proof-of-possession algorithms
+	that the client can support in communication with the RS.  It MUST be
+	formatted as a CBOR array of algorithm identifiers.  See <xref
+	target="paramAlg"/> for more details on this parameter.  If the RS
+	cannot support any of the requested algorithms, the AS MUST 
+	reply with an error message with the CoAP response code 4.12
+	(Precondition Failed).
 	<vspace blankLines="1"/></t>
 
 	<t hangText="cnf"><vspace blankLines="0"/>
-	OPTIONAL.  This field contains information about a public key the
+	OPTIONAL.  This field contains information about the key the
 	client would like to bind to the access token for proof-of-possession.
-	If the client requests an asymmetric proof-of-possession algorithm, but
-	does not provide a public key, the AS MUST respond with an error
-	message with the  error code 4.00 Bad Request.  See <xref
+	If the client requests an asymmetric proof-of-possession algorithm 
+	using the "alg" parameter, but does not provide a public key, the AS
+	MUST respond with an error message with the CoAP response code 4.00
+	(Bad Request).  It is NOT RECOMMENDED that a client submits a symmetric
+	key value to the AS using this parameter.  See <xref
 	target="paramCnf"/> for more details on the formatting of the 'cnf'
-	parameter.</t> 
+	parameter.</t>  
 
 	<t hangText="token_type"><vspace blankLines="0"/>
-	OPTIONAL.  This indicates that the client would like to use the given
-	token_type with the RS.  See <xref target="paramTokenType"/> for
+	OPTIONAL.  This indicates the token types that the client can support.
+	It MUST be formatted as a CBOR array of token_type identifiers.  
+	The client is assumed to support the "pop" token_type if this
+	parameter is not provided.  See <xref target="paramTokenType"/> for
 	details of this parameter.</t>
 	
       </list>
@@ -846,9 +858,8 @@ Payload:
 {
   "grant_type" : "client_credentials",
   "aud" : "tempSensor4711",
-  "client_id" : "myclient",
-  "profile" : "coap_dtls",
-  "alg" : "TLS_PSK_WITH_AES_128_CCM_8"
+  "profile" : ["coap_dtls"],
+  "alg" : ["TLS_PSK_WITH_AES_128_CCM_8"]
 }
         ]]></artwork>
     </figure></t>
@@ -871,8 +882,8 @@ Payload:
   "grant_type" : "client_credentials",
   "aud" : "lockOfDoor0815",
   "client_id" : "myclient",
-  "profile" : "coap_oscoap",
-  "alg" : "ES256",
+  "profile" : ["coap_oscoap"],
+  "alg" : ["ES256"],
   "cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
@@ -905,7 +916,6 @@ Payload:
   "grant_type" : "client_credentials",
   "aud" : "valve424",
   "scope" : "read",
-  "client_id" : "myclient",
   "cnf" : {
     "kid" : b64'6kg0dXJM13U'
   }
@@ -917,31 +927,27 @@ Payload:
 
   <section anchor="tokenResponse" title="AS-to-Client Response">
     <t>If the access token request has been successfully verified by the
-    AS and the client is authorized to obtain an access token for the indicated
-    audience and scopes (if any), the AS issues an access token.  If client
-    authentication failed or is  invalid, the authorization server returns an
-    error response as described in <xref target="errorsToken"/>.</t>
+    AS and the client is authorized to obtain an access token corresponding
+    to its access token request, the AS sends a response with the CoAP response
+    code 2.01 (Created).  If client request was invalid, or not authorized, the
+    authorization server returns an error response as described in <xref
+    target="errorsToken"/>.</t> 
 
-    <t>In addition to the parameters defined in section 5.1 of <xref
-    target="RFC6749"/>, the following parameters may also be part of a
-    successful response: 
+    <t>The content of the successful reply MUST be encoded as CBOR
+    map, containing paramters as speficied in section 5.1 of <xref
+    target="RFC6749"/>.  In addition to these parameters, the following
+    parameters are also part of a successful response: 
 
     <list style="hanging">
 	<t hangText="profile"><vspace blankLines="0"/>
-	This indicates the profile that the client MUST use
+	REQUIRED.  This indicates the profile that the client MUST use
 	towards the RS. See <xref target="paramProfile"/> for the formatting of
-	this parameter.  This parameter is OPTIONAL if the client indicated
-	a preference in the request and the RS can fulfill this preference.
-	If the client did not indicate a preference this parameter is
-	REQUIRED.<vspace blankLines="1"/></t>
+	this parameter.<vspace blankLines="1"/></t>
 
 	<t hangText="alg"><vspace blankLines="0"/>
-	This indicates the proof-of-possession algorithm that the client
-	MUST use towards the RS. See <xref target="paramAlg"/> for the
-	formatting of this parameter.  This parameter is OPTIONAL if the client
-	indicated a preference in the request and the RS can fulfill this
-	preference.  If the client did not indicate a preference this parameter
-	is REQUIRED.<vspace blankLines="1"/></t>
+	REQUIRED.  This indicates the proof-of-possession algorithm that the
+	client MUST use towards the RS. See <xref target="paramAlg"/> for the
+	formatting of this parameter.<vspace blankLines="1"/></t>
 
 	<t hangText="cnf"><vspace blankLines="0"/>
 	REQUIRED.  If a symmetric proof-of-possession algorithms was
@@ -951,19 +957,19 @@ Payload:
 	target="paramCnf"/> for the formatting of this parameter.</t>
 
 	<t hangText="token_type"><vspace blankLines="0"/>
-	By default implementations of this framework SHOULD assume
+	OPTIONAL.  By default implementations of this framework SHOULD assume
 	that the token_type is 'pop'.  If a specific use case requires another
 	token_type (e.g. 'Bearer') to be used then this parameter is REQUIRED.
 	</t>
       </list>
     </t>
 
-    <t>Note that the access token can also contains a 'cnf' claim,
-    however, these two values are consumed by different parties.  The
-    access token is created by the AS and processed by the RS (and opaque to
-    the client) whereas the RS Information is created by the AS and
-    processed by the client; it is never forwarded to the resource
-    server.</t>
+    <t>Note that if CBOR Web Tokens <xref
+    target="I-D.ietf-ace-cbor-web-token"/> are used, the access token can also
+    contain a 'cnf' claim.  This claim is however consumed by a different
+    party.  The access token is created by the AS and processed by the RS (and
+    opaque to the client) whereas the RS Information is created by the AS and
+    processed by the client; it is never forwarded to the resource server.</t> 
 
     <t>The following examples illustrate different types of responses
     for proof-of-possession tokens.
@@ -1004,16 +1010,17 @@ Payload:
     section  5.2 of <xref target="RFC6749"/>, with the following differences:
     The Content-Type is specified by the communication security profile used
     between client and AS.  The raw payload before being processed by the
-    communication security protocol MUST be encoded in a CBOR map and the CoAP
-    response code 4.00 Bad Request MUST be used unless specified otherwise.
+    communication security protocol MUST be encoded as a CBOR map and the CoAP
+    response code 4.00 (Bad Request) MUST be used unless specified otherwise.
     </t>
   </section>
 
   <section anchor="tokenParams"
 	   title="New Request and Response Parameters">
-    <t>This section defines parameters that can be used in access token
-    requests and responses, as well as abbreviations for more compact encoding
-    of existing parameters and common values.</t>
+    <t>This section provides more detail about the new parameters that can be
+    used in access token requests and responses, as well as abbreviations for
+    more compact encoding of existing parameters and common parameter
+    values.</t> 
 
     <section anchor="paramAud" title="Audience">
       <t>This parameter specifies for which audience the client is requesting
@@ -1057,29 +1064,16 @@ Payload:
       
     </section>
 
-    <section anchor="paramProfile" title="Profile">
+    <section anchor="paramProfile" title="Profiles">
 
-      <t>The 'profile' parameter identifies the communication protocol and the
-      communication security protocol between the client and the RS.</t> 
+      <t>Profiles of this framework are expected to define the communication
+      protocol and the communication security protocol between the client
+      and the RS.  Furthermore profiles are expected to define
+      proof-of-possession methods, if they support proof-of-possession
+      tokens.</t> 
 
-      <t>An initial set of profile identifiers and their CBOR encodings are
-      specified in <xref target="fig:profile"/>.  Profiles using other
-      combinations of protocols are expected to define their own profile
-      identifiers.
-
-      <figure align="center" anchor="fig:profile"
-	      title="Profile identifiers and their CBOR mappings">
-	<artwork align="left"><![CDATA[
-        /--------------------+----------+--------------\
-        | Profile identifier | CBOR Key | Major Type   |
-        |--------------------+----------+--------------|
-        | http_tls           |    0     |     0 (uint) |
-        | coap_dtls          |    1     |     0        |
-        | coap_oscoap        |    2     |     0        |
-        \--------------------+----------+--------------/
-        ]]></artwork>
-      </figure>
-      </t>
+      <t>A profile should specify an identifier that is used to uniquely
+      identify itself in the 'profile' parameter.</t>
 
       <t>Profiles MAY define additional parameters for both the token request
       and the RS Information in the access token response in order to
@@ -1094,14 +1088,9 @@ Payload:
       
       <t>It is expected that the values for the 'alg' parameter depend strongly
       on the profile used between client and RS.  Therefore profiles of this
-      framework are responsible for defining values for the 'alg' parameter
-      together with the corresponding proof-of-possession protocols.</t> 
-
-      <t>The values for proof-of-possession algorithms are case-sensitive and
-      MAY NOT contain space characters.  If a client supports more than one
-      algorithm then each individual value MUST be separated by a space.  The
-      'alg' parameter in the response from the  AS MUST only specify one
-      algorithm.</t>  
+      framework are responsible for defining unique values for the 'alg'
+      parameter together with the corresponding proof-of-possession
+      protocols.</t>  
     </section>
 
     <section anchor="paramCnf" title="Confirmation">
@@ -1118,7 +1107,7 @@ Payload:
       <list style="hanging">
 	<t hangText="COSE_Key">In this case the 'cnf' parameter contains
 	 the proof-of-possession key to be used by the client.  An example
-	 is shown in <xref target="fig:cnfKey"/>.
+	 is shown in <xref target="fig:cnfKey"/>. 
 
 	 <figure align="center" anchor="fig:cnfKey"
 	       title="Confirmation parameter containing a public key">
@@ -1133,7 +1122,12 @@ Payload:
   }
 }
         ]]></artwork>
-      </figure>
+      </figure> <vspace blankLines="1"/>
+
+      Note that the COSE_Key structure may contain an "alg" or "key_ops"
+      parameter.  If such parameters are present, a client MUST NOT use a key
+      that is not compatible with the profile or proof-of-possession algorithm
+      according to those parameters.
     </t>
 
 	<t hangText="COSE_Encrypted">In this case the 'cnf' parameter
@@ -1365,7 +1359,7 @@ Payload:
       be encoded in a CBOR map.</t>
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
-      with the CoAP response code code 4.01 (Unauthorized) and use
+      with the CoAP response code 4.01 (Unauthorized) and use
       the required and optional parameters from section 5.2 in RFC 6749
       <xref target="RFC6749"/>.</t>
 
@@ -1521,9 +1515,9 @@ C:  +--------------->|                |
   validity of the token.  If the token is valid, the RS MUST respond to the
   POST request with 2.04 (Changed).</t>
 
-  <t>If the token is not valid, the RS MUST respond with error code
+  <t>If the token is not valid, the RS MUST respond with the CoAP response code
   4.01 (Unauthorized).  If the token is valid but the audience of the
-  token does not match the RS, the RS MUST respond with error code
+  token does not match the RS, the RS MUST respond with the CoAP response code
   4.03 (Forbidden).
   </t>
 
@@ -2862,7 +2856,7 @@ Response-Payload:
   step F.</t>
 
         <t>After receiving message E, the RS responds to the client's POST in
-        step C with Code 2.01 Created.</t>
+        step C with the CoAP response code 2.01 (Created).</t>
 
         <t><figure align="center" anchor="fig:cOfflineIntrospection"
             title="Token Introspection for C offline">
