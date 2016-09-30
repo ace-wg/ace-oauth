@@ -130,7 +130,7 @@ Internet-Draft                     ACE                    September 2016
    Appendix A.  Design Justification . . . . . . . . . . . . . . . .  41
    Appendix B.  Roles and Responsibilites  . . . . . . . . . . . . .  43
    Appendix C.  Deployment Examples  . . . . . . . . . . . . . . . .  45
-     C.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  45
+     C.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  46
      C.2.  Introspection Aided Token Validation  . . . . . . . . . .  49
    Appendix D.  Document Updates . . . . . . . . . . . . . . . . . .  53
      D.1.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  53
@@ -2388,7 +2388,11 @@ Appendix B.  Roles and Responsibilites
 
    Resource Owner
 
-      *  Make sure that the RS is registered at the AS.
+      *  Make sure that the RS is registered at the AS.  This includes
+         making known to the AS which profiles, token_types, scopes, and
+         key types (symmetric/asymmetric) the RS supports.  Also making
+         it known to the AS which audience(s) the RS identifies itself
+         with.
       *  Make sure that clients can discover the AS which is in charge
          of the RS.
       *  Make sure that the AS has the necessary, up-to-date, access
@@ -2398,10 +2402,6 @@ Appendix B.  Roles and Responsibilites
 
       *  Make sure that the client is provisioned the necessary
          credentials to authenticate to the AS.
-      *  Make sure that the client is configured to follow the security
-         requirements of the Requesting Party, when issuing requests
-         (e.g. minimum communication security requirements, trust
-         anchors).
 
 
 
@@ -2410,7 +2410,13 @@ Seitz, et al.             Expires April 3, 2017                [Page 43]
 Internet-Draft                     ACE                    September 2016
 
 
-      *  Register the client at the AS.
+      *  Make sure that the client is configured to follow the security
+         requirements of the Requesting Party, when issuing requests
+         (e.g. minimum communication security requirements, trust
+         anchors).
+      *  Register the client at the AS.  This includes making known to
+         the AS which profiles, token_types, and key types (symmetric/
+         asymmetric) the client.
 
    Authorization Server
 
@@ -2418,13 +2424,13 @@ Internet-Draft                     ACE                    September 2016
       *  Register clients and including authentication credentials.
       *  Allow Resource Owners to configure and update access control
          policies related to their registered RS'
-      *  Expose a service that allows clients to request tokens.
-      *  Authenticate clients that wishes to request a token.
-      *  Process a token requests against the authorization policies
+      *  Expose the /token endpoint to allow clients to request tokens.
+      *  Authenticate clients that wish to request a token.
+      *  Process a token request against the authorization policies
          configured for the RS.
-      *  Expose a service that allows RS's to submit token introspection
-         requests.
-      *  Authenticate RS's that wishes to get an introspection response.
+      *  Expose the /introspection endpoint that allows RS's to submit
+         token introspection requests.
+      *  Authenticate RS's that wish to get an introspection response.
       *  Process token introspection requests.
       *  Optionally: Handle token revocation.
 
@@ -2435,9 +2441,8 @@ Internet-Draft                     ACE                    September 2016
       *  Submit the token request (A).
 
          +  Authenticate towards the AS.
-         +  Specify which RS, which resource(s), and which action(s) the
-            request(s) will target.
-         +  Specify preferences for communication security
+         +  Optionally (if not pre-configured): Specify which RS, which
+            resource(s), and which action(s) the request(s) will target.
          +  If raw public key (rpk) or certificate is used, make sure
             the AS has the right rpk or certificate for this client.
       *  Process the access token and RS Information (B)
@@ -2449,15 +2454,10 @@ Internet-Draft                     ACE                    September 2016
 
          +  Authenticate towards the RS (this could coincide with the
             proof of possession process).
-         +  Transmit the token as specified by the AS (default is to an
-            authorization information endpoint, alternative options are
-            as a CoAP option or in the DTLS handshake).
-         +  Perform the proof-of-possession procedure as specified for
-            the type of used token (this may already have been taken
-            care of through the authentication procedure).
-      *  Process the RS response (F) requirements of the Requesting
-         Party, when issuing requests (e.g. minimum communication
-         security requirements, trust anchors).
+         +  Transmit the token as specified by the AS (default is to the
+            /authz-info endpoint, alternative options are specified by
+            profiles).
+
 
 
 
@@ -2466,11 +2466,18 @@ Seitz, et al.             Expires April 3, 2017                [Page 44]
 Internet-Draft                     ACE                    September 2016
 
 
+         +  Perform the proof-of-possession procedure as specified by
+            the profile in use (this may already have been taken care of
+            through the authentication procedure).
+      *  Process the RS response (F) requirements of the Requesting
+         Party, when issuing requests (e.g. minimum communication
+         security requirements, trust anchors).
       *  Register the client at the AS.
 
    Resource Server
 
-      *  Expose a way to submit access tokens.
+      *  Expose a way to submit access tokens.  By default this is the
+         /authz-info endpoint.
       *  Process an access token.
 
          +  Verify the token is from the right AS.
@@ -2506,13 +2513,6 @@ Appendix C.  Deployment Examples
    performed.  This requires the the security of the requests and
    responses between the clients and the RS to consider.
 
-   Note: CBOR diagnostic notation is used for examples of requests and
-   responses.
-
-C.1.  Local Token Validation
-
-   In this scenario we consider the case where the resource server is
-   offline, i.e. it is not connected to the AS at the time of the access
 
 
 
@@ -2522,6 +2522,13 @@ Seitz, et al.             Expires April 3, 2017                [Page 45]
 Internet-Draft                     ACE                    September 2016
 
 
+   Note: CBOR diagnostic notation is used for examples of requests and
+   responses.
+
+C.1.  Local Token Validation
+
+   In this scenario we consider the case where the resource server is
+   offline, i.e. it is not connected to the AS at the time of the access
    request.  This access procedure involves steps A, B, C, and F of
    Figure 1.
 
@@ -2559,13 +2566,6 @@ Internet-Draft                     ACE                    September 2016
       Note: In this example we assume that the client knows what
       resource it wants to access, and is therefore able to request
       specific audience and scope claims for the access token.
-
-
-
-
-
-
-
 
 
 

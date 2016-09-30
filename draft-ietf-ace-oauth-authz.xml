@@ -2413,7 +2413,11 @@ C:  +--------------->|                |
       <t><list style="hanging">
 	<t hangText="Resource Owner">
 	  <list style="symbols">
-	    <t>Make sure that the RS is registered at the AS.</t>
+	    <t>Make sure that the RS is registered at the AS.  This includes
+	    making known to the AS which profiles, token_types, scopes, and
+	    key types (symmetric/asymmetric) the RS supports. Also making
+	    it known to the AS which audience(s) the RS identifies itself
+	    with.</t> 
 	    <t>Make sure that clients can discover the AS which is in charge
 	    of the RS.</t>
 	    <t>Make sure that the AS has the necessary, up-to-date, access
@@ -2429,7 +2433,9 @@ C:  +--------------->|                |
 	    requirements of the Requesting Party, when issuing requests
 	    (e.g. minimum communication security requirements, trust
 	    anchors).</t>
-	    <t>Register the client at the AS.</t>
+	    <t>Register the client at the AS.  This includes making known to
+	    the AS which profiles, token_types, and key types
+	    (symmetric/asymmetric) the client.</t>
           </list>
 	  <vspace blankLines="0"/>
         </t>
@@ -2439,13 +2445,14 @@ C:  +--------------->|                |
             <t>Register clients and including authentication credentials.</t>
 	    <t>Allow Resource Owners to configure and update access control
 	    policies related to their registered RS'</t>
-	    <t>Expose a service that allows clients to request tokens.</t>
-            <t>Authenticate clients that wishes to request a token.</t>
-	    <t>Process a token requests against the authorization
+	    <t>Expose the /token endpoint to allow  clients to request
+	    tokens.</t> 
+            <t>Authenticate clients that wish to request a token.</t>
+	    <t>Process a token request against the authorization
 	    policies configured for the RS.</t>
-	    <t>Expose a service that allows RS's to submit token introspection
-	    requests.</t>
-	    <t>Authenticate RS's that wishes to get an introspection
+	    <t>Expose the /introspection endpoint that allows RS's to submit
+	    token introspection requests.</t>
+	    <t>Authenticate RS's that wish to get an introspection
 	    response.</t>
 	    <t>Process token introspection requests.</t>
 	    <t>Optionally: Handle token revocation.</t>
@@ -2458,9 +2465,9 @@ C:  +--------------->|                |
             <t>Submit the token request (A).
 	      <list style="symbols">
 		<t>Authenticate towards the AS.</t>
-		<t>Specify which RS, which resource(s), and which action(s)
-		the request(s) will target.</t>
-		<t>Specify preferences for communication security</t>
+		<t>Optionally (if not pre-configured): Specify which RS, which
+		resource(s), and which action(s) the request(s) will
+		target.</t> 
 		<t>If raw public key (rpk) or certificate is used, make sure
 		the AS has the right rpk or certificate for this client.</t>
 	      </list>
@@ -2476,11 +2483,11 @@ C:  +--------------->|                |
 	      <list style="symbols">
 		<t>Authenticate towards the RS (this could coincide with the
 		proof of possession process).</t>
-		<t>Transmit the token as specified by the AS (default is to an
-		authorization information endpoint, alternative options are as
-		a CoAP option or in the DTLS handshake).</t>
-		<t>Perform the proof-of-possession procedure as specified for
-		the type of used token (this may already have been taken care
+		<t>Transmit the token as specified by the AS (default is to the
+		/authz-info endpoint, alternative options are specified by
+		profiles).</t>
+		<t>Perform the proof-of-possession procedure as specified by
+		the profile in use (this may already have been taken care
 		of through the authentication procedure).</t>
 	      </list>
 	    </t>
@@ -2493,7 +2500,8 @@ C:  +--------------->|                |
 	</t>
 	<t hangText="Resource Server">
 	  <list style="symbols">
-	    <t>Expose a way to submit access tokens.</t>
+	    <t>Expose a way to submit access tokens. By default this is 
+	    the /authz-info endpoint.</t>
             <t>Process an access token.
 	      <list style="symbols">
 		<t>Verify the token is from the right AS.</t>
@@ -2512,11 +2520,12 @@ C:  +--------------->|                |
 		<t>Match the client against existing tokens.</t>
 		<t>Check that tokens belonging to the client actually
 		authorize the requested action.</t>
-		<t>Optionally: Check that the matching tokens are still valid (if this is
-		possible.)</t>
+		<t>Optionally: Check that the matching tokens are still valid
+		(if this is possible.)</t>
 	      </list>
 	    </t>
-	    <t>Send a response following the agreed upon communication security.</t>
+	    <t>Send a response following the agreed upon communication
+	    security.</t> 
           </list>
 	</t>
       </list></t>
