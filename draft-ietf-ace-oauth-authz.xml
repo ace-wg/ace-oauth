@@ -1442,34 +1442,40 @@ C:  +--------------->|                |
 
 </section><!-- introspect endpoint -->
 
-
-
 <section title="The Access Token">
   <t>This framework RECOMMENDS the use of CBOR web token (CWT) as
     specified in <xref target="I-D.ietf-ace-cbor-web-token"/>.
   </t>
 
   <t>In order to facilitate offline processing of access tokens,
-  this draft specifies the "scope" claim for access tokens
-  that explicitly encodes the scope of a given access token.  This claim
-  follows the same encoding rules as defined in section 3.3 of <xref
-  target="RFC6749"/>.  The meaning of a specific scope value is
-  application specific and expected to be known to the RS running
-  that application.</t>
+  this draft specifies the "cnf" and "scope" claims for CBOR web tokens.</t>
+
+  <t>The "scope" claim explicitly encodes the scope of a given access token.
+  This claim follows the same encoding rules as defined in section 3.3 of <xref
+  target="RFC6749"/>.  The meaning of a specific scope value is application
+  specific and expected to be known to the RS running that application.</t>
+
+ <t>The "cnf" claim follows the same rules as specified for JSON web token
+ in RFC7800 <xref target="RFC7800"/>, except that it is encoded in CBOR
+ in the same way as specified for the "cnf" parameter in section <xref
+ target="paramCnf"/>.</t> 
 
 <section title="The 'Authorization Information' Endpoint">
   <t>The access token, containing authorization information and information of
-  the key used by the client, is transported to the RS so that the RS can
-  authenticate and authorize the client request. This section defines a method
-  for transporting the access token to the RS using CoAP that MAY be used. An
-  ACE profile MAY define other methods for token transport.
+  the key used by the client, needs to be transported to the RS so that the RS
+  can authenticate and authorize the client request.</t>
+  
+  <t>This section defines a method for transporting the access token to the RS
+  using CoAP. Profiles of this framework MAY define other methods for token
+  transport.  Implementations conforming to this framework MUST implement 
+  this method of token transportation.
   </t>
 
-  <t>This method REQUIRES the RS to implement an /authz-info endpoint. A client
-  using this method MUST make a POST request to /authz-info on the RS with
-  the access token in the payload. The RS receiving the token MUST verify the
-  validity of the token.  If the token is valid, the RS MUST respond to the
-  POST request with 2.04 (Changed).</t>
+  <t>The method consists of a /authz-info endpoint, implemented by the 
+  RS.  A client using this method MUST make a POST request to /authz-info at
+  the RS with the access token in the payload. The RS receiving the token MUST
+  verify the validity of the token.  If the token is valid, the RS MUST respond
+  to the POST request with 2.04 (Changed).</t>
 
   <t>If the token is not valid, the RS MUST respond with the CoAP response code
   4.01 (Unauthorized).  If the token is valid but the audience of the
@@ -1482,6 +1488,11 @@ C:  +--------------->|                |
   contains a client token (<xref target="clientToken"/>) then this token
   SHALL be included in the payload of the 2.04 (Changed) response.
   </t>
+
+  <t>Profiles are expected to specify how the /authz-info endpoint is
+  protected.  Note that since the token contains information that allow the
+  client and the RS to establish a security context in the first place, mutual
+  authentication may not be possible at this point.</t> 
 </section>
 
 <section anchor="tokenValidity" title="Token Expiration">
