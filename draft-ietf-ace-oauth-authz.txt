@@ -129,14 +129,15 @@ Internet-Draft                     ACE                    September 2016
      12.2.  Informative References . . . . . . . . . . . . . . . . .  40
    Appendix A.  Design Justification . . . . . . . . . . . . . . . .  41
    Appendix B.  Roles and Responsibilites  . . . . . . . . . . . . .  43
-   Appendix C.  Deployment Examples  . . . . . . . . . . . . . . . .  45
-     C.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  46
-     C.2.  Introspection Aided Token Validation  . . . . . . . . . .  49
-   Appendix D.  Document Updates . . . . . . . . . . . . . . . . . .  53
-     D.1.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  53
-     D.2.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  53
-     D.3.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  54
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  54
+   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  45
+   Appendix D.  Deployment Examples  . . . . . . . . . . . . . . . .  46
+     D.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  46
+     D.2.  Introspection Aided Token Validation  . . . . . . . . . .  50
+   Appendix E.  Document Updates . . . . . . . . . . . . . . . . . .  54
+     E.1.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  54
+     E.2.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  54
+     E.3.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  54
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  55
 
 1.  Introduction
 
@@ -160,7 +161,6 @@ Internet-Draft                     ACE                    September 2016
    At one end there are energy-harvesting or battery powered devices
    which have a tight power budget, on the other end there are mains-
    powered devices, and all levels in between.
-
 
 
 
@@ -679,14 +679,15 @@ Internet-Draft                     ACE                    September 2016
       they can request that the AS binds the new access token to the
       same credential as the previous token.
 
-   ACE Profile Negotiation
+   ACE Profiles
 
       The client or RS may be limited in the encodings or protocols it
       supports.  To support a variety of different deployment settings,
       specific interactions between client and RS are defined in an ACE
-      profile.  The ACE framework supports the negotiation of different
-      ACE profiles between client and AS using the "profile" parameter
-      in the token request and token response.
+      profile.  In ACE framework the AS is expected to manage the
+      matching of compatible profile choices between a client and an RS.
+      The AS informs the client of the selected profile using the
+      "profile" parameter in the token request and token response.
 
 
    OAuth 2.0 requires the use of TLS both to protect the communication
@@ -717,7 +718,6 @@ Internet-Draft                     ACE                    September 2016
    request this encoding by setting the CoAP Accept option in the
    request to "application/cbor".  Depending on the profile, the content
    may arrive in a different format wrapping a CBOR payload.
-
 
 
 
@@ -2499,7 +2499,45 @@ Internet-Draft                     ACE                    September 2016
       *  Send a response following the agreed upon communication
          security.
 
-Appendix C.  Deployment Examples
+Appendix C.  Requirements on Profiles
+
+   This section lists the requirements on profiles of this framework,
+   for the convenience of a profile designer.  All this information is
+   also given in the appropriate sections of the main document, this is
+   just meant as a checklist, to make it more easy to spot parts one
+   might have missed.
+
+   o  Specify the discovery process of how the client finds the right AS
+      for an RS it wants to send a request to.
+   o  Specify the communication protocol the client and RS the must use
+      (e.g.  CoAP).
+   o  Specify the security protocol the client and RS must use to
+      protect their communication (e.g.  OSCOAP or DTLS over CoAP).
+      This must provide encryption and integrity protection.
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 45]
+
+Internet-Draft                     ACE                    September 2016
+
+
+   o  Specify how the client and the RS mutually authenticate
+   o  Specify the Content-format of the protocol messages (e.g.
+      "application/cbor" or "application/cose+cbor").
+   o  Specify the proof-of-possession protocol(s) and how to select one,
+      if several are available.  Also specify which key types (e.g.
+      symmetric/asymmetric) are supported by a specific proof-of-
+      possession protocol.
+   o  Specify a unique profile identifier.
+   o  Optionally specify how the RS talks to the AS for introspection.
+   o  Optionally specify how the client talks to the AS for requesting a
+      token.
+   o  Specify how/if the /authz-info endpoint is protected.
+   o  Optionally define other methods of token transport than the
+      /authz-info endpoint.
+
+Appendix D.  Deployment Examples
 
    There is a large variety of IoT deployments, as is indicated in
    Appendix A, and this section highlights a few common variants.  This
@@ -2513,19 +2551,10 @@ Appendix C.  Deployment Examples
    performed.  This requires the the security of the requests and
    responses between the clients and the RS to consider.
 
-
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 45]
-
-Internet-Draft                     ACE                    September 2016
-
-
    Note: CBOR diagnostic notation is used for examples of requests and
    responses.
 
-C.1.  Local Token Validation
+D.1.  Local Token Validation
 
    In this scenario we consider the case where the resource server is
    offline, i.e. it is not connected to the AS at the time of the access
@@ -2541,6 +2570,14 @@ C.1.  Local Token Validation
 
       A: The client first generates a public-private key pair used for
       communication security with the RS.
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 46]
+
+Internet-Draft                     ACE                    September 2016
+
+
       The client sends the POST request to /token at the AS.  The
       security of this request can be transport or application layer, it
       is up the the comunication security profile to define.  In the
@@ -2567,17 +2604,6 @@ C.1.  Local Token Validation
       resource it wants to access, and is therefore able to request
       specific audience and scope claims for the access token.
 
-
-
-
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 46]
-
-Internet-Draft                     ACE                    September 2016
-
-
             Authorization
      Client    Server
        |         |
@@ -2600,6 +2626,13 @@ Internet-Draft                     ACE                    September 2016
    Payload is shown in Figure 17.  Note that we assume a DTLS-based
    communication security profile for this example, therefore the
    Content-Type is "application/cbor".
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 47]
+
+Internet-Draft                     ACE                    September 2016
+
 
    Request-Payload :
    {
@@ -2627,13 +2660,6 @@ Internet-Draft                     ACE                    September 2016
 
              Figure 17: Request and Response Payload Details.
 
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 47]
-
-Internet-Draft                     ACE                    September 2016
-
-
    The content of the access token is shown in Figure 18.
 
    {
@@ -2655,6 +2681,14 @@ Internet-Draft                     ACE                    September 2016
         Figure 18: Access Token including Public Key of the Client.
 
    Messages C and F are shown in Figure 19 - Figure 20.
+
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 48]
+
+Internet-Draft                     ACE                    September 2016
+
 
       C: The client then sends the PoP token to the /authz-info endpoint
       at the RS.  This is a plain CoAP request, i.e. no transport or
@@ -2680,16 +2714,6 @@ Internet-Draft                     ACE                    September 2016
                 Figure 19: Access Token provisioning to RS
       The client and the RS runs the DTLS handshake using the raw public
       keys established in step B and C.
-
-
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 48]
-
-Internet-Draft                     ACE                    September 2016
-
-
       The client sends the CoAP request GET to /temperature on RS over
       DTLS.  The RS verifies that the request is authorized, based on
       previously established security context.
@@ -2712,7 +2736,17 @@ Internet-Draft                     ACE                    September 2016
 
         Figure 20: Resource Request and Response protected by DTLS.
 
-C.2.  Introspection Aided Token Validation
+
+
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 49]
+
+Internet-Draft                     ACE                    September 2016
+
+
+D.2.  Introspection Aided Token Validation
 
    In this deployment scenario we assume that a client is not able to
    access the AS at the time of the access request.  Since the RS is,
@@ -2738,14 +2772,6 @@ C.2.  Introspection Aided Token Validation
    owner.  An example of this for the key fob case could be that the
    resource owner has a connected car, he buys a generic key that he
    wants to use with the car.  To authorize the key fob he connects it
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 49]
-
-Internet-Draft                     ACE                    September 2016
-
-
    to his computer that then provides the UI for the device.  After that
    OAuth 2.0 implicit flow can used to authorize the key for his car at
    the the car manufacturers AS.
@@ -2767,6 +2793,15 @@ Internet-Draft                     ACE                    September 2016
       identified using client_id and client_secret as in classic OAuth
       B: The AS responds with the an access token and RS Information,
       the latter containing a symmetric key.  Communication security
+
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 50]
+
+Internet-Draft                     ACE                    September 2016
+
+
       between C and RS will be DTLS and PreSharedKey.  The PoP key being
       used as the PreSharedKey.
 
@@ -2789,18 +2824,6 @@ Internet-Draft                     ACE                    September 2016
 
    The information contained in the Request-Payload and the Response-
    Payload is shown in Figure 22.
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 50]
-
-Internet-Draft                     ACE                    September 2016
-
 
    Request-Payload:
    {
@@ -2827,6 +2850,14 @@ Internet-Draft                     ACE                    September 2016
 
            Figure 22: Request and Response Payload for C offline
 
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 51]
+
+Internet-Draft                     ACE                    September 2016
+
+
    The access token in this case is just an opaque string referencing
    the authorization information at the AS.
 
@@ -2847,15 +2878,6 @@ Internet-Draft                     ACE                    September 2016
       possession in step F.
       After receiving message E, the RS responds to the client's POST in
       step C with the CoAP response code 2.01 (Created).
-
-
-
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 51]
-
-Internet-Draft                     ACE                    September 2016
 
 
               Resource
@@ -2884,6 +2906,14 @@ Internet-Draft                     ACE                    September 2016
        |         |
 
                Figure 23: Token Introspection for C offline
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 52]
+
+Internet-Draft                     ACE                    September 2016
+
+
       The information contained in the Request-Payload and the Response-
       Payload is shown in Figure 24.
 
@@ -2906,13 +2936,6 @@ Internet-Draft                     ACE                    September 2016
    }
 
          Figure 24: Request and Response Payload for Introspection
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 52]
-
-Internet-Draft                     ACE                    September 2016
-
 
       The client uses the symmetric PoP key to establish a DTLS
       PreSharedKey secure connection to the RS.  The CoAP request PUT is
@@ -2937,13 +2960,23 @@ Internet-Draft                     ACE                    September 2016
 
        Figure 25: Resource request and response protected by OSCOAP
 
-Appendix D.  Document Updates
 
-D.1.  Version -02 to -03
+
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 53]
+
+Internet-Draft                     ACE                    September 2016
+
+
+Appendix E.  Document Updates
+
+E.1.  Version -02 to -03
 
    o  FIXME
 
-D.2.  Version -01 to -02
+E.2.  Version -01 to -02
 
    o  Restructured to remove communication security parts.  These shall
       now be defined in profiles.
@@ -2959,18 +2992,7 @@ D.2.  Version -01 to -02
       introspection and CWT claims.
    o  Moved deployment scenarios to the appendix as examples.
 
-
-
-
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 53]
-
-Internet-Draft                     ACE                    September 2016
-
-
-D.3.  Version -00 to -01
+E.3.  Version -00 to -01
 
    o  Changed 5.1. from "Communication Security Protocol" to "Client
       Information".
@@ -2996,6 +3018,14 @@ D.3.  Version -00 to -01
          access token.
    o  Added 5.2. the CoAP Access-Token option for transferring access
       tokens in messages that do not have payload.
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 54]
+
+Internet-Draft                     ACE                    September 2016
+
+
    o  5.3.2.  Defined success and error responses from the RS when
       receiving an access token.
    o  5.6.:Added section giving guidance on how to handle token
@@ -3012,18 +3042,6 @@ Authors' Addresses
    SWEDEN
 
    Email: ludwig@sics.se
-
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires April 3, 2017                [Page 54]
-
-Internet-Draft                     ACE                    September 2016
 
 
    Goeran Selander
@@ -3053,6 +3071,17 @@ Internet-Draft                     ACE                    September 2016
    Email: erdtman@spotify.com
 
 
+
+
+
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 55]
+
+Internet-Draft                     ACE                    September 2016
+
+
    Hannes Tschofenig
    ARM Ltd.
    Hall in Tirol  6060
@@ -3077,4 +3106,31 @@ Internet-Draft                     ACE                    September 2016
 
 
 
-Seitz, et al.             Expires April 3, 2017                [Page 55]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires April 3, 2017                [Page 56]
