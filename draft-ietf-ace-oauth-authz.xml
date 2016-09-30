@@ -21,8 +21,11 @@
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7519 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
+<!ENTITY RFC7591 SYSTEM
+"http://xml.resource.org/public/rfc/bibxml/reference.RFC.7591.xml">
 <!ENTITY RFC7662 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7662.xml">
-<!ENTITY RFC7744 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7744.xml">
+<!ENTITY RFC7744 SYSTEM
+"http://xml.resource.org/public/rfc/bibxml/reference.RFC.7744.xml">
 <!ENTITY RFC7800 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7800.xml">
 <!ENTITY I-D.ietf-ace-actors SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-actors.xml">
 <!ENTITY I-D.ietf-cose-msg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-cose-msg.xml">
@@ -775,10 +778,10 @@ supported in the future, such as MQTT or QUIC.</t>
     implemented.
   </t>
 
-<t>The figures of this section uses CBOR diagnostic
+  <t>The figures of this section uses CBOR diagnostic
   notation without the integer abbreviations for the parameters or their
   values for better readability.
-</t>
+  </t>
 
   <section anchor="tokenRequest" title="Client-to-AS Request">
     <t>In addition to the parameters that are required or optional
@@ -798,43 +801,12 @@ supported in the future, such as MQTT or QUIC.</t>
 	with the CoAP response code 4.00 (Bad Request).
 	<vspace blankLines="1"/></t>
 
-	<t hangText="profile"><vspace blankLines="0"/>
-	OPTIONAL.  This indicates the profiles that the client can support for
-	its communication with the RS.  It MUST be formatted as a CBOR
-	array of profile identifiers.  See <xref target="paramProfile"/> for
-	more details on profiles.  If the RS cannot support any of the
-	requested profiles, the AS MUST reply with an error message with the
-	CoAP response code 4.12 (Precondition Failed).
-	<vspace blankLines="1"/></t>
-
-	<t hangText="alg"><vspace blankLines="0"/>
-	OPTIONAL.  This indicates the proof-of-possession algorithms
-	that the client can support in communication with the RS.  It MUST be
-	formatted as a CBOR array of algorithm identifiers.  See <xref
-	target="paramAlg"/> for more details on this parameter.  If the RS
-	cannot support any of the requested algorithms, the AS MUST 
-	reply with an error message with the CoAP response code 4.12
-	(Precondition Failed).
-	<vspace blankLines="1"/></t>
-
 	<t hangText="cnf"><vspace blankLines="0"/>
 	OPTIONAL.  This field contains information about the key the
 	client would like to bind to the access token for proof-of-possession.
-	If the client requests an asymmetric proof-of-possession algorithm 
-	using the "alg" parameter, but does not provide a public key, the AS
-	MUST respond with an error message with the CoAP response code 4.00
-	(Bad Request).  It is NOT RECOMMENDED that a client submits a symmetric
-	key value to the AS using this parameter.  See <xref
-	target="paramCnf"/> for more details on the formatting of the 'cnf'
-	parameter.</t>  
-
-	<t hangText="token_type"><vspace blankLines="0"/>
-	OPTIONAL.  This indicates the token types that the client can support.
-	It MUST be formatted as a CBOR array of token_type identifiers.  
-	The client is assumed to support the "pop" token_type if this
-	parameter is not provided.  See <xref target="paramTokenType"/> for
-	details of this parameter.</t>
-	
+	It is NOT RECOMMENDED that a client submits a symmetric key value to
+	the AS using this parameter.  See <xref target="paramCnf"/> for more
+	details on the formatting of the 'cnf' parameter.</t>  	
       </list>
     </t>
 
@@ -858,9 +830,7 @@ Payload:
 {
   "grant_type" : "client_credentials",
   "aud" : "tempSensor4711",
-  "profile" : ["coap_dtls"],
-  "alg" : ["TLS_PSK_WITH_AES_128_CCM_8"]
-}
+ }
         ]]></artwork>
     </figure></t>
 
@@ -880,10 +850,6 @@ Content-Type: "application/cose+cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
-  "aud" : "lockOfDoor0815",
-  "client_id" : "myclient",
-  "profile" : ["coap_oscoap"],
-  "alg" : ["ES256"],
   "cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
@@ -901,7 +867,8 @@ Payload:
     where a previously communicated proof-of-possession key is only
     referenced.  Note that we assume a DTLS-based communication security
     profile for this example, therefore the Content-Type is
-    "application/cbor".
+    "application/cbor".  Also note that the client performs a password
+    based authentication in this example by submitting its client_secret.
 
     <figure align="center" anchor="fig:kidATreq"
             title="Example request for an access token bound to a
@@ -914,6 +881,8 @@ Content-Type: "application/cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
+  "client_id" : "myclient",
+  "client_secret" : "mysecret234",
   "aud" : "valve424",
   "scope" : "read",
   "cnf" : {
@@ -933,6 +902,12 @@ Payload:
     authorization server returns an error response as described in <xref
     target="errorsToken"/>.</t> 
 
+    <t>Note that the AS decides which token type and profile to use when
+    issuing a successful response.  It is assumed that the AS has prior
+   knowledge of the capabilities of the client, and the RS.  This prior
+   knowledge may, for example, be set by the use of a dynamic client
+   registration protocol exchange <xref target="RFC7591"/>.</t>
+
     <t>The content of the successful reply MUST be encoded as CBOR
     map, containing paramters as speficied in section 5.1 of <xref
     target="RFC6749"/>.  In addition to these parameters, the following
@@ -944,17 +919,13 @@ Payload:
 	towards the RS. See <xref target="paramProfile"/> for the formatting of
 	this parameter.<vspace blankLines="1"/></t>
 
-	<t hangText="alg"><vspace blankLines="0"/>
-	REQUIRED.  This indicates the proof-of-possession algorithm that the
-	client MUST use towards the RS. See <xref target="paramAlg"/> for the
-	formatting of this parameter.<vspace blankLines="1"/></t>
-
 	<t hangText="cnf"><vspace blankLines="0"/>
-	REQUIRED.  If a symmetric proof-of-possession algorithms was
-	selected, this field contains the proof-of-possession key.  If an
-	asymmetric algorithm was selected, this field contains information
-	about the public key used by the RS to authenticate.  See <xref
-	target="paramCnf"/> for the formatting of this parameter.</t>
+	REQUIRED if the token type is 'pop'. OPTIONAL otherwise.  If a
+	symmetric proof-of-possession algorithms was selected, this field
+	contains the proof-of-possession key.  If an asymmetric algorithm was
+	selected, this field contains information about the public key used by
+	the RS to authenticate.  See <xref target="paramCnf"/> for the
+	formatting of this parameter.</t> 
 
 	<t hangText="token_type"><vspace blankLines="0"/>
 	OPTIONAL.  By default implementations of this framework SHOULD assume
@@ -1049,22 +1020,21 @@ Payload:
     </section>
 
     <section anchor="paramTokenType" title="Token Type">
-      <t>The 'token_type' parameter allows a client to request a specific type
-      of access token to be used with the RS (e.g. a bearer token).  The AS can
-      also use this parameter to indicate that the RS requires a specific token
-      type in the response.  The 'pop' token type is assumed by default.</t> 
+      <t>The 'token_type' parameter allows the AS to indicate to the
+      client which type of access token it is receiving (e.g. a bearer token).
+      The 'pop' token type MUST be assumed by default if the AS does not
+      provide a different value.</t> 
  
       <t>This document registers the new value "pop" for the OAuth Access
         Token Types registry,  specifying a Proof-of-Possession token.  How the
-      proof-of-possession is performed is specified by profile through the
-      'alg' parameter.</t>
+      proof-of-possession is performed is specified by the profiles.</t>
 
       <t>The values in the 'token_type' parameter are CBOR text strings
       (major type 3).</t>
       
     </section>
 
-    <section anchor="paramProfile" title="Profiles">
+    <section anchor="paramProfile" title="Profile">
 
       <t>Profiles of this framework are expected to define the communication
       protocol and the communication security protocol between the client
@@ -1079,18 +1049,6 @@ Payload:
       and the RS Information in the access token response in order to
       support negotioation or signalling of profile specific parameters.
       </t>
-    </section>
-
-      <section anchor="paramAlg" title="Algorithm">
-      <t>The 'alg' parameter specifies the algorithm that a client uses to
-      perform the proof-of-possession for the key linked to the access token
-      that has the 'pop' token type.</t>
-      
-      <t>It is expected that the values for the 'alg' parameter depend strongly
-      on the profile used between client and RS.  Therefore profiles of this
-      framework are responsible for defining unique values for the 'alg'
-      parameter together with the corresponding proof-of-possession
-      protocols.</t>  
     </section>
 
     <section anchor="paramCnf" title="Confirmation">
@@ -1219,9 +1177,8 @@ Payload:
         | username          | 21       | 3               |
         | password          | 22       | 3               |
         | refresh_token     | 23       | 3               |
-        | alg               | 24       | 3               |
-        | cnf               | 25       | 5 (map)         |
-        | profile           | 26       | 0               |
+        | cnf               | 24       | 5 (map)         |
+        | profile           | 25       | 3               |
         \-------------------+----------+-----------------/
       ]]></artwork>
     </figure>
@@ -1287,9 +1244,6 @@ Payload:
     7662 <xref target="RFC7662"/> with the following additions:
 
     <list style="hanging">
-      <t hangText="alg"><vspace blankLines="0"/>
-      OPTIONAL.  See <xref target="paramAlg"/> for more details.
-      <vspace blankLines="1"/></t>
 
       <t hangText="cnf"><vspace blankLines="0"/>
       OPTIONAL.   This field contains information about the proof-of-possession
@@ -1330,8 +1284,6 @@ Payload:
 {
   "active" : true,
   "scope" : "read",
-  "token_type" : "pop",
-  "alg" : "HS256",
   "profile" : "coap_dtls",
   "client_token" : b64'2QPhg0OhAQo ...
   (remainder of client token omitted for brevity)',
@@ -1418,16 +1370,13 @@ C:  +--------------->|                |
 
     <list style="hanging">
       <t hangText="cnf"><vspace blankLines="0"/>
-      REQUIRED. Contains information about the proof-of-possession key the
-      client is to use with its access token.  See <xref
-      target="paramCnf"/>.<vspace blankLines="1"/></t>
+      REQUIRED if the token type is 'pop', OPTIONAL otherwise.  Contains
+      information about the proof-of-possession key the client is to use with
+      its access token.  See <xref target="paramCnf"/>.<vspace
+      blankLines="1"/></t> 
 
       <t hangText="token_type"><vspace blankLines="0"/>
       OPTIONAL. See <xref target="paramTokenType"/>.<vspace
-      blankLines="1"/></t>
-
-      <t hangText="alg"><vspace blankLines="0"/>
-      OPTIONAL. See <xref target="paramProfile"/>.<vspace
       blankLines="1"/></t>
 
       <t hangText="profile"><vspace blankLines="0"/>
@@ -1471,13 +1420,13 @@ C:  +--------------->|                |
           | scope           | 12       | 3               |
           | token_type      | 19       | 3               |
           | username        | 21       | 3               |
-          | alg             | 24       | 3               |
-          | cnf             | 25       | 5 (map)         |
-          | token           | 27       | 3               |
-          | token_type_hint | 28       | 3               |
-          | active          | 29       | 0 (uint)        |
-          | client_token    | 30       | 3               |
-          | rs_cnf          | 31       | 5               |
+          | cnf             | 24       | 5 (map)         |
+          | profile         | 25       | 0 (uint)        |
+          | token           | 26       | 3               |
+          | token_type_hint | 27       | 3               |
+          | active          | 28       | 0               |
+          | client_token    | 29       | 3               |
+          | rs_cnf          | 30       | 5               |
           \-----------------+----------+-----------------/
         ]]></artwork>
       </figure>
@@ -1583,15 +1532,6 @@ C:  +--------------->|                |
       <t>
         <?rfc subcompact="yes"?>
         <list style='symbols'>
-          <t>Name: <spanx style="verb">alg</spanx></t>
-          <t>Description: Algorithm to use with PoP key, as defined in PoP token specification, </t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-        </list>
-      </t>
-      <t>
-        <?rfc subcompact="yes"?>
-        <list style='symbols'>
           <t>Name: <spanx style="verb">cnf</spanx></t>
           <t>Description: Key to use to prove the right to use an access token,
    as defined in <xref target="RFC7800"/>. </t>
@@ -1643,15 +1583,6 @@ C:  +--------------->|                |
       <section anchor="IANAOAuthParameterRegistration" title="OAuth Parameter Registration">
       <t>This specification registers the following parameters in the OAuth
       Parameters Registry</t>
-      <t>
-        <?rfc subcompact="yes"?>
-        <list style='symbols'>
-          <t>Name: <spanx style="verb">alg</spanx></t>
-          <t>Description: Algorithm to use with PoP key, as defined in PoP token specification, </t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-        </list>
-      </t>
       <t>
         <?rfc subcompact="yes"?>
         <list style='symbols'>
@@ -1964,7 +1895,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">alg</spanx></t>
+              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
               <t>CBOR key value: 24</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -1973,17 +1904,8 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
-              <t>CBOR key value: 25</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
               <t>Parameter name: <spanx style="verb">profile</spanx></t>
-              <t>CBOR key value: 26</t>
+              <t>CBOR key value: 25</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2121,10 +2043,10 @@ C:  +--------------->|                |
               <t>Specification Document(s): this document</t>
             </list>
           </t>
-         <t>
+	  <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">alg</spanx></t>
+              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
               <t>CBOR key value: 24</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2133,7 +2055,7 @@ C:  +--------------->|                |
 	  <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
+              <t>Parameter name: <spanx style="verb">profile</spanx></t>
               <t>CBOR key value: 25</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2143,7 +2065,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">token</spanx></t>
-              <t>CBOR key value: 27</t>
+              <t>CBOR key value: 26</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2152,7 +2074,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">token_type_hint</spanx></t>
-              <t>CBOR key value: 28</t>
+              <t>CBOR key value: 27</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2161,7 +2083,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">active</spanx></t>
-              <t>CBOR key value: 29</t>
+              <t>CBOR key value: 28</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2170,7 +2092,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">client_token</spanx></t>
-              <t>CBOR key value: 30</t>
+              <t>CBOR key value: 29</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2179,7 +2101,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">rs_cnf</spanx></t>
-              <t>CBOR key value: 31</t>
+              <t>CBOR key value: 30</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2308,6 +2230,8 @@ C:  +--------------->|                |
       &RFC7231;
 
       &RFC7519;
+
+      &RFC7591;
 
       &RFC7744;
 
