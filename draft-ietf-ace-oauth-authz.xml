@@ -786,8 +786,8 @@ supported in the future, such as MQTT or QUIC.</t>
 
   <section anchor="tokenRequest" title="Client-to-AS Request">
     <t>The client sends a CoAP POST request to the token endpoint
-    at the AS, the profile is expected to specify the content type
-    and wrapping of the content.  The content of the request consists of the
+    at the AS, the profile is expected to specify the Content-Type
+    and wrapping of the payload.  The content of the request consists of the
     parameters specified in section 4 of the OAuth 2.0 specification <xref
     target="RFC6749"/> encoded as a CBOR map.</t>
 
@@ -904,7 +904,7 @@ Payload:
     AS and the client is authorized to obtain an access token corresponding
     to its access token request, the AS sends a response with the CoAP response
     code 2.01 (Created).  If client request was invalid, or not authorized, the
-    authorization server returns an error response as described in <xref
+    AS returns an error response as described in <xref
     target="errorsToken"/>.</t> 
 
     <t>Note that the AS decides which token type and profile to use when
@@ -1212,10 +1212,10 @@ Payload:
 
   <section anchor="introRS2AS" title="RS-to-AS Request">
     <t>The RS sends a CoAP POST request to the introspection endpoint
-    at the AS, the Content-Type MUST be set according to the specification of
-    the communication security profile.  The payload
-    is a CBOR map with a 'token' parameter containing the access token along
-    with optional  parameters representing additional context that is known by
+    at the AS, the profile is expected to specify the Content-Type and
+    wrapping of the payload.  The payload MUST be encoded as a CBOR map with a
+    'token' parameter containing the access token along with optional
+    parameters representing additional context that is known by 
     the RS to aid the AS in its response.</t>
 
     <t>The same parameters are required and optional as in section 2.1
@@ -1244,9 +1244,16 @@ Payload:
   </section>
 
   <section anchor="introAS2RS" title="AS-to-RS Response">
-    <t>The AS responds with a CBOR object in "application/cbor" format
-    with the same required and optional parameters as in section 2.2. of RFC
-    7662 <xref target="RFC7662"/> with the following additions:
+    <t>If the introspection request is authorized and successfully processed,
+    the AS sends a response with the CoAP response code 2.01 (Created).  If the
+    introspection request was invalid, not authorized or couldn't be processed
+    the AS returns an error response as described in <xref
+    target="errorsIntro"/>.</t>
+    
+    <t>In a successful response, the AS encodes the response parameters in
+    a CBOR map including with the same required and optional parameters as in
+    section 2.2. of RFC 7662 <xref target="RFC7662"/> with the following
+    additions: 
 
     <list style="hanging">
 
@@ -1259,13 +1266,8 @@ Payload:
       <t hangText="profile"><vspace blankLines="0"/>
       OPTIONAL.  This indicates the profile that the RS MUST use with the
       client.  See <xref target="paramProfile"/> for more details on the
-        formatting of this parameter.
-<!-- FIXME: Why is this parameter present?
-        Isn't it the client that should have info about profile?
-     ANSWER (LS): The RS could support multiple profiles and needs to
-     know which was negotiated between the client and the AS.
--->
-        <vspace blankLines="1"/></t>
+      formatting of this parameter.
+      <vspace blankLines="1"/></t>
 
       <t hangText="client_token"><vspace blankLines="0"/>
       OPTIONAL.  This parameter contains information that the RS
@@ -1312,8 +1314,8 @@ Payload:
     <list style="symbols">
 
       <t>If content is sent, the Content-Type MUST be set according to the
-      specification of the communication security profile, and the payload MUST
-      be encoded in a CBOR map.</t>
+      specification of the communication security profile, and the content
+      payload MUST be encoded as a CBOR map.</t>
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
       with the CoAP response code 4.01 (Unauthorized) and use
