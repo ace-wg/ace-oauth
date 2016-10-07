@@ -1,2 +1,2 @@
 # ace-oauth
-[Editor's copy](draft-ietf-ace-oauth-authz.html)
+[Editor's copy](http://htmlpreview.github.com/?draft-ietf-ace-oauth-authz.html)
