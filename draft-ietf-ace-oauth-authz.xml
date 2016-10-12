@@ -19,6 +19,9 @@
 <!ENTITY RFC7228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7228.xml">
 <!ENTITY RFC7231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7231.xml">
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
+<!ENTITY RFC7521 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7521.xml">
+<!ENTITY I-D.ietf-oauth-device-flow SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-device-flow.xml">
+<!ENTITY I-D.ietf-oauth-native-apps SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-native-apps.xml">
 <!ENTITY RFC7519 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
 <!ENTITY RFC7591 SYSTEM
@@ -31,7 +34,7 @@
 <!ENTITY I-D.ietf-cose-msg SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-cose-msg.xml">
 <!ENTITY I-D.selander-ace-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.selander-ace-object-security.xml">
 <!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cbor-web-token.xml">
-<!ENTITY I-D.ietf-core-block SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-block.xml">
+<!ENTITY RFC7959 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7959.xml">
 <!ENTITY I-D.seitz-ace-core-authz SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.seitz-ace-core-authz.xml">
 ]>
 
@@ -180,12 +183,12 @@
          keywords will be used for the search engine. -->
 
     <abstract>
-      <t>This specification defines the ACE framework for authentication and authorization
-        in Internet of Things (IoT) deployments. The ACE framework is based on
+      <t>This specification defines a framework for authentication and authorization
+        in Internet of Things (IoT) environments. The framework is based on
         a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and
       widely used authorization solution suitable for IoT devices.  Existing specifications
-      are used where possible, but where the limitations of IoT devices require it,
-      profiles and extensions are provided.
+      are used where possible, but where the constraints of IoT devices require it,
+      extensions are added and profiles are defined.
       </t>
     </abstract>
   </front>
@@ -293,7 +296,7 @@ server or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
   not appropriate.  CoAP typically runs on top of UDP which further reduces
   overhead and message exchanges. While this specification defines extensions
 for the use of OAuth over CoAP, we do envision further underlying protocols to be
-supported in the future, such as MQTT or QUIC.</t>
+supported in the future, such as HTTP/2, MQTT and QUIC.</t>
 
   <t>A third building block is CBOR <xref target="RFC7049"/> for encodings
   where JSON <xref target="RFC7159"/> is not sufficiently compact.  CBOR is a
@@ -488,7 +491,7 @@ supported in the future, such as MQTT or QUIC.</t>
     'options'.</t>
 
     <t>CoAP supports application-layer fragmentation of the CoAP payloads
-    through blockwise transfers <xref target="I-D.ietf-core-block"/>.  However,
+    through blockwise transfers <xref target="RFC7959"/>.  However,
     block-wise transfer does not increase the size limits of CoAP options,
     therefore data encoded in options has to be kept small.
  </t>
@@ -531,9 +534,13 @@ supported in the future, such as MQTT or QUIC.</t>
     concepts is provided in <xref target="oauth2Overview"/>.
 </t>
 
+<t>The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended 
+further with extensions to OAuth 2.0 (such as RFC 7521 <xref target="RFC7521"/> and <xref target="I-D.ietf-oauth-device-flow"/>). 
+What grant types works best depends on the usage scenario and RFC 7744 <xref target="RFC7744"/> describes many different IoT use cases but there two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of RFC 7521) and the Client Credentials Grant (described in Section 4.4 of RFC 7521). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="I-D.ietf-oauth-native-apps"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constraint. In such a case the resource owner or another person on his or her behalf have arranged with the authorization server out-of-band, which is often accomplished using an commissioning tool.</t>
+
 <t>
     The consent of the resource owner, for giving a client access to a protected
-    resource, can be provdied dynamically as in the traditional OAuth flows, or it
+    resource, can be provided dynamically as in the traditional OAuth flows, or it
     could be pre-configured by the resource owner as authorization policies at
     the AS, which the AS evaluates when a token request arrives.  The resource
     owner and the requesting party (i.e. client owner) are not shown in <xref
@@ -2269,7 +2276,6 @@ C:  +--------------->|                |
       <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
       &I-D.ietf-cose-msg;
 
-      &I-D.selander-ace-object-security;
 
       &I-D.ietf-ace-cbor-web-token;
 
@@ -2291,11 +2297,13 @@ C:  +--------------->|                |
       &RFC7250;
 
 -->
+      &I-D.selander-ace-object-security;
+
       &I-D.seitz-ace-core-authz;
 
       &I-D.ietf-ace-actors;
 
-      &I-D.ietf-core-block;
+      &RFC7959;
 
       &RFC4949;
 
@@ -2320,6 +2328,13 @@ C:  +--------------->|                |
       &RFC7591;
 
       &RFC7744;
+
+      &RFC7521;
+
+      &I-D.ietf-oauth-device-flow; 
+
+      &I-D.ietf-oauth-native-apps;
+
 
     </references>
 
