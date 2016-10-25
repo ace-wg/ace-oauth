@@ -683,7 +683,7 @@
   <dt>Token Introspection Request (D):</dt>
   <dd style="margin-left: 8"><br/><br/> A resource server may be configured to introspect the access token by including it in a request to the /introspect endpoint at that AS.  Token introspection over CoAP is defined in <a href="#introspectionEndpoint">Section 7</a> and for HTTP in <a href="#RFC7662">[RFC7662]</a>.  <br/><br/> Note that token introspection is an optional step and can be omitted if the token is self-contained and the resource server is prepared to perform the token validation on its own.<br/> </dd>
   <dt>Token Introspection Response (E):</dt>
-  <dd style="margin-left: 8"><br/><br/> The AS validates the token and returns the most recent parameters, such as scope, audience, validity etc. associated with it back to the RS.  The RS then uses the received parameters to process the request to either accept or to deny it. The AS can additionally return information that the RS needs to pass on to the client in the form of a client token.  The latter is used to establish keys for mutual authentication between client and RS, when the client has no direct connectivity to the AS.<br/> </dd>
+  <dd style="margin-left: 8"><br/><br/> The AS validates the token and returns the most recent parameters, such as scope, audience, validity etc. associated with it back to the RS.  The RS then uses the received parameters to process the request to either accept or to deny it. The AS can additionally return information that the RS needs to pass on to the client in the form of a client token.  The latter is used to establish keys for mutual authentication between client and RS, when the client has no direct connectivity to the AS, see <a href="#clientToken">Section 7.4</a> for details.<br/> </dd>
   <dt>Protected Resource (F):</dt>
   <dd style="margin-left: 8"><br/><br/> If the request from the client is authorized, the RS fulfills the request and returns a response with the appropriate response code.  The RS uses the dynamically established keys to protect the response, according to used communication security protocol.  </dd>
 </dl>
@@ -1012,7 +1012,8 @@ Payload:
 <p> </p>
 <p id="rfc.section.7.3.p.2">Note that a properly formed and authorized query for an inactive or otherwise invalid token does not warrant an error response by this specification.  In these cases, the authorization server MUST instead respond with an introspection response with the "active" field set to "false".</p>
 <h1 id="rfc.section.7.4"><a href="#rfc.section.7.4">7.4.</a> <a href="#clientToken" id="clientToken">Client Token</a></h1>
-<p id="rfc.section.7.4.p.1">EDITORIAL NOTE: We have tentatively introduced this concept and would specifically like feedback if this is viewed as a useful addition to the framework.</p>
+<p id="rfc.section.7.4.p.1">EDITORIAL NOTE: We have tentatively introduced this concept and would specifically like feedback whether this is viewed as a useful addition to the framework.</p>
+<p id="rfc.section.7.4.p.2">In cases where the client has limited connectivity and needs to get access to a previously unknown resource servers, this framework suggests the following approach:  The client is pre-configured with a generic, long-term access token when it is commissioned.  When the client then tries to access a RS it transmits this access token.  The RS then performs token introspection to learn what access this token grants.  In the introspection response, the AS also relays information for the client, such as the proof-of-possession key, through the RS.  The RS passes on this Client Token to the client in response to the submission of the token.</p>
 <div id="rfc.figure.14"/>
 <div id="fig:client_token"/>
 <pre>
@@ -1036,8 +1037,8 @@ C:  +---------------&gt;|                |
     | + Client Token |
     </pre>
 <p class="figure">Figure 14: Use of the client_token parameter.</p>
-<p id="rfc.section.7.4.p.2">In cases where the client has limited connectivity and is requesting access to a previously unknown resource servers, using a long term token, there are situations where it would be beneficial to relay the proof-of-possession key and other relevant information from the AS to the client through the RS.  The client_token parameter is designed to carry such information, and is intended to be used as described in <a href="#fig:client_token">Figure 14</a>.  </p>
-<p id="rfc.section.7.4.p.3">The client token is a COSE_Encrypted object, containing as payload a CBOR map with the following claims: </p>
+<p id="rfc.section.7.4.p.3">The client_token parameter is designed to carry such information, and is intended to be used as described in <a href="#fig:client_token">Figure 14</a>.  </p>
+<p id="rfc.section.7.4.p.4">The client token is a COSE_Encrypted object, containing as payload a CBOR map with the following claims: </p>
 
 <dl>
   <dt>cnf</dt>
@@ -1051,7 +1052,7 @@ C:  +---------------&gt;|                |
 </dl>
 
 <p> </p>
-<p id="rfc.section.7.4.p.4">The AS encrypts this token using a key shared between the AS and the client, so that only the client can decrypt it and access its payload.  How this key is established is out of scope of this framework.</p>
+<p id="rfc.section.7.4.p.5">The AS encrypts this token using a key shared between the AS and the client, so that only the client can decrypt it and access its payload.  How this key is established is out of scope of this framework.</p>
 <h1 id="rfc.section.7.5"><a href="#rfc.section.7.5">7.5.</a> <a href="#introParamsCbor" id="introParamsCbor">Mapping Introspection parameters to CBOR</a></h1>
 <div id="rfc.figure.15"/>
 <div id="fig:cborIntrospectionParameters"/>

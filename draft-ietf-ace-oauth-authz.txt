@@ -93,9 +93,9 @@ Table of Contents
      7.2.  AS-to-RS Response . . . . . . . . . . . . . . . . . . . .  23
      7.3.  Error Response  . . . . . . . . . . . . . . . . . . . . .  24
      7.4.  Client Token  . . . . . . . . . . . . . . . . . . . . . .  25
-     7.5.  Mapping Introspection parameters to CBOR  . . . . . . . .  26
+     7.5.  Mapping Introspection parameters to CBOR  . . . . . . . .  27
    8.  The Access Token  . . . . . . . . . . . . . . . . . . . . . .  27
-     8.1.  The 'Authorization Information' Endpoint  . . . . . . . .  27
+     8.1.  The 'Authorization Information' Endpoint  . . . . . . . .  28
      8.2.  Token Expiration  . . . . . . . . . . . . . . . . . . . .  28
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  29
    10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  30
@@ -658,7 +658,7 @@ Internet-Draft                     ACE                      October 2016
       return information that the RS needs to pass on to the client in
       the form of a client token.  The latter is used to establish keys
       for mutual authentication between client and RS, when the client
-      has no direct connectivity to the AS.
+      has no direct connectivity to the AS, see Section 7.4 for details.
 
    Protected Resource (F):
 
@@ -1359,16 +1359,48 @@ Internet-Draft                     ACE                      October 2016
 7.4.  Client Token
 
    EDITORIAL NOTE: We have tentatively introduced this concept and would
-   specifically like feedback if this is viewed as a useful addition to
-   the framework.
+   specifically like feedback whether this is viewed as a useful
+   addition to the framework.
 
-   In cases where the client has limited connectivity and is requesting
-   access to a previously unknown resource servers, using a long term
-   token, there are situations where it would be beneficial to relay the
-   proof-of-possession key and other relevant information from the AS to
-   the client through the RS.  The client_token parameter is designed to
-   carry such information, and is intended to be used as described in
-   Figure 14.
+   In cases where the client has limited connectivity and needs to get
+   access to a previously unknown resource servers, this framework
+   suggests the following approach: The client is pre-configured with a
+   generic, long-term access token when it is commissioned.  When the
+   client then tries to access a RS it transmits this access token.  The
+   RS then performs token introspection to learn what access this token
+   grants.  In the introspection response, the AS also relays
+   information for the client, such as the proof-of-possession key,
+   through the RS.  The RS passes on this Client Token to the client in
+   response to the submission of the token.
+
+   The client_token parameter is designed to carry such information, and
+   is intended to be used as described in Figure 14.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.            Expires April 28, 2017                [Page 25]
+
+Internet-Draft                     ACE                      October 2016
+
 
                      Resource       Authorization
     Client            Server           Server
@@ -1394,14 +1426,6 @@ Internet-Draft                     ACE                      October 2016
    The client token is a COSE_Encrypted object, containing as payload a
    CBOR map with the following claims:
 
-
-
-
-Seitz, et al.            Expires April 28, 2017                [Page 25]
-
-Internet-Draft                     ACE                      October 2016
-
-
    cnf
       REQUIRED if the token type is 'pop', OPTIONAL otherwise.  Contains
       information about the proof-of-possession key the client is to use
@@ -1425,30 +1449,6 @@ Internet-Draft                     ACE                      October 2016
    payload.  How this key is established is out of scope of this
    framework.
 
-7.5.  Mapping Introspection parameters to CBOR
-
-   The introspection request and response parameters are mapped to CBOR
-   types as follows and are given an integer key value to save space.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1457,6 +1457,11 @@ Seitz, et al.            Expires April 28, 2017                [Page 26]
 
 Internet-Draft                     ACE                      October 2016
 
+
+7.5.  Mapping Introspection parameters to CBOR
+
+   The introspection request and response parameters are mapped to CBOR
+   types as follows and are given an integer key value to save space.
 
              /-----------------+----------+-----------------\
              | Parameter name  | CBOR Key | Major Type      |
@@ -1501,11 +1506,6 @@ Internet-Draft                     ACE                      October 2016
    token in RFC7800 [RFC7800], except that it is encoded in CBOR in the
    same way as specified for the "cnf" parameter in Section 6.4.5.
 
-8.1.  The 'Authorization Information' Endpoint
-
-   The access token, containing authorization information and
-   information of the key used by the client, needs to be transported to
-
 
 
 
@@ -1514,6 +1514,10 @@ Seitz, et al.            Expires April 28, 2017                [Page 27]
 Internet-Draft                     ACE                      October 2016
 
 
+8.1.  The 'Authorization Information' Endpoint
+
+   The access token, containing authorization information and
+   information of the key used by the client, needs to be transported to
    the RS so that the RS can authenticate and authorize the client
    request.
 
@@ -1558,10 +1562,6 @@ Internet-Draft                     ACE                      October 2016
       synchronization would be performed is out of scope for this memo.
    o  The RS verifies the validity of the token by performing an
       introspection request as specified in Section 7.  This requires
-      the RS to have a reliable network connection to the AS and to be
-      able to handle two secure sessions in parallel (C to RS and AS to
-      RS).
-
 
 
 
@@ -1570,6 +1570,9 @@ Seitz, et al.            Expires April 28, 2017                [Page 28]
 Internet-Draft                     ACE                      October 2016
 
 
+      the RS to have a reliable network connection to the AS and to be
+      able to handle two secure sessions in parallel (C to RS and AS to
+      RS).
    o  The RS and the AS both store a sequence number linked to their
       common security association.  The AS increments this number for
       each access token it issues and includes it in the access token,
@@ -1614,10 +1617,7 @@ Internet-Draft                     ACE                      October 2016
    limit the lifetime of the access token and therefore the lifetime of
    associated key.
 
-   The authorization server MUST offer confidentiality protection for
-   any interactions with the client.  This step is extremely important
-   since the client will obtain the session key from the authorization
-   server for use with a specific access token.  Not using
+
 
 
 
@@ -1626,6 +1626,10 @@ Seitz, et al.            Expires April 28, 2017                [Page 29]
 Internet-Draft                     ACE                      October 2016
 
 
+   The authorization server MUST offer confidentiality protection for
+   any interactions with the client.  This step is extremely important
+   since the client will obtain the session key from the authorization
+   server for use with a specific access token.  Not using
    confidentiality protection exposes this secret (and the access token)
    to an eavesdropper thereby making the proof-of-possession security
    model completely insecure.  This framework relies on profiles to
@@ -1670,10 +1674,6 @@ Internet-Draft                     ACE                      October 2016
    o  Change Controller: IESG
    o  Specification Document(s): this document
 
-   o  Name: "aud"
-   o  Description: Reference to intended receiving RS, as defined in PoP
-      token specification.
-   o  Change Controller: IESG
 
 
 
@@ -1682,6 +1682,10 @@ Seitz, et al.            Expires April 28, 2017                [Page 30]
 Internet-Draft                     ACE                      October 2016
 
 
+   o  Name: "aud"
+   o  Description: Reference to intended receiving RS, as defined in PoP
+      token specification.
+   o  Change Controller: IESG
    o  Specification Document(s): this document
 
    o  Name: "profile"
@@ -1726,10 +1730,6 @@ Internet-Draft                     ACE                      October 2016
    o  Description: A proof-of-possession token.
    o  Change Controller: IESG
    o  Specification Document(s): this document
-
-
-
-
 
 
 

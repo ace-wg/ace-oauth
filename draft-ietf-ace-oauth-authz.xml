@@ -678,7 +678,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
       RS needs to pass on to the client in the form of a client token.  The
       latter is used to establish keys for mutual authentication between
       client and RS, when the client has no direct connectivity to the
-      AS.<vspace blankLines="0"/>
+      AS, see <xref target="clientToken"/> for details.<vspace blankLines="0"/>
     </t>
 
     <t hangText="Protected Resource (F):"><vspace blankLines="1"/>
@@ -1344,15 +1344,20 @@ Payload:
 
   <section anchor="clientToken" title="Client Token">
     <t>EDITORIAL NOTE: We have tentatively introduced this concept and
-    would specifically like feedback if this is viewed as a useful addition
+    would specifically like feedback whether this is viewed as a useful addition
     to the framework.</t>
     <t>In cases where the client has limited connectivity and
-    is requesting access to a previously unknown resource servers, using
-    a long term token, there are situations where it would be beneficial to
-    relay the proof-of-possession key and other relevant information from
-    the AS to the client through the RS.  The client_token parameter
-    is designed to carry such information, and is intended to be used as
-    described in <xref target="fig:client_token"/>.
+    needs to get access to a previously unknown resource servers, this framework
+    suggests the following approach:  The client is pre-configured with a generic,
+    long-term access token when it is commissioned.  When the client then tries to
+    access a RS it transmits this access token.  The RS then performs token 
+    introspection to learn what access this token grants.  In the introspection 
+    response, the AS also relays information for the client, such as 
+    the proof-of-possession key, through the RS.  The RS passes on this Client
+    Token to the client in response to the submission of the token.</t>
+    
+    <t>The client_token parameter is designed to carry such information, and is 
+    intended to be used as described in <xref target="fig:client_token"/>.
 
     <figure align="center" anchor="fig:client_token"
                title="Use of the client_token parameter.">
