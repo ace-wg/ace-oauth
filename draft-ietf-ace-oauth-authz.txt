@@ -101,11 +101,11 @@ Table of Contents
    10. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  31
      10.1.  OAuth Introspection Response Parameter Registration  . .  31
      10.2.  OAuth Parameter Registration . . . . . . . . . . . . . .  32
-     10.3.  OAuth Access Token Types . . . . . . . . . . . . . . . .  32
+     10.3.  OAuth Access Token Types . . . . . . . . . . . . . . . .  33
      10.4.  Token Type Mappings  . . . . . . . . . . . . . . . . . .  33
        10.4.1.  Registration Template  . . . . . . . . . . . . . . .  33
        10.4.2.  Initial Registry Contents  . . . . . . . . . . . . .  33
-     10.5.  CBOR Web Token Claims  . . . . . . . . . . . . . . . . .  33
+     10.5.  CBOR Web Token Claims  . . . . . . . . . . . . . . . . .  34
 
 
 
@@ -117,7 +117,7 @@ Internet-Draft                     ACE                     November 2016
      10.6.  ACE Profile Registry . . . . . . . . . . . . . . . . . .  34
        10.6.1.  Registration Template  . . . . . . . . . . . . . . .  34
      10.7.  OAuth Parameter Mappings Registry  . . . . . . . . . . .  34
-       10.7.1.  Registration Template  . . . . . . . . . . . . . . .  34
+       10.7.1.  Registration Template  . . . . . . . . . . . . . . .  35
        10.7.2.  Initial Registry Contents  . . . . . . . . . . . . .  35
      10.8.  Introspection Endpoint CBOR Mappings Registry  . . . . .  37
        10.8.1.  Registration Template  . . . . . . . . . . . . . . .  37
@@ -130,12 +130,12 @@ Internet-Draft                     ACE                     November 2016
    Appendix A.  Design Justification . . . . . . . . . . . . . . . .  43
    Appendix B.  Roles and Responsibilites  . . . . . . . . . . . . .  45
    Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  47
-   Appendix D.  Deployment Examples  . . . . . . . . . . . . . . . .  47
+   Appendix D.  Deployment Examples  . . . . . . . . . . . . . . . .  48
      D.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  48
-     D.2.  Introspection Aided Token Validation  . . . . . . . . . .  51
-   Appendix E.  Document Updates . . . . . . . . . . . . . . . . . .  55
-     E.1.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  55
-     E.2.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  55
+     D.2.  Introspection Aided Token Validation  . . . . . . . . . .  52
+   Appendix E.  Document Updates . . . . . . . . . . . . . . . . . .  56
+     E.1.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  56
+     E.2.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  56
      E.3.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  56
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  57
 
@@ -1591,7 +1591,12 @@ Internet-Draft                     ACE                     November 2016
    If the token is not valid, the RS MUST respond with the CoAP response
    code 4.01 (Unauthorized).  If the token is valid but the audience of
    the token does not match the RS, the RS MUST respond with the CoAP
-   response code 4.03 (Forbidden).
+   response code 4.03 (Forbidden).  If the token is valid but is
+   associated to claims that the RS cannot process (e.g. an unknown
+   scope) the RS MUST respond with the CoAP response code 4.00 (Bad
+   Request).  In the latter case the RS MAY provide additional
+   information in the error response, in order to clarify what went
+   wrong.
 
    The RS MAY make an introspection request to validate the token before
    responding to the POST /authz-info request.  If the introspection
@@ -1613,11 +1618,6 @@ Internet-Draft                     ACE                     November 2016
    o  The token is a CWT/JWT and includes a 'exp' claim and possibly the
       'nbf' claim.  The RS verifies these by comparing them to values
       from its internal clock as defined in [RFC7519].  In this case the
-      RS's internal clock must reflect the current date and time, or at
-      least be synchronized with the AS's clock.  How this clock
-      synchronization would be performed is out of scope for this memo.
-   o  The RS verifies the validity of the token by performing an
-      introspection request as specified in Section 7.  This requires
 
 
 
@@ -1626,6 +1626,11 @@ Seitz, et al.             Expires June 1, 2017                 [Page 29]
 Internet-Draft                     ACE                     November 2016
 
 
+      RS's internal clock must reflect the current date and time, or at
+      least be synchronized with the AS's clock.  How this clock
+      synchronization would be performed is out of scope for this memo.
+   o  The RS verifies the validity of the token by performing an
+      introspection request as specified in Section 7.  This requires
       the RS to have a reliable network connection to the AS and to be
       able to handle two secure sessions in parallel (C to RS and AS to
       RS).
@@ -1669,11 +1674,6 @@ Internet-Draft                     ACE                     November 2016
 
    Token replay is also not possible since an eavesdropper will also
    have to obtain the corresponding private key or shared secret that is
-   bound to the access token.  Nevertheless, it is good practice to
-   limit the lifetime of the access token and therefore the lifetime of
-   associated key.
-
-
 
 
 
@@ -1681,6 +1681,10 @@ Seitz, et al.             Expires June 1, 2017                 [Page 30]
 
 Internet-Draft                     ACE                     November 2016
 
+
+   bound to the access token.  Nevertheless, it is good practice to
+   limit the lifetime of the access token and therefore the lifetime of
+   associated key.
 
    The authorization server MUST offer confidentiality protection for
    any interactions with the client.  This step is extremely important
@@ -1725,10 +1729,6 @@ Internet-Draft                     ACE                     November 2016
    introspection response parameters
 
    o  Name: "cnf"
-   o  Description: Key to prove the right to use an access token, as
-      defined in [RFC7800].
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
 
 
 
@@ -1737,6 +1737,11 @@ Seitz, et al.             Expires June 1, 2017                 [Page 31]
 
 Internet-Draft                     ACE                     November 2016
 
+
+   o  Description: Key to prove the right to use an access token, as
+      defined in [RFC7800].
+   o  Change Controller: IESG
+   o  Specification Document(s): this document
 
    o  Name: "aud"
    o  Description: Reference to intended receiving RS, as defined in PoP
@@ -1777,6 +1782,18 @@ Internet-Draft                     ACE                     November 2016
    o  Change Controller: IESG
    o  Specification Document(s): this document
 
+
+
+
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 32]
+
+Internet-Draft                     ACE                     November 2016
+
+
 10.3.  OAuth Access Token Types
 
    This specification registers the following new token type in the
@@ -1786,13 +1803,6 @@ Internet-Draft                     ACE                     November 2016
    o  Description: A proof-of-possession token.
    o  Change Controller: IESG
    o  Specification Document(s): this document
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 32]
-
-Internet-Draft                     ACE                     November 2016
-
 
 10.4.  Token Type Mappings
 
@@ -1829,6 +1839,17 @@ Internet-Draft                     ACE                     November 2016
    o  Change Controller: IESG
    o  Specification Document(s): this document
 
+
+
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 33]
+
+Internet-Draft                     ACE                     November 2016
+
+
 10.5.  CBOR Web Token Claims
 
    This specification registers the following new claims in the CBOR Web
@@ -1841,15 +1862,6 @@ Internet-Draft                     ACE                     November 2016
    o  Specification Document(s): this document
 
    o  Claim Name: "cnf"
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 33]
-
-Internet-Draft                     ACE                     November 2016
-
-
    o  Claim Description: The proof-of-possession key of an access token
       as defined in [RFC7800].
    o  Change Controller: IESG
@@ -1886,6 +1898,14 @@ Internet-Draft                     ACE                     November 2016
    CBOR Mappings Registry".  The registry is to be created as Expert
    Review Required.
 
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 34]
+
+Internet-Draft                     ACE                     November 2016
+
+
 10.7.1.  Registration Template
 
    Parameter name:
@@ -1898,14 +1918,6 @@ Internet-Draft                     ACE                     November 2016
       For Standards Track RFCs, list the "IESG".  For others, give the
       name of the responsible party.  Other details (e.g., postal
       address, email address, home page URI) may also be included.
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 34]
-
-Internet-Draft                     ACE                     November 2016
-
-
    Specification Document(s):
       Reference to the document or documents that specify the
       parameter,preferably including URIs that can be used to retrieve
@@ -1942,6 +1954,14 @@ Internet-Draft                     ACE                     November 2016
    o  Parameter name: "scope"
    o  CBOR key value: 12
    o  Change Controller: IESG
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 35]
+
+Internet-Draft                     ACE                     November 2016
+
+
    o  Specification Document(s): this document
 
    o  Parameter name: "state"
@@ -1953,14 +1973,6 @@ Internet-Draft                     ACE                     November 2016
    o  CBOR key value: 14
    o  Change Controller: IESG
    o  Specification Document(s): this document
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 35]
-
-Internet-Draft                     ACE                     November 2016
-
 
    o  Parameter name: "error_description"
    o  CBOR key value: 15
@@ -1998,6 +2010,14 @@ Internet-Draft                     ACE                     November 2016
    o  Specification Document(s): this document
 
    o  Parameter name: "password"
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 36]
+
+Internet-Draft                     ACE                     November 2016
+
+
    o  CBOR key value: 22
    o  Change Controller: IESG
    o  Specification Document(s): this document
@@ -2010,14 +2030,6 @@ Internet-Draft                     ACE                     November 2016
    o  Parameter name: "cnf"
    o  CBOR key value: 24
    o  Change Controller: IESG
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 36]
-
-Internet-Draft                     ACE                     November 2016
-
-
    o  Specification Document(s): this document
 
    o  Parameter name: "profile"
@@ -2054,6 +2066,14 @@ Internet-Draft                     ACE                     November 2016
    o  Response parameter name: "iss"
    o  CBOR key value: 1
    o  Change Controller: IESG
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 37]
+
+Internet-Draft                     ACE                     November 2016
+
+
    o  Specification Document(s): this document
 
    o  Response parameter name: "sub"
@@ -2065,14 +2085,6 @@ Internet-Draft                     ACE                     November 2016
    o  CBOR key value: 3
    o  Change Controller: IESG
    o  Specification Document(s): this document
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 37]
-
-Internet-Draft                     ACE                     November 2016
-
 
    o  Response parameter name: "exp"
    o  CBOR key value: 4
@@ -2110,6 +2122,14 @@ Internet-Draft                     ACE                     November 2016
    o  Specification Document(s): this document
 
    o  Response parameter name: "username"
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 38]
+
+Internet-Draft                     ACE                     November 2016
+
+
    o  CBOR key value: 21
    o  Change Controller: IESG
    o  Specification Document(s): this document
@@ -2122,14 +2142,6 @@ Internet-Draft                     ACE                     November 2016
    o  Parameter name: "profile"
    o  CBOR key value: 25
    o  Change Controller: IESG
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 38]
-
-Internet-Draft                     ACE                     November 2016
-
-
    o  Specification Document(s): this document
 
    o  Response parameter name: "token"
@@ -2166,6 +2178,14 @@ Internet-Draft                     ACE                     November 2016
    Name
 
       Access-Token
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 39]
+
+Internet-Draft                     ACE                     November 2016
+
+
    Number
 
       TBD
@@ -2177,14 +2197,6 @@ Internet-Draft                     ACE                     November 2016
       Contains an Access Token according to [This document] containing
       access permissions of the client.
    Meaning in Response
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 39]
-
-Internet-Draft                     ACE                     November 2016
-
 
       Not used in response
    Safe-to-Forward
@@ -2223,6 +2235,13 @@ Internet-Draft                     ACE                     November 2016
               "CBOR Web Token (CWT)", draft-ietf-ace-cbor-web-token-01
               (work in progress), July 2016.
 
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 40]
+
+Internet-Draft                     ACE                     November 2016
+
+
    [I-D.ietf-cose-msg]
               Schaad, J., "CBOR Object Signing and Encryption (COSE)",
               draft-ietf-cose-msg-24 (work in progress), November 2016.
@@ -2231,16 +2250,6 @@ Internet-Draft                     ACE                     November 2016
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <http://www.rfc-editor.org/info/rfc2119>.
-
-
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 40]
-
-Internet-Draft                     ACE                     November 2016
-
 
    [RFC6347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
@@ -2278,15 +2287,6 @@ Internet-Draft                     ACE                     November 2016
               draft-ietf-oauth-native-apps-06 (work in progress),
               November 2016.
 
-   [I-D.seitz-ace-core-authz]
-              Seitz, L., Selander, G., and M. Vucinic, "Authorization
-              for Constrained RESTful Environments", draft-seitz-ace-
-              core-authz-00 (work in progress), June 2015.
-
-   [I-D.selander-ace-object-security]
-              Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
-              "Object Security of CoAP (OSCOAP)", draft-selander-ace-
-              object-security-06 (work in progress), October 2016.
 
 
 
@@ -2297,6 +2297,16 @@ Seitz, et al.             Expires June 1, 2017                 [Page 41]
 
 Internet-Draft                     ACE                     November 2016
 
+
+   [I-D.seitz-ace-core-authz]
+              Seitz, L., Selander, G., and M. Vucinic, "Authorization
+              for Constrained RESTful Environments", draft-seitz-ace-
+              core-authz-00 (work in progress), June 2015.
+
+   [I-D.selander-ace-object-security]
+              Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
+              "Object Security of CoAP (OSCOAP)", draft-selander-ace-
+              object-security-06 (work in progress), October 2016.
 
    [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
               FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
@@ -2333,6 +2343,17 @@ Internet-Draft                     ACE                     November 2016
               DOI 10.17487/RFC7228, May 2014,
               <http://www.rfc-editor.org/info/rfc7228>.
 
+
+
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 42]
+
+Internet-Draft                     ACE                     November 2016
+
+
    [RFC7231]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Semantics and Content", RFC 7231,
               DOI 10.17487/RFC7231, June 2014,
@@ -2346,13 +2367,6 @@ Internet-Draft                     ACE                     November 2016
               "Assertion Framework for OAuth 2.0 Client Authentication
               and Authorization Grants", RFC 7521, DOI 10.17487/RFC7521,
               May 2015, <http://www.rfc-editor.org/info/rfc7521>.
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 42]
-
-Internet-Draft                     ACE                     November 2016
-
 
    [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
@@ -2388,6 +2402,14 @@ Appendix A.  Design Justification
       messages.  It is therefore important to keep the total
       communication overhead low, including minimizing the number and
       size of messages sent and received, which has an impact of choice
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 43]
+
+Internet-Draft                     ACE                     November 2016
+
+
       on the message format and protocol.  By using CoAP over UDP, and
       CBOR encoded messages some of these aspects are addressed.
       Security protocols contribute to the communication overhead and
@@ -2402,14 +2424,6 @@ Appendix A.  Design Justification
       Some IoT devices are equipped with processors that are
       significantly slower than those found in most current devices on
       the Internet.  This typically has implications on what timely
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 43]
-
-Internet-Draft                     ACE                     November 2016
-
-
       cryptographic operations a device is capable to perform, which in
       turn impacts e.g. protocol latency.  Symmetric key cryptography
       may be used instead of the computationally more expensive public
@@ -2444,6 +2458,14 @@ Internet-Draft                     ACE                     November 2016
       tablets.
    Communication Constraints:
 
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 44]
+
+Internet-Draft                     ACE                     November 2016
+
+
       In certain constrained settings an IoT device may not be able to
       communicate with a given device at all times.  Devices may be
       sleeping, or just disconnected from the Internet because of
@@ -2458,14 +2480,6 @@ Internet-Draft                     ACE                     November 2016
       While we envision deployments to make use of CoAP we explicitly
       want to support HTTP, HTTP/2 or specific protocols, such as
       Bluetooth Smart communication, which does not necessarily use IP.
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 44]
-
-Internet-Draft                     ACE                     November 2016
-
-
       The latter raises the need for application layer security over the
       various interfaces.
 
@@ -2499,6 +2513,15 @@ Appendix B.  Roles and Responsibilites
 
       *  Register RS and manage corresponding security contexts.
       *  Register clients and including authentication credentials.
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 45]
+
+Internet-Draft                     ACE                     November 2016
+
+
       *  Allow Resource Owners to configure and update access control
          policies related to their registered RS'
       *  Expose the /token endpoint to allow clients to request tokens.
@@ -2512,15 +2535,6 @@ Appendix B.  Roles and Responsibilites
       *  Optionally: Handle token revocation.
 
    Client
-
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 45]
-
-Internet-Draft                     ACE                     November 2016
-
 
       *  Discover the AS in charge of the RS that is to be targeted with
          a request.
@@ -2557,6 +2571,13 @@ Internet-Draft                     ACE                     November 2016
          /authz-info endpoint.
       *  Process an access token.
 
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 46]
+
+Internet-Draft                     ACE                     November 2016
+
+
          +  Verify the token is from the right AS.
          +  Verify that the token applies to this RS.
          +  Check that the token has not expired (if the token provides
@@ -2569,15 +2590,6 @@ Internet-Draft                     ACE                     November 2016
          +  Set up communication security with the client.
          +  Authenticate the client.
          +  Match the client against existing tokens.
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 46]
-
-Internet-Draft                     ACE                     November 2016
-
-
          +  Check that tokens belonging to the client actually authorize
             the requested action.
          +  Optionally: Check that the matching tokens are still valid,
@@ -2615,6 +2627,13 @@ Appendix C.  Requirements on Profiles
    o  Optionally define other methods of token transport than the
       /authz-info endpoint.
 
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 47]
+
+Internet-Draft                     ACE                     November 2016
+
+
 Appendix D.  Deployment Examples
 
    There is a large variety of IoT deployments, as is indicated in
@@ -2626,14 +2645,6 @@ Appendix D.  Deployment Examples
    security setups between clients, resource servers and authorization
    servers.  The main focus in the following subsections is on how
    authorization of a client request for a resource hosted by a RS is
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 47]
-
-Internet-Draft                     ACE                     November 2016
-
-
    performed.  This requires the the security of the requests and
    responses between the clients and the RS to consider.
 
@@ -2671,6 +2682,14 @@ D.1.  Local Token Validation
       security this example uses DTLS RawPublicKey between the client
       and the RS.  The issued token will have a short validity time,
       i.e. 'exp' close to 'iat', to protect the RS from replay attacks.
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 48]
+
+Internet-Draft                     ACE                     November 2016
+
+
       The token includes the claim such as "scope" with the authorized
       access that an owner of the temperature device can enjoy.  In this
       example, the 'scope' claim, issued by the AS, informs the RS that
@@ -2681,14 +2700,6 @@ D.1.  Local Token Validation
       Note: In this example we assume that the client knows what
       resource it wants to access, and is therefore able to request
       specific audience and scope claims for the access token.
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 48]
-
-Internet-Draft                     ACE                     November 2016
-
 
             Authorization
      Client    Server
@@ -2712,6 +2723,28 @@ Internet-Draft                     ACE                     November 2016
    Payload is shown in Figure 17.  Note that we assume a DTLS-based
    communication security profile for this example, therefore the
    Content-Type is "application/cbor".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 49]
+
+Internet-Draft                     ACE                     November 2016
+
 
    Request-Payload :
    {
@@ -2739,13 +2772,6 @@ Internet-Draft                     ACE                     November 2016
 
              Figure 17: Request and Response Payload Details.
 
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 49]
-
-Internet-Draft                     ACE                     November 2016
-
-
    The content of the access token is shown in Figure 18.
 
    {
@@ -2767,6 +2793,14 @@ Internet-Draft                     ACE                     November 2016
         Figure 18: Access Token including Public Key of the Client.
 
    Messages C and F are shown in Figure 19 - Figure 20.
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 50]
+
+Internet-Draft                     ACE                     November 2016
+
 
       C: The client then sends the PoP token to the /authz-info endpoint
       at the RS.  This is a plain CoAP request, i.e. no transport or
@@ -2792,16 +2826,6 @@ Internet-Draft                     ACE                     November 2016
                 Figure 19: Access Token provisioning to RS
       The client and the RS runs the DTLS handshake using the raw public
       keys established in step B and C.
-
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 50]
-
-Internet-Draft                     ACE                     November 2016
-
-
       The client sends the CoAP request GET to /temperature on RS over
       DTLS.  The RS verifies that the request is authorized, based on
       previously established security context.
@@ -2823,6 +2847,16 @@ Internet-Draft                     ACE                     November 2016
        |         |
 
         Figure 20: Resource Request and Response protected by DTLS.
+
+
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 51]
+
+Internet-Draft                     ACE                     November 2016
+
 
 D.2.  Introspection Aided Token Validation
 
@@ -2850,14 +2884,6 @@ D.2.  Introspection Aided Token Validation
    owner.  An example of this for the key fob case could be that the
    resource owner has a connected car, he buys a generic key that he
    wants to use with the car.  To authorize the key fob he connects it
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 51]
-
-Internet-Draft                     ACE                     November 2016
-
-
    to his computer that then provides the UI for the device.  After that
    OAuth 2.0 implicit flow can used to authorize the key for his car at
    the the car manufacturers AS.
@@ -2879,6 +2905,15 @@ Internet-Draft                     ACE                     November 2016
       identified using client_id and client_secret as in classic OAuth
       B: The AS responds with the an access token and RS Information,
       the latter containing a symmetric key.  Communication security
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 52]
+
+Internet-Draft                     ACE                     November 2016
+
+
       between C and RS will be DTLS and PreSharedKey.  The PoP key being
       used as the PreSharedKey.
 
@@ -2901,18 +2936,6 @@ Internet-Draft                     ACE                     November 2016
 
    The information contained in the Request-Payload and the Response-
    Payload is shown in Figure 22.
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 52]
-
-Internet-Draft                     ACE                     November 2016
-
 
    Request-Payload:
    {
@@ -2939,6 +2962,14 @@ Internet-Draft                     ACE                     November 2016
 
            Figure 22: Request and Response Payload for C offline
 
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 53]
+
+Internet-Draft                     ACE                     November 2016
+
+
    The access token in this case is just an opaque string referencing
    the authorization information at the AS.
 
@@ -2959,15 +2990,6 @@ Internet-Draft                     ACE                     November 2016
       possession in step F.
       After receiving message E, the RS responds to the client's POST in
       step C with the CoAP response code 2.01 (Created).
-
-
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 53]
-
-Internet-Draft                     ACE                     November 2016
 
 
               Resource
@@ -2996,6 +3018,14 @@ Internet-Draft                     ACE                     November 2016
        |         |
 
                Figure 23: Token Introspection for C offline
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 54]
+
+Internet-Draft                     ACE                     November 2016
+
+
       The information contained in the Request-Payload and the Response-
       Payload is shown in Figure 24.
 
@@ -3019,13 +3049,6 @@ Internet-Draft                     ACE                     November 2016
 
          Figure 24: Request and Response Payload for Introspection
 
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 54]
-
-Internet-Draft                     ACE                     November 2016
-
-
       The client uses the symmetric PoP key to establish a DTLS
       PreSharedKey secure connection to the RS.  The CoAP request PUT is
       sent to the uri-path /state on RS changing state of the door to
@@ -3048,6 +3071,16 @@ Internet-Draft                     ACE                     November 2016
        |         |
 
        Figure 25: Resource request and response protected by OSCOAP
+
+
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 55]
+
+Internet-Draft                     ACE                     November 2016
+
 
 Appendix E.  Document Updates
 
@@ -3073,15 +3106,6 @@ E.2.  Version -01 to -02
 
    o  Restructured to remove communication security parts.  These shall
       now be defined in profiles.
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 55]
-
-Internet-Draft                     ACE                     November 2016
-
-
    o  Restructured section 5 to create new sections on the OAuth
       endpoints /token, /introspect and /authz-info.
    o  Pulled in material from draft-ietf-oauth-pop-key-distribution in
@@ -3106,6 +3130,14 @@ E.3.  Version -00 to -01
       *  Defined the term "Client Information" for the additional
          information returned to the client in addition to the access
          token.
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 56]
+
+Internet-Draft                     ACE                     November 2016
+
+
       *  Require that the messages between AS and client are secured,
          either with (D)TLS or with COSE_Encrypted wrappers.
       *  Removed dependency on OSCoAP and added generic text about
@@ -3126,17 +3158,6 @@ E.3.  Version -00 to -01
       expiration in the absence of reliable time.
    o  Appendix B Added list of roles and responsibilities for C, AS and
       RS.
-
-
-
-
-
-
-
-Seitz, et al.             Expires June 1, 2017                 [Page 56]
-
-Internet-Draft                     ACE                     November 2016
-
 
 Authors' Addresses
 
@@ -3164,6 +3185,15 @@ Authors' Addresses
    Email: erik@wahlstromtekniska.se
 
 
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 57]
+
+Internet-Draft                     ACE                     November 2016
+
+
    Samuel Erdtman
    Spotify AB
    Birger Jarlsgatan 61, 4tr
@@ -3189,4 +3219,30 @@ Authors' Addresses
 
 
 
-Seitz, et al.             Expires June 1, 2017                 [Page 57]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires June 1, 2017                 [Page 58]
