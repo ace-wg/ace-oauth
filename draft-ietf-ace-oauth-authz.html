@@ -426,13 +426,14 @@
 <link href="#rfc.appendix.A" rel="Chapter" title="A Design Justification"/>
 <link href="#rfc.appendix.B" rel="Chapter" title="B Roles and Responsibilites"/>
 <link href="#rfc.appendix.C" rel="Chapter" title="C Requirements on Profiles"/>
-<link href="#rfc.appendix.D" rel="Chapter" title="D Deployment Examples"/>
-<link href="#rfc.appendix.D.1" rel="Chapter" title="D.1 Local Token Validation"/>
-<link href="#rfc.appendix.D.2" rel="Chapter" title="D.2 Introspection Aided Token Validation"/>
-<link href="#rfc.appendix.E" rel="Chapter" title="E Document Updates"/>
-<link href="#rfc.appendix.E.1" rel="Chapter" title="E.1 Version -02 to -03"/>
-<link href="#rfc.appendix.E.2" rel="Chapter" title="E.2 Version -01 to -02"/>
-<link href="#rfc.appendix.E.3" rel="Chapter" title="E.3 Version -00 to -01"/>
+<link href="#rfc.appendix.D" rel="Chapter" title="D Assumptions on AS knowledge about C and RS"/>
+<link href="#rfc.appendix.E" rel="Chapter" title="E Deployment Examples"/>
+<link href="#rfc.appendix.E.1" rel="Chapter" title="E.1 Local Token Validation"/>
+<link href="#rfc.appendix.E.2" rel="Chapter" title="E.2 Introspection Aided Token Validation"/>
+<link href="#rfc.appendix.F" rel="Chapter" title="F Document Updates"/>
+<link href="#rfc.appendix.F.1" rel="Chapter" title="F.1 Version -02 to -03"/>
+<link href="#rfc.appendix.F.2" rel="Chapter" title="F.2 Version -01 to -02"/>
+<link href="#rfc.appendix.F.3" rel="Chapter" title="F.3 Version -00 to -01"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -578,13 +579,14 @@
 </ul><li>Appendix A.   <a href="#rfc.appendix.A">Design Justification</a></li>
 <li>Appendix B.   <a href="#rfc.appendix.B">Roles and Responsibilites</a></li>
 <li>Appendix C.   <a href="#rfc.appendix.C">Requirements on Profiles</a></li>
-<li>Appendix D.   <a href="#rfc.appendix.D">Deployment Examples</a></li>
-<ul><li>D.1.   <a href="#rfc.appendix.D.1">Local Token Validation</a></li>
-<li>D.2.   <a href="#rfc.appendix.D.2">Introspection Aided Token Validation</a></li>
-</ul><li>Appendix E.   <a href="#rfc.appendix.E">Document Updates</a></li>
-<ul><li>E.1.   <a href="#rfc.appendix.E.1">Version -02 to -03</a></li>
-<li>E.2.   <a href="#rfc.appendix.E.2">Version -01 to -02</a></li>
-<li>E.3.   <a href="#rfc.appendix.E.3">Version -00 to -01</a></li>
+<li>Appendix D.   <a href="#rfc.appendix.D">Assumptions on AS knowledge about C and RS</a></li>
+<li>Appendix E.   <a href="#rfc.appendix.E">Deployment Examples</a></li>
+<ul><li>E.1.   <a href="#rfc.appendix.E.1">Local Token Validation</a></li>
+<li>E.2.   <a href="#rfc.appendix.E.2">Introspection Aided Token Validation</a></li>
+</ul><li>Appendix F.   <a href="#rfc.appendix.F">Document Updates</a></li>
+<ul><li>F.1.   <a href="#rfc.appendix.F.1">Version -02 to -03</a></li>
+<li>F.2.   <a href="#rfc.appendix.F.2">Version -01 to -02</a></li>
+<li>F.3.   <a href="#rfc.appendix.F.3">Version -00 to -01</a></li>
 </ul><li><a href="#rfc.authors">Authors' Addresses</a></li>
 
 
@@ -786,8 +788,8 @@ Payload:
 <p><a href="#fig:kidATreq">Figure 4</a> shows a request for a token where a previously communicated proof-of-possession key is only referenced.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  Also note that the client performs a password based authentication in this example by submitting its client_secret (see section 2.3.1. of <a href="#RFC6749">[RFC6749]</a>).  </p>
 <h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#tokenResponse" id="tokenResponse">AS-to-Client Response</a></h1>
 <p id="rfc.section.6.2.p.1">If the access token request has been successfully verified by the AS and the client is authorized to obtain an access token corresponding to its access token request, the AS sends a response with the CoAP response code 2.01 (Created).  If client request was invalid, or not authorized, the AS returns an error response as described in <a href="#errorsToken">Section 6.3</a>.</p>
-<p id="rfc.section.6.2.p.2">Note that the AS decides which token type and profile to use when issuing a successful response.  It is assumed that the AS has prior knowledge of the capabilities of the client, and the RS.  This prior knowledge may, for example, be set by the use of a dynamic client registration protocol exchange <a href="#RFC7591">[RFC7591]</a>.</p>
-<p id="rfc.section.6.2.p.3">The content of the successful reply MUST be encoded as CBOR map, containing parameters as speficied in section 5.1 of <a href="#RFC6749">[RFC6749]</a>.  In addition to these parameters, the following parameters are also part of a successful response: </p>
+<p id="rfc.section.6.2.p.2">Note that the AS decides which token type and profile to use when issuing a successful response.  It is assumed that the AS has prior knowledge of the capabilities of the client, and the RS (see <a href="#app:registration">Appendix D</a>.  This prior knowledge may, for example, be set by the use of a dynamic client registration protocol exchange <a href="#RFC7591">[RFC7591]</a>.</p>
+<p id="rfc.section.6.2.p.3">The content of the successful reply MUST be encoded as CBOR map, containing parameters as specified in section 5.1 of <a href="#RFC6749">[RFC6749]</a>.  In addition to these parameters, the following parameters are also part of a successful response: </p>
 
 <dl>
   <dt>profile</dt>
@@ -852,7 +854,7 @@ Payload:
 <h1 id="rfc.section.6.4.4"><a href="#rfc.section.6.4.4">6.4.4.</a> <a href="#paramProfile" id="paramProfile">Profile</a></h1>
 <p id="rfc.section.6.4.4.p.1">Profiles of this framework are expected to define the communication protocol and the communication security protocol between the client and the RS.  Furthermore profiles are expected to define proof-of-possession methods, if they support proof-of-possession tokens.</p>
 <p id="rfc.section.6.4.4.p.2">A profile should specify an identifier that is used to uniquely identify itself in the 'profile' parameter.</p>
-<p id="rfc.section.6.4.4.p.3">Profiles MAY define additional parameters for both the token request and the RS Information in the access token response in order to support negotioation or signalling of profile specific parameters.  </p>
+<p id="rfc.section.6.4.4.p.3">Profiles MAY define additional parameters for both the token request and the RS Information in the access token response in order to support negotiation or signalling of profile specific parameters.  </p>
 <h1 id="rfc.section.6.4.5"><a href="#rfc.section.6.4.5">6.4.5.</a> <a href="#paramCnf" id="paramCnf">Confirmation</a></h1>
 <p id="rfc.section.6.4.5.p.1">The "cnf" parameter identifies or provides the key used for proof-of-possession or for authenticating the RS depending on the proof-of-possession algorithm and the context cnf is used in.  This framework extends  the definition of 'cnf' from <a href="#RFC7800">[RFC7800]</a> by adding CBOR/COSE encodings and the use of 'cnf' for transporting keys in the RS Information.</p>
 <p id="rfc.section.6.4.5.p.2">The "cnf" parameter is used in the following contexts with the following meaning: </p>
@@ -1932,7 +1934,7 @@ C:  +---------------&gt;|                |
     <p> </p>
   </dd>
 </dl>
-<h1 id="rfc.appendix.C"><a href="#rfc.appendix.C">Appendix C.</a> <a href="#profileRequirements" id="profileRequirements">Requirements on Profiles</a></h1>
+<h1 id="rfc.appendix.C"><a href="#rfc.appendix.C">Appendix C.</a> <a href="#app:profileRequirements" id="app:profileRequirements">Requirements on Profiles</a></h1>
 <p id="rfc.section.C.p.1">This section lists the requirements on profiles of this framework, for the convenience of a profile designer.  All this information is also given in the appropriate sections of the main document, this is just meant as a checklist, to make it more easy to spot parts one might have missed.  </p>
 
 <ul>
@@ -1950,21 +1952,38 @@ C:  +---------------&gt;|                |
 </ul>
 
 <p> </p>
-<h1 id="rfc.appendix.D"><a href="#rfc.appendix.D">Appendix D.</a> <a href="#options" id="options">Deployment Examples</a></h1>
-<p id="rfc.section.D.p.1">There is a large variety of IoT deployments, as is indicated in <a href="#constraints">Appendix A</a>, and this section highlights a few common variants.  This section is not normative but illustrates how the framework can be applied.  </p>
-<p id="rfc.section.D.p.2">For each of the deployment variants there are a number of possible security setups between clients, resource servers and authorization servers.  The main focus in the following subsections is on how authorization of a client request for a resource hosted by a RS is performed.  This requires the the security of the requests and responses between the clients and the RS to consider.  </p>
-<p id="rfc.section.D.p.3">Note: CBOR diagnostic notation is used for examples of requests and responses.</p>
-<h1 id="rfc.appendix.D.1"><a href="#rfc.appendix.D.1">D.1.</a> <a href="#localTokenValidation" id="localTokenValidation">Local Token Validation</a></h1>
-<p id="rfc.section.D.1.p.1">In this scenario we consider the case where the resource server is offline, i.e. it is not connected to the AS at the time of the access request.  This access procedure involves steps A, B, C, and F of <a href="#fig:protocolFlow">Figure 1</a>.  </p>
-<p id="rfc.section.D.1.p.2">Since the resource server must be able to verify the access token locally, self-contained access tokens must be used.</p>
-<p id="rfc.section.D.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 16</a>.</p>
+<h1 id="rfc.appendix.D"><a href="#rfc.appendix.D">Appendix D.</a> <a href="#app:registration" id="app:registration">Assumptions on AS knowledge about C and RS</a></h1>
+<p id="rfc.section.D.p.1">This section lists the assumptions on what an AS should know about a client and a RS in order to be able to respond to requests to the /token and /introspect endpoints.  How this information is established is out of scope for this document.  </p>
+
+<ul>
+  <li>The identifier of the client or RS.</li>
+  <li>The profiles that the client or RS supports.</li>
+  <li>The scopes that the RS supports.</li>
+  <li>The audiences that the RS identifies with.</li>
+  <li>The key types (e.g. pre-shared symmetric key, raw public key, key length, other key parameters) that the client or RS supports.</li>
+  <li>The types of access tokens the RS supports (e.g. CWT).</li>
+  <li>If the RS supports CWTs, the COSE parameters for the crypto wrapper (algorithm, key-wrap algorithm).</li>
+  <li>The expiration time for access tokens issued to this RS (unless the RS accepts a default time chosen by the AS).</li>
+  <li>The symmetric key shared between client or RS and AS (if any).</li>
+  <li>The raw public key of the client or RS (if any).</li>
+</ul>
+
+<p> </p>
+<h1 id="rfc.appendix.E"><a href="#rfc.appendix.E">Appendix E.</a> <a href="#options" id="options">Deployment Examples</a></h1>
+<p id="rfc.section.E.p.1">There is a large variety of IoT deployments, as is indicated in <a href="#constraints">Appendix A</a>, and this section highlights a few common variants.  This section is not normative but illustrates how the framework can be applied.  </p>
+<p id="rfc.section.E.p.2">For each of the deployment variants there are a number of possible security setups between clients, resource servers and authorization servers.  The main focus in the following subsections is on how authorization of a client request for a resource hosted by a RS is performed.  This requires the the security of the requests and responses between the clients and the RS to consider.  </p>
+<p id="rfc.section.E.p.3">Note: CBOR diagnostic notation is used for examples of requests and responses.</p>
+<h1 id="rfc.appendix.E.1"><a href="#rfc.appendix.E.1">E.1.</a> <a href="#localTokenValidation" id="localTokenValidation">Local Token Validation</a></h1>
+<p id="rfc.section.E.1.p.1">In this scenario we consider the case where the resource server is offline, i.e. it is not connected to the AS at the time of the access request.  This access procedure involves steps A, B, C, and F of <a href="#fig:protocolFlow">Figure 1</a>.  </p>
+<p id="rfc.section.E.1.p.2">Since the resource server must be able to verify the access token locally, self-contained access tokens must be used.</p>
+<p id="rfc.section.E.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 16</a>.</p>
 <p/>
 
 <dl>
   <dt></dt>
   <dd style="margin-left: 8">A: The client first generates a public-private key pair used for communication security with the RS.</dd>
   <dt></dt>
-  <dd style="margin-left: 8">The client sends the POST request to /token at the AS.  The security of this request can be transport or application layer, it is up the the comunication security profile to define. In the example trasport layer identification of the AS is done and the client identifies with client_id and client_secret as in classic OAuth.  The request contains the public key of the client and the Audience parameter set to "tempSensorInLivingRoom", a value that the temperature sensor identifies itself with.  The AS evaluates the request and authorizes the client to access the resource.</dd>
+  <dd style="margin-left: 8">The client sends the POST request to /token at the AS.  The security of this request can be transport or application layer, it is up the the communication security profile to define. In the example transport layer identification of the AS is done and the client identifies with client_id and client_secret as in classic OAuth.  The request contains the public key of the client and the Audience parameter set to "tempSensorInLivingRoom", a value that the temperature sensor identifies itself with.  The AS evaluates the request and authorizes the client to access the resource.</dd>
   <dt></dt>
   <dd style="margin-left: 8">B: The AS responds with a PoP token and RS Information.  The PoP token contains the public key of the client, and the RS Information contains the public key of the RS.  For communication security this example uses DTLS RawPublicKey between the client and the RS. The issued token will have a short validity time, i.e. 'exp' close to 'iat', to protect the RS from replay attacks. The token includes the claim such as "scope" with the authorized access that an owner of the temperature device can enjoy.  In this example, the 'scope' claim, issued by the AS, informs the RS that the owner of the token, that can prove the possession of a key is authorized to make a GET request against the /temperature resource and a POST request on the /firmware resource.  Note that the syntax and semantics of the scope claim are application specific.</dd>
   <dt></dt>
@@ -2019,8 +2038,8 @@ Response-Payload :
 }
         </pre>
 <p class="figure">Figure 17: Request and Response Payload Details.</p>
-<p id="rfc.section.D.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 17</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
-<p id="rfc.section.D.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 18</a>.</p>
+<p id="rfc.section.E.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 17</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
+<p id="rfc.section.E.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 18</a>.</p>
 <div id="rfc.figure.18"/>
 <div id="fig:BothcborMappingValueAsymmetricCWT"/>
 <pre>
@@ -2057,7 +2076,7 @@ C:  +--------&gt;| Header: POST (Code=0.02)
     |         |
 </pre>
 <p class="figure">Figure 19: Access Token provisioning to RS</p>
-<p id="rfc.section.D.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 19</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 20</a>.  </p>
+<p id="rfc.section.E.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 19</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 20</a>.  </p>
 
 <dl>
   <dt></dt>
@@ -2091,12 +2110,12 @@ F:  |&lt;--------+ Header: 2.05 Content
       </pre>
 <p class="figure">Figure 20: Resource Request and Response protected by DTLS.</p>
 <p/>
-<h1 id="rfc.appendix.D.2"><a href="#rfc.appendix.D.2">D.2.</a> <a href="#introspectionAidedTokenValidation" id="introspectionAidedTokenValidation">Introspection Aided Token Validation</a></h1>
-<p id="rfc.section.D.2.p.1">In this deployment scenario we assume that a client is not able to access the AS at the time of the access request.  Since the RS is, however, connected to the back-end infrastructure it can make use of token introspection.  This access procedure involves steps A-F of <a href="#fig:protocolFlow">Figure 1</a>, but assumes steps A and B have been carried out during a phase when the client had connectivity to AS.  </p>
-<p id="rfc.section.D.2.p.2">Since the client is assumed to be offline, at least for a certain period of time, a pre-provisioned access token has to be long-lived.  The resource server may use its online connectivity to validate the access token with the authorization server, which is shown in the example below.</p>
-<p id="rfc.section.D.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  We assume that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 21</a>.  </p>
-<p id="rfc.section.D.2.p.4">Authorization consent from the resource owner can be pre-configured, but it can also be provided via an interactive flow with the resource owner.  An example of this for the key fob case could be that the resource owner has a connected car, he buys a generic key that he wants to use with the car.  To authorize the key fob he connects it to his computer that then provides the UI for the device.  After that OAuth 2.0 implicit flow can used to authorize the key for his car at the the car manufacturers AS.</p>
-<p id="rfc.section.D.2.p.5">Note: In this example the client does not know the exact door it will be used to access since the token request is not send at the time of access. So the scope and audience parameters is set quite wide to start with and new values different form the original once can be returned from introspection later on.</p>
+<h1 id="rfc.appendix.E.2"><a href="#rfc.appendix.E.2">E.2.</a> <a href="#introspectionAidedTokenValidation" id="introspectionAidedTokenValidation">Introspection Aided Token Validation</a></h1>
+<p id="rfc.section.E.2.p.1">In this deployment scenario we assume that a client is not able to access the AS at the time of the access request.  Since the RS is, however, connected to the back-end infrastructure it can make use of token introspection.  This access procedure involves steps A-F of <a href="#fig:protocolFlow">Figure 1</a>, but assumes steps A and B have been carried out during a phase when the client had connectivity to AS.  </p>
+<p id="rfc.section.E.2.p.2">Since the client is assumed to be offline, at least for a certain period of time, a pre-provisioned access token has to be long-lived.  The resource server may use its online connectivity to validate the access token with the authorization server, which is shown in the example below.</p>
+<p id="rfc.section.E.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  We assume that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 21</a>.  </p>
+<p id="rfc.section.E.2.p.4">Authorization consent from the resource owner can be pre-configured, but it can also be provided via an interactive flow with the resource owner.  An example of this for the key fob case could be that the resource owner has a connected car, he buys a generic key that he wants to use with the car.  To authorize the key fob he connects it to his computer that then provides the UI for the device.  After that OAuth 2.0 implicit flow can used to authorize the key for his car at the the car manufacturers AS.</p>
+<p id="rfc.section.E.2.p.5">Note: In this example the client does not know the exact door it will be used to access since the token request is not send at the time of access. So the scope and audience parameters is set quite wide to start with and new values different form the original once can be returned from introspection later on.</p>
 <p/>
 
 <dl>
@@ -2154,8 +2173,8 @@ Response-Payload:
 }
       </pre>
 <p class="figure">Figure 22: Request and Response Payload for C offline</p>
-<p id="rfc.section.D.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 22</a>.  </p>
-<p id="rfc.section.D.2.p.9">The access token in this case is just an opaque string referencing the authorization information at the AS.</p>
+<p id="rfc.section.E.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 22</a>.  </p>
+<p id="rfc.section.E.2.p.9">The access token in this case is just an opaque string referencing the authorization information at the AS.</p>
 <div id="rfc.figure.23"/>
 <div id="fig:cOfflineIntrospection"/>
 <pre>
@@ -2254,8 +2273,8 @@ F:  |&lt;--------+ Header: 2.04 Changed
             </pre>
 <p class="figure">Figure 25: Resource request and response protected by OSCOAP</p>
 <p/>
-<h1 id="rfc.appendix.E"><a href="#rfc.appendix.E">Appendix E.</a> <a href="#app:changelog" id="app:changelog">Document Updates</a></h1>
-<h1 id="rfc.appendix.E.1"><a href="#rfc.appendix.E.1">E.1.</a> <a href="#app:f3t4" id="app:f3t4">Version -02 to -03</a></h1>
+<h1 id="rfc.appendix.F"><a href="#rfc.appendix.F">Appendix F.</a> <a href="#app:changelog" id="app:changelog">Document Updates</a></h1>
+<h1 id="rfc.appendix.F.1"><a href="#rfc.appendix.F.1">F.1.</a> <a href="#app:f3t4" id="app:f3t4">Version -02 to -03</a></h1>
 <p/>
 
 <ul>
@@ -2269,19 +2288,19 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Renamed token, introspection and authz-info to 'endpoint' instead of 'resource' to mirror the OAuth 2.0 terminology.</li>
   <li>Updated the examples in the appendices.</li>
 </ul>
-<h1 id="rfc.appendix.E.2"><a href="#rfc.appendix.E.2">E.2.</a> <a href="#app:f2t3" id="app:f2t3">Version -01 to -02</a></h1>
+<h1 id="rfc.appendix.F.2"><a href="#rfc.appendix.F.2">F.2.</a> <a href="#app:f2t3" id="app:f2t3">Version -01 to -02</a></h1>
 <p/>
 
 <ul>
   <li>Restructured to remove communication security parts.  These shall now be defined in profiles.</li>
   <li>Restructured section 5 to create new sections on the OAuth endpoints /token, /introspect and /authz-info.</li>
   <li>Pulled in material from draft-ietf-oauth-pop-key-distribution in order to define proof-of-possession key distribution.</li>
-  <li>Introduced the 'cnf' parameter as defined in RFC7800 to reference or transport keys used for proof of posession.</li>
+  <li>Introduced the 'cnf' parameter as defined in RFC7800 to reference or transport keys used for proof of possession.</li>
   <li>Introduced the 'client-token' to transport client information from the AS to the client via the RS in conjunction with introspection.</li>
   <li>Expanded the IANA section to define parameters for token request, introspection and CWT claims.</li>
   <li>Moved deployment scenarios to the appendix as examples.</li>
 </ul>
-<h1 id="rfc.appendix.E.3"><a href="#rfc.appendix.E.3">E.3.</a> <a href="#app:f1t2" id="app:f1t2">Version -00 to -01</a></h1>
+<h1 id="rfc.appendix.F.3"><a href="#rfc.appendix.F.3">F.3.</a> <a href="#app:f1t2" id="app:f1t2">Version -00 to -01</a></h1>
 <p/>
 
 <ul>

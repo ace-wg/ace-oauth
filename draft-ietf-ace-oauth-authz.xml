@@ -923,12 +923,13 @@ Payload:
 
     <t>Note that the AS decides which token type and profile to use when
     issuing a successful response.  It is assumed that the AS has prior
-   knowledge of the capabilities of the client, and the RS.  This prior
-   knowledge may, for example, be set by the use of a dynamic client
-   registration protocol exchange <xref target="RFC7591"/>.</t>
+   knowledge of the capabilities of the client, and the RS (see <xref
+   target="app:registration"/>.  This prior knowledge may, for example, be set 
+   by the use of a dynamic client registration protocol exchange 
+   <xref target="RFC7591"/>.</t>
 
     <t>The content of the successful reply MUST be encoded as CBOR
-    map, containing parameters as speficied in section 5.1 of <xref
+    map, containing parameters as specified in section 5.1 of <xref
     target="RFC6749"/>.  In addition to these parameters, the following
     parameters are also part of a successful response:
 
@@ -1067,7 +1068,7 @@ Payload:
 
       <t>Profiles MAY define additional parameters for both the token request
       and the RS Information in the access token response in order to
-      support negotioation or signalling of profile specific parameters.
+      support negotiation or signalling of profile specific parameters.
       </t>
     </section>
 
@@ -2591,7 +2592,7 @@ C:  +--------------->|                |
     </section>
 
 <!-- ***************************************************** -->
-<section anchor="profileRequirements" title="Requirements on Profiles">
+<section anchor="app:profileRequirements" title="Requirements on Profiles">
   <t>This section lists the requirements on profiles of this framework,
   for the convenience of a profile designer.  All this information is
   also given in the appropriate sections of the main document, this
@@ -2638,7 +2639,31 @@ C:  +--------------->|                |
 
 </section>
 
+<section anchor="app:registration" 
+	 title="Assumptions on AS knowledge about C and RS">
 
+ <t>This section lists the assumptions on what an AS should know about a 
+ client and a RS in order to be able to respond to requests to the /token
+ and /introspect endpoints.  How this information is established is out of 
+ scope for this document.
+
+  <list style="symbols">
+    <t>The identifier of the client or RS.</t>
+    <t>The profiles that the client or RS supports.</t>
+    <t>The scopes that the RS supports.</t>
+    <t>The audiences that the RS identifies with.</t>
+    <t>The key types (e.g. pre-shared symmetric key, raw public key,
+    key length, other key parameters) that the client or RS supports.</t>
+    <t>The types of access tokens the RS supports (e.g. CWT).</t>
+    <t>If the RS supports CWTs, the COSE parameters for the crypto wrapper
+    (algorithm, key-wrap algorithm).</t>
+    <t>The expiration time for access tokens issued to this RS
+    (unless the RS accepts a default time chosen by the AS).</t>
+    <t>The symmetric key shared between client or RS and AS (if any).</t>
+    <t>The raw public key of the client or RS (if any).</t>
+  </list>
+ </t> 
+</section>
 
 <!-- ***************************************************** -->
       <section anchor="options" title="Deployment Examples">
@@ -2682,7 +2707,7 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
 
       <t>The client sends the POST request to /token at the AS.  The security
         of this request can be transport or application layer, it is up the
-        the comunication security profile to define. In the example trasport
+        the communication security profile to define. In the example transport
         layer identification of the AS is done and the client identifies with
         client_id and client_secret as in classic OAuth.  The request
       contains the public key of the client and the Audience parameter set to
@@ -3103,7 +3128,7 @@ F:  |<--------+ Header: 2.04 Changed
 	  <t>Pulled in material from draft-ietf-oauth-pop-key-distribution in
 	  order to define proof-of-possession key distribution.</t>
 	  <t>Introduced the 'cnf' parameter as defined in RFC7800 to reference
-	  or transport keys used for proof of posession.</t>
+	  or transport keys used for proof of possession.</t>
 	  <t>Introduced the 'client-token' to transport client information
 	  from the AS to the client via the RS in conjunction with
 	  introspection.</t>
