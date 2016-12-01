@@ -782,20 +782,40 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   access token requests.  This framework extends the functionality of the
   /token endpoint, giving the AS the possibility to help client and RS to
   establish shared keys or to exchange their public keys.  Furthermore
-  this framework defines encodings using CoAP and CBOR, instead of
+  this framework defines encodings using CoAP and CBOR, in additon to
   HTTP and JSON.</t>
 
   <t>Communication between the client and the /token endpoint at the
     AS MUST be integrity protected and encrypted.  Furthermore AS and client
-    MUST perform mutual authentication.  Profiles of this framework are
-    expected to specify how authentication and communication security is
-    implemented.
-  </t>
+    MUST perform mutual authentication.</t>
+  <t>Authentication of the requesting client is done using client credentials
+	as defined by OAuth 2.0. A profile MAY specify new client credentials
+	types for the authentication of the client.</t>
+  <t>Profiles of this framework SHOULD specify how authentication of the AS
+	is done and how communication security is implemented. If nothing is
+	specified TLS with server certificate is asumed as defined by OAuth 2.0.</t>
+  <t>When requesting a token the client is authticated with client credentials
+	and then a grant is pressented that gives the client the right to
+	get a token.</t>
 
   <t>The figures of this section uses CBOR diagnostic
   notation without the integer abbreviations for the parameters or their
   values for better readability.
   </t>
+  <section anchor="token" title="Client Credentilals and Grants">
+	  <t>To issue a token the client MUST be authenticated and present a
+		  valid grant for the scopes requested.</t>
+	  <t>The OAuth framework, <xref target="RFC6749"/>, defines one client credentila
+		  type, client id and client secret. Profiles of this framework MAY extend
+		  with aditional client credentials such as DTLS pre-shared keys or clent
+		  certificates.</t>
+	  <t>In the OAuth framework five grant types are defined. The grant types can
+		  be split up into three groups, those granted on behalf of the resource
+		  owner (password, authorization code, implicit), those for the client
+		  (client_credentials), and those used to prolong a grand (refresh token).</t>
+	  <t>profiles MAY define additional grant types if needed, e.g. a proof of
+		  posession refesh token.</t>
+  </section>
 
   <section anchor="tokenRequest" title="Client-to-AS Request">
     <t>The client sends a CoAP POST request to the token endpoint
@@ -868,6 +888,8 @@ Content-Type: "application/cose+cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
+  "client_id" : "myclient",
+  "client_secret" : "mysecret234",
   "cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
@@ -1030,7 +1052,7 @@ Payload:
   </section>
 
   <section anchor="tokenParams"
-	   title="New Request and Response Parameters">
+	   title="Request and Response Parameters">
     <t>This section provides more detail about the new parameters that can be
     used in access token requests and responses, as well as abbreviations for
     more compact encoding of existing parameters and common parameter
@@ -1042,25 +1064,25 @@ Payload:
       formatting and semantics of these strings are application specific.</t>
     </section>
 
-    <section anchor="paramGrantType" title="Grant Type">
-      <t>The abbreviations in <xref target="fig:grant_types"/> MAY be
-      used in CBOR encodings instead of the string values defined
-      in <xref target="RFC6749"/>.
+	<section anchor="paramGrantType" title="Grant Type">
+		<t>The abbreviations in <xref target="fig:grant_types"/> MAY be
+		used in CBOR encodings instead of the string values defined
+		in <xref target="RFC6749"/>.
 
-       <figure align="center" anchor="fig:grant_types"
-	       title="CBOR abbreviations for common grant types ">
-	 <artwork align="left"><![CDATA[
-          /--------------------+----------+--------------\
-          | grant_type         | CBOR Key | Major Type   |
-          |--------------------+----------+--------------|
-          | password           |    0     |     0 (uint) |
-          | authorization_code |    1     |     0        |
-          | client_credentials |    2     |     0        |
-          | refresh_token      |    3     |     0        |
-          \--------------------+----------+--------------/
-        ]]></artwork>
-      </figure></t>
-    </section>
+		<figure align="center" anchor="fig:grant_types"
+			title="CBOR abbreviations for common grant types ">
+			<artwork align="left"><![CDATA[
+				/--------------------+----------+--------------\
+				| grant_type         | CBOR Key | Major Type   |
+				|--------------------+----------+--------------|
+				| password           |    0     |     0 (uint) |
+				| authorization_code |    1     |     0        |
+				| client_credentials |    2     |     0        |
+				| refresh_token      |    3     |     0        |
+				\--------------------+----------+--------------/
+			]]></artwork>
+		</figure></t>
+	</section>
 
     <section anchor="paramTokenType" title="Token Type">
       <t>The 'token_type' parameter allows the AS to indicate to the
