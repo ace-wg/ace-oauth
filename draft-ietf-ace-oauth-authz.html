@@ -859,13 +859,37 @@ Payload:
 <p class="figure">Figure 6: Example AS response with an access token bound to a      symmetric key.</p>
 <p><a href="#fig:symmATres">Figure 6</a> shows a response containing a token and a 'cnf' parameter with a symmetric proof-of-possession key.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
 <h1 id="rfc.section.6.4"><a href="#rfc.section.6.4">6.4.</a> <a href="#errorsToken" id="errorsToken">Error Response</a></h1>
-<p id="rfc.section.6.4.p.1">The error responses for CoAP-based interactions with the AS are equivalent to the ones for HTTP-based interactions as defined in section  5.2 of <a href="#RFC6749">[RFC6749]</a>, with the following differences: The Content-Type is specified by the communication security profile used between client and AS.  The raw payload before being processed by the communication security protocol MUST be encoded as a CBOR map and the CoAP response code 4.00 (Bad Request) MUST be used unless specified otherwise.  </p>
+<div id="rfc.figure.7"/>
+<div id="fig:cborErrorCodes"/>
+<pre>
+	/------------------------+----------+--------------\
+	| error code             | CBOR Key | Major Type   |
+	|------------------------+----------+--------------|
+	| invalid_request        |    0     |     0 (uint) |
+	| invalid_client         |    1     |     0        |
+	| invalid_grant          |    2     |     0        |
+	| unauthorized_client    |    3     |     0        |
+	| unsupported_grant_type |    4     |     0        |
+	| invalid_scope          |    5     |     0        |
+	\------------------------+----------+--------------/
+	</pre>
+<p class="figure">Figure 7: CBOR abbreviations for common error codes</p>
+<p id="rfc.section.6.4.p.1">The error responses for CoAP-based interactions with the AS are equivalent to the ones for HTTP-based interactions as defined in section 5.2 of <a href="#RFC6749">[RFC6749]</a>, with the following differences: </p>
+
+<ul>
+  <li>The Content-Type is specified by the communication security profile used between client and AS.  The raw payload before being processed by the communication security protocol MUST be encoded as a CBOR map.</li>
+  <li>The CoAP response code 4.00 (Bad Request) MUST be used for all error responses, except for invalid_client where the CoAP response code 4.01 (Unauthorized) MAY be used under the same conditions as specified in section 5.2 of <a href="#RFC6749">[RFC6749]</a>.  </li>
+  <li>The parameters "error", "error_description" and "error_uri" MAY be abbreviated using the codes specified in table <a href="#fig:cborTokenParameters">Figure 13</a>.</li>
+  <li>The error codes MAY be abbreviated using the codes specified in table <a href="#fig:cborErrorCodes">Figure 7</a>.</li>
+</ul>
+
+<p> </p>
 <h1 id="rfc.section.6.5"><a href="#rfc.section.6.5">6.5.</a> <a href="#tokenParams" id="tokenParams">Request and Response Parameters</a></h1>
 <p id="rfc.section.6.5.p.1">This section provides more detail about the new parameters that can be used in access token requests and responses, as well as abbreviations for more compact encoding of existing parameters and common parameter values.</p>
 <h1 id="rfc.section.6.5.1"><a href="#rfc.section.6.5.1">6.5.1.</a> <a href="#paramAud" id="paramAud">Audience</a></h1>
 <p id="rfc.section.6.5.1.p.1">This parameter specifies for which audience the client is requesting a token.  It should be encoded as CBOR text string (major type 3).  The formatting and semantics of these strings are application specific.</p>
 <h1 id="rfc.section.6.5.2"><a href="#rfc.section.6.5.2">6.5.2.</a> <a href="#paramGrantType" id="paramGrantType">Grant Type</a></h1>
-<div id="rfc.figure.7"/>
+<div id="rfc.figure.8"/>
 <div id="fig:grant_types"/>
 <pre>
 	/--------------------+----------+--------------\
@@ -877,8 +901,8 @@ Payload:
 	| refresh_token      |    3     |     0        |
 	\--------------------+----------+--------------/
 	</pre>
-<p class="figure">Figure 7: CBOR abbreviations for common grant types </p>
-<p id="rfc.section.6.5.2.p.1">The abbreviations in <a href="#fig:grant_types">Figure 7</a> MAY be used in CBOR encodings instead of the string values defined in <a href="#RFC6749">[RFC6749]</a>.  </p>
+<p class="figure">Figure 8: CBOR abbreviations for common grant types </p>
+<p id="rfc.section.6.5.2.p.1">The abbreviations in <a href="#fig:grant_types">Figure 8</a> MAY be used in CBOR encodings instead of the string values defined in <a href="#RFC6749">[RFC6749]</a>.  </p>
 <h1 id="rfc.section.6.5.3"><a href="#rfc.section.6.5.3">6.5.3.</a> <a href="#paramTokenType" id="paramTokenType">Token Type</a></h1>
 <p id="rfc.section.6.5.3.p.1">The is defined in <a href="#RFC6749">[RFC6749]</a>, allowing the AS to indicate to the client which type of access token it is receiving (e.g.  a bearer token). </p>
 <p id="rfc.section.6.5.3.p.2">This document registers the new value "pop" for the OAuth Access Token Types registry,  specifying a Proof-of-Possession token.  How the proof-of-possession is performed is specified by the profiles.</p>
@@ -899,7 +923,7 @@ Payload:
   <li>In the introspection response AS -&gt; RS, to indicate the proof-of-possession	key bound to the introspected token.</li>
   <li>In the client token AS -&gt; RS -&gt; C, to indicate the proof-of-possession	key bound to the access token.</li>
 </ul>
-<div id="rfc.figure.8"/>
+<div id="rfc.figure.9"/>
 <div id="fig:cnfKey"/>
 <pre>
 "cnf" : {
@@ -912,8 +936,8 @@ Payload:
   }
 }
         </pre>
-<p class="figure">Figure 8: Confirmation parameter containing a public key</p>
-<div id="rfc.figure.9"/>
+<p class="figure">Figure 9: Confirmation parameter containing a public key</p>
+<div id="rfc.figure.10"/>
 <div id="fig:cnfEnc"/>
 <pre>
 "cnf" : {
@@ -927,8 +951,8 @@ Payload:
   }
 }
         </pre>
-<p class="figure">Figure 9: Confirmation paramter containing an encrypted         symmetric key</p>
-<div id="rfc.figure.10"/>
+<p class="figure">Figure 10: Confirmation paramter containing an encrypted         symmetric key</p>
+<div id="rfc.figure.11"/>
 <div id="fig:cnfEKey"/>
 <pre>
 {
@@ -937,28 +961,28 @@ Payload:
   "k" : b64'hJtXhkV8FJG+Onbc6mxCcQh'
 }
         </pre>
-<p class="figure">Figure 10: Example plaintext of an encrypted cnf parameter</p>
-<div id="rfc.figure.11"/>
+<p class="figure">Figure 11: Example plaintext of an encrypted cnf parameter</p>
+<div id="rfc.figure.12"/>
 <div id="fig:cnfKid"/>
 <pre>
 "cnf" : {
   "kid" : b64'39Gqlw'
 }
         </pre>
-<p class="figure">Figure 11: A Confirmation parameter with just a key identifier</p>
+<p class="figure">Figure 12: A Confirmation parameter with just a key identifier</p>
 <p id="rfc.section.6.5.5.p.3">A CBOR encoded payload MAY contain the 'cnf' parameter with the following contents: </p>
 
 <dl>
   <dt>COSE_Key</dt>
-  <dd style="margin-left: 8">In this case the 'cnf' parameter contains the proof-of-possession key to be used by the client.  An example is shown in <a href="#fig:cnfKey">Figure 8</a>.  <br/><br/> Note that the COSE_Key structure may contain an "alg" or "key_ops" parameter.  If such parameters are present, a client MUST NOT use a key that is not compatible with the profile or proof-of-possession algorithm according to those parameters.  </dd>
+  <dd style="margin-left: 8">In this case the 'cnf' parameter contains the proof-of-possession key to be used by the client.  An example is shown in <a href="#fig:cnfKey">Figure 9</a>.  <br/><br/> Note that the COSE_Key structure may contain an "alg" or "key_ops" parameter.  If such parameters are present, a client MUST NOT use a key that is not compatible with the profile or proof-of-possession algorithm according to those parameters.  </dd>
   <dt>COSE_Encrypted</dt>
-  <dd style="margin-left: 8">In this case the 'cnf' parameter contains an encrypted symmetric key destined for the client.  The client is assumed to be able to decrypt the cihpertext of this parameter.  The parameter is encoded as COSE_Encrypted object wrapping a COSE_Key object.  <a href="#fig:cnfEnc">Figure 9</a> shows an example of this type of encoding.  <a href="#fig:cnfEKey">Figure 10</a>.  <br/><br/> </dd>
+  <dd style="margin-left: 8">In this case the 'cnf' parameter contains an encrypted symmetric key destined for the client.  The client is assumed to be able to decrypt the cihpertext of this parameter.  The parameter is encoded as COSE_Encrypted object wrapping a COSE_Key object.  <a href="#fig:cnfEnc">Figure 10</a> shows an example of this type of encoding.  <a href="#fig:cnfEKey">Figure 11</a>.  <br/><br/> </dd>
   <dt>Key Identifier</dt>
-  <dd style="margin-left: 8">In this case the 'cnf' parameter references a key that is assumed to be previously known by the recipient.  This allows clients that perform repeated requests for an access token for the same audience but e.g. with different scopes to omit key transport in the access token, token request and token response. <a href="#fig:cnfKid">Figure 11</a> shows such an example.  </dd>
+  <dd style="margin-left: 8">In this case the 'cnf' parameter references a key that is assumed to be previously known by the recipient.  This allows clients that perform repeated requests for an access token for the same audience but e.g. with different scopes to omit key transport in the access token, token request and token response. <a href="#fig:cnfKid">Figure 12</a> shows such an example.  </dd>
 </dl>
 <h1 id="rfc.section.6.6"><a href="#rfc.section.6.6">6.6.</a> <a href="#tokenCborParams" id="tokenCborParams">Mapping parameters to CBOR</a></h1>
 <p id="rfc.section.6.6.p.1">All OAuth parameters in access token requests and responses are mapped to CBOR types as follows and are given an integer key value to save space.</p>
-<div id="rfc.figure.12"/>
+<div id="rfc.figure.13"/>
 <div id="fig:cborTokenParameters"/>
 <pre>
         /-------------------+----------+-----------------\
@@ -972,20 +996,21 @@ Payload:
         | scope             | 12       | 3               |
         | state             | 13       | 3               |
         | code              | 14       | 2               |
-        | error_description | 15       | 3               |
-        | error_uri         | 16       | 3               |
-        | grant_type        | 17       | 0 (unit)        |
-        | access_token      | 18       | 3               |
-        | token_type        | 19       | 0               |
-        | expires_in        | 20       | 0               |
-        | username          | 21       | 3               |
-        | password          | 22       | 3               |
-        | refresh_token     | 23       | 3               |
-        | cnf               | 24       | 5 (map)         |
-        | profile           | 25       | 3               |
+	| error             | 15       | 3               |
+        | error_description | 16       | 3               |
+        | error_uri         | 17       | 3               |
+        | grant_type        | 18       | 0               |
+        | access_token      | 19       | 3               |
+        | token_type        | 20       | 0               |
+        | expires_in        | 21       | 0               |
+        | username          | 22       | 3               |
+        | password          | 23       | 3               |
+        | refresh_token     | 24       | 3               |
+        | cnf               | 25       | 5 (map)         |
+        | profile           | 26       | 3               |
         \-------------------+----------+-----------------/
       </pre>
-<p class="figure">Figure 12: CBOR mappings used in token requests</p>
+<p class="figure">Figure 13: CBOR mappings used in token requests</p>
 <p/>
 <h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#introspectionEndpoint" id="introspectionEndpoint">The 'Introspect' Endpoint</a></h1>
 <p id="rfc.section.7.p.1">Token introspection <a href="#RFC7662">[RFC7662]</a> is used by the RS and potentially the client to query the AS for metadata about a given token e.g. validity or scope. Analogous to the protocol defined in RFC 7662 <a href="#RFC7662">[RFC7662]</a> for HTTP and JSON, this section defines adaptations to more constrained  environments using CoAP and CBOR.</p>
@@ -994,7 +1019,7 @@ Payload:
 <h1 id="rfc.section.7.1"><a href="#rfc.section.7.1">7.1.</a> <a href="#introRS2AS" id="introRS2AS">RS-to-AS Request</a></h1>
 <p id="rfc.section.7.1.p.1">The RS sends a CoAP POST request to the introspection endpoint at the AS, the profile is expected to specify the Content-Type and wrapping of the payload.  The payload MUST be encoded as a CBOR map with a 'token' parameter containing the access token along with optional parameters representing additional context that is known by the RS to aid the AS in its response.</p>
 <p id="rfc.section.7.1.p.2">The same parameters are required and optional as in section 2.1 of RFC 7662 <a href="#RFC7662">[RFC7662]</a>.</p>
-<div id="rfc.figure.13"/>
+<div id="rfc.figure.14"/>
 <div id="fig:introReq"/>
 <pre>
 Header: POST (Code=0.02)
@@ -1007,8 +1032,8 @@ Payload:
   "token_type_hint" : "pop"
 }
        </pre>
-<p class="figure">Figure 13: Example introspection request.</p>
-<p id="rfc.section.7.1.p.3">For example, <a href="#fig:introReq">Figure 13</a> shows a RS calling the token introspection endpoint at the AS to query about an OAuth 2.0 proof-of-possession token.  Note that we assume a object security-based communication security profile for this example, therefore the Content-Type is "application/cose+cbor".  </p>
+<p class="figure">Figure 14: Example introspection request.</p>
+<p id="rfc.section.7.1.p.3">For example, <a href="#fig:introReq">Figure 14</a> shows a RS calling the token introspection endpoint at the AS to query about an OAuth 2.0 proof-of-possession token.  Note that we assume a object security-based communication security profile for this example, therefore the Content-Type is "application/cose+cbor".  </p>
 <h1 id="rfc.section.7.2"><a href="#rfc.section.7.2">7.2.</a> <a href="#introAS2RS" id="introAS2RS">AS-to-RS Response</a></h1>
 <p id="rfc.section.7.2.p.1">If the introspection request is authorized and successfully processed, the AS sends a response with the CoAP response code 2.01 (Created).  If the introspection request was invalid, not authorized or couldn't be processed the AS returns an error response as described in <a href="#errorsIntro">Section 7.3</a>.</p>
 <p id="rfc.section.7.2.p.2">In a successful response, the AS encodes the response parameters in a CBOR map including with the same required and optional parameters as in section 2.2. of RFC 7662 <a href="#RFC7662">[RFC7662]</a> with the following additions: </p>
@@ -1023,7 +1048,7 @@ Payload:
 </dl>
 
 <p> </p>
-<div id="rfc.figure.14"/>
+<div id="rfc.figure.15"/>
 <div id="fig:introRes"/>
 <pre>
 Header: Created Code=2.01)
@@ -1044,8 +1069,8 @@ Payload:
   }
 }
       </pre>
-<p class="figure">Figure 14: Example introspection response.</p>
-<p id="rfc.section.7.2.p.3">For example, <a href="#fig:introRes">Figure 14</a> shows an AS response to the introspection request in <a href="#fig:introReq">Figure 13</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
+<p class="figure">Figure 15: Example introspection response.</p>
+<p id="rfc.section.7.2.p.3">For example, <a href="#fig:introRes">Figure 15</a> shows an AS response to the introspection request in <a href="#fig:introReq">Figure 14</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
 <h1 id="rfc.section.7.3"><a href="#rfc.section.7.3">7.3.</a> <a href="#errorsIntro" id="errorsIntro">Error Response</a></h1>
 <p id="rfc.section.7.3.p.1">The error responses for CoAP-based interactions with the AS are equivalent to the ones for HTTP-based interactions as defined in section 2.3 of <a href="#RFC7662">[RFC7662]</a>, with the following differences: </p>
 
@@ -1053,6 +1078,8 @@ Payload:
   <li>If content is sent, the Content-Type MUST be set according to the specification of the communication security profile, and the content payload MUST be encoded as a CBOR map.</li>
   <li>If the credentials used by the RS are invalid the AS MUST respond with the CoAP response code 4.01 (Unauthorized) and use the required and optional parameters from section 5.2 in RFC 6749 <a href="#RFC6749">[RFC6749]</a>.</li>
   <li>If the RS does not have the right to perform this introspection request, the AS MUST respond with the CoAP response code 4.03 (Forbidden).  In this case no payload is returned.</li>
+  <li>The parameters "error", "error_description" and "error_uri" MAY be abbreviated using the codes specified in table <a href="#fig:cborTokenParameters">Figure 13</a>.</li>
+  <li>The error codes MAY be abbreviated using the codes specified in table <a href="#fig:cborErrorCodes">Figure 7</a>.</li>
 </ul>
 
 <p> </p>
@@ -1060,7 +1087,7 @@ Payload:
 <h1 id="rfc.section.7.4"><a href="#rfc.section.7.4">7.4.</a> <a href="#clientToken" id="clientToken">Client Token</a></h1>
 <p id="rfc.section.7.4.p.1">EDITORIAL NOTE: We have tentatively introduced this concept and would specifically like feedback whether this is viewed as a useful addition to the framework.</p>
 <p id="rfc.section.7.4.p.2">In cases where the client has limited connectivity and needs to get access to a previously unknown resource servers, this framework suggests the following approach:  The client is pre-configured with a generic, long-term access token when it is commissioned.  When the client then tries to access a RS it transmits this access token.  The RS then performs token introspection to learn what access this token grants.  In the introspection response, the AS also relays information for the client, such as the proof-of-possession key, through the RS.  The RS passes on this Client Token to the client in response to the submission of the token.</p>
-<div id="rfc.figure.15"/>
+<div id="rfc.figure.16"/>
 <div id="fig:client_token"/>
 <pre>
                   Resource       Authorization
@@ -1082,8 +1109,8 @@ C:  +---------------&gt;|                |
     |  2.01 Created  |                |
     | + Client Token |
     </pre>
-<p class="figure">Figure 15: Use of the client_token parameter.</p>
-<p id="rfc.section.7.4.p.3">The client_token parameter is designed to carry such information, and is intended to be used as described in <a href="#fig:client_token">Figure 15</a>.  </p>
+<p class="figure">Figure 16: Use of the client_token parameter.</p>
+<p id="rfc.section.7.4.p.3">The client_token parameter is designed to carry such information, and is intended to be used as described in <a href="#fig:client_token">Figure 16</a>.  </p>
 <p id="rfc.section.7.4.p.4">The client token is a COSE_Encrypted object, containing as payload a CBOR map with the following claims: </p>
 
 <dl>
@@ -1100,7 +1127,7 @@ C:  +---------------&gt;|                |
 <p> </p>
 <p id="rfc.section.7.4.p.5">The AS encrypts this token using a key shared between the AS and the client, so that only the client can decrypt it and access its payload.  How this key is established is out of scope of this framework.</p>
 <h1 id="rfc.section.7.5"><a href="#rfc.section.7.5">7.5.</a> <a href="#introParamsCbor" id="introParamsCbor">Mapping Introspection parameters to CBOR</a></h1>
-<div id="rfc.figure.16"/>
+<div id="rfc.figure.17"/>
 <div id="fig:cborIntrospectionParameters"/>
 <pre>
           /-----------------+----------+-----------------\
@@ -1115,18 +1142,18 @@ C:  +---------------&gt;|                |
           | cti             | 7        | 2 (byte string) |
           | client_id       | 8        | 3               |
           | scope           | 12       | 3               |
-          | token_type      | 19       | 3               |
-          | username        | 21       | 3               |
-          | cnf             | 24       | 5 (map)         |
-          | profile         | 25       | 0 (uint)        |
-          | token           | 26       | 3               |
-          | token_type_hint | 27       | 3               |
-          | active          | 28       | 0               |
-          | client_token    | 29       | 3               |
-          | rs_cnf          | 30       | 5               |
+          | token_type      | 20       | 3               |
+          | username        | 22       | 3               |
+          | cnf             | 25       | 5 (map)         |
+          | profile         | 26       | 0 (uint)        |
+          | token           | 27       | 3               |
+          | token_type_hint | 28       | 3               |
+          | active          | 29       | 0               |
+          | client_token    | 30       | 3               |
+          | rs_cnf          | 31       | 5               |
           \-----------------+----------+-----------------/
         </pre>
-<p class="figure">Figure 16: CBOR Mappings to Token Introspection Parameters.</p>
+<p class="figure">Figure 17: CBOR Mappings to Token Introspection Parameters.</p>
 <p id="rfc.section.7.5.p.1">The introspection request and response parameters are mapped to CBOR types as follows and are given an integer key value to save space.  </p>
 <h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> The Access Token</h1>
 <p id="rfc.section.8.p.1">This framework RECOMMENDS the use of CBOR web token (CWT) as specified in <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  </p>
@@ -1432,7 +1459,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>error_description</samp></li>
+  <li>Parameter name: <samp>error</samp></li>
   <li>CBOR key value: 15</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1442,7 +1469,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>error_uri</samp></li>
+  <li>Parameter name: <samp>error_description</samp></li>
   <li>CBOR key value: 16</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1452,7 +1479,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>grant_type</samp></li>
+  <li>Parameter name: <samp>error_uri</samp></li>
   <li>CBOR key value: 17</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1462,7 +1489,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>access_token</samp></li>
+  <li>Parameter name: <samp>grant_type</samp></li>
   <li>CBOR key value: 18</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1472,7 +1499,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>token_type</samp></li>
+  <li>Parameter name: <samp>access_token</samp></li>
   <li>CBOR key value: 19</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1482,7 +1509,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>expires_in</samp></li>
+  <li>Parameter name: <samp>token_type</samp></li>
   <li>CBOR key value: 20</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1492,7 +1519,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>username</samp></li>
+  <li>Parameter name: <samp>expires_in</samp></li>
   <li>CBOR key value: 21</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1502,7 +1529,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>password</samp></li>
+  <li>Parameter name: <samp>username</samp></li>
   <li>CBOR key value: 22</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1512,7 +1539,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>refresh_token</samp></li>
+  <li>Parameter name: <samp>password</samp></li>
   <li>CBOR key value: 23</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1522,7 +1549,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>cnf</samp></li>
+  <li>Parameter name: <samp>refresh_token</samp></li>
   <li>CBOR key value: 24</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1532,8 +1559,18 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Parameter name: <samp>profile</samp></li>
+  <li>Parameter name: <samp>cnf</samp></li>
   <li>CBOR key value: 25</li>
+  <li>Change Controller: IESG</li>
+  <li>Specification Document(s): this document</li>
+</ul>
+
+<p> </p>
+<p/>
+
+<ul>
+  <li>Parameter name: <samp>profile</samp></li>
+  <li>CBOR key value: 26</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
 </ul>
@@ -1651,7 +1688,7 @@ C:  +---------------&gt;|                |
 
 <ul>
   <li>Response parameter name: <samp>token_type</samp></li>
-  <li>CBOR key value: 19</li>
+  <li>CBOR key value: 20</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
 </ul>
@@ -1661,7 +1698,7 @@ C:  +---------------&gt;|                |
 
 <ul>
   <li>Response parameter name: <samp>username</samp></li>
-  <li>CBOR key value: 21</li>
+  <li>CBOR key value: 22</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
 </ul>
@@ -1671,16 +1708,6 @@ C:  +---------------&gt;|                |
 
 <ul>
   <li>Parameter name: <samp>cnf</samp></li>
-  <li>CBOR key value: 24</li>
-  <li>Change Controller: IESG</li>
-  <li>Specification Document(s): this document</li>
-</ul>
-
-<p> </p>
-<p/>
-
-<ul>
-  <li>Parameter name: <samp>profile</samp></li>
   <li>CBOR key value: 25</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1690,7 +1717,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Response parameter name: <samp>token</samp></li>
+  <li>Parameter name: <samp>profile</samp></li>
   <li>CBOR key value: 26</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1700,7 +1727,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Response parameter name: <samp>token_type_hint</samp></li>
+  <li>Response parameter name: <samp>token</samp></li>
   <li>CBOR key value: 27</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1710,7 +1737,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Response parameter name: <samp>active</samp></li>
+  <li>Response parameter name: <samp>token_type_hint</samp></li>
   <li>CBOR key value: 28</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1720,7 +1747,7 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Response parameter name: <samp>client_token</samp></li>
+  <li>Response parameter name: <samp>active</samp></li>
   <li>CBOR key value: 29</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
@@ -1730,8 +1757,18 @@ C:  +---------------&gt;|                |
 <p/>
 
 <ul>
-  <li>Response parameter name: <samp>rs_cnf</samp></li>
+  <li>Response parameter name: <samp>client_token</samp></li>
   <li>CBOR key value: 30</li>
+  <li>Change Controller: IESG</li>
+  <li>Specification Document(s): this document</li>
+</ul>
+
+<p> </p>
+<p/>
+
+<ul>
+  <li>Response parameter name: <samp>rs_cnf</samp></li>
+  <li>CBOR key value: 31</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): this document</li>
 </ul>
@@ -2015,7 +2052,7 @@ C:  +---------------&gt;|                |
 <h1 id="rfc.appendix.E.1"><a href="#rfc.appendix.E.1">E.1.</a> <a href="#localTokenValidation" id="localTokenValidation">Local Token Validation</a></h1>
 <p id="rfc.section.E.1.p.1">In this scenario we consider the case where the resource server is offline, i.e. it is not connected to the AS at the time of the access request.  This access procedure involves steps A, B, C, and F of <a href="#fig:protocolFlow">Figure 1</a>.  </p>
 <p id="rfc.section.E.1.p.2">Since the resource server must be able to verify the access token locally, self-contained access tokens must be used.</p>
-<p id="rfc.section.E.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 17</a>.</p>
+<p id="rfc.section.E.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 18</a>.</p>
 <p/>
 
 <dl>
@@ -2028,7 +2065,7 @@ C:  +---------------&gt;|                |
   <dt></dt>
   <dd style="margin-left: 8">Note: In this example we assume that the client knows what resource it wants to access, and is therefore able to request specific audience and scope claims for the access token.</dd>
 </dl>
-<div id="rfc.figure.17"/>
+<div id="rfc.figure.18"/>
 <div id="fig:RSOffline"/>
 <pre>
          Authorization
@@ -2047,9 +2084,9 @@ B:  |&lt;--------+ Header: 2.05 Content
     |         | Payload: &lt;Response-Payload&gt;
     |         |
         </pre>
-<p class="figure">Figure 17: Token Request and Response Using Client Credentials.</p>
+<p class="figure">Figure 18: Token Request and Response Using Client Credentials.</p>
 <p/>
-<div id="rfc.figure.18"/>
+<div id="rfc.figure.19"/>
 <div id="fig:RSOfflineReq"/>
 <pre>
 Request-Payload :
@@ -2076,10 +2113,10 @@ Response-Payload :
   }
 }
         </pre>
-<p class="figure">Figure 18: Request and Response Payload Details.</p>
-<p id="rfc.section.E.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 18</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
-<p id="rfc.section.E.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 19</a>.</p>
-<div id="rfc.figure.19"/>
+<p class="figure">Figure 19: Request and Response Payload Details.</p>
+<p id="rfc.section.E.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 19</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
+<p id="rfc.section.E.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 20</a>.</p>
+<div id="rfc.figure.20"/>
 <div id="fig:BothcborMappingValueAsymmetricCWT"/>
 <pre>
 {
@@ -2098,9 +2135,9 @@ Response-Payload :
   }
 }
         </pre>
-<p class="figure">Figure 19: Access Token including Public Key of the Client.</p>
+<p class="figure">Figure 20: Access Token including Public Key of the Client.</p>
 <p/>
-<div id="rfc.figure.20"/>
+<div id="rfc.figure.21"/>
 <div id="fig:RSOfflinePostAccessTokenAsymmetric"/>
 <pre>
            Resource
@@ -2114,8 +2151,8 @@ C:  +--------&gt;| Header: POST (Code=0.02)
     |  2.04   |
     |         |
 </pre>
-<p class="figure">Figure 20: Access Token provisioning to RS</p>
-<p id="rfc.section.E.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 20</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 21</a>.  </p>
+<p class="figure">Figure 21: Access Token provisioning to RS</p>
+<p id="rfc.section.E.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 21</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 22</a>.  </p>
 
 <dl>
   <dt></dt>
@@ -2129,7 +2166,7 @@ C:  +--------&gt;| Header: POST (Code=0.02)
   <dt></dt>
   <dd style="margin-left: 8">F: The RS responds with a resource representation over DTLS.</dd>
 </dl>
-<div id="rfc.figure.21"/>
+<div id="rfc.figure.22"/>
 <div id="fig:RSOfflineDTLSRequestAndResponse"/>
 <pre>
            Resource
@@ -2147,12 +2184,12 @@ F:  |&lt;--------+ Header: 2.05 Content
     | 2.05    | Payload: &lt;sensor value&gt;
     |         |
       </pre>
-<p class="figure">Figure 21: Resource Request and Response protected by DTLS.</p>
+<p class="figure">Figure 22: Resource Request and Response protected by DTLS.</p>
 <p/>
 <h1 id="rfc.appendix.E.2"><a href="#rfc.appendix.E.2">E.2.</a> <a href="#introspectionAidedTokenValidation" id="introspectionAidedTokenValidation">Introspection Aided Token Validation</a></h1>
 <p id="rfc.section.E.2.p.1">In this deployment scenario we assume that a client is not able to access the AS at the time of the access request.  Since the RS is, however, connected to the back-end infrastructure it can make use of token introspection.  This access procedure involves steps A-F of <a href="#fig:protocolFlow">Figure 1</a>, but assumes steps A and B have been carried out during a phase when the client had connectivity to AS.  </p>
 <p id="rfc.section.E.2.p.2">Since the client is assumed to be offline, at least for a certain period of time, a pre-provisioned access token has to be long-lived.  The resource server may use its online connectivity to validate the access token with the authorization server, which is shown in the example below.</p>
-<p id="rfc.section.E.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  We assume that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 22</a>.  </p>
+<p id="rfc.section.E.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  We assume that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 23</a>.  </p>
 <p id="rfc.section.E.2.p.4">Authorization consent from the resource owner can be pre-configured, but it can also be provided via an interactive flow with the resource owner.  An example of this for the key fob case could be that the resource owner has a connected car, he buys a generic key that he wants to use with the car.  To authorize the key fob he connects it to his computer that then provides the UI for the device.  After that OAuth 2.0 implicit flow can used to authorize the key for his car at the the car manufacturers AS.</p>
 <p id="rfc.section.E.2.p.5">Note: In this example the client does not know the exact door it will be used to access since the token request is not send at the time of access. So the scope and audience parameters is set quite wide to start with and new values different form the original once can be returned from introspection later on.</p>
 <p/>
@@ -2165,7 +2202,7 @@ F:  |&lt;--------+ Header: 2.05 Content
 </dl>
 
 <p> </p>
-<div id="rfc.figure.22"/>
+<div id="rfc.figure.23"/>
 <div id="fig:cOffline"/>
 <pre>
 
@@ -2183,9 +2220,9 @@ B:  |&lt;--------+ Header: 2.05 Content
     |  2.05   | Payload: &lt;Response-Payload&gt;
     |         |
     </pre>
-<p class="figure">Figure 22: Token Request and Response using Client Credentials.</p>
+<p class="figure">Figure 23: Token Request and Response using Client Credentials.</p>
 <p/>
-<div id="rfc.figure.23"/>
+<div id="rfc.figure.24"/>
 <div id="fig:cOfflineReq"/>
 <pre>
 Request-Payload:
@@ -2211,10 +2248,10 @@ Response-Payload:
   }
 }
       </pre>
-<p class="figure">Figure 23: Request and Response Payload for C offline</p>
-<p id="rfc.section.E.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 23</a>.  </p>
+<p class="figure">Figure 24: Request and Response Payload for C offline</p>
+<p id="rfc.section.E.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 24</a>.  </p>
 <p id="rfc.section.E.2.p.9">The access token in this case is just an opaque string referencing the authorization information at the AS.</p>
-<div id="rfc.figure.24"/>
+<div id="rfc.figure.25"/>
 <div id="fig:cOfflineIntrospection"/>
 <pre>
            Resource
@@ -2242,8 +2279,8 @@ C:  +--------&gt;| Header: POST (T=CON, Code=0.02)
     |  2.01   |
     |         |
 </pre>
-<p class="figure">Figure 24: Token Introspection for C offline</p>
-<div id="rfc.figure.25"/>
+<p class="figure">Figure 25: Token Introspection for C offline</p>
+<div id="rfc.figure.26"/>
 <div id="fig:cOfflineIntroReq"/>
 <pre>
 Request-Payload:
@@ -2264,7 +2301,7 @@ Response-Payload:
   }
 }
           </pre>
-<p class="figure">Figure 25: Request and Response Payload for Introspection</p>
+<p class="figure">Figure 26: Request and Response Payload for Introspection</p>
 <p/>
 
 <dl>
@@ -2279,7 +2316,7 @@ Response-Payload:
   <dt></dt>
   <dd style="margin-left: 8"/>
   <dt></dt>
-  <dd style="margin-left: 8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineIntroReq">Figure 25</a>.  </dd>
+  <dd style="margin-left: 8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineIntroReq">Figure 26</a>.  </dd>
 </dl>
 
 <p> </p>
@@ -2293,7 +2330,7 @@ Response-Payload:
 </dl>
 
 <p> </p>
-<div id="rfc.figure.26"/>
+<div id="rfc.figure.27"/>
 <div id="fig:cOfflineDTLSRequestAndResponse"/>
 <pre>
            Resource
@@ -2310,7 +2347,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
     | 2.04    | Payload: &lt;new state for the lock&gt;
     |         |
             </pre>
-<p class="figure">Figure 26: Resource request and response protected by OSCOAP</p>
+<p class="figure">Figure 27: Resource request and response protected by OSCOAP</p>
 <p/>
 <h1 id="rfc.appendix.F"><a href="#rfc.appendix.F">Appendix F.</a> <a href="#app:changelog" id="app:changelog">Document Updates</a></h1>
 <h1 id="rfc.appendix.F.1"><a href="#rfc.appendix.F.1">F.1.</a> <a href="#app:f3t4" id="app:f3t4">Version -02 to -03</a></h1>

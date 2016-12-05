@@ -1043,11 +1043,42 @@ Payload:
   <section anchor="errorsToken" title="Error Response">
     <t>The error responses for CoAP-based interactions with the AS
     are equivalent to the ones for HTTP-based interactions as defined in
-    section  5.2 of <xref target="RFC6749"/>, with the following differences:
-    The Content-Type is specified by the communication security profile used
-    between client and AS.  The raw payload before being processed by the
-    communication security protocol MUST be encoded as a CBOR map and the CoAP
-    response code 4.00 (Bad Request) MUST be used unless specified otherwise.
+    section 5.2 of <xref target="RFC6749"/>, with the following differences:
+
+      <list style="symbols">
+        <t>The Content-Type is specified by the communication security profile 
+        used between client and AS.  The raw payload before being processed by 
+        the communication security protocol MUST be encoded as a CBOR map.</t>
+
+        <t>The CoAP response code 4.00 (Bad Request) MUST be used 
+        for all error responses, except for invalid_client where the
+        CoAP response code 4.01 (Unauthorized) MAY be used under the
+        same conditions as specified in section 5.2 of <xref target="RFC6749"/>.
+	</t>
+
+	<t>The parameters "error", "error_description" and "error_uri" MAY
+	be abbreviated using the codes specified in table <xref 
+	target="fig:cborTokenParameters"/>.</t>
+
+	<t>The error codes MAY be abbreviated using the codes specified in
+	table <xref target="fig:cborErrorCodes"/>.</t>
+      </list>
+ 
+      <figure align="center" anchor="fig:cborErrorCodes"
+	      title="CBOR abbreviations for common error codes">
+	<artwork align="left"><![CDATA[
+	/------------------------+----------+--------------\
+	| error code             | CBOR Key | Major Type   |
+	|------------------------+----------+--------------|
+	| invalid_request        |    0     |     0 (uint) |
+	| invalid_client         |    1     |     0        |
+	| invalid_grant          |    2     |     0        |
+	| unauthorized_client    |    3     |     0        |
+	| unsupported_grant_type |    4     |     0        |
+	| invalid_scope          |    5     |     0        |
+	\------------------------+----------+--------------/
+	]]></artwork>
+      </figure>
     </t>
   </section>
 
@@ -1257,17 +1288,18 @@ Payload:
         | scope             | 12       | 3               |
         | state             | 13       | 3               |
         | code              | 14       | 2               |
-        | error_description | 15       | 3               |
-        | error_uri         | 16       | 3               |
-        | grant_type        | 17       | 0 (unit)        |
-        | access_token      | 18       | 3               |
-        | token_type        | 19       | 0               |
-        | expires_in        | 20       | 0               |
-        | username          | 21       | 3               |
-        | password          | 22       | 3               |
-        | refresh_token     | 23       | 3               |
-        | cnf               | 24       | 5 (map)         |
-        | profile           | 25       | 3               |
+	| error             | 15       | 3               |
+        | error_description | 16       | 3               |
+        | error_uri         | 17       | 3               |
+        | grant_type        | 18       | 0               |
+        | access_token      | 19       | 3               |
+        | token_type        | 20       | 0               |
+        | expires_in        | 21       | 0               |
+        | username          | 22       | 3               |
+        | password          | 23       | 3               |
+        | refresh_token     | 24       | 3               |
+        | cnf               | 25       | 5 (map)         |
+        | profile           | 26       | 3               |
         \-------------------+----------+-----------------/
       ]]></artwork>
     </figure>
@@ -1396,7 +1428,6 @@ Payload:
     section 2.3 of <xref target="RFC7662"/>, with the following differences:
 
     <list style="symbols">
-
       <t>If content is sent, the Content-Type MUST be set according to the
       specification of the communication security profile, and the content
       payload MUST be encoded as a CBOR map.</t>
@@ -1409,6 +1440,13 @@ Payload:
       <t>If the RS does not have the right to perform this introspection
       request, the AS MUST respond with the CoAP response code 4.03
       (Forbidden).  In this case no payload is returned.</t>
+
+      <t>The parameters "error", "error_description" and "error_uri" MAY
+      be abbreviated using the codes specified in table <xref 
+      target="fig:cborTokenParameters"/>.</t>
+
+      <t>The error codes MAY be abbreviated using the codes specified in
+      table <xref target="fig:cborErrorCodes"/>.</t>
     </list>
     </t>
 
@@ -1514,15 +1552,15 @@ C:  +--------------->|                |
           | cti             | 7        | 2 (byte string) |
           | client_id       | 8        | 3               |
           | scope           | 12       | 3               |
-          | token_type      | 19       | 3               |
-          | username        | 21       | 3               |
-          | cnf             | 24       | 5 (map)         |
-          | profile         | 25       | 0 (uint)        |
-          | token           | 26       | 3               |
-          | token_type_hint | 27       | 3               |
-          | active          | 28       | 0               |
-          | client_token    | 29       | 3               |
-          | rs_cnf          | 30       | 5               |
+          | token_type      | 20       | 3               |
+          | username        | 22       | 3               |
+          | cnf             | 25       | 5 (map)         |
+          | profile         | 26       | 0 (uint)        |
+          | token           | 27       | 3               |
+          | token_type_hint | 28       | 3               |
+          | active          | 29       | 0               |
+          | client_token    | 30       | 3               |
+          | rs_cnf          | 31       | 5               |
           \-----------------+----------+-----------------/
         ]]></artwork>
       </figure>
@@ -2020,7 +2058,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">error_description</spanx></t>
+              <t>Parameter name: <spanx style="verb">error</spanx></t>
               <t>CBOR key value: 15</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2029,7 +2067,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">error_uri</spanx></t>
+              <t>Parameter name: <spanx style="verb">error_description</spanx></t>
               <t>CBOR key value: 16</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2038,7 +2076,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">grant_type</spanx></t>
+              <t>Parameter name: <spanx style="verb">error_uri</spanx></t>
               <t>CBOR key value: 17</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2047,7 +2085,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">access_token</spanx></t>
+              <t>Parameter name: <spanx style="verb">grant_type</spanx></t>
               <t>CBOR key value: 18</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2056,7 +2094,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">token_type</spanx></t>
+              <t>Parameter name: <spanx style="verb">access_token</spanx></t>
               <t>CBOR key value: 19</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2065,7 +2103,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">expires_in</spanx></t>
+              <t>Parameter name: <spanx style="verb">token_type</spanx></t>
               <t>CBOR key value: 20</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2074,7 +2112,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">username</spanx></t>
+              <t>Parameter name: <spanx style="verb">expires_in</spanx></t>
               <t>CBOR key value: 21</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2083,7 +2121,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">password</spanx></t>
+              <t>Parameter name: <spanx style="verb">username</spanx></t>
               <t>CBOR key value: 22</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2092,7 +2130,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">refresh_token</spanx></t>
+              <t>Parameter name: <spanx style="verb">password</spanx></t>
               <t>CBOR key value: 23</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2101,7 +2139,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
+              <t>Parameter name: <spanx style="verb">refresh_token</spanx></t>
               <t>CBOR key value: 24</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2110,8 +2148,17 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">profile</spanx></t>
+              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
               <t>CBOR key value: 25</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Parameter name: <spanx style="verb">profile</spanx></t>
+              <t>CBOR key value: 26</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2235,7 +2282,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">token_type</spanx></t>
-              <t>CBOR key value: 19</t>
+              <t>CBOR key value: 20</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2244,7 +2291,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">username</spanx></t>
-              <t>CBOR key value: 21</t>
+              <t>CBOR key value: 22</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2253,7 +2300,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Parameter name: <spanx style="verb">cnf</spanx></t>
-              <t>CBOR key value: 24</t>
+              <t>CBOR key value: 25</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2262,7 +2309,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Parameter name: <spanx style="verb">profile</spanx></t>
-              <t>CBOR key value: 25</t>
+              <t>CBOR key value: 26</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2271,7 +2318,7 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">token</spanx></t>
-              <t>CBOR key value: 26</t>
+              <t>CBOR key value: 27</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
@@ -2280,15 +2327,6 @@ C:  +--------------->|                |
             <?rfc subcompact="yes"?>
             <list style='symbols'>
               <t>Response parameter name: <spanx style="verb">token_type_hint</spanx></t>
-              <t>CBOR key value: 27</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">active</spanx></t>
               <t>CBOR key value: 28</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2297,7 +2335,7 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">client_token</spanx></t>
+              <t>Response parameter name: <spanx style="verb">active</spanx></t>
               <t>CBOR key value: 29</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
@@ -2306,8 +2344,17 @@ C:  +--------------->|                |
           <t>
             <?rfc subcompact="yes"?>
             <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">rs_cnf</spanx></t>
+              <t>Response parameter name: <spanx style="verb">client_token</spanx></t>
               <t>CBOR key value: 30</t>
+              <t>Change Controller: IESG</t>
+              <t>Specification Document(s): this document</t>
+            </list>
+          </t>
+          <t>
+            <?rfc subcompact="yes"?>
+            <list style='symbols'>
+              <t>Response parameter name: <spanx style="verb">rs_cnf</spanx></t>
+              <t>CBOR key value: 31</t>
               <t>Change Controller: IESG</t>
               <t>Specification Document(s): this document</t>
             </list>
