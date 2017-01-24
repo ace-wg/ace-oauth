@@ -1586,20 +1586,21 @@ C:  +--------------->|                |
  target="paramCnf"/>.</t>
 
 <section anchor="tokenAuthInfoEndpoint" title="The 'Authorization Information' Endpoint">
-  <t>The access token, containing authorization information and information of
-  the key used by the client, needs to be transported to the RS so that the RS
-  can authenticate and authorize the client request.</t>
+  <t>The access token, containing authorization information and information
+  about the key used by the client, needs to be transported to the RS so that
+  the RS can authenticate and authorize the client request.</t>
 
   <t>This section defines a method for transporting the access token to the RS
   using CoAP. Profiles of this framework MAY define other methods for token
   transport.
   </t>
 
-  <t>The method consists of a /authz-info endpoint, implemented by the
+  <t>The method consists of an /authz-info endpoint, implemented by the
   RS.  A client using this method MUST make a POST request to /authz-info at
   the RS with the access token in the payload. The RS receiving the token MUST
   verify the validity of the token.  If the token is valid, the RS MUST respond
-  to the POST request with 2.01 (Created).</t>
+  to the POST request with 2.01 (Created).  This response MAY contain the
+  identifier of the token (e.g. cti for a CWT) as a payload.</t>
 
   <t>If the token is not valid, the RS MUST respond with the CoAP response code
   4.01 (Unauthorized).  If the token is valid but the audience of the
@@ -1621,6 +1622,10 @@ C:  +--------------->|                |
   that since the token contains information that allow the client and the RS
   to establish a security context in the first place, mutual authentication
   may not be possible at this point.</t>
+
+  <t>The RS MUST be prepared to store more than one token for each client,
+  and MUST apply the combined permissions granted by all applicable, valid
+  tokens to client requests.</t>
 </section>
 
 <section anchor="tokenValidity" title="Token Expiration">

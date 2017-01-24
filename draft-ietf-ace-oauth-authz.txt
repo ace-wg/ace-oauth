@@ -99,13 +99,13 @@ Table of Contents
      8.1.  The 'Authorization Information' Endpoint  . . . . . . . .  30
      8.2.  Token Expiration  . . . . . . . . . . . . . . . . . . . .  30
    9.  Security Considerations . . . . . . . . . . . . . . . . . . .  31
-   10. Privacy Considerations  . . . . . . . . . . . . . . . . . . .  32
+   10. Privacy Considerations  . . . . . . . . . . . . . . . . . . .  33
    11. IANA Considerations . . . . . . . . . . . . . . . . . . . . .  33
      11.1.  OAuth Introspection Response Parameter Registration  . .  33
      11.2.  OAuth Parameter Registration . . . . . . . . . . . . . .  34
      11.3.  OAuth Access Token Types . . . . . . . . . . . . . . . .  34
      11.4.  Token Type Mappings  . . . . . . . . . . . . . . . . . .  34
-       11.4.1.  Registration Template  . . . . . . . . . . . . . . .  34
+       11.4.1.  Registration Template  . . . . . . . . . . . . . . .  35
 
 
 
@@ -116,7 +116,7 @@ Internet-Draft                     ACE                      January 2017
 
        11.4.2.  Initial Registry Contents  . . . . . . . . . . . . .  35
      11.5.  CBOR Web Token Claims  . . . . . . . . . . . . . . . . .  35
-     11.6.  ACE Profile Registry . . . . . . . . . . . . . . . . . .  35
+     11.6.  ACE Profile Registry . . . . . . . . . . . . . . . . . .  36
        11.6.1.  Registration Template  . . . . . . . . . . . . . . .  36
      11.7.  OAuth Parameter Mappings Registry  . . . . . . . . . . .  36
        11.7.1.  Registration Template  . . . . . . . . . . . . . . .  36
@@ -1629,19 +1629,21 @@ Internet-Draft                     ACE                      January 2017
 8.1.  The 'Authorization Information' Endpoint
 
    The access token, containing authorization information and
-   information of the key used by the client, needs to be transported to
-   the RS so that the RS can authenticate and authorize the client
+   information about the key used by the client, needs to be transported
+   to the RS so that the RS can authenticate and authorize the client
    request.
 
    This section defines a method for transporting the access token to
    the RS using CoAP.  Profiles of this framework MAY define other
    methods for token transport.
 
-   The method consists of a /authz-info endpoint, implemented by the RS.
-   A client using this method MUST make a POST request to /authz-info at
-   the RS with the access token in the payload.  The RS receiving the
-   token MUST verify the validity of the token.  If the token is valid,
-   the RS MUST respond to the POST request with 2.01 (Created).
+   The method consists of an /authz-info endpoint, implemented by the
+   RS.  A client using this method MUST make a POST request to /authz-
+   info at the RS with the access token in the payload.  The RS
+   receiving the token MUST verify the validity of the token.  If the
+   token is valid, the RS MUST respond to the POST request with 2.01
+   (Created).  This response MAY contain the identifier of the token
+   (e.g. cti for a CWT) as a payload.
 
    If the token is not valid, the RS MUST respond with the CoAP response
    code 4.01 (Unauthorized).  If the token is valid but the audience of
@@ -1663,17 +1665,15 @@ Internet-Draft                     ACE                      January 2017
    and the RS to establish a security context in the first place, mutual
    authentication may not be possible at this point.
 
+   The RS MUST be prepared to store more than one token for each client,
+   and MUST apply the combined permissions granted by all applicable,
+   valid tokens to client requests.
+
 8.2.  Token Expiration
 
    Depending on the capabilities of the RS, there are various ways in
    which it can verify the validity of a received access token.  We list
-   the possibilities here including what functionality they require of
-   the RS.
 
-   o  The token is a CWT/JWT and includes a 'exp' claim and possibly the
-      'nbf' claim.  The RS verifies these by comparing them to values
-      from its internal clock as defined in [RFC7519].  In this case the
-      RS's internal clock must reflect the current date and time, or at
 
 
 
@@ -1682,6 +1682,13 @@ Seitz, et al.             Expires July 28, 2017                [Page 30]
 Internet-Draft                     ACE                      January 2017
 
 
+   the possibilities here including what functionality they require of
+   the RS.
+
+   o  The token is a CWT/JWT and includes a 'exp' claim and possibly the
+      'nbf' claim.  The RS verifies these by comparing them to values
+      from its internal clock as defined in [RFC7519].  In this case the
+      RS's internal clock must reflect the current date and time, or at
       least be synchronized with the AS's clock.  How this clock
       synchronization would be performed is out of scope for this memo.
    o  The RS verifies the validity of the token by performing an
@@ -1723,13 +1730,6 @@ Internet-Draft                     ACE                      January 2017
    It is important for the authorization server to include the identity
    of the intended recipient (the audience), typically a single resource
    server (or a list of resource servers), in the token.  Using a single
-   shared secret with multiple resource servers to simplify key
-   management is NOT RECOMMENDED since the benefit from using the proof-
-   of-possession concept is significantly reduced.
-
-   Token replay is also more difficult since an eavesdropper will have
-   to obtain the token and the corresponding private key or shared
-   secret that is bound to the access token.  Nevertheless, it is good
 
 
 
@@ -1738,6 +1738,13 @@ Seitz, et al.             Expires July 28, 2017                [Page 31]
 Internet-Draft                     ACE                      January 2017
 
 
+   shared secret with multiple resource servers to simplify key
+   management is NOT RECOMMENDED since the benefit from using the proof-
+   of-possession concept is significantly reduced.
+
+   Token replay is also more difficult since an eavesdropper will have
+   to obtain the token and the corresponding private key or shared
+   secret that is bound to the access token.  Nevertheless, it is good
    practice to limit the lifetime of the access token and therefore the
    lifetime of associated key.
 
@@ -1779,13 +1786,6 @@ Internet-Draft                     ACE                      January 2017
    that key pair more frequently than if it was only used towards a
    single RS.
 
-10.  Privacy Considerations
-
-   Implementers and users should be aware of the privacy implications of
-   the different possible deployments of this framework.
-
-   The AS is in a very central position can potentially learn sesitive
-   information about the clients requesting access tokens.  If the
 
 
 
@@ -1794,6 +1794,13 @@ Seitz, et al.             Expires July 28, 2017                [Page 32]
 Internet-Draft                     ACE                      January 2017
 
 
+10.  Privacy Considerations
+
+   Implementers and users should be aware of the privacy implications of
+   the different possible deployments of this framework.
+
+   The AS is in a very central position can potentially learn sesitive
+   information about the clients requesting access tokens.  If the
    client credentials grant is used, the AS can track what kind of
    access the client intends to perform.  With other grants, the
    Resource Owner can bind the grants to anonymous (rotating)
@@ -1835,13 +1842,6 @@ Internet-Draft                     ACE                      January 2017
    o  Change Controller: IESG
    o  Specification Document(s): this document
 
-   o  Name: "profile"
-   o  Description: The communication and communication security profile
-      used between client and RS, as defined in ACE profiles.
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Name: "client_token"
 
 
 
@@ -1850,6 +1850,13 @@ Seitz, et al.             Expires July 28, 2017                [Page 33]
 Internet-Draft                     ACE                      January 2017
 
 
+   o  Name: "profile"
+   o  Description: The communication and communication security profile
+      used between client and RS, as defined in ACE profiles.
+   o  Change Controller: IESG
+   o  Specification Document(s): this document
+
+   o  Name: "client_token"
    o  Description: Information that the RS MUST pass to the client e.g.
       about the proof-of-possession keys.
    o  Change Controller: IESG
@@ -1891,13 +1898,6 @@ Internet-Draft                     ACE                      January 2017
    A new registry will be requested from IANA, entitled "Token Type
    Mappings".  The registry is to be created as Expert Review Required.
 
-11.4.1.  Registration Template
-
-   Token Type:
-      Name of token type as registered in the OAuth token type registry
-      e.g.  "Bearer".
-   Mapped value:
-
 
 
 
@@ -1906,6 +1906,12 @@ Seitz, et al.             Expires July 28, 2017                [Page 34]
 Internet-Draft                     ACE                      January 2017
 
 
+11.4.1.  Registration Template
+
+   Token Type:
+      Name of token type as registered in the OAuth token type registry
+      e.g.  "Bearer".
+   Mapped value:
       Integer representation for the token type value.  The key value
       MUST be an integer in the range of 1 to 65536.
    Change Controller:
@@ -1947,12 +1953,6 @@ Internet-Draft                     ACE                      January 2017
    o  Change Controller: IESG
    o  Specification Document(s): this document
 
-11.6.  ACE Profile Registry
-
-   A new registry will be requested from IANA, entitled "ACE Profile
-   Registry".  The registry is to be created as Expert Review Required.
-
-
 
 
 
@@ -1961,6 +1961,11 @@ Seitz, et al.             Expires July 28, 2017                [Page 35]
 
 Internet-Draft                     ACE                      January 2017
 
+
+11.6.  ACE Profile Registry
+
+   A new registry will be requested from IANA, entitled "ACE Profile
+   Registry".  The registry is to be created as Expert Review Required.
 
 11.6.1.  Registration Template
 
@@ -2005,11 +2010,6 @@ Internet-Draft                     ACE                      January 2017
       parameter,preferably including URIs that can be used to retrieve
       copies of the documents.  An indication of the relevant sections
       may also be included but is not required.
-
-
-
-
-
 
 
 
