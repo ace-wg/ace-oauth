@@ -722,10 +722,10 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
         The ACE framework by default implements proof-of-possession for
 	access tokens, i.e. that the token holder can prove being a holder of
 	the key bound to the token.  The binding is provided by the "cnf" claim
-	indicating what key is used for mutual authentication. If clients need
+	indicating what key is used for proof-of-possession. If clients need
 	to update a token, e.g. to get additional rights, they can request that
-	the AS binds the new access token to the same credential as the
-	previous token.
+	the AS binds the new access token to the same key as the previous
+	token.
         <vspace blankLines="0"/>
       </t>
 
@@ -736,7 +736,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
         profile.  In ACE framework the AS is expected to manage the matching
 	of compatible profile choices between a client and an RS.  The AS
 	informs the client of the selected profile using the "profile"
-	parameter in the token request and token response.
+	parameter in the token response.
         <vspace blankLines="0"/>
       </t>
     </list>
@@ -784,9 +784,6 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   this framework defines encodings using CoAP and CBOR, in additon to
   HTTP and JSON.</t>
 
-  <t>Communication between the client and the /token endpoint at the
-    AS MUST be integrity protected and encrypted.  Furthermore AS and client
-    MUST perform mutual authentication.</t>
   <t>Authentication of the requesting client is done using client credentials
 	as defined by OAuth 2.0. A profile MAY specify new client credentials
 	types for the authentication of the client.</t>
@@ -801,17 +798,17 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   notation without the integer abbreviations for the parameters or their
   values for better readability.
   </t>
-  <section anchor="token" title="Client Credentilals and Grants">
+  <section anchor="token" title="Client Credentials and Grants">
 	  <t>To issue a token the client MUST be authenticated and present a
 		  valid grant for the scopes requested.</t>
 	  <t>The OAuth framework, <xref target="RFC6749"/>, defines one client credentila
 		  type, client id and client secret. Profiles of this framework MAY extend
-		  with aditional client credentials such as DTLS pre-shared keys or clent
+		  with aditional client credentials such as DTLS pre-shared keys or client
 		  certificates.</t>
 	  <t>In the OAuth framework five grant types are defined. The grant types can
 		  be split up into three groups, those granted on behalf of the resource
 		  owner (password, authorization code, implicit), those for the client
-		  (client_credentials), and those used to prolong a grand (refresh token).</t>
+		  (client_credentials), and those used to prolong a grant (refresh token).</t>
 	  <t>profiles MAY define additional grant types if needed, e.g. a proof of
 		  posession refesh token.</t>
   </section>
@@ -853,7 +850,8 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
     <t><xref target="fig:symmATreq"/> shows a request for a token
     with a symmetric proof-of-possession key.  Note that in this example
     we assume a DTLS-based communication security profile, therefore
-    the Content-Type is "application/cbor".
+    the Content-Type is "application/cbor".  The content is displayed in
+    CBOR diagnostic notation, without abbreviations for better readability.
 
     <figure align="center" anchor="fig:symmATreq"
             title="Example request for an access token bound to a
@@ -1611,7 +1609,7 @@ C:  +--------------->|                |
   the RS with the access token in the payload. The RS receiving the token MUST
   verify the validity of the token.  If the token is valid, the RS MUST respond
   to the POST request with 2.01 (Created).  This response MAY contain the
-  identifier of the token (e.g. cti for a CWT) as a payload.</t>
+  identifier of the token (e.g. the cti for a CWT) as a payload.</t>
 
   <t>If the token is not valid, the RS MUST respond with the CoAP response code
   4.01 (Unauthorized).  If the token is valid but the audience of the
@@ -2425,7 +2423,7 @@ C:  +--------------->|                |
 
 	<section anchor="CWTcnfTemplate" title="Registration Template">
 	  <t><list style="hanging">
-	    <t hangText="Confirmation Method Name:"><vspace blankLines="0"/>
+	    <t hangText="Confirmation Method Name:"><vspace/>
 	    The name requested (e.g., "kid").  This name is intended to be
 	    human readable and be used for debugging purposes.
 	    It is case sensitive. Names may not match other registered names
@@ -2433,23 +2431,23 @@ C:  +--------------->|                |
 	    that there is a compelling reason to allow an exception.
 	    <vspace blankLines="1"/></t>
 
-	    <t hangText="Confirmation Method Value:"><vspace blankLines="0"/>
+	    <t hangText="Confirmation Method Value:"><vspace/>
 	    Integer representation for the confirmation method value. Intended
 	    for use to uniquely identify the confirmation method.  The value
 	    MUST be an integer in the range of 1 to 65536.
 	    <vspace blankLines="1"/></t>
 	    
-	    <t hangText="Confirmation Method Description:">
-	    <vspace blankLines="0"/>Brief description of the confirmation
-	    method (e.g. "Key Identifier").<vspace blankLines="1"/></t>
+	    <t hangText="Confirmation Method Description:"><vspace/>
+	    Brief description of the confirmation method (e.g. "Key
+	    Identifier").<vspace blankLines="1"/></t>
 
-	    <t hangText="Change Controller:"><vspace blankLines="0"/>
+	    <t hangText="Change Controller:"><vspace/>
 	    For Standards Track RFCs, list the "IESG".  For others, give the
 	    name of the responsible party.  Other details (e.g., postal
 	    address, email address, home page URI) may also be included.
 	    <vspace blankLines="1"/></t>
  
-	    <t hangText="Specification Document(s):"><vspace blankLines="0"/>
+	    <t hangText="Specification Document(s):"><vspace/>
 	     Reference to the document or documents that specify the parameter,
 	     preferably including URIs that can be used to retrieve copies of
 	     the documents.  An indication of the relevant sections may also be
@@ -2681,7 +2679,7 @@ C:  +--------------->|                |
 
     </section>
 
-    <section anchor="app:rolesAndResponsibilities" title="Roles and Responsibilites">
+    <section anchor="app:rolesAndResponsibilities" title="Roles and Responsibilities">
       <t><list style="hanging">
 	<t hangText="Resource Owner">
 	  <list style="symbols">
@@ -2723,11 +2721,12 @@ C:  +--------------->|                |
             <t>Authenticate clients that wish to request a token.</t>
 	    <t>Process a token request against the authorization
 	    policies configured for the RS.</t>
-	    <t>Expose the /introspection endpoint that allows RS's to submit
-	    token introspection requests.</t>
-	    <t>Authenticate RS's that wish to get an introspection
-	    response.</t>
-	    <t>Process token introspection requests.</t>
+	    <t>Optionally:  Expose the /introspection endpoint that allows
+	    RS's to submit token introspection requests.</t>
+	    <t>If providing an introspection endpoint: Authenticate RS's that
+	    wish to get an introspection response.</t>
+	    <t>If providing an introspection endpoint: Process token
+	    introspection requests.</t>
 	    <t>Optionally: Handle token revocation.</t>
           </list><vspace blankLines="0"/>
 	</t>

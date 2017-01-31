@@ -382,7 +382,7 @@
 <link href="#rfc.section.4" rel="Chapter" title="4 Protocol Interactions"/>
 <link href="#rfc.section.5" rel="Chapter" title="5 Framework"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 The 'Token' Endpoint"/>
-<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Client Credentilals and Grants"/>
+<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Client Credentials and Grants"/>
 <link href="#rfc.section.6.2" rel="Chapter" title="6.2 Client-to-AS Request"/>
 <link href="#rfc.section.6.3" rel="Chapter" title="6.3 AS-to-Client Response"/>
 <link href="#rfc.section.6.4" rel="Chapter" title="6.4 Error Response"/>
@@ -429,7 +429,7 @@
 <link href="#rfc.references.1" rel="Chapter" title="13.1 Normative References"/>
 <link href="#rfc.references.2" rel="Chapter" title="13.2 Informative References"/>
 <link href="#rfc.appendix.A" rel="Chapter" title="A Design Justification"/>
-<link href="#rfc.appendix.B" rel="Chapter" title="B Roles and Responsibilites"/>
+<link href="#rfc.appendix.B" rel="Chapter" title="B Roles and Responsibilities"/>
 <link href="#rfc.appendix.C" rel="Chapter" title="C Requirements on Profiles"/>
 <link href="#rfc.appendix.D" rel="Chapter" title="D Assumptions on AS knowledge about C and RS"/>
 <link href="#rfc.appendix.E" rel="Chapter" title="E Deployment Examples"/>
@@ -541,7 +541,7 @@
 </ul><li>4.   <a href="#rfc.section.4">Protocol Interactions</a></li>
 <li>5.   <a href="#rfc.section.5">Framework</a></li>
 <li>6.   <a href="#rfc.section.6">The 'Token' Endpoint</a></li>
-<ul><li>6.1.   <a href="#rfc.section.6.1">Client Credentilals and Grants</a></li>
+<ul><li>6.1.   <a href="#rfc.section.6.1">Client Credentials and Grants</a></li>
 <li>6.2.   <a href="#rfc.section.6.2">Client-to-AS Request</a></li>
 <li>6.3.   <a href="#rfc.section.6.3">AS-to-Client Response</a></li>
 <li>6.4.   <a href="#rfc.section.6.4">Error Response</a></li>
@@ -588,7 +588,7 @@
 <ul><li>13.1.   <a href="#rfc.references.1">Normative References</a></li>
 <li>13.2.   <a href="#rfc.references.2">Informative References</a></li>
 </ul><li>Appendix A.   <a href="#rfc.appendix.A">Design Justification</a></li>
-<li>Appendix B.   <a href="#rfc.appendix.B">Roles and Responsibilites</a></li>
+<li>Appendix B.   <a href="#rfc.appendix.B">Roles and Responsibilities</a></li>
 <li>Appendix C.   <a href="#rfc.appendix.C">Requirements on Profiles</a></li>
 <li>Appendix D.   <a href="#rfc.appendix.D">Assumptions on AS knowledge about C and RS</a></li>
 <li>Appendix E.   <a href="#rfc.appendix.E">Deployment Examples</a></li>
@@ -712,9 +712,9 @@
   <dt>Credential Provisioning</dt>
   <dd style="margin-left: 8"><br/><br/> For IoT we cannot generally assume that the client and RS are part of a common key infrastructure, so the AS provisions credentials or associated information to allow mutual authentication. These credentials need to be provided to the parties before or during the authentication protocol is executed, and may be re-used for subsequent token requests.  <br/> </dd>
   <dt>Proof-of-Possession</dt>
-  <dd style="margin-left: 8"><br/><br/> The ACE framework by default implements proof-of-possession for access tokens, i.e. that the token holder can prove being a holder of the key bound to the token.  The binding is provided by the "cnf" claim indicating what key is used for mutual authentication. If clients need to update a token, e.g. to get additional rights, they can request that the AS binds the new access token to the same credential as the previous token.  <br/> </dd>
+  <dd style="margin-left: 8"><br/><br/> The ACE framework by default implements proof-of-possession for access tokens, i.e. that the token holder can prove being a holder of the key bound to the token.  The binding is provided by the "cnf" claim indicating what key is used for proof-of-possession. If clients need to update a token, e.g. to get additional rights, they can request that the AS binds the new access token to the same key as the previous token.  <br/> </dd>
   <dt>ACE Profiles</dt>
-  <dd style="margin-left: 8"><br/><br/> The client or RS may be limited in the encodings or protocols it supports.  To support a variety of different deployment settings, specific interactions between client and RS are defined in an ACE profile.  In ACE framework the AS is expected to manage the matching of compatible profile choices between a client and an RS.  The AS informs the client of the selected profile using the "profile" parameter in the token request and token response.  <br/> </dd>
+  <dd style="margin-left: 8"><br/><br/> The client or RS may be limited in the encodings or protocols it supports.  To support a variety of different deployment settings, specific interactions between client and RS are defined in an ACE profile.  In ACE framework the AS is expected to manage the matching of compatible profile choices between a client and an RS.  The AS informs the client of the selected profile using the "profile" parameter in the token response.  <br/> </dd>
 </dl>
 
 <p> </p>
@@ -724,15 +724,14 @@
 <p id="rfc.section.5.p.6">The OAuth 2.0 AS uses a JSON structure in the payload of its responses both to client and RS.  This framework RECOMMENDS the use of CBOR <a href="#RFC7049">[RFC7049]</a> instead.  The requesting device can explicitly request this encoding by setting the CoAP Accept option in the request to "application/cbor".  Depending on the profile, the content MAY arrive in a different format wrapping a CBOR payload.</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#tokenEndpoint" id="tokenEndpoint">The 'Token' Endpoint</a></h1>
 <p id="rfc.section.6.p.1">In plain OAuth 2.0 the AS provides the /token endpoint for submitting access token requests.  This framework extends the functionality of the /token endpoint, giving the AS the possibility to help client and RS to establish shared keys or to exchange their public keys.  Furthermore this framework defines encodings using CoAP and CBOR, in additon to HTTP and JSON.</p>
-<p id="rfc.section.6.p.2">Communication between the client and the /token endpoint at the AS MUST be integrity protected and encrypted.  Furthermore AS and client MUST perform mutual authentication.</p>
-<p id="rfc.section.6.p.3">Authentication of the requesting client is done using client credentials as defined by OAuth 2.0. A profile MAY specify new client credentials types for the authentication of the client.</p>
-<p id="rfc.section.6.p.4">Profiles of this framework SHOULD specify how authentication of the AS is done and how communication security is implemented. If nothing is specified TLS with server certificate is asumed as defined by OAuth 2.0.</p>
-<p id="rfc.section.6.p.5">When requesting a token the client is authticated with client credentials and then a grant is pressented that gives the client the right to get a token.</p>
-<p id="rfc.section.6.p.6">The figures of this section uses CBOR diagnostic notation without the integer abbreviations for the parameters or their values for better readability.  </p>
-<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#token" id="token">Client Credentilals and Grants</a></h1>
+<p id="rfc.section.6.p.2">Authentication of the requesting client is done using client credentials as defined by OAuth 2.0. A profile MAY specify new client credentials types for the authentication of the client.</p>
+<p id="rfc.section.6.p.3">Profiles of this framework SHOULD specify how authentication of the AS is done and how communication security is implemented. If nothing is specified TLS with server certificate is asumed as defined by OAuth 2.0.</p>
+<p id="rfc.section.6.p.4">When requesting a token the client is authticated with client credentials and then a grant is pressented that gives the client the right to get a token.</p>
+<p id="rfc.section.6.p.5">The figures of this section uses CBOR diagnostic notation without the integer abbreviations for the parameters or their values for better readability.  </p>
+<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#token" id="token">Client Credentials and Grants</a></h1>
 <p id="rfc.section.6.1.p.1">To issue a token the client MUST be authenticated and present a valid grant for the scopes requested.</p>
-<p id="rfc.section.6.1.p.2">The OAuth framework, <a href="#RFC6749">[RFC6749]</a>, defines one client credentila type, client id and client secret. Profiles of this framework MAY extend with aditional client credentials such as DTLS pre-shared keys or clent certificates.</p>
-<p id="rfc.section.6.1.p.3">In the OAuth framework five grant types are defined. The grant types can be split up into three groups, those granted on behalf of the resource owner (password, authorization code, implicit), those for the client (client_credentials), and those used to prolong a grand (refresh token).</p>
+<p id="rfc.section.6.1.p.2">The OAuth framework, <a href="#RFC6749">[RFC6749]</a>, defines one client credentila type, client id and client secret. Profiles of this framework MAY extend with aditional client credentials such as DTLS pre-shared keys or client certificates.</p>
+<p id="rfc.section.6.1.p.3">In the OAuth framework five grant types are defined. The grant types can be split up into three groups, those granted on behalf of the resource owner (password, authorization code, implicit), those for the client (client_credentials), and those used to prolong a grant (refresh token).</p>
 <p id="rfc.section.6.1.p.4">profiles MAY define additional grant types if needed, e.g. a proof of posession refesh token.</p>
 <h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#tokenRequest" id="tokenRequest">Client-to-AS Request</a></h1>
 <p id="rfc.section.6.2.p.1">The client sends a CoAP POST request to the token endpoint at the AS, the profile MUST specify the Content-Type and wrapping of the payload.  The content of the request consists of the parameters specified in section 4 of the OAuth 2.0 specification <a href="#RFC6749">[RFC6749]</a> encoded as a CBOR map.</p>
@@ -761,7 +760,7 @@ Payload:
  }
         </pre>
 <p class="figure">Figure 2: Example request for an access token bound to a      symmetric key.</p>
-<p><a href="#fig:symmATreq">Figure 2</a> shows a request for a token with a symmetric proof-of-possession key.  Note that in this example we assume a DTLS-based communication security profile, therefore the Content-Type is "application/cbor".  </p>
+<p><a href="#fig:symmATreq">Figure 2</a> shows a request for a token with a symmetric proof-of-possession key.  Note that in this example we assume a DTLS-based communication security profile, therefore the Content-Type is "application/cbor".  The content is displayed in CBOR diagnostic notation, without abbreviations for better readability.  </p>
 <div id="rfc.figure.3"/>
 <div id="fig:asymmATreq"/>
 <pre>
@@ -1172,7 +1171,7 @@ C:  +---------------&gt;|                |
 <h1 id="rfc.section.8.1"><a href="#rfc.section.8.1">8.1.</a> <a href="#tokenAuthInfoEndpoint" id="tokenAuthInfoEndpoint">The 'Authorization Information' Endpoint</a></h1>
 <p id="rfc.section.8.1.p.1">The access token, containing authorization information and information about the key used by the client, needs to be transported to the RS so that the RS can authenticate and authorize the client request.</p>
 <p id="rfc.section.8.1.p.2">This section defines a method for transporting the access token to the RS using CoAP. Profiles of this framework MAY define other methods for token transport.  </p>
-<p id="rfc.section.8.1.p.3">The method consists of an /authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to /authz-info at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).  This response MAY contain the identifier of the token (e.g. cti for a CWT) as a payload.</p>
+<p id="rfc.section.8.1.p.3">The method consists of an /authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to /authz-info at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).  This response MAY contain the identifier of the token (e.g. the cti for a CWT) as a payload.</p>
 <p id="rfc.section.8.1.p.4">If the token is not valid, the RS MUST respond with the CoAP response code 4.01 (Unauthorized).  If the token is valid but the audience of the token does not match the RS, the RS MUST respond with the CoAP response code 4.03 (Forbidden).  If the token is valid but is associated to claims that the RS cannot process (e.g. an unknown scope) the RS MUST respond with the CoAP response code 4.00 (Bad Request). In the latter case the RS MAY provide additional information in the error response, in order to clarify what went wrong.  </p>
 <p id="rfc.section.8.1.p.5">The RS MAY make an introspection request to validate the token before responding to the POST /authz-info request. If the introspection response contains a client token (<a href="#clientToken">Section 7.4</a>) then this token SHALL be included in the payload of the 2.01 (Created) response.  </p>
 <p id="rfc.section.8.1.p.6">Profiles MUST specify how the /authz-info endpoint is protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
@@ -1820,7 +1819,7 @@ C:  +---------------&gt;|                |
   <dt>Confirmation Method Value:</dt>
   <dd style="margin-left: 8"><br/> Integer representation for the confirmation method value. Intended for use to uniquely identify the confirmation method.  The value MUST be an integer in the range of 1 to 65536.  <br/><br/></dd>
   <dt>Confirmation Method Description:</dt>
-  <dd style="margin-left: 8"><br/>Brief description of the confirmation method (e.g. "Key Identifier").<br/><br/></dd>
+  <dd style="margin-left: 8"><br/> Brief description of the confirmation method (e.g. "Key Identifier").<br/><br/></dd>
   <dt>Change Controller:</dt>
   <dd style="margin-left: 8"><br/> For Standards Track RFCs, list the "IESG".  For others, give the name of the responsible party.  Other details (e.g., postal address, email address, home page URI) may also be included.  <br/><br/></dd>
   <dt>Specification Document(s):</dt>
@@ -2053,7 +2052,7 @@ C:  +---------------&gt;|                |
 </dl>
 
 <p> </p>
-<h1 id="rfc.appendix.B"><a href="#rfc.appendix.B">Appendix B.</a> <a href="#app:rolesAndResponsibilities" id="app:rolesAndResponsibilities">Roles and Responsibilites</a></h1>
+<h1 id="rfc.appendix.B"><a href="#rfc.appendix.B">Appendix B.</a> <a href="#app:rolesAndResponsibilities" id="app:rolesAndResponsibilities">Roles and Responsibilities</a></h1>
 <p/>
 
 <dl>
@@ -2062,7 +2061,7 @@ C:  +---------------&gt;|                |
   <dt>Requesting Party</dt>
   <dd style="margin-left: 8"><ul><li>Make sure that the client is provisioned the necessary credentials to authenticate to the AS.</li><li>Make sure that the client is configured to follow the security requirements of the Requesting Party, when issuing requests (e.g. minimum communication security requirements, trust anchors).</li><li>Register the client at the AS.  This includes making known to the AS which profiles, token_types, and key types (symmetric/asymmetric) the client.</li></ul><p> </p><br/> </dd>
   <dt>Authorization Server</dt>
-  <dd style="margin-left: 8"><ul><li>Register RS and manage corresponding security contexts.</li><li>Register clients and including authentication credentials.</li><li>Allow Resource Owners to configure and update access control policies related to their registered RS'</li><li>Expose the /token endpoint to allow  clients to request tokens.</li><li>Authenticate clients that wish to request a token.</li><li>Process a token request against the authorization policies configured for the RS.</li><li>Expose the /introspection endpoint that allows RS's to submit token introspection requests.</li><li>Authenticate RS's that wish to get an introspection response.</li><li>Process token introspection requests.</li><li>Optionally: Handle token revocation.</li></ul><br/> </dd>
+  <dd style="margin-left: 8"><ul><li>Register RS and manage corresponding security contexts.</li><li>Register clients and including authentication credentials.</li><li>Allow Resource Owners to configure and update access control policies related to their registered RS'</li><li>Expose the /token endpoint to allow  clients to request tokens.</li><li>Authenticate clients that wish to request a token.</li><li>Process a token request against the authorization policies configured for the RS.</li><li>Optionally:  Expose the /introspection endpoint that allows RS's to submit token introspection requests.</li><li>If providing an introspection endpoint: Authenticate RS's that wish to get an introspection response.</li><li>If providing an introspection endpoint: Process token introspection requests.</li><li>Optionally: Handle token revocation.</li></ul><br/> </dd>
   <dt>Client</dt>
   <dd style="margin-left: 8"><ul><li>Discover the AS in charge of the RS that is to be targeted with a request.</li><li>Submit the token request (A).  <ul><li>Authenticate towards the AS.</li><li>Optionally (if not pre-configured): Specify which RS, which resource(s), and which action(s) the request(s) will target.</li><li>If raw public key (rpk) or certificate is used, make sure the AS has the right rpk or certificate for this client.</li></ul><p> </p></li><li>Process the access token and RS Information (B) <ul><li>Check that the RS Information provides the necessary security parameters (e.g. PoP key, information on communication security protocols supported by the RS).</li></ul><p> </p></li><li>Send the token and request to the RS (C) <ul><li>Authenticate towards the RS (this could coincide with the proof of possession process).</li><li>Transmit the token as specified by the AS (default is to the /authz-info endpoint, alternative options are specified by profiles).</li><li>Perform the proof-of-possession procedure as specified by the profile in use (this may already have been taken care of through the authentication procedure).</li></ul><p> </p></li><li>Process the RS response (F) requirements of the Requesting Party, when issuing requests (e.g. minimum communication security requirements, trust anchors).</li><li>Register the client at the AS.</li></ul><br/> </dd>
   <dt>Resource Server</dt>
