@@ -242,7 +242,7 @@
 
 <section anchor="terminology" title="Terminology">
   <t>The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL
-NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and 
+NOT", "SHOULD", "SHOULD NOT", "RECOMMENDED", "NOT RECOMMENDED", "MAY", and
 "OPTIONAL" in this document are to be interpreted as described in <xref
 target="RFC2119"/>.  </t>
 
@@ -773,9 +773,71 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   different format wrapping a CBOR payload.</t>
 
 </section> <!--Framework-->
+<section anchor="authorizationGrants" title="Authorization Grants">
+  <t>To request an access token, the client obtains authorization from the
+  resource owner or uses its client credentials as grant.  The authorization
+  is expressed in the form of an authorization grant.</t>
+
+  <t>The OAuth framework defines four grant types. The grant types can
+  be split up into two groups, those granted on behalf of the resource
+  owner (password, authorization code, implicit) and those for the client
+  (client credentials).</t>
+
+  <t>The grant type selected depending based on the use case.  In cases where
+  the client will to act on be half of the resource owner, authorization code
+  grant is recommended.  If the client should to act on be half of the user but
+  does not have any display or very limited interaction possibilities it is
+  recommended to use the device code grant defined in
+  <xref target="I-D.ietf-oauth-device-flow"/>.  In cases where the client will
+  not act on be half of the resource owner, client credentials grant is
+  recommended.</t>
+
+  <t>For details on the different grant types see the OAuth 2.0 framework. The
+  OAuth 2.0 framework provides an extension mechanism for defining additional
+  grant types so profiles of this framework MAY define additional grant types
+  if needed.</t>
+</section> <!--Grants-->
+
+<section anchor="clientCredentials" title="Client Credentials">
+  <t>Authentication of the client is mandatory independent of the grant type
+  when requesting the access token from the token endpoint. In the case of
+  client credentials grant type the authentication and grant coincides</t>
+
+  <t>Provisioning of client credentials to the client is out of scope for this
+  specification</t>
+
+  <t>The OAuth framework, <xref target="RFC6749"/>, defines one client credential
+  type, client id and client secret. Profiles of this framework MAY extend
+  with additional client credentials such as DTLS pre-shared keys or client
+  certificates.</t>
+</section> <!--Client Credentials-->
+
+<section anchor="ASAuthentication" title="AS Authentication">
+  <t>Client credential does not by default authenticate the AS that the client
+  connects to. In classic OAuth the AS is authenticated with a TLS server
+  certificate.</t>
+
+  <t>Profiles of this framework SHOULD specify how authentication of the AS
+  is done and how communication security is implemented. If not is specified
+  TLS with server certificate is assumed as defined by OAuth 2.0.</t>
+</section> <!--AS Authentication-->
+
+<section anchor="authorizeEndpoint" title="The 'Authorize' Endpoint">
+  <t>The authorization endpoint is used to get resource owner approval. It is
+  used for authorization code and implicit grant, flows that requires
+  online user consent.  In the most common implementation a users-agent is used
+  and redirected from the client to the AS. The AS shows a consent dialog and
+  directs back to the client, with the approved grant or an error message.</t>
+
+  <t>The use of the authoriztion endpoint requires a capable device.  It is
+  therefor assumed that CoAP and DTLS will not be used so no mappings for
+  authorization endpoint is provided in this framework.</t>
+
+  <t>If clients involved cannot support HTTP and TLS profiles MAY define
+  mappings for the authorization endpoint.</t>
+</section> <!--The 'Authorize' Endpoint-->
 
 <section anchor="tokenEndpoint" title="The 'Token' Endpoint">
-
   <t>In plain OAuth 2.0 the AS provides the /token endpoint for submitting
   access token requests.  This framework extends the functionality of the
   /token endpoint, giving the AS the possibility to help client and RS to
@@ -783,35 +845,14 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   this framework defines encodings using CoAP and CBOR, in addition to
   HTTP and JSON.</t>
 
-  <t>Authentication of the requesting client is done using client credentials
-	as defined by OAuth 2.0. A profile MAY specify new client credentials
-	types for the authentication of the client.</t>
-  <t>Profiles of this framework SHOULD specify how authentication of the AS
-	is done and how communication security is implemented. If nothing is
-	specified TLS with server certificate is assumed as defined by OAuth 2.0.</t>
-  <t>When requesting a token the client is authenticated with client credentials
-	and then a grant is presented that gives the client the right to
-	get a token.</t>
+  <t>For the AS to be able to issue a token the client MUST be authenticated and
+  present a valid grant for the scopes requested.</t>
 
   <t>The figures of this section uses CBOR diagnostic
   notation without the integer abbreviations for the parameters or their
   values for better readability.
   </t>
-  <section anchor="token" title="Client Credentials and Grants">
-	  <t>To issue a token the client MUST be authenticated and present a
-		  valid grant for the scopes requested.</t>
-	  <t>The OAuth framework, <xref target="RFC6749"/>, defines one client credential
-		  type, client id and client secret. Profiles of this framework MAY extend
-		  with additional client credentials such as DTLS pre-shared keys or client
-		  certificates.</t>
-	  <t>In the OAuth framework five grant types are defined. The grant types can
-		  be split up into three groups, those granted on behalf of the resource
-		  owner (password, authorization code, implicit), those for the client
-		  (client_credentials), and those used to prolong a grant (refresh token).</t>
-	  <t>profiles MAY define additional grant types if needed, e.g. a proof of
-		  possession refresh token.</t>
-  </section>
-
+  
   <section anchor="tokenRequest" title="Client-to-AS Request">
     <t>The client sends a CoAP POST request to the token endpoint
     at the AS, the profile MUST specify the Content-Type and wrapping of the
@@ -1113,8 +1154,8 @@ Payload:
     </section>
 
     <section anchor="paramTokenType" title="Token Type">
-      <t>The toke_type parameter is defined in <xref target="RFC6749"/>, 
-      allowing the AS to indicate to the client which type of access token it 
+      <t>The toke_type parameter is defined in <xref target="RFC6749"/>,
+      allowing the AS to indicate to the client which type of access token it
       is receiving (e.g. a bearer token). </t>
 
       <t>This document registers the new value "pop" for the OAuth Access
@@ -1670,7 +1711,7 @@ C:  +--------------->|                |
 
   </list></t>
 
-  <t>If a token, that authorizes a long running request such as e.g. a CoAP 
+  <t>If a token, that authorizes a long running request such as e.g. a CoAP
   Observe <xref target="RFC7641"/>, expires, the RS MUST send an error
   response with the response code 4.01 Unauthorized to the client and then
   terminate processing the long running request.</t>
@@ -2413,7 +2454,7 @@ C:  +--------------->|                |
           </list>
         </t>
       </section>
-      
+
       <section anchor="CWTcnfIANA" title="CWT Confirmation Methods Registry">
 	<t>This specification establishes the IANA "CWT Confirmation Methods"
 	registry for CWT "cnf" member values.  The registry records the
@@ -2435,7 +2476,7 @@ C:  +--------------->|                |
 	    for use to uniquely identify the confirmation method.  The value
 	    MUST be an integer in the range of 1 to 65536.
 	    <vspace blankLines="1"/></t>
-	    
+
 	    <t hangText="Confirmation Method Description:"><vspace/>
 	    Brief description of the confirmation method (e.g. "Key
 	    Identifier").<vspace blankLines="1"/></t>
@@ -2445,7 +2486,7 @@ C:  +--------------->|                |
 	    name of the responsible party.  Other details (e.g., postal
 	    address, email address, home page URI) may also be included.
 	    <vspace blankLines="1"/></t>
- 
+
 	    <t hangText="Specification Document(s):"><vspace/>
 	     Reference to the document or documents that specify the parameter,
 	     preferably including URIs that can be used to retrieve copies of
@@ -2490,7 +2531,7 @@ C:  +--------------->|                |
         <t>We would like to thank Eve Maler for her contributions to the use of
         OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion
         input, and Malisa Vucinic for his input on the predecessors of this
-	proposal. Finally, we would like to thank the ACE working group in 
+	proposal. Finally, we would like to thank the ACE working group in
 	general for their feedback.</t>
 
 	<t>We would like to thank the authors of
@@ -3306,18 +3347,18 @@ F:  |<--------+ Header: 2.04 Changed
     <section anchor="app:changelog" title="Document Updates">
       <section anchor="app:f5t6" title="Version -04 to -05">
 	<t><list style="symbols">
-	  <t>Added RFC 2119 language to the specification of the required 
+	  <t>Added RFC 2119 language to the specification of the required
 	  behavior of profile specifications.</t>
 	  <t>Added section 6.1 on the relation to the OAuth2 grant types.</t>
-	  <t>Added CBOR abbreviations for error and the error codes defined in 
+	  <t>Added CBOR abbreviations for error and the error codes defined in
 	  OAuth2.</t>
-	  <t>Added clarification about token expiration and long-running 
+	  <t>Added clarification about token expiration and long-running
 	  requests in section 8.2.</t>
 	  <t>Added security considerations about tokens with symmetric pop
 	  keys valid for more than one RS.</t>
 	  <t>Added privacy considerations section.</t>
 	  <t>Added IANA registry mapping the confirmation types from RFC 7800
-	  to equivalent COSE types.</t> 
+	  to equivalent COSE types.</t>
 	  <t>Added appendix D, describing assumptions about what the AS knows
 	  about the client and the RS.</t>
 	</list></t>
