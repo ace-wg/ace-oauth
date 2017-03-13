@@ -783,7 +783,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   (client credentials).</t>
 
   <t>The grant type selected depending based on the use case.  In cases where
-  the client will act on be half of the resource owner, authorization code
+  the client will act on behalf of the resource owner, authorization code
   grant is recommended.  If the client should to act on be half of the user but
   does not have any display or very limited interaction possibilities it is
   recommended to use the device code grant defined in
@@ -800,15 +800,15 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 <section anchor="clientCredentials" title="Client Credentials">
   <t>Authentication of the client is mandatory independent of the grant type
   when requesting the access token from the token endpoint. In the case of
-  client credentials grant type the authentication and grant coincides</t>
+  client credentials grant type the authentication and grant coincides.</t>
 
-  <t>Provisioning of client credentials to the client is out of scope for this
-  specification</t>
+  <t>Client registration and provisioning of client credentials to the client
+  is out of scope for this specification.</t>
 
-  <t>The OAuth framework, <xref target="RFC6749"/>, defines one client credential
-  type, client id and client secret. Profiles of this framework MAY extend
-  with additional client credentials such as DTLS pre-shared keys or client
-  certificates.</t>
+  <t>The OAuth framework, <xref target="RFC6749"/>, defines one client
+  credential type, client id and client secret. Profiles of this framework MAY
+  extend with additional client credentials such as DTLS pre-shared keys or
+  client certificates.</t>
 </section> <!--Client Credentials-->
 
 <section anchor="ASAuthentication" title="AS Authentication">
@@ -816,21 +816,24 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   connects to. In classic OAuth the AS is authenticated with a TLS server
   certificate.</t>
 
-  <t>Profiles of this framework SHOULD specify how authentication of the AS
-  is done and how communication security is implemented. If not is specified
-  TLS with server certificate is assumed as defined by OAuth 2.0.</t>
+  <t>Profiles of this framework SHOULD specify how clients authenticate the AS
+  and how communication security is implemented, otherwise server side TLS
+  certificates as defined by OAuth 2.0 is required.</t>
 </section> <!--AS Authentication-->
 
 <section anchor="authorizeEndpoint" title="The 'Authorize' Endpoint">
-  <t>The authorization endpoint is used to get resource owner approval. It is
-  used for authorization code and implicit grant, flows that requires
-  online user consent.  In the most common implementation a users-agent is used
-  and redirected from the client to the AS. The AS shows a consent dialog and
-  directs back to the client, with the approved grant or an error message.</t>
+  <t>The authorization endpoint is used to interact with the resource owner
+  and obtain an authorization grant. It is used for authorization code and
+  implicit grant, flows that requires online user consent.  In the most common
+  implementation a users-agent is used and redirected from the client to the
+  AS. The AS shows a consent dialog and directs back to the client, with the
+  approved grant or an error message.</t>
 
-  <t>The use of the authorization endpoint requires a capable device.  It is
-  therefore assumed that CoAP and DTLS will not be used so no mappings for
-  authorization endpoint is provided in this framework.</t>
+  <t>The grant types defined in OAuth 2.0, that use the authorization endpoint,
+  require the use of a user agent (i.e. a browser).  This endpoint is therefore
+  out of scope for this specification.  Implementations should use the
+  definition and recommendations of <xref target="RFC6749"/> and
+  <xref target="RFC6819"/>.</t>
 
   <t>If clients involved cannot support HTTP and TLS profiles MAY define
   mappings for the authorization endpoint.</t>
