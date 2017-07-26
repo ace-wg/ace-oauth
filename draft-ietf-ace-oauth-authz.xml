@@ -35,7 +35,7 @@
 <!ENTITY I-D.ietf-ace-actors SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-actors.xml">
 <!ENTITY I-D.ietf-core-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-object-security.xml">
 <!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cbor-web-token.xml">
- <!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jones-ace-cwt-proof-of-possession.xml">	
+ <!ENTITY I-D.jones-ace-cwt-proof-of-possession SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jones-ace-cwt-proof-of-possession.xml">	
 <!ENTITY RFC7959 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7959.xml">
 <!ENTITY RFC8152 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8152.xml">
 ]>
@@ -494,7 +494,7 @@ supported in the future, such as HTTP/2, MQTT and QUIC.</t>
 
     <t>While HTTP uses headers and query-strings to convey additional
     information about a request, CoAP encodes such information in so-called
-    'options'.</t>
+    "options".</t>
 
     <t>CoAP supports application-layer fragmentation of the CoAP payloads
     through blockwise transfers <xref target="RFC7959"/>.  However,
@@ -722,10 +722,10 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
         The ACE framework by default implements proof-of-possession for
 	access tokens, i.e. that the token holder can prove being a holder of
 	the key bound to the token.  The binding is provided by the "cnf" claim
-	indicating what key is used for proof-of-possession. If clients need
-	to update a token, e.g. to get additional rights, they can request that
-	the AS binds the new access token to the same key as the previous
-	token.
+	<xref target="RFC8152"/> indicating what key is used for
+	proof-of-possession. If clients need to update a token, e.g. to get
+	additional rights, they	can request that the AS binds the new access
+	token to the same key as the previous token.
         <vspace blankLines="0"/>
       </t>
 
@@ -883,7 +883,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 	client would like to bind to the access token for proof-of-possession.
 	It is NOT RECOMMENDED that a client submits a symmetric key value to
 	the AS using this parameter.  See <xref target="paramCnf"/> for more
-	details on the formatting of the 'cnf' parameter.</t>
+	details on the usage of the "cnf" parameter.</t>
       </list>
     </t>
 
@@ -1002,27 +1002,28 @@ Payload:
 	this parameter.<vspace blankLines="1"/></t>
 
 	<t hangText="cnf"><vspace blankLines="0"/>
-	REQUIRED if the token type is 'pop'. OPTIONAL otherwise.  If a
+	REQUIRED if the token type is "pop". OPTIONAL otherwise.  If a
 	symmetric proof-of-possession algorithms was selected, this field
 	contains the proof-of-possession key.  If an asymmetric algorithm was
 	selected, this field contains information about the public key used by
-	the RS to authenticate.  See <xref target="paramCnf"/> for the
-	formatting of this parameter.</t>
+	the RS to authenticate.  See <xref target="paramCnf"/> for details on
+	the use of this parameter.</t>
 
 	<t hangText="token_type"><vspace blankLines="0"/>
 	OPTIONAL.  By default implementations of this framework SHOULD assume
-	that the token_type is 'pop'.  If a specific use case requires another
-	token_type (e.g. 'Bearer') to be used then this parameter is REQUIRED.
+	that the token_type is "pop".  If a specific use case requires another
+	token_type (e.g. "Bearer") to be used then this parameter is REQUIRED.
 	</t>
       </list>
     </t>
 
     <t>Note that if CBOR Web Tokens <xref
     target="I-D.ietf-ace-cbor-web-token"/> are used, the access token can also
-    contain a 'cnf' claim.  This claim is however consumed by a different
-    party.  The access token is created by the AS and processed by the RS (and
-    opaque to the client) whereas the RS Information is created by the AS and
-    processed by the client; it is never forwarded to the resource server.</t>
+    contain a "cnf" claim <xref target="RFC8152"/>.  This claim is however
+    consumed by a different party.  The access token is created by the AS and
+    processed by the RS (and opaque to the client) whereas the RS Information
+    is created by the AS and processed by the client; it is never forwarded to
+    the resource server.</t>
 
     <t>Figure <xref target="fig:rsinfo"/> summarizes the parameters that
     may be part of the RS Information.
@@ -1051,7 +1052,7 @@ Payload:
     </t>
 
     <t><xref target="fig:symmATres"/> shows a response containing a token
-    and a 'cnf' parameter with a symmetric proof-of-possession key.  Note that
+    and a "cnf" parameter with a symmetric proof-of-possession key.  Note that
     we assume a DTLS-based communication security profile for this example,
     therefore the Content-Type is "application/cbor".
 
@@ -1065,7 +1066,7 @@ Payload:
 {
   "access_token" : b64'SlAV32hkKG ...
    (remainder of CWT omitted for brevity;
-   CWT contains COSE_Key in the 'cnf' claim)',
+   CWT contains COSE_Key in the "cnf" claim)',
   "profile" : "coap_dtls",
   "expires_in" : "3600",
   "cnf" : {
@@ -1173,10 +1174,10 @@ Payload:
         Token Types registry,  specifying a Proof-of-Possession token.  How the
       proof-of-possession is performed MUST be specified by the profiles.</t>
 
-      <t>The values in the 'token_type' parameter MUST be CBOR text strings
+      <t>The values in the "token_type" parameter MUST be CBOR text strings
       (major type 3).</t>
 
-      <t>In this framework token type 'pop' MUST be assumed by default if the
+      <t>In this framework token type "pop" MUST be assumed by default if the
       AS does not provide a different value.</t>
     </section>
 
@@ -1188,7 +1189,7 @@ Payload:
       methods, if they support proof-of-possession tokens.</t>
 
       <t>A profile MUST specify an identifier that is used to uniquely
-      identify itself in the 'profile' parameter.</t>
+      identify itself in the "profile" parameter.</t>
 
       <t>Profiles MAY define additional parameters for both the token request
       and the RS Information in the access token response in order to
@@ -1200,17 +1201,15 @@ Payload:
       <t>The "cnf" parameter identifies or provides the key used for
       proof-of-possession or for authenticating the RS depending on the
       proof-of-possession algorithm and the context cnf is used in.  This
-      framework extends  the definition of 'cnf' from <xref target="RFC7800"/>
-      by adding CBOR/COSE encodings and the use of 'cnf' for transporting keys
-      in the RS Information.</t>
+      framework uses the specification of the "cnf" claim from
+      <xref target="I-D.jones-ace-cwt-proof-of-possession"/> and
+      additionally defines its use as a parameter in messages from and to
+      the AS.</t>
 
-      <t>The "cnf" parameter is used in the following contexts with the
-      following meaning:
+      <t>In addition to the use as a claim in a CWT, the "cnf" parameter is
+      used in the following contexts with the following meaning:
 
       <list style="symbols">
-	<t>In the access token, to indicate the proof-of-possession
-	key bound to this token.</t>
-
 	<t>In the token request C -> AS, to indicate the
 	client's raw public key, or the key-identifier of a previously
 	established key between C and RS.</t>
@@ -1227,101 +1226,15 @@ Payload:
 
       </list></t>
 
-      <t>A CBOR encoded payload MAY contain the 'cnf' parameter with the
-      following contents:
+      <t>The formatting of the "cnf" parameter is equal to the formatting
+      of the "cnf" claim specified in <xref
+      target="I-D.jones-ace-cwt-proof-of-possession"/>.</t>
 
-      <list style="hanging">
-	<t hangText="COSE_Key">In this case the 'cnf' parameter contains
-	 the proof-of-possession key to be used by the client.  An example
-	 is shown in <xref target="fig:cnfKey"/>.
-
-	 <figure align="center" anchor="fig:cnfKey"
-	       title="Confirmation parameter containing a public key">
-	 <artwork align="left"><![CDATA[
-"cnf" : {
-  "COSE_Key" : {
-    "kty" : "EC",
-    "kid" : h'11',
-    "crv" : "P-256",
-    "x" : b64'usWxHK2PmfnHKwXPS54m0kTcGJ90UiglWiGahtagnv8',
-    "y" : b64'IBOL+C3BttVivg+lSreASjpkttcsz+1rb7btKLv8EX4'
-  }
-}
-        ]]></artwork>
-      </figure> <vspace blankLines="1"/>
-
-      Note that the COSE_Key structure may contain an "alg" or "key_ops"
-      parameter.  If such parameters are present, a client MUST NOT use a key
-      that is not compatible with the profile or proof-of-possession algorithm
-      according to those parameters.
-    </t>
-
-	<t hangText="COSE_Encrypted">In this case the 'cnf' parameter
-	contains an encrypted symmetric key destined for the client.  The
-	client is assumed to be able to decrypt the ciphertext of this
-	parameter.  The parameter is encoded as COSE_Encrypted object wrapping
-	a COSE_Key object.  <xref target="fig:cnfEnc"/> shows an example of
-	this type of encoding.
-
-	 <figure align="center" anchor="fig:cnfEnc"
-	       title="Confirmation parameter containing an encrypted
-		      symmetric key">
-	 <artwork align="left"><![CDATA[
-"cnf" : {
-  "COSE_Encrypted" : {
-    993(
-      [ h'a1010a' # protected header : {"alg" : "AES-CCM-16-64-128"}
-        "iv" : b64'ifUvZaHFgJM7UmGnjA',  # unprotected header
-       b64'WXThuZo6TMCaZZqi6ef/8WHTjOdGk8kNzaIhIQ' # ciphertext
-      ]
-    )
-  }
-}
-        ]]></artwork>
-      </figure>
-
-      The ciphertext here could e.g. contain a symmetric key as in
-      <xref target="fig:cnfEKey"/>.
-
-      <figure align="center" anchor="fig:cnfEKey"
-	       title="Example plaintext of an encrypted cnf parameter">
-	 <artwork align="left"><![CDATA[
-{
-  "kty" : "Symmetric",
-  "kid" : b64'39Gqlw',
-  "k" : b64'hJtXhkV8FJG+Onbc6mxCcQh'
-}
-        ]]></artwork>
-      </figure>
-      <vspace blankLines="1"/>
+      <t>Note that the COSE_Key structure in a "cnf" claim or parameter
+      may contain an "alg" or "key_ops" parameter.  If such parameters are
+      present, a client MUST NOT use a key that is not compatible with the
+      profile or proof-of-possession algorithm according to those parameters.
       </t>
-
-      <t hangText="Key Identifier">In this case the 'cnf' parameter
-      references a key that is assumed to be previously known by the
-      recipient.  This allows clients that perform repeated requests for an
-      access token for the same audience but e.g. with different scopes to
-      omit key transport in the access token, token request and token
-      response. <xref target="fig:cnfKid"/> shows such an example.
-
-        <figure align="center" anchor="fig:cnfKid"
-	       title="A Confirmation parameter with just a key identifier">
-          <artwork align="left"><![CDATA[
-"cnf" : {
-  "kid" : b64'39Gqlw'
-}
-        ]]></artwork>
-      </figure>
-      </t>
-      </list></t>
-
-      <t>This specification establishes the IANA "CWT Confirmation Methods"
-      registry for these types of confirmation methods in <xref
-      target="CWTcnfIANA"/> and registers the methods defined by this
-      specification.  Other specifications can register other methods used for
-      confirmation.  The registry is meant to be analogous to the "JWT
-      Confirmation Methods" registry defined by <xref target="RFC7800"/>.
-      </t>
-
     </section>
   </section> <!--Parameters -->
 
@@ -1388,7 +1301,7 @@ Payload:
     <t>The RS sends a CoAP POST request to the introspection endpoint
     at the AS, the profile MUST specify the Content-Type and
     wrapping of the payload.  The payload MUST be encoded as a CBOR map with a
-    'token' parameter containing the access token along with optional
+    "token" parameter containing the access token along with optional
     parameters representing additional context that is known by
     the RS to aid the AS in its response.</t>
 
@@ -1434,7 +1347,7 @@ Payload:
       <t hangText="cnf"><vspace blankLines="0"/>
       OPTIONAL.   This field contains information about the proof-of-possession
       key that binds the client to the access token.  See <xref
-      target="paramCnf"/> for more details on the formatting of the 'cnf'
+      target="paramCnf"/> for more details on the use of the "cnf"
       parameter.<vspace blankLines="1"/></t>
 
       <t hangText="profile"><vspace blankLines="0"/>
@@ -1562,7 +1475,7 @@ C:  +--------------->|                |
 
     <list style="hanging">
       <t hangText="cnf"><vspace blankLines="0"/>
-      REQUIRED if the token type is 'pop', OPTIONAL otherwise.  Contains
+      REQUIRED if the token type is "pop", OPTIONAL otherwise.  Contains
       information about the proof-of-possession key the client is to use with
       its access token.  See <xref target="paramCnf"/>.<vspace
       blankLines="1"/></t>
@@ -1579,8 +1492,8 @@ C:  +--------------->|                |
       OPTIONAL. Contains information about the key that the RS uses
       to authenticate towards the client.  If the key is symmetric then
       this claim MUST NOT be part of the Client Token, since this is the
-      same key as the one specified through the 'cnf' claim.  This claim uses
-      the same encoding as the 'cnf' parameter.  See <xref
+      same key as the one specified through the "cnf" claim.  This claim uses
+      the same encoding as the "cnf" parameter.  See <xref
       target="paramProfile"/>.</t>
     </list>
     </t>
@@ -1633,7 +1546,9 @@ C:  +--------------->|                |
   </t>
 
   <t>In order to facilitate offline processing of access tokens,
-  this draft specifies the "cnf" and "scope" claims for CBOR web tokens.</t>
+  this draft uses the "cnf" claim from <xref
+  target="I-D.jones-ace-cwt-proof-of-possession"/> and specifies the "scope"
+  claim for CBOR web tokens.</t>
 
   <t>The "scope" claim explicitly encodes the scope of a given access token.
   This claim follows the same encoding rules as defined in section 3.3 of <xref
@@ -1695,8 +1610,8 @@ C:  +--------------->|                |
     RS.</t>
 
   <t><list style="symbols">
-    <t>The token is a CWT/JWT and includes a 'exp' claim and possibly the
-    'nbf' claim.  The RS verifies these by comparing them to values from
+    <t>The token is a CWT/JWT and includes a "exp" claim and possibly the
+    "nbf" claim.  The RS verifies these by comparing them to values from
     its internal clock as defined in <xref target="RFC7519"/>.  In this
     case the RS's internal clock must reflect the current date and time, or
     at least be synchronized with the AS's clock.  How this clock
@@ -1835,7 +1750,8 @@ C:  +--------------->|                |
         <list style='symbols'>
           <t>Name: <spanx style="verb">cnf</spanx></t>
           <t>Description: Key to prove the right to use an access token,
-   as defined in <xref target="RFC7800"/>. </t>
+	  formatted as specified in <xref
+	  target="I-D.jones-ace-cwt-proof-of-possession"/>. </t>
           <t>Change Controller: IESG</t>
           <t>Specification Document(s): this document</t>
         </list>
@@ -1898,7 +1814,8 @@ C:  +--------------->|                |
         <list style='symbols'>
           <t>Name: <spanx style="verb">cnf</spanx></t>
           <t>Description: Key to prove the right to use an access token,
-	  as defined in <xref target="RFC7800"/>. </t>
+	  formatted as defined in <xref
+	  target="I-D.jones-ace-cwt-proof-of-possession"/>. </t>
           <t>Change Controller: IESG</t>
           <t>Specification Document(s): this document</t>
         </list>
@@ -1975,16 +1892,6 @@ C:  +--------------->|                |
             <t>Claim Name: <spanx style="verb">scope</spanx></t>
             <t>Claim Description: The scope of an access token as
 	    defined in <xref target="RFC6749"/>.</t>
-            <t>Change Controller: IESG</t>
-            <t>Specification Document(s): this document</t>
-          </list>
-	</t>
-	<t>
-	  <?rfc subcompact="yes"?>
-          <list style='symbols'>
-            <t>Claim Name: <spanx style="verb">cnf</spanx></t>
-            <t>Claim Description: The proof-of-possession key of an access
-	    token as defined in <xref target="RFC7800"/>.</t>
             <t>Change Controller: IESG</t>
             <t>Specification Document(s): this document</t>
           </list>
@@ -2465,79 +2372,8 @@ C:  +--------------->|                |
           </list>
         </t>
       </section>
-
-      <section anchor="CWTcnfIANA" title="CWT Confirmation Methods Registry">
-	<t>This specification establishes the IANA "CWT Confirmation Methods"
-	registry for CWT "cnf" member values.  The registry records the
-	confirmation method member and a reference to the specification that
-	defines it.</t>
-
-	<section anchor="CWTcnfTemplate" title="Registration Template">
-	  <t><list style="hanging">
-	    <t hangText="Confirmation Method Name:"><vspace/>
-	    The name requested (e.g., "kid").  This name is intended to be
-	    human readable and be used for debugging purposes.
-	    It is case sensitive. Names may not match other registered names
-	    in a case-insensitive manner unless the Designated Experts state
-	    that there is a compelling reason to allow an exception.
-	    <vspace blankLines="1"/></t>
-
-	    <t hangText="Confirmation Method Value:"><vspace/>
-	    Integer representation for the confirmation method value. Intended
-	    for use to uniquely identify the confirmation method.  The value
-	    MUST be an integer in the range of 1 to 65536.
-	    <vspace blankLines="1"/></t>
-
-	    <t hangText="Confirmation Method Description:"><vspace/>
-	    Brief description of the confirmation method (e.g. "Key
-	    Identifier").<vspace blankLines="1"/></t>
-
-	    <t hangText="Change Controller:"><vspace/>
-	    For Standards Track RFCs, list the "IESG".  For others, give the
-	    name of the responsible party.  Other details (e.g., postal
-	    address, email address, home page URI) may also be included.
-	    <vspace blankLines="1"/></t>
-
-	    <t hangText="Specification Document(s):"><vspace/>
-	     Reference to the document or documents that specify the parameter,
-	     preferably including URIs that can be used to retrieve copies of
-	     the documents.  An indication of the relevant sections may also be
-	     included but is not required.</t>
-	  </list></t>
-	</section>
-
-	<section anchor="CWTcnfInitial" title="Initial Registry Contents">
-	  <t>
-	  <list style="symbols">
-	    <t>Confirmation Method Name: "COSE_Key"</t>
-	    <t>Confirmation Method Value: 1</t>
-	    <t>Confirmation Method Description: A COSE_Key that is either
-	    a public key or a symmetric key.</t>
-	    <t>Change Controller: IESG</t>
-	    <t>Specification Document(s): this document</t>
-	  </list>
-	  <list style="symbols">
-	    <t>Confirmation Method Name: "COSE_Encrypted"</t>
-	    <t>Confirmation Method Value: 2</t>
-	    <t>Confirmation Method Description: A COSE_Encrypted
-	    structure that wraps a COSE_Key containing a symmetric key.</t>
-	    <t>Change Controller: IESG</t>
-	    <t>Specification Document(s): this document</t>
-	  </list>
-	  <list style="symbols">
-	    <t>Confirmation Method Name: "Key Identifier"</t>
-	    <t>Confirmation Method Value: 3</t>
-	    <t>Confirmation Method Description: A key identifier.</t>
-	    <t>Change Controller: IESG</t>
-	    <t>Specification Document(s): this document</t>
-	  </list>
-	  </t>
-	</section>
-
-      </section>
     </section>
-
-
+    
     <section anchor="Acknowledgments" title="Acknowledgments">
         <t>We would like to thank Eve Maler for her contributions to the use of
         OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion
@@ -2977,10 +2813,10 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
       token contains the public key of the client, and the RS Information
       contains the public key of the RS.  For communication security
       this example uses DTLS RawPublicKey between the client and the RS. The issued
-      token will have a short validity time, i.e. 'exp' close to 'iat',
+      token will have a short validity time, i.e. "exp" close to "iat",
       to protect the RS from replay attacks. The token includes
       the claim such as "scope" with the authorized access that an owner of the
-      temperature device can enjoy.  In this example, the 'scope' claim, issued
+      temperature device can enjoy.  In this example, the "scope" claim, issued
       by the AS, informs the RS that the owner of the token, that can prove
       the possession of a key is authorized to make a GET request
       against the /temperature resource and a POST request on the /firmware
@@ -3358,6 +3194,13 @@ F:  |<--------+ Header: 2.04 Changed
 
 </section>
 <section anchor="app:changelog" title="Document Updates">
+      <section anchor="app:f7t8" title="Version -06 to -07">
+	<t><list style="symbols">
+	  <t>Removed specification of the "cnf" claim for CBOR/COSE, and
+	  replaced with references to <xref
+	  target="I-D.jones-ace-cwt-proof-of-possession"/></t>
+	</list></t>
+      </section>
       <section anchor="app:f6t7" title="Version -05 to -06">
 	<t><list style="symbols">
 	  <t>Moved sections that define the ACE framework into
@@ -3395,7 +3238,7 @@ F:  |<--------+ Header: 2.04 Changed
 	  <t>Added a description of the terms "framework" and
 	  "profiles" as used in this document.</t>
 	  <t>Clarified protection of access tokens in section 3.1.</t>
-	  <t>Clarified uses of the 'cnf' parameter in section 6.4.5.</t>
+	  <t>Clarified uses of the "cnf" parameter in section 6.4.5.</t>
 	  <t>Clarified intended use of Client Token in section 7.4.</t>
 	</list></t>
       </section>
@@ -3409,12 +3252,12 @@ F:  |<--------+ Header: 2.04 Changed
 	  information about the RS.</t>
 	  <t>Clarified the requirements on profiles of this framework.</t>
 	  <t>Clarified the token endpoint protocol and removed negotiation
-	  of 'profile' and 'alg' (section 6).</t>
+	  of "profile" and "alg" (section 6).</t>
 	  <t>Renumbered the abbreviations for claims and parameters to
 	  get a consistent numbering across different endpoints.</t>
 	  <t>Clarified the introspection endpoint.</t>
-	  <t>Renamed token, introspection and authz-info to 'endpoint' instead
-	  of 'resource' to mirror the OAuth 2.0 terminology.</t>
+	  <t>Renamed token, introspection and authz-info to "endpoint" instead
+	  of "resource" to mirror the OAuth 2.0 terminology.</t>
 	  <t>Updated the examples in the appendices.</t>
         </list></t>
       </section>
@@ -3426,9 +3269,9 @@ F:  |<--------+ Header: 2.04 Changed
 	  endpoints /token, /introspect and /authz-info.</t>
 	  <t>Pulled in material from draft-ietf-oauth-pop-key-distribution in
 	  order to define proof-of-possession key distribution.</t>
-	  <t>Introduced the 'cnf' parameter as defined in RFC7800 to reference
+	  <t>Introduced the "cnf" parameter as defined in RFC7800 to reference
 	  or transport keys used for proof of possession.</t>
-	  <t>Introduced the 'client-token' to transport client information
+	  <t>Introduced the "client-token" to transport client information
 	  from the AS to the client via the RS in conjunction with
 	  introspection.</t>
 	  <t>Expanded the IANA section to define parameters for token request,
