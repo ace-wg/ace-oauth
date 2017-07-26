@@ -405,6 +405,9 @@
 <link href="#rfc.section.5.7" rel="Chapter" title="5.7 The Access Token"/>
 <link href="#rfc.section.5.7.1" rel="Chapter" title="5.7.1 The 'Authorization Information' Endpoint"/>
 <link href="#rfc.section.5.7.2" rel="Chapter" title="5.7.2 Token Expiration"/>
+<link href="#rfc.section.5.8" rel="Chapter" title="5.8 Discovering Authorization Servers"/>
+<link href="#rfc.section.5.8.1" rel="Chapter" title="5.8.1 Unauthorized Resource Request Message"/>
+<link href="#rfc.section.5.8.2" rel="Chapter" title="5.8.2 AS Information"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations"/>
 <link href="#rfc.section.7" rel="Chapter" title="7 Privacy Considerations"/>
 <link href="#rfc.section.8" rel="Chapter" title="8 IANA Considerations"/>
@@ -569,6 +572,9 @@
 </ul><li>5.7.   <a href="#rfc.section.5.7">The Access Token</a></li>
 <ul><li>5.7.1.   <a href="#rfc.section.5.7.1">The 'Authorization Information' Endpoint</a></li>
 <li>5.7.2.   <a href="#rfc.section.5.7.2">Token Expiration</a></li>
+</ul><li>5.8.   <a href="#rfc.section.5.8">Discovering Authorization Servers</a></li>
+<ul><li>5.8.1.   <a href="#rfc.section.5.8.1">Unauthorized Resource Request Message</a></li>
+<li>5.8.2.   <a href="#rfc.section.5.8.2">AS Information</a></li>
 </ul></ul><li>6.   <a href="#rfc.section.6">Security Considerations</a></li>
 <li>7.   <a href="#rfc.section.7">Privacy Considerations</a></li>
 <li>8.   <a href="#rfc.section.8">IANA Considerations</a></li>
@@ -1207,6 +1213,57 @@ C:  +---------------&gt;|                |
   <li>The RS and the AS both store a sequence number linked to their common security association.  The AS increments this number for each access token it issues and includes it in the access token, which is a CWT.  The RS keeps track of the most recently received sequence number, and only accepts tokens as valid, that are in a certain range around this number.  This method does only require the RS to keep track of the sequence number.  The method does not provide timely expiration, but it makes sure that older tokens cease to be valid after a certain number of newer ones got issued.  For a constrained RS with no network connectivity and no means of reliably measuring time, this is the best that can be achieved.</li>
 </ul>
 <p id="rfc.section.5.7.2.p.3">If a token, that authorizes a long running request such as e.g. a CoAP Observe <a href="#RFC7641">[RFC7641]</a>, expires, the RS MUST send an error response with the response code 4.01 Unauthorized to the client and then terminate processing the long running request.</p>
+<h1 id="rfc.section.5.8"><a href="#rfc.section.5.8">5.8.</a> <a href="#asDiscovery" id="asDiscovery">Discovering Authorization Servers</a></h1>
+<p id="rfc.section.5.8.p.1">In order to determine the AS in charge of a resource hosted at the RS, C MAY send an initial Unauthorized Resource Request message to RS.  RS then denies the request and sends the address of its AS back to C.</p>
+<p id="rfc.section.5.8.p.2">Instead of the initial Unauthorized Resource Request message, C MAY look up the desired resource in a resource directory (cf.  <a href="#I-D.ietf-core-resource-directory">[I-D.ietf-core-resource-directory]</a>).</p>
+<h1 id="rfc.section.5.8.1"><a href="#rfc.section.5.8.1">5.8.1.</a> <a href="#rreq" id="rreq">Unauthorized Resource Request Message</a></h1>
+<p id="rfc.section.5.8.1.p.1">The optional Unauthorized Resource Request message is a request for a resource hosted by RS for which no proper authorization is granted. RS MUST treat any CoAP request for a protected resource as Unauthorized Resource Request message when any of the following holds: </p>
+
+<ul>
+  <li>The request has been received on an unprotected channel.</li>
+  <li>RS has no valid access token for the sender of the request regarding the requested action on that resource.</li>
+  <li>RS has a valid access token for the sender of the request, but this does not allow the requested action on the requested resource.</li>
+</ul>
+
+<p> </p>
+<p id="rfc.section.5.8.1.p.2">Note: These conditions ensure that RS can handle requests autonomously once access was granted and a secure channel has been established between C and RS. The /authz-info resource MUST NOT be protected as specified above, in order to allow clients to upload access tokens to RS (cf.  <a href="#tokenAuthInfoEndpoint">Section 5.7.1</a>).</p>
+<p id="rfc.section.5.8.1.p.3">Unauthorized Resource Request messages MUST be denied with a client error response. In this response, the Resource Server SHOULD provide proper AS Information to enable the Client to request an access token from RS's Authorization Server as described in <a href="#tokenEndpoint">Section 5.5</a>.</p>
+<p id="rfc.section.5.8.1.p.4">The response code MUST be 4.01 (Unauthorized) in case the sender of the Unauthorized Resource Request message is not authenticated, or if RS has no valid access token for C. If RS has an access token for C but not for the resource that C has requested, RS MUST reject the request with a 4.03 (Forbidden). If RS has an access token for C but it does not cover the action C requested on the resource, RS MUST reject the request with a 4.05 (Method Not Allowed).</p>
+<p id="rfc.section.5.8.1.p.5">Note: The use of the response codes 4.03 and 4.05 is intended to prevent infinite loops where a dumb Client optimistically tries to access a requested resource with any access token received from AS. As malicious clients could pretend to be C to determine C's privileges, these detailed response codes must be used only when a certain level of security is already available which can be achieved only when the Client is authenticated.</p>
+<h1 id="rfc.section.5.8.2"><a href="#rfc.section.5.8.2">5.8.2.</a> <a href="#asInfo" id="asInfo">AS Information</a></h1>
+<p id="rfc.section.5.8.2.p.1">The AS Information is sent by RS as a response to an Unauthorized Resource Request message (see <a href="#rreq">Section 5.8.1</a>) to point the sender of the Unauthorized Resource Request message to RS&#8217;s AS. The AS information is a set of attributes containing an absolute URI (see Section 4.3 of <a href="#RFC3986">[RFC3986]</a>) that specifies the AS in charge of RS.</p>
+<p id="rfc.section.5.8.2.p.2">The message MAY also contain a nonce generated by RS to ensure freshness in case that the RS and AS do not have synchronized clocks.</p>
+<p><a href="#fig:as-info-payload">Figure 18</a> shows an example for an AS Information message payload using CBOR <a href="#RFC7049">[RFC7049]</a> diagnostic notation.</p>
+<div id="rfc.figure.18"/>
+<div id="fig:as-info-payload"/>
+<pre>
+    4.01 Unauthorized
+    Content-Format: application/ace+cbor
+    {AS: "coaps://as.example.com/token",
+     nonce: h'e0a156bb3f'}
+</pre>
+<p class="figure">Figure 18: AS Information payload example</p>
+<p id="rfc.section.5.8.2.p.4">In this example, the attribute AS points the receiver of this message to the URI &#8220;coaps://as.example.com/token&#8221; to request access permissions.  The originator of the AS Information payload (i.e., RS) uses a local clock that is loosely synchronized with a time scale common between RS and AS (e.g., wall clock time). Therefore, it has included a parameter <samp>nonce</samp> for replay attack prevention.</p>
+<p/>
+
+<dl>
+  <dt>Note: There is an ongoing discussion how freshness of      access tokens</dt>
+  <dd style="margin-left: 8">can be achieved in constrained environments. This specification for now assumes that RS and AS do not have a common understanding of time that allows RS to achieve its security objectives without explicitly adding a nonce.</dd>
+</dl>
+<p id="rfc.section.5.8.2.p.6">The examples in this document are written in CBOR diagnostic notation to improve readability. <a href="#fig:as-info-cbor">Figure 19</a> illustrates the binary encoding of the message payload shown in <a href="#fig:as-info-payload">Figure 18</a>.</p>
+<div id="rfc.figure.19"/>
+<div id="fig:as-info-cbor"/>
+<pre>
+a2                                   # map(2)
+    00                               # unsigned(0) (=AS)
+    78 1c                            # text(28)
+       636f6170733a2f2f61732e657861
+       6d706c652e636f6d2f746f6b656e  # "coaps://as.example.com/token"
+    05                               # unsigned(5) (=nonce)
+    45                               # bytes(5)
+       e0a156bb3f
+</pre>
+<p class="figure">Figure 19: AS Information example encoded in CBOR</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#security" id="security">Security Considerations</a></h1>
 <p id="rfc.section.6.p.1">The entire document is about security.  Security considerations applicable to authentication and authorization in RESTful environments provided in OAuth 2.0 <a href="#RFC6749">[RFC6749]</a> apply to this work, as well as the security considerations from <a href="#I-D.ietf-ace-actors">[I-D.ietf-ace-actors]</a>.  Furthermore <a href="#RFC6819">[RFC6819]</a> provides additional security considerations for OAuth which apply to IoT deployments as well.</p>
 <p id="rfc.section.6.p.2">A large range of threats can be mitigated by protecting the contents of the access token by using a digital signature or a keyed message digest.  Consequently, the token integrity protection MUST be applied to prevent the token from being modified, particularly since it contains a reference to the symmetric key or the asymmetric key.  If the access token contains the symmetric key, this symmetric key MUST be encrypted by the authorization server with a long-term key shared with the resource server.</p>
@@ -1880,8 +1937,9 @@ C:  +---------------&gt;|                |
 <p> </p>
 <h1 id="rfc.section.9"><a href="#rfc.section.9">9.</a> <a href="#Acknowledgments" id="Acknowledgments">Acknowledgments</a></h1>
 <p id="rfc.section.9.p.1">We would like to thank Eve Maler for her contributions to the use of OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion input, and Malisa Vucinic for his input on the predecessors of this proposal. Finally, we would like to thank the ACE working group in general for their feedback.</p>
-<p id="rfc.section.9.p.2">We would like to thank the authors of draft-ietf-oauth-pop-key-distribution, from where we copied large parts of our security considerations.</p>
-<p id="rfc.section.9.p.3">Ludwig Seitz and Goeran Selander worked on this document as part of the CelticPlus project CyberWI, with funding from Vinnova.</p>
+<p id="rfc.section.9.p.2">We would also like to thank the authors of draft-ietf-oauth-pop-key-distribution, from where we copied large parts of our security considerations.</p>
+<p id="rfc.section.9.p.3">Furthermore we thank Stefanie Gerdes, Olaf Bergmann, and Carsten Bormann for contributing the work on AS discovery in section <a href="#asDiscovery">Section 5.8</a>.</p>
+<p id="rfc.section.9.p.4">Ludwig Seitz and Goeran Selander worked on this document as part of the CelticPlus project CyberWI, with funding from Vinnova.</p>
 <h1 id="rfc.references"><a href="#rfc.references">10.</a> References</h1>
 <h1 id="rfc.references.1"><a href="#rfc.references.1">10.1.</a> Normative References</h1>
 <table>
@@ -1891,6 +1949,12 @@ C:  +---------------&gt;|                |
         <b id="RFC2119">[RFC2119]</b>
       </td>
       <td class="top"><a>Bradner, S.</a>, "<a href="http://tools.ietf.org/html/rfc2119">Key words for use in RFCs to Indicate Requirement Levels</a>", BCP 14, RFC 2119, DOI 10.17487/RFC2119, March 1997.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC3986">[RFC3986]</b>
+      </td>
+      <td class="top"><a>Berners-Lee, T.</a>, <a>Fielding, R.</a> and <a>L. Masinter</a>, "<a href="http://tools.ietf.org/html/rfc3986">Uniform Resource Identifier (URI): Generic Syntax</a>", STD 66, RFC 3986, DOI 10.17487/RFC3986, January 2005.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1944,6 +2008,12 @@ C:  +---------------&gt;|                |
         <b id="I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</b>
       </td>
       <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-04">Object Security of CoAP (OSCOAP)</a>", Internet-Draft draft-ietf-core-object-security-04, July 2017.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="I-D.ietf-core-resource-directory">[I-D.ietf-core-resource-directory]</b>
+      </td>
+      <td class="top"><a>Shelby, Z.</a>, <a>Koster, M.</a>, <a>Bormann, C.</a>, <a>Stok, P.</a> and <a>C. Amsuess</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-resource-directory-11">CoRE Resource Directory</a>", Internet-Draft draft-ietf-core-resource-directory-11, July 2017.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -2132,7 +2202,7 @@ C:  +---------------&gt;|                |
 <h1 id="rfc.appendix.E.1"><a href="#rfc.appendix.E.1">E.1.</a> <a href="#localTokenValidation" id="localTokenValidation">Local Token Validation</a></h1>
 <p id="rfc.section.E.1.p.1">In this scenario we consider the case where the resource server is offline, i.e. it is not connected to the AS at the time of the access request.  This access procedure involves steps A, B, C, and F of <a href="#fig:protocolFlow">Figure 1</a>.  </p>
 <p id="rfc.section.E.1.p.2">Since the resource server must be able to verify the access token locally, self-contained access tokens must be used.</p>
-<p id="rfc.section.E.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 18</a>.</p>
+<p id="rfc.section.E.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 20</a>.</p>
 <p/>
 
 <dl>
@@ -2145,7 +2215,7 @@ C:  +---------------&gt;|                |
   <dt></dt>
   <dd style="margin-left: 8">Note: In this example we assume that the client knows what resource it wants to access, and is therefore able to request specific audience and scope claims for the access token.</dd>
 </dl>
-<div id="rfc.figure.18"/>
+<div id="rfc.figure.20"/>
 <div id="fig:RSOffline"/>
 <pre>
          Authorization
@@ -2164,9 +2234,9 @@ B:  |&lt;--------+ Header: 2.05 Content
     |         | Payload: &lt;Response-Payload&gt;
     |         |
         </pre>
-<p class="figure">Figure 18: Token Request and Response Using Client Credentials.</p>
+<p class="figure">Figure 20: Token Request and Response Using Client Credentials.</p>
 <p/>
-<div id="rfc.figure.19"/>
+<div id="rfc.figure.21"/>
 <div id="fig:RSOfflineReq"/>
 <pre>
 Request-Payload :
@@ -2193,10 +2263,10 @@ Response-Payload :
   }
 }
         </pre>
-<p class="figure">Figure 19: Request and Response Payload Details.</p>
-<p id="rfc.section.E.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 19</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
-<p id="rfc.section.E.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 20</a>.</p>
-<div id="rfc.figure.20"/>
+<p class="figure">Figure 21: Request and Response Payload Details.</p>
+<p id="rfc.section.E.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 21</a>.  Note that we assume a DTLS-based communication security profile for this example, therefore the Content-Type is "application/cbor".  </p>
+<p id="rfc.section.E.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 22</a>.</p>
+<div id="rfc.figure.22"/>
 <div id="fig:BothcborMappingValueAsymmetricCWT"/>
 <pre>
 {
@@ -2215,9 +2285,9 @@ Response-Payload :
   }
 }
         </pre>
-<p class="figure">Figure 20: Access Token including Public Key of the Client.</p>
+<p class="figure">Figure 22: Access Token including Public Key of the Client.</p>
 <p/>
-<div id="rfc.figure.21"/>
+<div id="rfc.figure.23"/>
 <div id="fig:RSOfflinePostAccessTokenAsymmetric"/>
 <pre>
            Resource
@@ -2231,8 +2301,8 @@ C:  +--------&gt;| Header: POST (Code=0.02)
     |  2.04   |
     |         |
 </pre>
-<p class="figure">Figure 21: Access Token provisioning to RS</p>
-<p id="rfc.section.E.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 21</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 22</a>.  </p>
+<p class="figure">Figure 23: Access Token provisioning to RS</p>
+<p id="rfc.section.E.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 23</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 24</a>.  </p>
 
 <dl>
   <dt></dt>
@@ -2246,7 +2316,7 @@ C:  +--------&gt;| Header: POST (Code=0.02)
   <dt></dt>
   <dd style="margin-left: 8">F: The RS responds with a resource representation over DTLS.</dd>
 </dl>
-<div id="rfc.figure.22"/>
+<div id="rfc.figure.24"/>
 <div id="fig:RSOfflineDTLSRequestAndResponse"/>
 <pre>
            Resource
@@ -2264,12 +2334,12 @@ F:  |&lt;--------+ Header: 2.05 Content
     | 2.05    | Payload: &lt;sensor value&gt;
     |         |
       </pre>
-<p class="figure">Figure 22: Resource Request and Response protected by DTLS.</p>
+<p class="figure">Figure 24: Resource Request and Response protected by DTLS.</p>
 <p/>
 <h1 id="rfc.appendix.E.2"><a href="#rfc.appendix.E.2">E.2.</a> <a href="#introspectionAidedTokenValidation" id="introspectionAidedTokenValidation">Introspection Aided Token Validation</a></h1>
 <p id="rfc.section.E.2.p.1">In this deployment scenario we assume that a client is not able to access the AS at the time of the access request.  Since the RS is, however, connected to the back-end infrastructure it can make use of token introspection.  This access procedure involves steps A-F of <a href="#fig:protocolFlow">Figure 1</a>, but assumes steps A and B have been carried out during a phase when the client had connectivity to AS.  </p>
 <p id="rfc.section.E.2.p.2">Since the client is assumed to be offline, at least for a certain period of time, a pre-provisioned access token has to be long-lived.  The resource server may use its online connectivity to validate the access token with the authorization server, which is shown in the example below.</p>
-<p id="rfc.section.E.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  We assume that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 23</a>.  </p>
+<p id="rfc.section.E.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  We assume that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 25</a>.  </p>
 <p id="rfc.section.E.2.p.4">Authorization consent from the resource owner can be pre-configured, but it can also be provided via an interactive flow with the resource owner.  An example of this for the key fob case could be that the resource owner has a connected car, he buys a generic key that he wants to use with the car.  To authorize the key fob he connects it to his computer that then provides the UI for the device.  After that OAuth 2.0 implicit flow can used to authorize the key for his car at the the car manufacturers AS.</p>
 <p id="rfc.section.E.2.p.5">Note: In this example the client does not know the exact door it will be used to access since the token request is not send at the time of access. So the scope and audience parameters is set quite wide to start with and new values different form the original once can be returned from introspection later on.</p>
 <p/>
@@ -2282,7 +2352,7 @@ F:  |&lt;--------+ Header: 2.05 Content
 </dl>
 
 <p> </p>
-<div id="rfc.figure.23"/>
+<div id="rfc.figure.25"/>
 <div id="fig:cOffline"/>
 <pre>
 
@@ -2300,9 +2370,9 @@ B:  |&lt;--------+ Header: 2.05 Content
     |  2.05   | Payload: &lt;Response-Payload&gt;
     |         |
     </pre>
-<p class="figure">Figure 23: Token Request and Response using Client Credentials.</p>
+<p class="figure">Figure 25: Token Request and Response using Client Credentials.</p>
 <p/>
-<div id="rfc.figure.24"/>
+<div id="rfc.figure.26"/>
 <div id="fig:cOfflineReq"/>
 <pre>
 Request-Payload:
@@ -2328,10 +2398,10 @@ Response-Payload:
   }
 }
       </pre>
-<p class="figure">Figure 24: Request and Response Payload for C offline</p>
-<p id="rfc.section.E.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 24</a>.  </p>
+<p class="figure">Figure 26: Request and Response Payload for C offline</p>
+<p id="rfc.section.E.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 26</a>.  </p>
 <p id="rfc.section.E.2.p.9">The access token in this case is just an opaque string referencing the authorization information at the AS.</p>
-<div id="rfc.figure.25"/>
+<div id="rfc.figure.27"/>
 <div id="fig:cOfflineIntrospection"/>
 <pre>
            Resource
@@ -2359,8 +2429,8 @@ C:  +--------&gt;| Header: POST (T=CON, Code=0.02)
     |  2.01   |
     |         |
 </pre>
-<p class="figure">Figure 25: Token Introspection for C offline</p>
-<div id="rfc.figure.26"/>
+<p class="figure">Figure 27: Token Introspection for C offline</p>
+<div id="rfc.figure.28"/>
 <div id="fig:cOfflineIntroReq"/>
 <pre>
 Request-Payload:
@@ -2381,7 +2451,7 @@ Response-Payload:
   }
 }
           </pre>
-<p class="figure">Figure 26: Request and Response Payload for Introspection</p>
+<p class="figure">Figure 28: Request and Response Payload for Introspection</p>
 <p/>
 
 <dl>
@@ -2396,7 +2466,7 @@ Response-Payload:
   <dt></dt>
   <dd style="margin-left: 8"/>
   <dt></dt>
-  <dd style="margin-left: 8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineIntroReq">Figure 26</a>.  </dd>
+  <dd style="margin-left: 8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineIntroReq">Figure 28</a>.  </dd>
 </dl>
 
 <p> </p>
@@ -2410,7 +2480,7 @@ Response-Payload:
 </dl>
 
 <p> </p>
-<div id="rfc.figure.27"/>
+<div id="rfc.figure.29"/>
 <div id="fig:cOfflineDTLSRequestAndResponse"/>
 <pre>
            Resource
@@ -2427,7 +2497,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
     | 2.04    | Payload: &lt;new state for the lock&gt;
     |         |
             </pre>
-<p class="figure">Figure 27: Resource request and response protected by OSCOAP</p>
+<p class="figure">Figure 29: Resource request and response protected by OSCOAP</p>
 <p/>
 <h1 id="rfc.appendix.F"><a href="#rfc.appendix.F">Appendix F.</a> <a href="#app:changelog" id="app:changelog">Document Updates</a></h1>
 <h1 id="rfc.appendix.F.1"><a href="#rfc.appendix.F.1">F.1.</a> <a href="#app:f6t7" id="app:f6t7">Version -05 to -06</a></h1>
