@@ -1765,7 +1765,7 @@ C:  +--------------->|                |
     error response. In this response, the Resource Server SHOULD provide proper
     AS Information to enable the Client to request an access token from
     RS's Authorization Server as described in <xref
-    target="tokenEndpoint"/>.</t>
+    target="asInfo"/>.</t>
 
     <t>The response code MUST be 4.01 (Unauthorized) in case the sender of the
     Unauthorized Resource Request message is not authenticated, or if RS has no
@@ -1913,6 +1913,27 @@ a2                                   # map(2)
       towards several different RS should be aware that they will need
       to rotate that key pair more frequently than if it was only used towards
       a single RS.</t>
+
+      <section anchor="unprotected-as-information"
+	       title="Unprotected AS Information">
+
+	<t>Initially, no secure channel exists to protect the communication
+	between C and RS. Thus, C cannot determine if the AS information
+	contained in an unprotected response from RS to an unauthorized
+	request (c.f. <xref target="asInfo"/>) is authentic. It is therefore
+	advisable to provide C with a (possibly hard-coded) list of trustworthy
+	authorization servers. AS information responses referring to a URI not
+	listed there would be ignored.</t>
+      </section>
+      
+      <section anchor="nonce" title="Use of Nonces for Replay Protection">
+	<t>RS may add a nonce to the AS Information message sent as a response
+	to an unauthorized request to ensure freshness of an Access Token
+	subsequently presented to RS. While a timestamp of some granularity
+	would be sufficient to protect against replay attacks, using
+	randomized nonce is preferred to prevent disclosure of information
+	about RS’s internal clock characteristics.</t>
+      </section>
 </section>
 
 <section anchor="privacy" title="Privacy Considerations">
@@ -1938,6 +1959,15 @@ a2                                   # map(2)
       towards different RS.  A set of colluding RS or an attacker able to
       obtain the access tokens will be able to link the requests, or even
       to determine the client's identity.</t>
+
+      <t>An unprotected response to an unauthorized request (c.f.
+      <xref target="asInfo"/>) may disclose information about RS and/or its
+      existing relationship with C. It is advisable to include as little
+      information as possible in an unencrypted response. Means of encrypting
+      communication between C and RS already exist, more detailed information
+      may be included with an error response to provide C with sufficient
+      information to react on that particular error.</t>
+     
 </section>
 
 <section anchor="iana" title="IANA Considerations">
@@ -2664,8 +2694,8 @@ a2                                   # map(2)
 	parts of our security considerations.</t>
 
 	<t>Furthermore we thank Stefanie Gerdes, Olaf Bergmann, and Carsten
-	Bormann for contributing the work on AS discovery in section <xref
-	target="asDiscovery"/>.</t>
+	Bormann for contributing their work on AS discovery from
+	draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>).</t>
 
 	<t>Ludwig Seitz and Goeran Selander worked on this document as part of
 	the CelticPlus project CyberWI, with funding from Vinnova.</t>
