@@ -786,8 +786,18 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor"
+Content-Type: "application/cose"
 Payload:
+"COSE_Encrypted" : {
+   16(
+      [ h'a1010a', # protected header: {"alg" : "AES-CCM-16-64-128"}
+      {5 : b64'ifUvZaHFgJM7UmGnjA'},  # unprotected header, IV
+      b64'WXThuZo6TMCaZZqi6ef/8WHTjOdGk8kNzaIhIQ' # ciphertext
+      ]
+   )
+}
+
+Decrypted payload: 
 {
   "grant_type" : "client_credentials",
   "client_id" : "myclient",
@@ -803,8 +813,8 @@ Payload:
   }
 }
         </pre>
-<p class="figure">Figure 3: Example request for an access token bound to an      asymmetric key.</p>
-<p><a href="#fig:asymmATreq">Figure 3</a> shows a request for a token with an asymmetric proof-of-possession key.  Note that in this example we assume an object security-based profile, therefore the Content-Type is "application/cose+cbor".  </p>
+<p class="figure">Figure 3: Example token request bound to an asymmetric key.</p>
+<p><a href="#fig:asymmATreq">Figure 3</a> shows a request for a token with an asymmetric proof-of-possession key.  Note that in this example we assume an object security-based profile, therefore the Content-Type is "application/cose".  </p>
 <div id="rfc.figure.4"/>
 <div id="fig:kidATreq"/>
 <pre>
