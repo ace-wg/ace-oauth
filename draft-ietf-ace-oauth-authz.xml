@@ -494,8 +494,8 @@ supported in the future, such as HTTP/2, MQTT and QUIC.</t>
     into account.</t>
 
     <t>While HTTP uses headers and query-strings to convey additional
-    information about a request, CoAP encodes such information in so-called
-    'options'.</t>
+    information about a request, CoAP encodes such information into header
+    parameters called 'options'.</t>
 
     <t>CoAP supports application-layer fragmentation of the CoAP payloads
     through blockwise transfers <xref target="RFC7959"/>.  However,
@@ -577,15 +577,13 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
     At the start of the protocol there is an optional discovery step where the
     client discovers the resource server and the resources this server hosts.
     In this step the client might also determine what permissions are needed to
-    access the protected resource.  The detailed procedures for this discovery process
-    may be defined in an
-    ACE profile and depend on the
-    protocols being used and the specific deployment environment.</t>
-<t> In Bluetooth
-    Low Energy, for example, advertisements are broadcasted by a peripheral,
-    including information about the primary services.  In CoAP, as a second
-    example, a client can make a request to "/.well-known/core" to obtain
-    information about available resources, which are returned in a
+    access the protected resource.  A generic procedure is described in <xref
+    target="asDiscovery"/>, profiles MAY define other prodecures for discovery.</t>
+    
+    <t>In Bluetooth Low Energy, for example, advertisements are broadcasted by
+    a peripheral, including information about the primary services.  In CoAP,
+    as a second example, a client can make a request to "/.well-known/core" to
+    obtain information about available resources, which are returned in a
     standardized format as described in <xref target="RFC6690"/>.
 </t>
 
@@ -1185,7 +1183,8 @@ Payload:
 
       <t>Profiles of this framework MUST define the communication
       protocol and the communication security protocol between the client
-      and the RS.  Furthermore profiles MUST define proof-of-possession
+      and the RS.  The security protocol MUST provide encryption, integrity and
+      replay protection.  Furthermore profiles MUST define proof-of-possession
       methods, if they support proof-of-possession tokens.</t>
 
       <t>A profile MUST specify an identifier that is used to uniquely
@@ -3007,20 +3006,21 @@ a2                                   # map(2)
   for the convenience of a profile designer.
 
   <list style="symbols">
-    <t>Optionally Specify the discovery process of how the client finds the
-    right AS for an RS it wants to send a request to. <xref target="specs"/></t>
-
     <t>Specify the communication protocol the client and RS the must use
-    (e.g. CoAP). <xref target="oauthProfile"/> and <xref target="paramProfile"/></t>
+    (e.g. CoAP). <xref target="oauthProfile"/> and <xref
+    target="paramProfile"/></t>
 
     <t>Specify the security protocol the client and RS must use to protect
     their communication (e.g. OSCOAP or DTLS over CoAP).  This must provide
-    encryption and integrity protection. <xref target="paramProfile"/></t>
+    encryption, integrity and replay protection. <xref
+    target="paramProfile"/></t>
 
-    <t>Specify how the client and the RS mutually authenticate. <xref target="specs"/></t>
+    <t>Specify how the client and the RS mutually authenticate. <xref
+    target="specs"/></t>
 
     <t>Specify the Content-format of the protocol messages
-    (e.g. "application/cbor" or "application/cose+cbor"). <xref target="specs"/></t>
+    (e.g. "application/cbor" or "application/cose+cbor"). <xref
+    target="specs"/></t>
 
     <t>Specify the proof-of-possession protocol(s) and how to select one,
     if several are available.  Also specify which key types
