@@ -1747,14 +1747,14 @@ C:  +--------------->|                |
 
       <t>A large range of threats can be mitigated by protecting the contents
       of the access token by using a digital signature or a keyed message
-      digest or an AEAD algorithm.  Consequently, the token integrity
+      digest (MAC) or an AEAD algorithm.  Consequently, the token integrity
       protection MUST be applied to prevent the token from being modified,
       particularly since it contains a reference to the symmetric key or the
       asymmetric key.  If the access token contains the symmetric key, this
-      symmetric key MUST be encrypted by the authorization server with a
-      long-term key shared with the resource server.  Using AEAD algorithms
-      is preferrable over using a keyed message digest unless the message needs
-      to be publicly readable.</t>
+      symmetric key MUST be encrypted by the authorization server so that only
+      the resource server can decrypt it.  Note that using an AEAD algorithm
+      is preferrable over using a MAC unless the message needs to be publicly
+      readable.</t>
 
       <t>It is important for the authorization server to include the identity
       of the intended recipient (the audience), typically a single resource
@@ -1801,11 +1801,6 @@ C:  +--------------->|                |
       Furthermore access tokens SHOULD NOT apply to an audience that comprises
       more than one RS, since otherwise any RS in the audience can impersonate
       the client towards the other members of the audience.</t>
-
-      <t>Clients using an asymmetric key pair for proof-of-possession
-      towards several different RS should be aware that they will need
-      to rotate that key pair more frequently than if it was only used towards
-      a single RS.</t>
 </section>
 
 <section anchor="privacy" title="Privacy Considerations">
