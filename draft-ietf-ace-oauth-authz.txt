@@ -1860,16 +1860,10 @@ Internet-Draft                     ACE                       August 2017
    management is NOT RECOMMENDED since the benefit from using the proof-
    of-possession concept is significantly reduced.
 
-   Token replay is also more difficult since an eavesdropper will have
-   to obtain the token and the corresponding private key or shared
-   secret that is bound to the access token.  Nevertheless, it is good
-   practice to limit the lifetime of the access token and therefore the
-   lifetime of associated key.
-
    The authorization server MUST offer confidentiality protection for
    any interactions with the client.  This step is extremely important
-   since the client will obtain the session key from the authorization
-   server for use with a specific access token.  Not using
+   since the client may obtion the proof-of-possession key from the
+   authorization server for use with a specific access token.  Not using
    confidentiality protection exposes this secret (and the access token)
    to an eavesdropper thereby completely negating proof-of-possession
    security.  Profiles MUST specify how confidentiality protection is
@@ -1885,19 +1879,25 @@ Internet-Draft                     ACE                       August 2017
    adversaries can often easily get physical access to the devices.
 
    Clients can at any time request a new proof-of-possession capable
-   access token.  Using a refresh token to regularly request new access
-   tokens that are bound to fresh and unique keys is important if the
-   client has this capability.  Keeping the lifetime of the access token
-   short allows the authorization server to use shorter key sizes, which
-   translate to a performance benefit for the client and for the
+   access token.  If clients have that capability, the AS can keep the
+   lifetime of the access token and the associated proof-of-possesion
+   key short and therefore use shorter proof-of-possession key sizes,
+   which translate to a performance benefit for the client and for the
    resource server.  Shorter keys also lead to shorter messages
    (particularly with asymmetric keying material).
 
    When authorization servers bind symmetric keys to access tokens, they
    SHOULD scope these access tokens to a specific permissions.
-   Furthermore access tokens SHOULD NOT apply to an audience that
-   comprises more than one RS, since otherwise any RS in the audience
-   can impersonate the client towards the other members of the audience.
+   Furthermore access tokens using symmetric keys for proof-of-
+   possession SHOULD NOT be targeted at an audience that contains more
+   than one RS, since otherwise any RS in the audience that receives
+   that access token can impersonate the client towards the other
+   members of the audience.
+
+
+
+
+
 
 
 
