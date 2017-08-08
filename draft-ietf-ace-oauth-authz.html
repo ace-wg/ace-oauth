@@ -439,12 +439,13 @@
 <link href="#rfc.appendix.E.1" rel="Chapter" title="E.1 Local Token Validation"/>
 <link href="#rfc.appendix.E.2" rel="Chapter" title="E.2 Introspection Aided Token Validation"/>
 <link href="#rfc.appendix.F" rel="Chapter" title="F Document Updates"/>
-<link href="#rfc.appendix.F.1" rel="Chapter" title="F.1 Version -05 to -06"/>
-<link href="#rfc.appendix.F.2" rel="Chapter" title="F.2 Version -04 to -05"/>
-<link href="#rfc.appendix.F.3" rel="Chapter" title="F.3 Version -03 to -04"/>
-<link href="#rfc.appendix.F.4" rel="Chapter" title="F.4 Version -02 to -03"/>
-<link href="#rfc.appendix.F.5" rel="Chapter" title="F.5 Version -01 to -02"/>
-<link href="#rfc.appendix.F.6" rel="Chapter" title="F.6 Version -00 to -01"/>
+<link href="#rfc.appendix.F.1" rel="Chapter" title="F.1 Version -06 to -07"/>
+<link href="#rfc.appendix.F.2" rel="Chapter" title="F.2 Version -05 to -06"/>
+<link href="#rfc.appendix.F.3" rel="Chapter" title="F.3 Version -04 to -05"/>
+<link href="#rfc.appendix.F.4" rel="Chapter" title="F.4 Version -03 to -04"/>
+<link href="#rfc.appendix.F.5" rel="Chapter" title="F.5 Version -02 to -03"/>
+<link href="#rfc.appendix.F.6" rel="Chapter" title="F.6 Version -01 to -02"/>
+<link href="#rfc.appendix.F.7" rel="Chapter" title="F.7 Version -00 to -01"/>
 <link href="#rfc.authors" rel="Chapter"/>
 
 
@@ -603,12 +604,13 @@
 <ul><li>E.1.   <a href="#rfc.appendix.E.1">Local Token Validation</a></li>
 <li>E.2.   <a href="#rfc.appendix.E.2">Introspection Aided Token Validation</a></li>
 </ul><li>Appendix F.   <a href="#rfc.appendix.F">Document Updates</a></li>
-<ul><li>F.1.   <a href="#rfc.appendix.F.1">Version -05 to -06</a></li>
-<li>F.2.   <a href="#rfc.appendix.F.2">Version -04 to -05</a></li>
-<li>F.3.   <a href="#rfc.appendix.F.3">Version -03 to -04</a></li>
-<li>F.4.   <a href="#rfc.appendix.F.4">Version -02 to -03</a></li>
-<li>F.5.   <a href="#rfc.appendix.F.5">Version -01 to -02</a></li>
-<li>F.6.   <a href="#rfc.appendix.F.6">Version -00 to -01</a></li>
+<ul><li>F.1.   <a href="#rfc.appendix.F.1">Version -06 to -07</a></li>
+<li>F.2.   <a href="#rfc.appendix.F.2">Version -05 to -06</a></li>
+<li>F.3.   <a href="#rfc.appendix.F.3">Version -04 to -05</a></li>
+<li>F.4.   <a href="#rfc.appendix.F.4">Version -03 to -04</a></li>
+<li>F.5.   <a href="#rfc.appendix.F.5">Version -02 to -03</a></li>
+<li>F.6.   <a href="#rfc.appendix.F.6">Version -01 to -02</a></li>
+<li>F.7.   <a href="#rfc.appendix.F.7">Version -00 to -01</a></li>
 </ul><li><a href="#rfc.authors">Authors' Addresses</a></li>
 
 
@@ -650,7 +652,7 @@
   <dt>Proof of Possession Tokens:</dt>
   <dd style="margin-left: 8"><br/><br/> An access token may be bound to a cryptographic key, which is then used by an RS to authenticate requests from a client.  Such tokens are called proof-of-possession tokens (or PoP tokens).  <br/><br/> The proof-of-possession (PoP) security concept assumes that the AS acts as a trusted third party that binds keys to access tokens.  These so called PoP keys are then used by the client to demonstrate the possession of the secret to the RS when accessing the resource.  The RS, when receiving an access token, needs to verify that the key used by the client matches the one bound to the access token.  When this specification uses the term "access token" it is assumed to be a PoP token unless specifically stated otherwise.  <br/><br/> The key bound to the access token (aka PoP key) may be based on symmetric as well as on asymmetric cryptography.  The appropriate choice of security depends on the constraints of the IoT devices as well as on the security requirements of the use case.  <dl><dt>Symmetric PoP key:</dt><dd style="margin-left: 8">The AS generates a random symmetric PoP key.  The key is either stored to be returned on introspection calls or encrypted and included in the access token.  The PoP key is also encrypted for the client and sent together with the access token to the client.<br/> </dd><dt>Asymmetric PoP key:</dt><dd style="margin-left: 8">An asymmetric key pair is generated on the client and the public key is sent to the AS (if it does not already have knowledge of the client's public key).  Information about the public key, which is the PoP key in this case, is either stored to be returned on introspection calls or included inside the access token and sent back to the requesting client.  The RS can identify the client's public key from the information in the token, which allows the client to use the corresponding private key for the proof of possession.  </dd></dl><p> </p><br/><br/> The access token is either a simple reference, or a structured information object (e.g. CWT <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>), protected by a cryptographic wrapper (e.g. COSE <a href="#RFC8152">[RFC8152]</a>).  The choice of PoP key does not necessarily imply a specific credential type for the integrity protection of the token.<br/> </dd>
   <dt>Scopes and Permissions:</dt>
-  <dd style="margin-left: 8"><br/><br/> In OAuth 2.0, the client specifies the type of permissions it is seeking to obtain (via the scope parameter) in the access token request.  In turn, the AS may use the scope response parameter to inform the client of the scope of the access token issued.  As the client could be a constrained device as well, this specification uses CBOR encoded messages for CoAP, defined in <a href="#oauthProfile">Section 5</a>, to request scopes and to be informed what scopes the access token was actually authorize for by the AS.  <br/><br/> The values of the scope parameter are expressed as a list of space- delimited, case-sensitive strings, with a semantic that is well-known to the AS and the RS.  More details about the concept of scopes is found under Section 3.3 in <a href="#RFC6749">[RFC6749]</a>.<br/> </dd>
+  <dd style="margin-left: 8"><br/><br/> In OAuth 2.0, the client specifies the type of permissions it is seeking to obtain (via the scope parameter) in the access token request.  In turn, the AS may use the scope response parameter to inform the client of the scope of the access token issued.  As the client could be a constrained device as well, this specification uses CBOR encoded messages for CoAP, defined in <a href="#oauthProfile">Section 5</a>, to request scopes and to be informed what scopes the access token actually authorizes.  <br/><br/> The values of the scope parameter are expressed as a list of space- delimited, case-sensitive strings, with a semantic that is well-known to the AS and the RS.  More details about the concept of scopes is found under Section 3.3 in <a href="#RFC6749">[RFC6749]</a>.<br/> </dd>
   <dt>Claims:</dt>
   <dd style="margin-left: 8"><br/><br/> Information carried in the access token or returned from introspection, called claims, is in the form of type-value pairs.  An access token may, for example, include a claim identifying the AS that issued the token (via the "iss" claim) and what audience the access token is intended for (via the "aud" claim).  The audience of an access token can be a specific resource or one or many resource servers.  The resource owner policies influence what claims are put into the access token by the authorization server.  <br/><br/> While the structure and encoding of the access token varies throughout deployments, a standardized format has been defined with the JSON Web Token (JWT) <a href="#RFC7519">[RFC7519]</a> where claims are encoded as a JSON object.  In <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a> an equivalent format using CBOR encoding (CWT) has been defined.  <br/> </dd>
   <dt>Introspection:</dt>
@@ -2434,7 +2436,14 @@ F:  |&lt;--------+ Header: 2.04 Changed
 <p class="figure">Figure 27: Resource request and response protected by OSCOAP</p>
 <p/>
 <h1 id="rfc.appendix.F"><a href="#rfc.appendix.F">Appendix F.</a> <a href="#app:changelog" id="app:changelog">Document Updates</a></h1>
-<h1 id="rfc.appendix.F.1"><a href="#rfc.appendix.F.1">F.1.</a> <a href="#app:f6t7" id="app:f6t7">Version -05 to -06</a></h1>
+<h1 id="rfc.appendix.F.1"><a href="#rfc.appendix.F.1">F.1.</a> <a href="#app:f7t8" id="app:f7t8">Version -06 to -07</a></h1>
+<p/>
+
+<ul>
+  <li>Various clarifications added.</li>
+  <li>Fixed erroneous author email.</li>
+</ul>
+<h1 id="rfc.appendix.F.2"><a href="#rfc.appendix.F.2">F.2.</a> <a href="#app:f6t7" id="app:f6t7">Version -05 to -06</a></h1>
 <p/>
 
 <ul>
@@ -2443,7 +2452,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Added <a href="#ASAuthentication">Section 5.3</a> on AS authentication.</li>
   <li>Added <a href="#authorizeEndpoint">Section 5.4</a> on the Authorize endpoint.</li>
 </ul>
-<h1 id="rfc.appendix.F.2"><a href="#rfc.appendix.F.2">F.2.</a> <a href="#app:f5t6" id="app:f5t6">Version -04 to -05</a></h1>
+<h1 id="rfc.appendix.F.3"><a href="#rfc.appendix.F.3">F.3.</a> <a href="#app:f5t6" id="app:f5t6">Version -04 to -05</a></h1>
 <p/>
 
 <ul>
@@ -2456,7 +2465,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Added IANA registry mapping the confirmation types from RFC 7800 to equivalent COSE types.</li>
   <li>Added appendix D, describing assumptions about what the AS knows about the client and the RS.</li>
 </ul>
-<h1 id="rfc.appendix.F.3"><a href="#rfc.appendix.F.3">F.3.</a> <a href="#app:f4t5" id="app:f4t5">Version -03 to -04</a></h1>
+<h1 id="rfc.appendix.F.4"><a href="#rfc.appendix.F.4">F.4.</a> <a href="#app:f4t5" id="app:f4t5">Version -03 to -04</a></h1>
 <p/>
 
 <ul>
@@ -2465,7 +2474,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Clarified uses of the 'cnf' parameter in section 6.4.5.</li>
   <li>Clarified intended use of Client Token in section 7.4.</li>
 </ul>
-<h1 id="rfc.appendix.F.4"><a href="#rfc.appendix.F.4">F.4.</a> <a href="#app:f3t4" id="app:f3t4">Version -02 to -03</a></h1>
+<h1 id="rfc.appendix.F.5"><a href="#rfc.appendix.F.5">F.5.</a> <a href="#app:f3t4" id="app:f3t4">Version -02 to -03</a></h1>
 <p/>
 
 <ul>
@@ -2479,7 +2488,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Renamed token, introspection and authz-info to 'endpoint' instead of 'resource' to mirror the OAuth 2.0 terminology.</li>
   <li>Updated the examples in the appendices.</li>
 </ul>
-<h1 id="rfc.appendix.F.5"><a href="#rfc.appendix.F.5">F.5.</a> <a href="#app:f2t3" id="app:f2t3">Version -01 to -02</a></h1>
+<h1 id="rfc.appendix.F.6"><a href="#rfc.appendix.F.6">F.6.</a> <a href="#app:f2t3" id="app:f2t3">Version -01 to -02</a></h1>
 <p/>
 
 <ul>
@@ -2491,7 +2500,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Expanded the IANA section to define parameters for token request, introspection and CWT claims.</li>
   <li>Moved deployment scenarios to the appendix as examples.</li>
 </ul>
-<h1 id="rfc.appendix.F.6"><a href="#rfc.appendix.F.6">F.6.</a> <a href="#app:f1t2" id="app:f1t2">Version -00 to -01</a></h1>
+<h1 id="rfc.appendix.F.7"><a href="#rfc.appendix.F.7">F.7.</a> <a href="#app:f1t2" id="app:f1t2">Version -00 to -01</a></h1>
 <p/>
 
 <ul>
