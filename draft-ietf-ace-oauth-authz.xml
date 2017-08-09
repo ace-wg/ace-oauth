@@ -65,7 +65,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-06" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-07" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -90,9 +90,9 @@
         <postal>
           <street>Scheelevaegen 17</street>
           <code>223 70</code> <city>Lund</city>
-          <country>SWEDEN</country>
+          <country>Sweden</country>
         </postal>
-        <email>ludwig@ri.se</email>
+        <email>ludwig.seitz@ri.se</email>
 
         <!-- uri and facsimile elements may also be added -->
       </address>
@@ -105,7 +105,7 @@
         <postal>
           <street>Faroegatan 6</street>
           <code>164 80</code> <city>Kista</city>
-          <country>SWEDEN</country>
+          <country>Sweden</country>
         </postal>
         <email>goran.selander@ericsson.com</email>
 
@@ -235,7 +235,12 @@
    implementations of different profiles are not expected to be interoperable.
    Some devices, such as mobile phones and tablets, may implement multiple
    profiles and will therefore be able to interact with a wider range of low end devices.
+   Requirements on profiles are described at contextually appropriate places
+   througout this memo, and also summarized in
+   <xref target="app:profileRequirements"/>. 
    </t>
+
+  
 
 </section>
 
@@ -434,8 +439,8 @@ supported in the future, such as HTTP/2, MQTT and QUIC.</t>
          client of the scope of the access token issued.  As the client could
 	 be a constrained device as well, this specification uses CBOR encoded messages
          for CoAP, defined in <xref target="oauthProfile" />, to
-         request scopes and to be informed what scopes the access token was
-         actually authorized for by the AS.
+         request scopes and to be informed what scopes the access token
+         actually authorizes.
          <vspace blankLines="1"/>
          The values of the scope parameter are expressed as a list of space-
          delimited, case-sensitive strings, with a semantic that is well-known
@@ -783,13 +788,13 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   owner (password, authorization code, implicit) and those for the client
   (client credentials).</t>
 
-  <t>The grant type selected depending based on the use case.  In cases where
-  the client will act on behalf of the resource owner, authorization code
-  grant is recommended.  If the client should to act on be half of the user but
-  does not have any display or very limited interaction possibilities it is
+  <t>The grant type is selected depending on the use case.  In cases where
+  the client acts on behalf of the resource owner, authorization code
+  grant is recommended.  If the client acts on behalf of the resource owner,
+  but does not have any display or very limited interaction possibilities it is
   recommended to use the device code grant defined in
-  <xref target="I-D.ietf-oauth-device-flow"/>.  In cases where the client will
-  not act on be half of the resource owner, client credentials grant is
+  <xref target="I-D.ietf-oauth-device-flow"/>.  In cases where the client
+  does not act on behalf of the resource owner, client credentials grant is
   recommended.</t>
 
   <t>For details on the different grant types see the OAuth 2.0 framework. The
@@ -824,16 +829,11 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 
 <section anchor="authorizeEndpoint" title="The 'Authorize' Endpoint">
   <t>The authorization endpoint is used to interact with the resource owner
-  and obtain an authorization grant. It is used for authorization code and
-  implicit grant, flows that requires online user consent.  In the most common
-  implementation a users-agent is used and redirected from the client to the
-  AS. The AS shows a consent dialog and directs back to the client, with the
-  approved grant or an error message.</t>
-
-  <t>The grant types defined in OAuth 2.0, that use the authorization endpoint,
-  require the use of a user agent (i.e. a browser).  This endpoint is therefore
-  out of scope for this specification.  Implementations should use the
-  definition and recommendations of <xref target="RFC6749"/> and
+  and obtain an authorization grant in certain grant flows.  Since it requires
+  the use of a user agent (i.e. browser), it is not expected that these types
+  of grant flow will be used by constrained clients.  This endpoint is
+  therefore out of scope for this specification.  Implementations should use
+  the definition and recommendations of <xref target="RFC6749"/> and
   <xref target="RFC6819"/>.</t>
 
   <t>If clients involved cannot support HTTP and TLS profiles MAY define
@@ -881,9 +881,9 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 	<t hangText="cnf"><vspace blankLines="0"/>
 	OPTIONAL.  This field contains information about the key the
 	client would like to bind to the access token for proof-of-possession.
-	It is NOT RECOMMENDED that a client submits a symmetric key value to
-	the AS using this parameter.  See <xref target="paramCnf"/> for more
-	details on the usage of the "cnf" parameter.</t>
+	It is RECOMMENDED that an AS reject a request containing a symmetric key
+	value in the 'cnf' field.  See <xref target="paramCnf"/> for more
+	details on the formatting of the 'cnf' parameter.</t>
       </list>
     </t>
 
@@ -915,21 +915,28 @@ Payload:
     <t><xref target="fig:asymmATreq"/> shows a request for a token with an
     asymmetric proof-of-possession key.  Note that in this example we assume
     an object security-based profile, therefore the Content-Type is
-    "application/cose+cbor".
+    "application/cose".
 
     <figure align="center" anchor="fig:asymmATreq"
-            title="Example request for an access token bound to an
-		   asymmetric key.">
+            title="Example token request bound to an asymmetric key.">
         <artwork align="left"><![CDATA[
 Header: POST (Code=0.02)
 Uri-Host: "server.example.com"
 Uri-Path: "token"
-Content-Type: "application/cose+cbor"
+Content-Type: "application/cose"
 Payload:
+"COSE_Encrypted" : {
+   16(
+      [ h'a1010a', # protected header: {"alg" : "AES-CCM-16-64-128"}
+      {5 : b64'ifUvZaHFgJM7UmGnjA'},  # unprotected header, IV
+      b64'WXThuZo6TMCaZZqi6ef/8WHTjOdGk8kNzaIhIQ' # ciphertext
+      ]
+   )
+}
+
+Decrypted payload: 
 {
   "grant_type" : "client_credentials",
-  "client_id" : "myclient",
-  "client_secret" : "mysecret234",
   "cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
@@ -1045,10 +1052,6 @@ Payload:
         \-------------------+--------------------------/
       ]]></artwork></figure>
 
-    </t>
-
-    <t>The following examples illustrate different types of responses
-    for proof-of-possession tokens.
     </t>
 
     <t><xref target="fig:symmATres"/> shows a response containing a token
@@ -1500,7 +1503,9 @@ C:  +--------------->|                |
 
     <t>The AS encrypts this token using a key shared between the AS and the
     client, so that only the client can decrypt it and access its payload.
-    How this key is established is out of scope of this framework.</t>
+    How this key is established is out of scope of this framework, however it
+    can be established at the same time at which the client's long term token
+    is created.</t>
   </section>
 
   <section anchor="introParamsCbor"
@@ -1555,8 +1560,8 @@ C:  +--------------->|                |
   target="RFC6749"/>.  The meaning of a specific scope value is application
   specific and expected to be known to the RS running that application.</t>
 
- <t>The "cnf" claim follows the same rules as specified for JSON web token
- in RFC7800 <xref target="RFC7800"/>, except that it is encoded in CBOR
+ <t>The "cnf" claim follows the same rules as specified for JOSE web token
+ in RFC7800 <xref target="RFC7800"/>, except that it is encoded in COSE
  in the same way as specified for the "cnf" parameter in <xref
  target="paramCnf"/>.</t>
 
@@ -1576,6 +1581,7 @@ C:  +--------------->|                |
   verify the validity of the token.  If the token is valid, the RS MUST respond
   to the POST request with 2.01 (Created).  This response MAY contain the
   identifier of the token (e.g. the cti for a CWT) as a payload.</t>
+  <!--FIXME: Clarify that this is a suggestion to implmenters and what it would be useful for -->
 
   <t>If the token is not valid, the RS MUST respond with the CoAP response code
   4.01 (Unauthorized).  If the token is valid but the audience of the
@@ -1641,27 +1647,30 @@ C:  +--------------->|                |
   Observe <xref target="RFC7641"/>, expires, the RS MUST send an error
   response with the response code 4.01 Unauthorized to the client and then
   terminate processing the long running request.</t>
+  <!-- FIXME: rephrase above for clarity -->
 </section>
 </section><!-- access token -->
 </section> <!--Framework-->
 
 <section anchor="security" title="Security Considerations">
-      <t>The entire document is about security.  Security considerations
-      applicable to authentication and authorization in RESTful
-      environments provided in OAuth 2.0 <xref target="RFC6749"/> apply to this
-      work, as well as the security considerations from
-      <xref target="I-D.ietf-ace-actors"/>.  Furthermore
-      <xref target="RFC6819"/> provides additional security considerations for
-      OAuth which apply to IoT deployments as well.</t>
+  
+  <t>Security considerations applicable to authentication and authorization
+  in RESTful environments provided in OAuth 2.0 <xref target="RFC6749"/> apply
+  to this work, as well as the security considerations from
+  <xref target="I-D.ietf-ace-actors"/>.  Furthermore <xref target="RFC6819"/>
+  provides additional security considerations for OAuth which apply to IoT
+  deployments as well.</t>
 
       <t>A large range of threats can be mitigated by protecting the contents
       of the access token by using a digital signature or a keyed message
-      digest.  Consequently, the token integrity protection MUST be applied to
-      prevent the token from being modified, particularly since it contains
-      a reference to the symmetric key or the asymmetric key.  If the
-      access token contains the symmetric key, this symmetric key MUST be
-      encrypted by the authorization server with a long-term key shared with
-      the resource server.</t>
+      digest (MAC) or an AEAD algorithm.  Consequently, the token integrity
+      protection MUST be applied to prevent the token from being modified,
+      particularly since it contains a reference to the symmetric key or the
+      asymmetric key.  If the access token contains the symmetric key, this
+      symmetric key MUST be encrypted by the authorization server so that only
+      the resource server can decrypt it.  Note that using an AEAD algorithm
+      is preferrable over using a MAC unless the message needs to be publicly
+      readable.</t>
 
       <t>It is important for the authorization server to include the identity
       of the intended recipient (the audience), typically a single resource
@@ -1670,19 +1679,13 @@ C:  +--------------->|                |
       management is NOT RECOMMENDED since the benefit from using the
       proof-of-possession concept is significantly reduced.</t>
 
-      <t>Token replay is also more difficult since an eavesdropper will
-      have to obtain the token and the corresponding private key or shared
-      secret that is bound to the access token.  Nevertheless, it is good
-      practice to limit the lifetime of the access token and therefore the
-      lifetime of associated key.</t>
-
       <t>The authorization server MUST offer confidentiality protection for
       any interactions with the client.  This step is extremely important
-      since the client will obtain the session key from the authorization
-      server for use with a specific access token.  Not using confidentiality
-      protection exposes this secret (and the access token) to an eavesdropper
-      thereby completely negating proof-of-possession security.  Profiles MUST
-      specify how confidentiality protection is provided,
+      since the client may obtion the proof-of-possession key from the
+      authorization server for use with a specific access token.  Not using
+      confidentiality protection exposes this secret (and the access token) to
+      an eavesdropper thereby completely negating proof-of-possession security.
+      Profiles MUST specify how confidentiality protection is provided,
       and additional protection can be applied by encrypting the token, for
       example encryption of CWTs is specified in section 5.1 of
       <xref target="I-D.ietf-ace-cbor-web-token"/>.</t>
@@ -1695,24 +1698,19 @@ C:  +--------------->|                |
       often easily get physical access to the devices.</t>
 
       <t>Clients can at any time request a new proof-of-possession capable
-      access token.  Using a refresh token to regularly request new access
-      tokens that are bound to fresh and unique keys is important if the
-      client has this capability.  Keeping the lifetime of the access token
-      short allows the authorization server to use shorter key sizes, which
+      access token.  If clients have that capability, the AS can keep the
+      lifetime of the access token and the associated proof-of-possesion key
+      short and therefore use shorter proof-of-possession key sizes, which
       translate to a performance benefit for the client and for the resource
       server.  Shorter keys also lead to shorter messages (particularly with
       asymmetric keying material).</t>
 
       <t>When authorization servers bind symmetric keys to access tokens,
       they SHOULD scope these access tokens to a specific permissions.
-      Furthermore access tokens SHOULD NOT apply to an audience that comprises
-      more than one RS, since otherwise any RS in the audience can impersonate
-      the client towards the other members of the audience.</t>
-
-      <t>Clients using an asymmetric key pair for proof-of-possession
-      towards several different RS should be aware that they will need
-      to rotate that key pair more frequently than if it was only used towards
-      a single RS.</t>
+      Furthermore access tokens using symmetric keys for proof-of-possession
+      SHOULD NOT be targeted at an audience that contains more than one RS,
+      since otherwise any RS in the audience that receives that access token
+      can impersonate the client towards the other members of the audience.</t>
 </section>
 
 <section anchor="privacy" title="Privacy Considerations">
@@ -1722,9 +1720,11 @@ C:  +--------------->|                |
       <t>The AS is in a very central position can potentially learn sensitive
       information about the clients requesting access tokens.  If the client
       credentials grant is used, the AS can track what kind of access
-      the client intends to perform.  With other grants, the Resource Owner
-      can bind the grants to anonymous (rotating) credentials, that do not allow
-      the AS to link different access token requests by the same client.</t>
+      the client intends to perform.  With other grants this can be prevented
+      by the Resource Owner.  To do so the resource owner needs to bind the
+      grants it issues to anonymous, ephemeral credentials, that do not allow
+      the AS to link different grants and thus different access token requests
+      by the same client.</t>
 
       <t>If access tokens are only integrity protected and not encrypted, they
       may reveal information to attackers listening on the wire, or able to
@@ -3194,13 +3194,19 @@ F:  |<--------+ Header: 2.04 Changed
 
 </section>
 <section anchor="app:changelog" title="Document Updates">
-      <section anchor="app:f7t8" title="Version -06 to -07">
-	<t><list style="symbols">
-	  <t>Removed specification of the "cnf" claim for CBOR/COSE, and
-	  replaced with references to <xref
-	  target="I-D.jones-ace-cwt-proof-of-possession"/></t>
-	</list></t>
-      </section>
+   <section anchor="app:f8t9" title="Version -07 to -08">
+      <t><list style="symbols">
+         <t>Removed specification of the "cnf" claim for CBOR/COSE, and
+	 replaced with references to <xref
+	 target="I-D.jones-ace-cwt-proof-of-possession"/></t>
+      </list></t>
+   </section>
+   <section anchor="app:f7t8" title="Version -06 to -07">
+     <t><list style="symbols">
+       <t>Various clarifications added.</t>
+       <t>Fixed erroneous author email.</t>
+     </list></t>
+   </section>
       <section anchor="app:f6t7" title="Version -05 to -06">
 	<t><list style="symbols">
 	  <t>Moved sections that define the ACE framework into
