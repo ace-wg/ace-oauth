@@ -802,13 +802,13 @@ a2                                   # map(2)
 <p id="rfc.section.5.3.p.3">The OAuth framework, <a href="#RFC6749">[RFC6749]</a>, defines one client credential type, client id and client secret. Profiles of this framework MAY extend with additional client credentials such as DTLS pre-shared keys or client certificates.</p>
 <h1 id="rfc.section.5.4"><a href="#rfc.section.5.4">5.4.</a> <a href="#ASAuthentication" id="ASAuthentication">AS Authentication</a></h1>
 <p id="rfc.section.5.4.p.1">Client credential does not by default authenticate the AS that the client connects to. In classic OAuth the AS is authenticated with a TLS server certificate.</p>
-<p id="rfc.section.5.4.p.2">Profiles of this framework SHOULD specify how clients authenticate the AS and how communication security is implemented, otherwise server side TLS certificates as defined by OAuth 2.0 is required.</p>
+<p id="rfc.section.5.4.p.2">Profiles of this framework MUST specify how clients authenticate the AS and how communication security is implemented, otherwise server side TLS certificates as defined by OAuth 2.0 is required.</p>
 <h1 id="rfc.section.5.5"><a href="#rfc.section.5.5">5.5.</a> <a href="#authorizeEndpoint" id="authorizeEndpoint">The 'Authorize' Endpoint</a></h1>
 <p id="rfc.section.5.5.p.1">The authorization endpoint is used to interact with the resource owner and obtain an authorization grant in certain grant flows.  Since it requires the use of a user agent (i.e. browser), it is not expected that these types of grant flow will be used by constrained clients.  This endpoint is therefore out of scope for this specification.  Implementations should use the definition and recommendations of <a href="#RFC6749">[RFC6749]</a> and <a href="#RFC6819">[RFC6819]</a>.</p>
-<p id="rfc.section.5.5.p.2">If clients involved cannot support HTTP and TLS profiles MAY define mappings for the authorization endpoint.</p>
+<p id="rfc.section.5.5.p.2">If clients involved cannot support HTTP and TLS, profiles MAY define mappings for the authorization endpoint.</p>
 <h1 id="rfc.section.5.6"><a href="#rfc.section.5.6">5.6.</a> <a href="#tokenEndpoint" id="tokenEndpoint">The 'Token' Endpoint</a></h1>
 <p id="rfc.section.5.6.p.1">In plain OAuth 2.0 the AS provides the /token endpoint for submitting access token requests.  This framework extends the functionality of the /token endpoint, giving the AS the possibility to help client and RS to establish shared keys or to exchange their public keys.  Furthermore this framework defines encodings using CoAP and CBOR, in addition to HTTP and JSON.</p>
-<p id="rfc.section.5.6.p.2">For the AS to be able to issue a token the client MUST be authenticated and present a valid grant for the scopes requested.</p>
+<p id="rfc.section.5.6.p.2">For the AS to be able to issue a token the client MUST be authenticated and present a valid grant for the scopes requested.  Profiles of this framework MUST specify how the AS authenticates the client and how the communication between client and AS is protected.</p>
 <p id="rfc.section.5.6.p.3">The figures of this section uses CBOR diagnostic notation without the integer abbreviations for the parameters or their values for better readability.  </p>
 <h1 id="rfc.section.5.6.1"><a href="#rfc.section.5.6.1">5.6.1.</a> <a href="#tokenRequest" id="tokenRequest">Client-to-AS Request</a></h1>
 <p id="rfc.section.5.6.1.p.1">The client sends a CoAP POST request to the token endpoint at the AS, the profile MUST specify the Content-Type and wrapping of the payload.  The content of the request consists of the parameters specified in section 4 of the OAuth 2.0 specification <a href="#RFC6749">[RFC6749]</a> encoded as a CBOR map.</p>
@@ -2071,8 +2071,8 @@ C:  +---------------&gt;|                |
   <li>Specify the Content-format of the protocol messages (e.g. "application/cbor" or "application/cose+cbor"). <a href="#specs">Section 4</a></li>
   <li>Specify the proof-of-possession protocol(s) and how to select one, if several are available.  Also specify which key types (e.g. symmetric/asymmetric) are supported by a specific proof-of-possession protocol. <a href="#paramTokenType">Section 5.6.4.3</a></li>
   <li>Specify a unique profile identifier. <a href="#paramProfile">Section 5.6.4.4</a></li>
-  <li>Optionally specify how the RS talks to the AS for introspection.<a href="#introspectionEndpoint">Section 5.7</a></li>
-  <li>Optionally specify how the client talks to the AS for requesting a token. <a href="#tokenEndpoint">Section 5.6</a></li>
+  <li>If introspection is supported: Specify the communication and security protocol for introspection.<a href="#introspectionEndpoint">Section 5.7</a></li>
+  <li>Specify the communication and security protocol for interactions between client and AS. <a href="#tokenEndpoint">Section 5.6</a></li>
   <li>Specify how/if the /authz-info endpoint is protected. <a href="#tokenAuthInfoEndpoint">Section 5.8.1</a></li>
   <li>Optionally define other methods of token transport than the /authz-info endpoint. <a href="#tokenAuthInfoEndpoint">Section 5.8.1</a></li>
 </ul>

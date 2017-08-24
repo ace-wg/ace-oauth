@@ -85,7 +85,7 @@ Table of Contents
      5.4.  AS Authentication . . . . . . . . . . . . . . . . . . . .  18
      5.5.  The 'Authorize' Endpoint  . . . . . . . . . . . . . . . .  18
      5.6.  The 'Token' Endpoint  . . . . . . . . . . . . . . . . . .  18
-       5.6.1.  Client-to-AS Request  . . . . . . . . . . . . . . . .  18
+       5.6.1.  Client-to-AS Request  . . . . . . . . . . . . . . . .  19
        5.6.2.  AS-to-Client Response . . . . . . . . . . . . . . . .  21
        5.6.3.  Error Response  . . . . . . . . . . . . . . . . . . .  23
        5.6.4.  Request and Response Parameters . . . . . . . . . . .  24
@@ -963,9 +963,9 @@ Internet-Draft                     ACE                       August 2017
    client connects to.  In classic OAuth the AS is authenticated with a
    TLS server certificate.
 
-   Profiles of this framework SHOULD specify how clients authenticate
-   the AS and how communication security is implemented, otherwise
-   server side TLS certificates as defined by OAuth 2.0 is required.
+   Profiles of this framework MUST specify how clients authenticate the
+   AS and how communication security is implemented, otherwise server
+   side TLS certificates as defined by OAuth 2.0 is required.
 
 5.5.  The 'Authorize' Endpoint
 
@@ -977,7 +977,7 @@ Internet-Draft                     ACE                       August 2017
    specification.  Implementations should use the definition and
    recommendations of [RFC6749] and [RFC6819].
 
-   If clients involved cannot support HTTP and TLS profiles MAY define
+   If clients involved cannot support HTTP and TLS, profiles MAY define
    mappings for the authorization endpoint.
 
 5.6.  The 'Token' Endpoint
@@ -991,16 +991,16 @@ Internet-Draft                     ACE                       August 2017
 
    For the AS to be able to issue a token the client MUST be
    authenticated and present a valid grant for the scopes requested.
+   Profiles of this framework MUST specify how the AS authenticates the
+   client and how the communication between client and AS is protected.
 
    The figures of this section uses CBOR diagnostic notation without the
    integer abbreviations for the parameters or their values for better
    readability.
 
-5.6.1.  Client-to-AS Request
 
-   The client sends a CoAP POST request to the token endpoint at the AS,
-   the profile MUST specify the Content-Type and wrapping of the
-   payload.  The content of the request consists of the parameters
+
+
 
 
 
@@ -1010,6 +1010,11 @@ Seitz, et al.           Expires February 25, 2018              [Page 18]
 Internet-Draft                     ACE                       August 2017
 
 
+5.6.1.  Client-to-AS Request
+
+   The client sends a CoAP POST request to the token endpoint at the AS,
+   the profile MUST specify the Content-Type and wrapping of the
+   payload.  The content of the request consists of the parameters
    specified in section 4 of the OAuth 2.0 specification [RFC6749]
    encoded as a CBOR map.
 
@@ -1043,6 +1048,24 @@ Internet-Draft                     ACE                       August 2017
    "application/cbor".  The content is displayed in CBOR diagnostic
    notation, without abbreviations for better readability.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.           Expires February 25, 2018              [Page 19]
+
+Internet-Draft                     ACE                       August 2017
+
+
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
    Uri-Path: "token"
@@ -1058,14 +1081,6 @@ Internet-Draft                     ACE                       August 2017
 
    Figure 5 shows a request for a token with an asymmetric proof-of-
    possession key.  Note that in this example we assume an object
-
-
-
-Seitz, et al.           Expires February 25, 2018              [Page 19]
-
-Internet-Draft                     ACE                       August 2017
-
-
    security-based profile, therefore the Content-Type is "application/
    cose".
 
@@ -1099,21 +1114,6 @@ Internet-Draft                     ACE                       August 2017
 
         Figure 5: Example token request bound to an asymmetric key.
 
-   Figure 6 shows a request for a token where a previously communicated
-   proof-of-possession key is only referenced.  Note that we assume a
-   DTLS-based communication security profile for this example, therefore
-   the Content-Type is "application/cbor".  Also note that the client
-   performs a password based authentication in this example by
-   submitting its client_secret (see section 2.3.1. of [RFC6749]).
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1121,6 +1121,13 @@ Seitz, et al.           Expires February 25, 2018              [Page 20]
 
 Internet-Draft                     ACE                       August 2017
 
+
+   Figure 6 shows a request for a token where a previously communicated
+   proof-of-possession key is only referenced.  Note that we assume a
+   DTLS-based communication security profile for this example, therefore
+   the Content-Type is "application/cbor".  Also note that the client
+   performs a password based authentication in this example by
+   submitting its client_secret (see section 2.3.1. of [RFC6749]).
 
    Header: POST (Code=0.02)
    Uri-Host: "server.example.com"
@@ -1162,14 +1169,7 @@ Internet-Draft                     ACE                       August 2017
    parameters are also part of a successful response:
 
    profile
-      REQUIRED.  This indicates the profile that the client MUST use
-      towards the RS.  See Section 5.6.4.4 for the formatting of this
-      parameter.
 
-   cnf
-      REQUIRED if the token type is "pop".  OPTIONAL otherwise.  If a
-      symmetric proof-of-possession algorithms was selected, this field
-      contains the proof-of-possession key.  If an asymmetric algorithm
 
 
 
@@ -1178,6 +1178,14 @@ Seitz, et al.           Expires February 25, 2018              [Page 21]
 Internet-Draft                     ACE                       August 2017
 
 
+      REQUIRED.  This indicates the profile that the client MUST use
+      towards the RS.  See Section 5.6.4.4 for the formatting of this
+      parameter.
+
+   cnf
+      REQUIRED if the token type is "pop".  OPTIONAL otherwise.  If a
+      symmetric proof-of-possession algorithms was selected, this field
+      contains the proof-of-possession key.  If an asymmetric algorithm
       was selected, this field contains information about the public key
       used by the RS to authenticate.  See Section 5.6.4.5 for details
       on the use of this parameter.
@@ -1217,14 +1225,6 @@ Internet-Draft                     ACE                       August 2017
    with a symmetric proof-of-possession key.  Note that we assume a
    DTLS-based communication security profile for this example, therefore
    the Content-Type is "application/cbor".
-
-
-
-
-
-
-
-
 
 
 
@@ -2941,10 +2941,10 @@ Appendix C.  Requirements on Profiles
       symmetric/asymmetric) are supported by a specific proof-of-
       possession protocol.  Section 5.6.4.3
    o  Specify a unique profile identifier.  Section 5.6.4.4
-   o  Optionally specify how the RS talks to the AS for
-      introspection.Section 5.7
-   o  Optionally specify how the client talks to the AS for requesting a
-      token.  Section 5.6
+   o  If introspection is supported: Specify the communication and
+      security protocol for introspection.Section 5.7
+   o  Specify the communication and security protocol for interactions
+      between client and AS.  Section 5.6
    o  Specify how/if the /authz-info endpoint is protected.
       Section 5.8.1
    o  Optionally define other methods of token transport than the
