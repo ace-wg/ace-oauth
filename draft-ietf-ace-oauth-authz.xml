@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="us-ascii"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- This template is for creating an Internet Draft using xml2rfc,
      which is available here: http://xml.resource.org. -->
 <!DOCTYPE rfc SYSTEM "rfc2629.dtd" [
@@ -38,6 +38,8 @@
  <!ENTITY I-D.jones-ace-cwt-proof-of-possession SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jones-ace-cwt-proof-of-possession.xml">	
 <!ENTITY RFC7959 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7959.xml">
 <!ENTITY RFC8152 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8152.xml">
+<!ENTITY I-D.ietf-core-resource-directory SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-resource-directory.xml">
+<!ENTITY RFC3986 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3986.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -498,8 +500,8 @@ supported in the future, such as HTTP/2, MQTT and QUIC.</t>
     into account.</t>
 
     <t>While HTTP uses headers and query-strings to convey additional
-    information about a request, CoAP encodes such information in so-called
-    "options".</t>
+    information about a request, CoAP encodes such information into header
+    parameters called 'options'.</t>
 
     <t>CoAP supports application-layer fragmentation of the CoAP payloads
     through blockwise transfers <xref target="RFC7959"/>.  However,
@@ -581,15 +583,13 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
     At the start of the protocol there is an optional discovery step where the
     client discovers the resource server and the resources this server hosts.
     In this step the client might also determine what permissions are needed to
-    access the protected resource.  The detailed procedures for this discovery process
-    may be defined in an
-    ACE profile and depend on the
-    protocols being used and the specific deployment environment.</t>
-<t> In Bluetooth
-    Low Energy, for example, advertisements are broadcasted by a peripheral,
-    including information about the primary services.  In CoAP, as a second
-    example, a client can make a request to "/.well-known/core" to obtain
-    information about available resources, which are returned in a
+    access the protected resource.  A generic procedure is described in <xref
+    target="asDiscovery"/>, profiles MAY define other prodecures for discovery.</t>
+    
+    <t>In Bluetooth Low Energy, for example, advertisements are broadcasted by
+    a peripheral, including information about the primary services.  In CoAP,
+    as a second example, a client can make a request to "/.well-known/core" to
+    obtain information about available resources, which are returned in a
     standardized format as described in <xref target="RFC6690"/>.
 </t>
 
@@ -778,6 +778,120 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   "application/cbor".  Depending on the profile, the content MAY arrive in a
   different format wrapping a CBOR payload.</t>
 
+<section anchor="asDiscovery" title="Discovering Authorization Servers">
+  <t>In order to determine the AS in charge of a resource hosted at the RS, C
+  MAY send an initial Unauthorized Resource Request message to RS.  RS then
+  denies the request and sends the address of its AS back to C.</t>
+
+  <t>Instead of the initial Unauthorized Resource Request message, C MAY
+   look up the desired resource in a resource directory (cf.
+  <xref target="I-D.ietf-core-resource-directory"/>).</t>
+
+  <section anchor="rreq" title="Unauthorized Resource Request Message">
+    <t>The optional Unauthorized Resource Request message is a request for a
+    resource hosted by RS for which no proper authorization is granted. RS MUST
+    treat any CoAP request for a protected resource as Unauthorized Resource
+    Request message when any of the following holds:
+  
+      <list style="symbols">
+	<t>The request has been received on an unprotected channel.</t>
+	<t>RS has no valid access token for the sender of the request
+	regarding the requested action on that resource.</t>
+	<t>RS has a valid access token for the sender of the request, but
+	this does not allow the requested action on the requested
+	resource.</t>
+      </list>
+    </t>
+    
+    <t>Note: These conditions ensure that RS can handle requests autonomously
+    once access was granted and a secure channel has been established between C
+    and RS. The /authz-info resource MUST NOT be protected as specified above,
+    in order to allow clients to upload access tokens to RS (cf.
+    <xref target="tokenAuthInfoEndpoint"/>).</t>
+
+    <t>Unauthorized Resource Request messages MUST be denied with a client
+    error response. In this response, the Resource Server SHOULD provide proper
+    AS Information to enable the Client to request an access token from
+    RS's Authorization Server as described in <xref
+    target="asInfo"/>.</t>
+
+    <t>The response code MUST be 4.01 (Unauthorized) in case the sender of the
+    Unauthorized Resource Request message is not authenticated, or if RS has no
+    valid access token for C. If RS has an access token for C but not for the
+    resource that C has requested, RS MUST reject the request with a 4.03
+    (Forbidden). If RS has an access token for C but it does not cover the
+    action C requested on the resource, RS MUST reject the request with a 4.05
+    (Method Not Allowed).</t>
+
+    <t>Note: The use of the response codes 4.03 and 4.05 is intended to prevent
+    infinite loops where a dumb Client optimistically tries to access a
+    requested resource with any access token received from AS. As malicious
+    clients could pretend to be C to determine C's privileges, these detailed
+    response codes must be used only when a certain level of security is
+    already available which can be achieved only when the Client is
+    authenticated.</t>
+  </section><!-- Unauthorized Request -->
+
+  <section anchor="asInfo" title="AS Information">
+    <t>The AS Information is sent by RS as a response to an
+    Unauthorized Resource Request message (see <xref target="rreq"/>) to point
+    the sender of the Unauthorized Resource Request message to RS’s AS. The AS
+    information is a set of attributes containing an absolute URI (see
+    Section 4.3 of <xref target="RFC3986"/>) that specifies the AS in charge of
+    RS.</t>
+
+    <t>The message MAY also contain a nonce generated by RS to ensure freshness
+    in case that the RS and AS do not have synchronized clocks.</t>
+
+    <t><xref target="fig:as-info-payload"/> shows an example for an AS
+    Information message payload using CBOR <xref target="RFC7049"/> diagnostic
+    notation.</t>
+
+    <figure title="AS Information payload example"
+	    anchor="fig:as-info-payload"><artwork><![CDATA[
+    4.01 Unauthorized
+    Content-Format: application/ace+cbor
+    {AS: "coaps://as.example.com/token",
+     nonce: h'e0a156bb3f'}
+]]></artwork></figure>
+
+    <t>In this example, the attribute AS points the receiver of this message
+    to the URI “coaps://as.example.com/token” to request access permissions.
+    The originator of the AS Information payload (i.e., RS) uses a local clock
+    that is loosely synchronized with a time scale common between RS and AS
+    (e.g., wall clock time). Therefore, it has included a parameter <spanx
+    style="verb">nonce</spanx> for replay attack prevention.</t>
+
+    <t><list style="hanging">
+      <t hangText='Note: There is an ongoing discussion how freshness of
+		   access tokens'>
+	can be achieved in constrained environments. This specification for
+	now assumes that RS and AS do not have a common understanding of time
+	that allows RS to achieve its security objectives without explicitly
+	adding a nonce.</t>
+    </list></t>
+
+    <t>The examples in this document are written in CBOR diagnostic notation
+    to improve readability. <xref target="fig:as-info-cbor"/> illustrates the
+    binary encoding of the message payload shown in
+    <xref target="fig:as-info-payload"/>.</t>
+
+    <figure title="AS Information example encoded in CBOR"
+	    anchor="fig:as-info-cbor"><artwork><![CDATA[
+a2                                   # map(2)
+    00                               # unsigned(0) (=AS)
+    78 1c                            # text(28)
+       636f6170733a2f2f61732e657861
+       6d706c652e636f6d2f746f6b656e  # "coaps://as.example.com/token"
+    05                               # unsigned(5) (=nonce)
+    45                               # bytes(5)
+       e0a156bb3f
+]]></artwork></figure>
+  </section><!--AS information-->
+
+</section><!-- AS discovery -->
+
+  
 <section anchor="authorizationGrants" title="Authorization Grants">
   <t>To request an access token, the client obtains authorization from the
   resource owner or uses its client credentials as grant.  The authorization
@@ -1189,7 +1303,8 @@ Payload:
 
       <t>Profiles of this framework MUST define the communication
       protocol and the communication security protocol between the client
-      and the RS.  Furthermore profiles MUST define proof-of-possession
+      and the RS.  The security protocol MUST provide encryption, integrity and
+      replay protection.  Furthermore profiles MUST define proof-of-possession
       methods, if they support proof-of-possession tokens.</t>
 
       <t>A profile MUST specify an identifier that is used to uniquely
@@ -1651,6 +1766,7 @@ C:  +--------------->|                |
   <!-- FIXME: rephrase above for clarity -->
 </section>
 </section><!-- access token -->
+
 </section> <!--Framework-->
 
 <section anchor="security" title="Security Considerations">
@@ -1712,6 +1828,27 @@ C:  +--------------->|                |
       SHOULD NOT be targeted at an audience that contains more than one RS,
       since otherwise any RS in the audience that receives that access token
       can impersonate the client towards the other members of the audience.</t>
+
+      <section anchor="unprotected-as-information"
+	       title="Unprotected AS Information">
+
+	<t>Initially, no secure channel exists to protect the communication
+	between C and RS. Thus, C cannot determine if the AS information
+	contained in an unprotected response from RS to an unauthorized
+	request (c.f. <xref target="asInfo"/>) is authentic. It is therefore
+	advisable to provide C with a (possibly hard-coded) list of trustworthy
+	authorization servers. AS information responses referring to a URI not
+	listed there would be ignored.</t>
+      </section>
+      
+      <section anchor="nonce" title="Use of Nonces for Replay Protection">
+	<t>RS may add a nonce to the AS Information message sent as a response
+	to an unauthorized request to ensure freshness of an Access Token
+	subsequently presented to RS. While a timestamp of some granularity
+	would be sufficient to protect against replay attacks, using
+	randomized nonce is preferred to prevent disclosure of information
+	about RS’s internal clock characteristics.</t>
+      </section>
 </section>
 
 <section anchor="privacy" title="Privacy Considerations">
@@ -1739,6 +1876,15 @@ C:  +--------------->|                |
       towards different RS.  A set of colluding RS or an attacker able to
       obtain the access tokens will be able to link the requests, or even
       to determine the client's identity.</t>
+
+      <t>An unprotected response to an unauthorized request (c.f.
+      <xref target="asInfo"/>) may disclose information about RS and/or its
+      existing relationship with C. It is advisable to include as little
+      information as possible in an unencrypted response. Means of encrypting
+      communication between C and RS already exist, more detailed information
+      may be included with an error response to provide C with sufficient
+      information to react on that particular error.</t>
+     
 </section>
 
 <section anchor="iana" title="IANA Considerations">
@@ -2374,7 +2520,7 @@ C:  +--------------->|                |
         </t>
       </section>
     </section>
-    
+
     <section anchor="Acknowledgments" title="Acknowledgments">
         <t>We would like to thank Eve Maler for her contributions to the use of
         OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion
@@ -2382,9 +2528,13 @@ C:  +--------------->|                |
 	proposal. Finally, we would like to thank the ACE working group in
 	general for their feedback.</t>
 
-	<t>We would like to thank the authors of
+	<t>We would also like to thank the authors of
 	draft-ietf-oauth-pop-key-distribution, from where we copied large
 	parts of our security considerations.</t>
+
+	<t>Furthermore we thank Stefanie Gerdes, Olaf Bergmann, and Carsten
+	Bormann for contributing their work on AS discovery from
+	draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>).</t>
 
 	<t>Ludwig Seitz and Goeran Selander worked on this document as part of
 	the CelticPlus project CyberWI, with funding from Vinnova.</t>
@@ -2424,6 +2574,8 @@ C:  +--------------->|                |
       &RFC7252;
 
       &RFC7800;
+
+      &RFC3986;
 
     </references>
 
@@ -2473,6 +2625,7 @@ C:  +--------------->|                |
 
       &I-D.ietf-oauth-native-apps;
 
+      &I-D.ietf-core-resource-directory;
 
     </references>
 
@@ -2695,20 +2848,21 @@ C:  +--------------->|                |
   for the convenience of a profile designer.
 
   <list style="symbols">
-    <t>Optionally Specify the discovery process of how the client finds the
-    right AS for an RS it wants to send a request to. <xref target="specs"/></t>
-
     <t>Specify the communication protocol the client and RS the must use
-    (e.g. CoAP). <xref target="oauthProfile"/> and <xref target="paramProfile"/></t>
+    (e.g. CoAP). <xref target="oauthProfile"/> and <xref
+    target="paramProfile"/></t>
 
     <t>Specify the security protocol the client and RS must use to protect
     their communication (e.g. OSCOAP or DTLS over CoAP).  This must provide
-    encryption and integrity protection. <xref target="paramProfile"/></t>
+    encryption, integrity and replay protection. <xref
+    target="paramProfile"/></t>
 
-    <t>Specify how the client and the RS mutually authenticate. <xref target="specs"/></t>
+    <t>Specify how the client and the RS mutually authenticate. <xref
+    target="specs"/></t>
 
     <t>Specify the Content-format of the protocol messages
-    (e.g. "application/cbor" or "application/cose+cbor"). <xref target="specs"/></t>
+    (e.g. "application/cbor" or "application/cose+cbor"). <xref
+    target="specs"/></t>
 
     <t>Specify the proof-of-possession protocol(s) and how to select one,
     if several are available.  Also specify which key types
