@@ -972,7 +972,7 @@ a2                                   # map(2)
   access token requests.  This framework extends the functionality of the
   /token endpoint, giving the AS the possibility to help client and RS to
   establish shared keys or to exchange their public keys.  Furthermore
-  this framework defines encodings using CoAP and CBOR, in addition to
+  this framework defines encodings using CoAP and CBOR, as a substitute for
   HTTP and JSON.</t>
 
   <t>For the AS to be able to issue a token the client MUST be authenticated and
@@ -1760,7 +1760,7 @@ C:  +--------------->|                |
     RS.</t>
 
   <t><list style="symbols">
-    <t>The token is a CWT/JWT and includes a "exp" claim and possibly the
+    <t>The token is a CWT and includes a "exp" claim and possibly the
     "nbf" claim.  The RS verifies these by comparing them to values from
     its internal clock as defined in <xref target="RFC7519"/>.  In this
     case the RS's internal clock must reflect the current date and time, or
@@ -1914,7 +1914,7 @@ C:  +--------------->|                |
 
       <t>If access tokens are only integrity protected and not encrypted, they
       may reveal information to attackers listening on the wire, or able to
-      acquire the access tokens in some other way.  In the case of CWTs or JWTs
+      acquire the access tokens in some other way.  In the case of CWTs
       the token may e.g. reveal the audience, the scope and the confirmation
       method used by the client.  The latter may reveal the client's
       identity.</t>
@@ -2078,7 +2078,7 @@ C:  +--------------->|                |
         </section>
       </section>
 
-      <section anchor="IANAJWTClaims" title="CBOR Web Token Claims">
+      <section anchor="IANACWTClaims" title="CBOR Web Token Claims">
 	<t>This specification registers the following new claims in the CBOR
 	Web Token (CWT) registry:</t>
 	<t>
@@ -3399,6 +3399,26 @@ F:  |<--------+ Header: 2.04 Changed
 
 </section>
 <section anchor="app:changelog" title="Document Updates">
+   <section anchor="app:f9t10" title="Version -08 to -09">
+      <t><list style="symbols">
+        <t>Moved AS discovery from the DTLS profile to the
+	framework, see <xref target="asDiscovery"/>.</t>
+	<t>Made the use of CBOR mandatory. If you use JSON you
+	can use vanilla OAuth.</t>
+	<t>Made it mandatory for profiles to specify C-AS security
+	and RS-AS security (the latter only if introspection is supported).</t>
+	<t>Made the use of CBOR abbreviations mandatory.</t>
+	<t>Added text to clarify the use of token references as an alternative
+	to CWTs.</t>
+	<t>Added text to clarify that introspection must not be delayed, in
+	case the RS has to return a client token.</t>
+	<t>Added security considerations about leakage through unprotected AS
+	discovery information, combining profiles and leakage through error
+	responses.</t>
+	<t>Added privacy considerations about leakage through unprotected
+	AS discovery.</t>
+      </list></t>
+   </section>
    <section anchor="app:f8t9" title="Version -07 to -08">
       <t><list style="symbols">
          <t>Removed specification of the "cnf" claim for CBOR/COSE, and
