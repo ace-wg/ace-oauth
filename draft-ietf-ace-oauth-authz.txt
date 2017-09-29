@@ -5,14 +5,14 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                 RISE SICS
 Intended status: Standards Track                             G. Selander
-Expires: March 17, 2018                                         Ericsson
+Expires: April 2, 2018                                          Ericsson
                                                            E. Wahlstroem
                                                         (no affiliation)
                                                               S. Erdtman
                                                               Spotify AB
                                                            H. Tschofenig
                                                                 ARM Ltd.
-                                                      September 13, 2017
+                                                      September 29, 2017
 
 
   Authentication and Authorization for Constrained Environments (ACE)
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on March 17, 2018.
+   This Internet-Draft will expire on April 2, 2018.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 1]
+Seitz, et al.             Expires April 2, 2018                 [Page 1]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 2]
+Seitz, et al.             Expires April 2, 2018                 [Page 2]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -165,7 +165,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 3]
+Seitz, et al.             Expires April 2, 2018                 [Page 3]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -221,7 +221,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 4]
+Seitz, et al.             Expires April 2, 2018                 [Page 4]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -241,10 +241,10 @@ Internet-Draft                     ACE                    September 2017
    server (RS), and authorization server (AS).
 
    Note that the term "endpoint" is used here following its OAuth
-   definition, which is to denote resources such as /token and
-   /introspect at the AS and /authz-info at the RS.  The CoAP [RFC7252]
-   definition, which is "An entity participating in the CoAP protocol"
-   is not used in this memo.
+   definition, which is to denote resources such as token and introspect
+   at the AS and authz-info at the RS.  The CoAP [RFC7252] definition,
+   which is "An entity participating in the CoAP protocol" is not used
+   in this memo.
 
    Since this specification focuses on the problem of access control to
    resources, we simplify the actors by assuming that the client
@@ -277,7 +277,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 5]
+Seitz, et al.             Expires April 2, 2018                 [Page 5]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -333,7 +333,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 6]
+Seitz, et al.             Expires April 2, 2018                 [Page 6]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -342,14 +342,14 @@ Internet-Draft                     ACE                    September 2017
 
    The token and introspect Endpoints:
 
-      The AS hosts the /token endpoint that allows a client to request
-      access tokens.  The client makes a POST request to the /token
+      The AS hosts the token endpoint that allows a client to request
+      access tokens.  The client makes a POST request to the token
       endpoint on the AS and receives the access token in the response
       (if the request was successful).
 
-      The token introspection endpoint, /introspect, is used by the RS
-      when requesting additional information regarding a received access
-      token.  The RS makes a POST request to /introspect on the AS and
+      The token introspection endpoint is used by the RS when requesting
+      additional information regarding a received access token.  The RS
+      makes a POST request to the introspecton endpoint on the AS and
       receives information about the access token in the response.  (See
       "Introspection" below.)
 
@@ -359,9 +359,8 @@ Internet-Draft                     ACE                    September 2017
       Access tokens are credentials needed to access protected
       resources.  An access token is a data structure representing
       authorization permissions issued by the AS to the client.  Access
-      tokens are generated by the authorization server and consumed by
-      the resource server.  The access token content is opaque to the
-      client.
+      tokens are generated by the AS and consumed by the RS.  The access
+      token content is opaque to the client.
 
       Access tokens can have different formats, and various methods of
       utilization (e.g., cryptographic properties) based on the security
@@ -389,7 +388,8 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 7]
+
+Seitz, et al.             Expires April 2, 2018                 [Page 7]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -445,7 +445,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 8]
+Seitz, et al.             Expires April 2, 2018                 [Page 8]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -501,7 +501,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                 [Page 9]
+Seitz, et al.             Expires April 2, 2018                 [Page 9]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -513,15 +513,14 @@ Internet-Draft                     ACE                    September 2017
 4.  Protocol Interactions
 
    The ACE framework is based on the OAuth 2.0 protocol interactions
-   using the /token and /introspect endpoints.  A client obtains an
-   access token from an AS using the /token endpoint and subsequently
-   presents the access token to a RS to gain access to a protected
-   resource.  The RS, after receiving an access token, may present it to
-   the AS via the /introspect endpoint to get information about the
-   access token.  In other deployments the RS may process the access
-   token locally without the need to contact an AS.  These interactions
-   are shown in Figure 1.  An overview of various OAuth concepts is
-   provided in Section 3.1.
+   using the token and introspect endpoints.  A client obtains an access
+   token from an AS using the token endpoint and subsequently presents
+   the access token to a RS to gain access to a protected resource.  The
+   RS, after receiving an access token, may present it to the AS via the
+   introspect endpoint to get information about the access token.  In
+   other deployments the RS may process the access token locally without
+   the need to contact an AS.  These interactions are shown in Figure 1.
+   An overview of various OAuth concepts is provided in Section 3.1.
 
    The OAuth 2.0 framework defines a number of "protocol flows" via
    grant types, which have been extended further with extensions to
@@ -554,15 +553,15 @@ Internet-Draft                     ACE                    September 2017
    mechanisms between the ACE entities, such as client, AS, and RS.  We
    assume that the client has been registered (also called enrolled or
    onboarded) to an AS using a mechanism defined outside the scope of
+   this document.  In practice, various techniques for onboarding have
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 10]
+Seitz, et al.             Expires April 2, 2018                [Page 10]
 
 Internet-Draft                     ACE                    September 2017
 
 
-   this document.  In practice, various techniques for onboarding have
    been used, such as factory-based provisioning or the use of
    commissioning tools.  Regardless of the onboarding technique, this
    registration procedure implies that the client and the AS share
@@ -613,7 +612,8 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 11]
+
+Seitz, et al.             Expires April 2, 2018                [Page 11]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -640,7 +640,7 @@ Internet-Draft                     ACE                    September 2017
 
    Requesting an Access Token (A):
 
-      The client makes an access token request to the /token endpoint at
+      The client makes an access token request to the token endpoint at
       the AS.  This framework assumes the use of PoP tokens (see
       Section 3.1 for a short description) wherein the AS binds a key to
       an access token.  The client may include permissions it seeks to
@@ -669,7 +669,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 12]
+Seitz, et al.             Expires April 2, 2018                [Page 12]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -697,7 +697,7 @@ Internet-Draft                     ACE                    September 2017
    Token Introspection Request (D):
 
       A resource server may be configured to introspect the access token
-      by including it in a request to the /introspect endpoint at that
+      by including it in a request to the introspection endpoint at that
       AS.  Token introspection over CoAP is defined in Section 5.7 and
       for HTTP in [RFC7662].
 
@@ -725,7 +725,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 13]
+Seitz, et al.             Expires April 2, 2018                [Page 13]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -781,7 +781,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 14]
+Seitz, et al.             Expires April 2, 2018                [Page 14]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -832,12 +832,12 @@ Internet-Draft                     ACE                    September 2017
 
    Note: These conditions ensure that RS can handle requests
    autonomously once access was granted and a secure channel has been
-   established between C and RS.  The /authz-info resource MUST NOT be
+   established between C and RS.  The authz-info endpoint MUST NOT be
 
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 15]
+Seitz, et al.             Expires April 2, 2018                [Page 15]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -848,7 +848,7 @@ Internet-Draft                     ACE                    September 2017
    Unauthorized Resource Request messages MUST be denied with a client
    error response.  In this response, the Resource Server SHOULD provide
    proper AS Information to enable the Client to request an access token
-   from RS's Authorization Server as described in Section 5.1.2.
+   from RS's AS as described in Section 5.1.2.
 
    The response code MUST be 4.01 (Unauthorized) in case the sender of
    the Unauthorized Resource Request message is not authenticated, or if
@@ -893,7 +893,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 16]
+Seitz, et al.             Expires April 2, 2018                [Page 16]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -949,7 +949,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 17]
+Seitz, et al.             Expires April 2, 2018                [Page 17]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1005,7 +1005,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 18]
+Seitz, et al.             Expires April 2, 2018                [Page 18]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1019,9 +1019,9 @@ Internet-Draft                     ACE                    September 2017
 
 5.6.  The 'Token' Endpoint
 
-   In plain OAuth 2.0 the AS provides the /token endpoint for submitting
+   In plain OAuth 2.0 the AS provides the token endpoint for submitting
    access token requests.  This framework extends the functionality of
-   the /token endpoint, giving the AS the possibility to help client and
+   the token endpoint, giving the AS the possibility to help client and
    RS to establish shared keys or to exchange their public keys.
    Furthermore this framework defines encodings using CoAP and CBOR, as
    a substitute for HTTP and JSON.
@@ -1045,7 +1045,7 @@ Internet-Draft                     ACE                    September 2017
    encoded as a CBOR map.
 
    In addition to these parameters, this framework defines the following
-   parameters for requesting an access token from a /token endpoint:
+   parameters for requesting an access token from a token endpoint:
 
    aud
       OPTIONAL.  Specifies the audience for which the client is
@@ -1061,7 +1061,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 19]
+Seitz, et al.             Expires April 2, 2018                [Page 19]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1117,7 +1117,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 20]
+Seitz, et al.             Expires April 2, 2018                [Page 20]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1173,7 +1173,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 21]
+Seitz, et al.             Expires April 2, 2018                [Page 21]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1229,7 +1229,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 22]
+Seitz, et al.             Expires April 2, 2018                [Page 22]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1285,7 +1285,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 23]
+Seitz, et al.             Expires April 2, 2018                [Page 23]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1341,7 +1341,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 24]
+Seitz, et al.             Expires April 2, 2018                [Page 24]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1397,7 +1397,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 25]
+Seitz, et al.             Expires April 2, 2018                [Page 25]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1453,7 +1453,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 26]
+Seitz, et al.             Expires April 2, 2018                [Page 26]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1509,7 +1509,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 27]
+Seitz, et al.             Expires April 2, 2018                [Page 27]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1565,7 +1565,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 28]
+Seitz, et al.             Expires April 2, 2018                [Page 28]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1621,7 +1621,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 29]
+Seitz, et al.             Expires April 2, 2018                [Page 29]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1677,7 +1677,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 30]
+Seitz, et al.             Expires April 2, 2018                [Page 30]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1733,7 +1733,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 31]
+Seitz, et al.             Expires April 2, 2018                [Page 31]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1789,7 +1789,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 32]
+Seitz, et al.             Expires April 2, 2018                [Page 32]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1845,7 +1845,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 33]
+Seitz, et al.             Expires April 2, 2018                [Page 33]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -1871,9 +1871,9 @@ Internet-Draft                     ACE                    September 2017
    the RS using CoAP.  Profiles of this framework MAY define other
    methods for token transport.
 
-   The method consists of an /authz-info endpoint, implemented by the
-   RS.  A client using this method MUST make a POST request to /authz-
-   info at the RS with the access token in the payload.  The RS
+   The method consists of an authz-info endpoint, implemented by the RS.
+   A client using this method MUST make a POST request to the authz-info
+   endpoint at the RS with the access token in the payload.  The RS
    receiving the token MUST verify the validity of the token.  If the
    token is valid, the RS MUST respond to the POST request with 2.01
    (Created).  This response MAY contain the identifier of the token
@@ -1890,21 +1890,24 @@ Internet-Draft                     ACE                    September 2017
    wrong.
 
    The RS MAY make an introspection request to validate the token before
-   responding to the POST /authz-info request.  If the introspection
-   response contains a client token (Section 5.7.4) then this token
-   SHALL be included in the payload of the 2.01 (Created) response.
+   responding to the POST request to the authz-info endpoint.  If the
+   introspection response contains a client token (Section 5.7.4) then
+   this token SHALL be included in the payload of the 2.01 (Created)
+   response.
 
-   Profiles MUST specify how the /authz-info endpoint is protected.
-   Note that since the token contains information that allow the client
-   and the RS to establish a security context in the first place, mutual
-   authentication may not be possible at this point.
-
+   Profiles MUST specify how the authz-info endpoint is protected.  Note
+   that since the token contains information that allow the client and
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 34]
+
+
+Seitz, et al.             Expires April 2, 2018                [Page 34]
 
 Internet-Draft                     ACE                    September 2017
 
+
+   the RS to establish a security context in the first place, mutual
+   authentication may not be possible at this point.
 
    The RS MUST be prepared to store more than one token for each client,
    and MUST apply the combined permissions granted by all applicable,
@@ -1951,16 +1954,16 @@ Internet-Draft                     ACE                    September 2017
    authorization in RESTful environments provided in OAuth 2.0 [RFC6749]
    apply to this work, as well as the security considerations from
    [I-D.ietf-ace-actors].  Furthermore [RFC6819] provides additional
-   security considerations for OAuth which apply to IoT deployments as
-   well.
 
 
 
-
-Seitz, et al.            Expires March 17, 2018                [Page 35]
+Seitz, et al.             Expires April 2, 2018                [Page 35]
 
 Internet-Draft                     ACE                    September 2017
 
+
+   security considerations for OAuth which apply to IoT deployments as
+   well.
 
    A large range of threats can be mitigated by protecting the contents
    of the access token by using a digital signature or a keyed message
@@ -2006,18 +2009,19 @@ Internet-Draft                     ACE                    September 2017
    resource server.  Shorter keys also lead to shorter messages
    (particularly with asymmetric keying material).
 
-   When authorization servers bind symmetric keys to access tokens, they
-   SHOULD scope these access tokens to a specific permissions.
-   Furthermore access tokens using symmetric keys for proof-of-
-   possession SHOULD NOT be targeted at an audience that contains more
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 36]
+
+Seitz, et al.             Expires April 2, 2018                [Page 36]
 
 Internet-Draft                     ACE                    September 2017
 
 
+   When authorization servers bind symmetric keys to access tokens, they
+   SHOULD scope these access tokens to a specific permissions.
+   Furthermore access tokens using symmetric keys for proof-of-
+   possession SHOULD NOT be targeted at an audience that contains more
    than one RS, since otherwise any RS in the audience that receives
    that access token can impersonate the client towards the other
    members of the audience.
@@ -2065,11 +2069,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-
-
-
-
-Seitz, et al.            Expires March 17, 2018                [Page 37]
+Seitz, et al.             Expires April 2, 2018                [Page 37]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2125,7 +2125,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 38]
+Seitz, et al.             Expires April 2, 2018                [Page 38]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2181,7 +2181,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 39]
+Seitz, et al.             Expires April 2, 2018                [Page 39]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2237,7 +2237,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 40]
+Seitz, et al.             Expires April 2, 2018                [Page 40]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2293,7 +2293,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 41]
+Seitz, et al.             Expires April 2, 2018                [Page 41]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2349,7 +2349,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 42]
+Seitz, et al.             Expires April 2, 2018                [Page 42]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2405,7 +2405,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 43]
+Seitz, et al.             Expires April 2, 2018                [Page 43]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2461,7 +2461,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 44]
+Seitz, et al.             Expires April 2, 2018                [Page 44]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2517,7 +2517,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 45]
+Seitz, et al.             Expires April 2, 2018                [Page 45]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2573,7 +2573,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 46]
+Seitz, et al.             Expires April 2, 2018                [Page 46]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2629,7 +2629,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 47]
+Seitz, et al.             Expires April 2, 2018                [Page 47]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2685,7 +2685,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 48]
+Seitz, et al.             Expires April 2, 2018                [Page 48]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2741,7 +2741,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 49]
+Seitz, et al.             Expires April 2, 2018                [Page 49]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2797,7 +2797,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 50]
+Seitz, et al.             Expires April 2, 2018                [Page 50]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2853,7 +2853,7 @@ Appendix A.  Design Justification
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 51]
+Seitz, et al.             Expires April 2, 2018                [Page 51]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2909,7 +2909,7 @@ Appendix B.  Roles and Responsibilities
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 52]
+Seitz, et al.             Expires April 2, 2018                [Page 52]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2936,11 +2936,11 @@ Internet-Draft                     ACE                    September 2017
       *  Register clients and including authentication credentials.
       *  Allow Resource Owners to configure and update access control
          policies related to their registered RS'
-      *  Expose the /token endpoint to allow clients to request tokens.
+      *  Expose the token endpoint to allow clients to request tokens.
       *  Authenticate clients that wish to request a token.
       *  Process a token request against the authorization policies
          configured for the RS.
-      *  Optionally: Expose the /introspection endpoint that allows RS's
+      *  Optionally: Expose the introspection endpoint that allows RS's
          to submit token introspection requests.
       *  If providing an introspection endpoint: Authenticate RS's that
          wish to get an introspection response.
@@ -2965,7 +2965,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 53]
+Seitz, et al.             Expires April 2, 2018                [Page 53]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -2978,7 +2978,7 @@ Internet-Draft                     ACE                    September 2017
          +  Authenticate towards the RS (this could coincide with the
             proof of possession process).
          +  Transmit the token as specified by the AS (default is to the
-            /authz-info endpoint, alternative options are specified by
+            authz-info endpoint, alternative options are specified by
             profiles).
          +  Perform the proof-of-possession procedure as specified by
             the profile in use (this may already have been taken care of
@@ -2991,7 +2991,7 @@ Internet-Draft                     ACE                    September 2017
    Resource Server
 
       *  Expose a way to submit access tokens.  By default this is the
-         /authz-info endpoint.
+         authz-info endpoint.
       *  Process an access token.
 
          +  Verify the token is from the right AS.
@@ -3021,7 +3021,7 @@ Appendix C.  Requirements on Profiles
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 54]
+Seitz, et al.             Expires April 2, 2018                [Page 54]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3045,17 +3045,17 @@ Internet-Draft                     ACE                    September 2017
       security protocol for introspection.Section 5.7
    o  Specify the communication and security protocol for interactions
       between client and AS.  Section 5.6
-   o  Specify how/if the /authz-info endpoint is protected.
+   o  Specify how/if the authz-info endpoint is protected.
       Section 5.8.1
-   o  Optionally define other methods of token transport than the
-      /authz-info endpoint.  Section 5.8.1
+   o  Optionally define other methods of token transport than the authz-
+      info endpoint.  Section 5.8.1
 
 Appendix D.  Assumptions on AS knowledge about C and RS
 
    This section lists the assumptions on what an AS should know about a
    client and a RS in order to be able to respond to requests to the
-   /token and /introspect endpoints.  How this information is
-   established is out of scope for this document.
+   token and introspect endpoints.  How this information is established
+   is out of scope for this document.
 
    o  The identifier of the client or RS.
    o  The profiles that the client or RS supports.
@@ -3077,7 +3077,7 @@ Appendix D.  Assumptions on AS knowledge about C and RS
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 55]
+Seitz, et al.             Expires April 2, 2018                [Page 55]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3115,29 +3115,30 @@ E.1.  Local Token Validation
 
       A: The client first generates a public-private key pair used for
       communication security with the RS.
-      The client sends the POST request to /token at the AS.  The
-      security of this request can be transport or application layer, it
-      is up the the communication security profile to define.  In the
-      example transport layer identification of the AS is done and the
-      client identifies with client_id and client_secret as in classic
-      OAuth.  The request contains the public key of the client and the
-      Audience parameter set to "tempSensorInLivingRoom", a value that
-      the temperature sensor identifies itself with.  The AS evaluates
-      the request and authorizes the client to access the resource.
+      The client sends the POST request to the token endpoint at the AS.
+      The security of this request can be transport or application
+      layer, it is up the the communication security profile to define.
+      In the example transport layer identification of the AS is done
+      and the client identifies with client_id and client_secret as in
+      classic OAuth.  The request contains the public key of the client
+      and the Audience parameter set to "tempSensorInLivingRoom", a
+      value that the temperature sensor identifies itself with.  The AS
+      evaluates the request and authorizes the client to access the
+      resource.
       B: The AS responds with a PoP token and RS Information.  The PoP
       token contains the public key of the client, and the RS
       Information contains the public key of the RS.  For communication
       security this example uses DTLS RawPublicKey between the client
       and the RS.  The issued token will have a short validity time,
-      i.e. "exp" close to "iat", to protect the RS from replay attacks.
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 56]
+Seitz, et al.             Expires April 2, 2018                [Page 56]
 
 Internet-Draft                     ACE                    September 2017
 
 
+      i.e. "exp" close to "iat", to protect the RS from replay attacks.
       The token includes the claim such as "scope" with the authorized
       access that an owner of the temperature device can enjoy.  In this
       example, the "scope" claim, issued by the AS, informs the RS that
@@ -3188,8 +3189,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-
-Seitz, et al.            Expires March 17, 2018                [Page 57]
+Seitz, et al.             Expires April 2, 2018                [Page 57]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3245,12 +3245,12 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 58]
+Seitz, et al.             Expires April 2, 2018                [Page 58]
 
 Internet-Draft                     ACE                    September 2017
 
 
-      C: The client then sends the PoP token to the /authz-info endpoint
+      C: The client then sends the PoP token to the authz-info endpoint
       at the RS.  This is a plain CoAP request, i.e. no transport or
       application layer security between client and RS, since the token
       is integrity protected between AS and RS.  The RS verifies that
@@ -3301,7 +3301,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 59]
+Seitz, et al.             Expires April 2, 2018                [Page 59]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3342,22 +3342,22 @@ E.2.  Introspection Aided Token Validation
    start with and new values different form the original once can be
    returned from introspection later on.
 
-      A: The client sends the request using POST to /token at AS.  The
-      request contains the Audience parameter set to "PACS1337" (PACS,
-      Physical Access System), a value the that the online door in
-      question identifies itself with.  The AS generates an access token
-      as on opaque string, which it can match to the specific client, a
-      targeted audience and a symmetric key.  The security is provided
-      by identifying the AS on transport layer using a pre shared
-      security context (psk, rpk or certificate) and then the client is
-      identified using client_id and client_secret as in classic OAuth
+      A: The client sends the request using POST to the token endpoint
+      at AS.  The request contains the Audience parameter set to
+      "PACS1337" (PACS, Physical Access System), a value the that the
+      online door in question identifies itself with.  The AS generates
+      an access token as on opaque string, which it can match to the
+      specific client, a targeted audience and a symmetric key.  The
+      security is provided by identifying the AS on transport layer
+      using a pre shared security context (psk, rpk or certificate) and
+      then the client is identified using client_id and client_secret as
+      in classic OAuth
       B: The AS responds with the an access token and RS Information,
       the latter containing a symmetric key.  Communication security
 
 
 
-
-Seitz, et al.            Expires March 17, 2018                [Page 60]
+Seitz, et al.             Expires April 2, 2018                [Page 60]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3413,7 +3413,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 61]
+Seitz, et al.             Expires April 2, 2018                [Page 61]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3421,17 +3421,17 @@ Internet-Draft                     ACE                    September 2017
    The access token in this case is just an opaque string referencing
    the authorization information at the AS.
 
-      C: Next, the client POSTs the access token to the /authz-info
+      C: Next, the client POSTs the access token to the authz-info
       endpoint in the RS.  This is a plain CoAP request, i.e. no DTLS
       between client and RS.  Since the token is an opaque string, the
       RS cannot verify it on its own, and thus defers to respond the
       client with a status code until after step E.
-      D: The RS forwards the token to the /introspect endpoint on the
-      AS.  Introspection assumes a secure connection between the AS and
-      the RS, e.g. using transport of application layer security.  In
-      the example AS is identified using pre shared security context
-      (psk, rpk or certificate) while RS is acting as client and is
-      identified with client_id and client_secret.
+      D: The RS forwards the token to the introspect endpoint on the AS.
+      Introspection assumes a secure connection between the AS and the
+      RS, e.g. using transport of application layer security.  In the
+      example AS is identified using pre shared security context (psk,
+      rpk or certificate) while RS is acting as client and is identified
+      with client_id and client_secret.
       E: The AS provides the introspection response containing
       parameters about the token.  This includes the confirmation key
       (cnf) parameter that allows the RS to verify the client's proof of
@@ -3469,7 +3469,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 62]
+Seitz, et al.             Expires April 2, 2018                [Page 62]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3525,7 +3525,7 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 63]
+Seitz, et al.             Expires April 2, 2018                [Page 63]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3581,7 +3581,7 @@ F.5.  Version -04 to -05
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 64]
+Seitz, et al.             Expires April 2, 2018                [Page 64]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3637,7 +3637,7 @@ F.8.  Version -01 to -02
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 65]
+Seitz, et al.             Expires April 2, 2018                [Page 65]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3693,7 +3693,7 @@ Authors' Addresses
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 66]
+Seitz, et al.             Expires April 2, 2018                [Page 66]
 
 Internet-Draft                     ACE                    September 2017
 
@@ -3749,4 +3749,4 @@ Internet-Draft                     ACE                    September 2017
 
 
 
-Seitz, et al.            Expires March 17, 2018                [Page 67]
+Seitz, et al.             Expires April 2, 2018                [Page 67]
