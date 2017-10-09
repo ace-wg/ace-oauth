@@ -36,6 +36,7 @@
 <!ENTITY I-D.ietf-core-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-object-security.xml">
 <!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cbor-web-token.xml">
  <!ENTITY I-D.jones-ace-cwt-proof-of-possession SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.jones-ace-cwt-proof-of-possession.xml">
+ <!ENTITY I-D.erdtman-ace-rpcc SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.erdtman-ace-rpcc.xml">
 <!ENTITY RFC7959 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7959.xml">
 <!ENTITY RFC8152 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8152.xml">
 <!ENTITY I-D.ietf-core-resource-directory SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-resource-directory.xml">
@@ -238,7 +239,7 @@
    Some devices, such as mobile phones and tablets, may implement multiple
    profiles and will therefore be able to interact with a wider range of low end devices.
    Requirements on profiles are described at contextually appropriate places
-   throughout this memo, and also summarized in
+   throughout this specification, and also summarized in
    <xref target="app:profileRequirements"/>.
    </t>
 
@@ -260,8 +261,8 @@ authentication code", and "verify" are taken from <xref
 target="RFC4949"/>.
   </t>
 
-  <t>Since we describe exchanges as RESTful protocol interactions, HTTP
-<xref target="RFC7231"/> offers useful terminology.
+  <t>Since exchanges in this specification are described as RESTful protocol
+    interactions, HTTP <xref target="RFC7231"/> offers useful terminology.
   </t>
 
   <t>Terminology for entities in the architecture is defined in OAuth
@@ -272,17 +273,18 @@ such as client (C), resource server (RS), and authorization server
 <t>Note that the term "endpoint" is used here following its OAuth
 definition, which is to denote resources such as token and
 introspect at the AS and authz-info at the RS.  The CoAP <xref
-target="RFC7252"/> definition, which is "An entity participating in the CoAP protocol" is not used in this memo.</t>
+target="RFC7252"/> definition, which is "An entity participating in the
+CoAP protocol" is not used in this specification.</t>
 
 <t>
 Since this specification focuses on the problem of access control to resources,
-we simplify the actors by assuming that the client authorization server (CAS)
+the actors has been simplified by assuming that the client authorization server (CAS)
 functionality is not stand-alone but subsumed by either the authorization
 server or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 </t>
 
-<t>We call the specifications of this memo the "framework" or "ACE framework".
-When referring to "profiles of this framework" we mean additional specifications that
+<t>The specifications in this document is called the "framework" or "ACE framework".
+When referring to "profiles of this framework" it refers to additional specifications that
 define the use of this specification with concrete transport, and communication
 security protocols (e.g., CoAP over DTLS).
 </t>
@@ -307,8 +309,8 @@ security protocols (e.g., CoAP over DTLS).
   <xref target="RFC7252"/>, for those communication environments where HTTP is
   not appropriate.  CoAP typically runs on top of UDP, which further reduces
   overhead and message exchanges. While this specification defines extensions
-for the use of OAuth over CoAP, we do envision further underlying protocols to be
-supported in the future, such as HTTP/2, MQTT and QUIC.</t>
+  for the use of OAuth over CoAP, other underlying protocols are not prohibited
+  from beeing supported in the future, such as HTTP/2, MQTT, BLE and QUIC.</t>
 
   <t>A third building block is CBOR <xref target="RFC7049"/>, for encodings
   where JSON <xref target="RFC7159"/> is not sufficiently compact.  CBOR is a
@@ -337,17 +339,14 @@ supported in the future, such as HTTP/2, MQTT and QUIC.</t>
   <t>Luckily, not every IoT device suffers from all constraints.  The ACE
   framework nevertheless takes all these aspects into account and allows
   several different deployment variants to co-exist, rather than mandating a
-  one-size-fits-all solution.  We believe this is important to cover the wide
+  one-size-fits-all solution.  It is important to cover the wide
   range of possible interworking use cases and the different requirements from
   a security point of view.  Once IoT deployments mature, popular deployment
   variants will be documented in the form of ACE profiles.</t>
 
-  <t>In the subsections below we provide further details about the different
-  building blocks.</t>
-
   <section anchor="oauth2Overview" title="OAuth 2.0">
     <t>The OAuth 2.0 authorization framework enables a client to obtain
-    limited access to a resource with the permission of a resource
+    scoped access to a resource with the permission of a resource
     owner.  Authorization information, or references to it, is passed between the nodes
     using access tokens.  These access tokens are issued to clients by an
     authorization server with the approval of the resource owner.  The client
@@ -563,7 +562,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 <t>
   This framework supports a wide variety of communication security mechanisms
   between the ACE entities, such as client,
-  AS, and RS. We assume that the client has been
+  AS, and RS. It is assumed that the client has been
   registered (also called enrolled or onboarded) to an AS using a mechanism defined outside the scope of this document.
   In practice, various techniques for onboarding have been used, such as factory-based provisioning or the use of
   commissioning tools. Regardless of the onboarding technique, this provisioning procedure implies that the client and the AS exchange credentials and
@@ -715,7 +714,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   <t>
     <list style="hanging">
       <t hangText="Credential Provisioning"><vspace blankLines="1"/>
-        For IoT, we cannot generally assume that the client and RS are part of a
+        For IoT, it cannot be assumed that the client and RS are part of a
 	common key infrastructure, so the AS provisions credentials or
 	associated information to allow mutual authentication. These
 	credentials need to be provided to the parties before or during the
@@ -939,9 +938,9 @@ a2                                   # map(2)
   is out of scope for this specification.</t>
 
   <t>The OAuth framework <xref target="RFC6749"/> defines one client
-  credential type, client id and client secret. Profiles of this framework MAY
-  extend with additional client credentials such as DTLS pre-shared keys or
-  client certificates.</t>
+  credential type, client id and client secret. <xref target="I-D.erdtman-ace-rpcc"/>
+  adds raw-public-key and pre-shared-key to the client credentials types.  Profiles of
+  this framework MAY extend with additional client credentials client certificates.</t>
 </section> <!--Client Credentials-->
 
 <section anchor="ASAuthentication" title="AS Authentication">
@@ -1023,7 +1022,7 @@ a2                                   # map(2)
 
     <t><xref target="fig:symmATreq"/> shows a request for a token
     with a symmetric proof-of-possession key.  Note that in this example
-    we assume a DTLS-based communication security profile, therefore
+    it is assumed that transport layer communication security is used, therefore
     the Content-Type is "application/cbor".  The content is displayed in
     CBOR diagnostic notation, without abbreviations for better readability.
 
@@ -1038,14 +1037,15 @@ Content-Type: "application/cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
-  "aud" : "tempSensor4711",
+  "client_id" : "myclient",
+  "aud" : "tempSensor4711"
  }
         ]]></artwork>
     </figure></t>
 
     <t><xref target="fig:asymmATreq"/> shows a request for a token with an
-    asymmetric proof-of-possession key.  Note that in this example we assume
-    an object security-based profile, therefore the Content-Type is
+    asymmetric proof-of-possession key.  Note that in this example COSE is used
+    to provide object-security, therefore the Content-Type is
     "application/cose".
 
     <figure align="center" anchor="fig:asymmATreq"
@@ -1068,6 +1068,7 @@ Payload:
 Decrypted payload:
 {
   "grant_type" : "client_credentials",
+  "client_id" : "myclient",
   "cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
@@ -1083,8 +1084,8 @@ Decrypted payload:
 
     <t><xref target="fig:kidATreq"/> shows a request for a token
     where a previously communicated proof-of-possession key is only
-    referenced.  Note that we assume a DTLS-based communication security
-    profile for this example, therefore the Content-Type is
+    referenced.  Note that a transport layer based communication security
+    profile is assumed in this example, therefore the Content-Type is
     "application/cbor".  Also note that the client performs a password
     based authentication in this example by submitting its client_secret
     (see section 2.3.1. of <xref target="RFC6749"/>).
@@ -1183,6 +1184,9 @@ Payload:
         | refresh_token     |  RFC 6749                |
         | scope             |  RFC 6749                |
         | state             |  RFC 6749                |
+        | error             |  RFC 6749                |
+        | error_description |  RFC 6749                |
+        | error_uri         |  RFC 6749                |
         | profile           | [[ this specification ]] |
         | cnf               | [[ this specification ]] |
         | rs_cnf            | [[ this specification ]] |
@@ -1193,7 +1197,7 @@ Payload:
 
     <t><xref target="fig:symmATres"/> shows a response containing a token
     and a "cnf" parameter with a symmetric proof-of-possession key.  Note that
-    we assume a DTLS-based communication security profile for this example,
+    transport layer security is assumed in this example,
     therefore the Content-Type is "application/cbor".
 
     <figure align="center" anchor="fig:symmATres"
@@ -1384,31 +1388,31 @@ Payload:
       <figure align="center" anchor="fig:cborTokenParameters"
               title="CBOR mappings used in token requests">
         <artwork align="left"><![CDATA[
-        /-------------------+----------+-----------------\
-        | Parameter name    | CBOR Key | Major Type      |
-        |-------------------+----------+-----------------|
-        | aud               | 3        | 3               |
-        | client_id         | 8        | 3 (text string) |
-        | client_secret     | 9        | 2 (byte string) |
-        | response_type     | 10       | 3               |
-        | redirect_uri      | 11       | 3               |
-        | scope             | 12       | 3               |
-        | state             | 13       | 3               |
-        | code              | 14       | 2               |
-        | error             | 15       | 3               |
-        | error_description | 16       | 3               |
-        | error_uri         | 17       | 3               |
-        | grant_type        | 18       | 0               |
-        | access_token      | 19       | 3               |
-        | token_type        | 20       | 0               |
-        | expires_in        | 21       | 0               |
-        | username          | 22       | 3               |
-        | password          | 23       | 3               |
-        | refresh_token     | 24       | 3               |
-        | cnf               | 25       | 5 (map)         |
-        | profile           | 26       | 3               |
-        | rs_cnf            | 31       | 5               |
-        \-------------------+----------+-----------------/
+        /-------------------+----------+------------------\
+        | Parameter name    | CBOR Key | Type             |
+        |-------------------+----------+------------------|
+        | aud               | 3        | text string      |
+        | client_id         | 8        | text string      |
+        | client_secret     | 9        | byte string      |
+        | response_type     | 10       | text string      |
+        | redirect_uri      | 11       | text string      |
+        | scope             | 12       | text string      |
+        | state             | 13       | text string      |
+        | code              | 14       | byte string      |
+        | error             | 15       | text string      |
+        | error_description | 16       | text string      |
+        | error_uri         | 17       | text string      |
+        | grant_type        | 18       | unsigned integer |
+        | access_token      | 19       | text string      |
+        | token_type        | 20       | unsigned integer |
+        | expires_in        | 21       | unsigned integer |
+        | username          | 22       | text string      |
+        | password          | 23       | text string      |
+        | refresh_token     | 24       | text string      |
+        | cnf               | 25       | map              |
+        | profile           | 26       | text string      |
+        | rs_cnf            | 31       | map              |
+        \-------------------+----------+------------------/
       ]]></artwork>
     </figure>
   </t>
@@ -1449,8 +1453,8 @@ Payload:
 
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
     introspection endpoint at the AS to query about an OAuth 2.0
-    proof-of-possession token.  Note that we assume a object security-based
-    communication security profile for this example, therefore the Content-Type
+    proof-of-possession token.  Note that object security based on COSE is
+    assumed in this example, therefore the Content-Type
     is "application/cose+cbor".
 
     <figure align="center" anchor="fig:introReq"
@@ -1504,7 +1508,7 @@ Payload:
 
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
-    Note that we assume a DTLS-based communication security profile for this
+    Note that transport layer security is assumed in this
     example, therefore the Content-Type is "application/cbor".
 
 
@@ -1755,8 +1759,8 @@ C:  +--------------->|                |
 
 <section anchor="tokenValidity" title="Token Expiration">
   <t>Depending on the capabilities of the RS, there are various ways in
-    which it can verify the validity of a received access token.  We list the
-    possibilities here including what functionality they require of the
+    which it can verify the validity of a received access token.  Here follows
+    a list of the possibilities including what functionality they require of the
     RS.</t>
 
   <t><list style="symbols">
@@ -1765,7 +1769,7 @@ C:  +--------------->|                |
     its internal clock as defined in <xref target="RFC7519"/>.  In this
     case the RS's internal clock must reflect the current date and time, or
     at least be synchronized with the AS's clock.  How this clock
-    synchronization would be performed is out of scope for this memo.</t>
+    synchronization would be performed is out of scope for this specification.</t>
 
     <t>The RS verifies the validity of the token by performing an
     introspection request as specified in <xref
@@ -2570,17 +2574,17 @@ C:  +--------------->|                |
     </section>
 
     <section anchor="Acknowledgments" title="Acknowledgments">
-        <t>We would like to thank Eve Maler for her contributions to the use of
+        <t>This document is a product of the ACE working group of the IETF.</t>
+
+        <t>Thanks to Eve Maler for her contributions to the use of
         OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion
         input, and Malisa Vucinic for his input on the predecessors of this
-	proposal. Finally, we would like to thank the ACE working group in
-	general for their feedback.</t>
+	proposal.</t>
 
-	<t>We would also like to thank the authors of
-	draft-ietf-oauth-pop-key-distribution, from where we copied large
-	parts of our security considerations.</t>
+	<t>Thanks to the authors of draft-ietf-oauth-pop-key-distribution, from where
+    large parts of the security considerations where copied.</t>
 
-	<t>Furthermore we thank Stefanie Gerdes, Olaf Bergmann, and Carsten
+	<t>Thanks to Stefanie Gerdes, Olaf Bergmann, and Carsten
 	Bormann for contributing their work on AS discovery from
 	draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>).</t>
 
@@ -2628,7 +2632,6 @@ C:  +--------------->|                |
     </references>
 
     <references title="Informative References">
-      <!-- Here we use entities that we defined at the beginning. -->
       <!-- &I-D.ietf-ace-usecases;
       &RFC7250;
 
@@ -2638,6 +2641,8 @@ C:  +--------------->|                |
       &I-D.ietf-ace-cbor-web-token;
 
       &I-D.ietf-core-object-security;
+
+      &I-D.erdtman-ace-rpcc;
 
       &RFC7959;
 
@@ -2754,11 +2759,11 @@ C:  +--------------->|                |
           graphically in <xref target="fig:protocolFlow"/>) may be accomplished
           using a variety of different protocols, and not all parts of the
           message flow are used in all applications due to the communication
-          constraints.  While we envision deployments making use of CoAP, we
-          explicitly want to support HTTP, HTTP/2 or other specific protocols, such
-          as Bluetooth Smart communication, that do not necessarily use
-          IP.  The latter raises the  need for application layer security over
-          the various interfaces.
+          constraints.  Deployments making use of CoAP are expected, but not
+          limited to, other protocols such as HTTP, HTTP/2 or other specific
+          protocols, such as Bluetooth Smart communication, that do not
+          necessarily use IP could also be used.  The latter raises the need
+          for application layer security over the various interfaces.
           </t>
 
         </list>
@@ -2988,7 +2993,7 @@ C:  +--------------->|                |
 
  <!-- ************************** -->
 <section anchor="localTokenValidation" title="Local Token Validation">
-  <t>In this scenario, we consider the case where the resource server is offline,
+  <t>In this scenario, the case where the resource server is offline is considered,
 i.e., it is not connected to the AS at the time of the access request.
 This access procedure involves steps A, B, C, and F of <xref target="fig:protocolFlow"/>.
   </t>
@@ -3028,7 +3033,7 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
       resource.  Note that the syntax and semantics of the scope claim
       are application specific.</t>
 
-      <t>Note: In this example we assume that the client knows what resource it
+      <t>Note: In this example it is assumed that the client knows what resource it
       wants to access, and is therefore able to request specific
       audience and scope claims for the access token.</t>
     </list></t>
@@ -3056,7 +3061,7 @@ B:  |<--------+ Header: 2.05 Content
 
     <t>The information contained in the Request-Payload and the
     Response-Payload is shown in <xref target="fig:RSOfflineReq"/>.
-    Note that we assume a DTLS-based communication security profile for this
+    Note that a transport layer security based communication security profile is used in this
     example, therefore the Content-Type is "application/cbor".
 
      <figure align="center" anchor="fig:RSOfflineReq"
@@ -3178,7 +3183,7 @@ F:  |<--------+ Header: 2.05 Content
 
 <section anchor="introspectionAidedTokenValidation" title="Introspection Aided Token Validation">
 
-  <t>In this deployment scenario we assume that a client is not able to
+  <t>In this deployment scenario it is assumed that a client is not able to
   access the AS at the time of the access request.  Since the RS is, however,
   connected to the back-end infrastructure it can make use of token
   introspection.  This access procedure involves steps A-F of
@@ -3192,8 +3197,8 @@ F:  |<--------+ Header: 2.05 Content
   authorization server, which is shown in the example below.</t>
 
     <t>In the example interactions between an offline client
-    (key fob), a RS (online lock), and an AS is shown.  We
-    assume that there is a provisioning step where the client has access to the
+    (key fob), a RS (online lock), and an AS is shown.  It is
+    assumed that there is a provisioning step where the client has access to the
     AS.  This corresponds to message exchanges A and B which are shown in
     <xref target="fig:cOffline"/>.
     </t>
