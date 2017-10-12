@@ -5,14 +5,14 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                 RISE SICS
 Intended status: Standards Track                             G. Selander
-Expires: April 14, 2018                                         Ericsson
+Expires: April 15, 2018                                         Ericsson
                                                            E. Wahlstroem
                                                         (no affiliation)
                                                               S. Erdtman
                                                               Spotify AB
                                                            H. Tschofenig
                                                                 ARM Ltd.
-                                                        October 11, 2017
+                                                        October 12, 2017
 
 
   Authentication and Authorization for Constrained Environments (ACE)
@@ -43,7 +43,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 14, 2018.
+   This Internet-Draft will expire on April 15, 2018.
 
 Copyright Notice
 
@@ -53,7 +53,7 @@ Copyright Notice
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 1]
+Seitz, et al.            Expires April 15, 2018                 [Page 1]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 2]
+Seitz, et al.            Expires April 15, 2018                 [Page 2]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -139,24 +139,24 @@ Internet-Draft                     ACE                      October 2017
    10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  47
      10.1.  Normative References . . . . . . . . . . . . . . . . . .  47
      10.2.  Informative References . . . . . . . . . . . . . . . . .  48
-   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  50
-   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  52
-   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  54
-   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  55
-   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  55
-     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  56
-     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  60
-   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  64
-     F.1.  Version -08 to -09  . . . . . . . . . . . . . . . . . . .  64
-     F.2.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  64
-     F.3.  Version -06 to -07  . . . . . . . . . . . . . . . . . . .  64
-     F.4.  Version -05 to -06  . . . . . . . . . . . . . . . . . . .  64
-     F.5.  Version -04 to -05  . . . . . . . . . . . . . . . . . . .  64
-     F.6.  Version -03 to -04  . . . . . . . . . . . . . . . . . . .  65
-     F.7.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  65
-     F.8.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  65
-     F.9.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  66
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  66
+   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  51
+   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  54
+   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  57
+   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  57
+   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  58
+     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  58
+     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  62
+   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  66
+     F.1.  Version -08 to -09  . . . . . . . . . . . . . . . . . . .  66
+     F.2.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  66
+     F.3.  Version -06 to -07  . . . . . . . . . . . . . . . . . . .  66
+     F.4.  Version -05 to -06  . . . . . . . . . . . . . . . . . . .  66
+     F.5.  Version -04 to -05  . . . . . . . . . . . . . . . . . . .  67
+     F.6.  Version -03 to -04  . . . . . . . . . . . . . . . . . . .  67
+     F.7.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  67
+     F.8.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  67
+     F.9.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  68
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  69
 
 
 
@@ -165,7 +165,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 3]
+Seitz, et al.            Expires April 15, 2018                 [Page 3]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -184,8 +184,8 @@ Internet-Draft                     ACE                      October 2017
    mobile environment also applies to the Internet of Things (IoT)
    environment, many IoT devices are constrained, for example, in terms
    of processing capabilities, available memory, etc.  For web
-   applications on constrained nodes, this specification makes use of
-   CoAP [RFC7252].
+   applications on constrained nodes, this specification RECOMMENDS the
+   use of CoAP [RFC7252] as replacement for HTTP.
 
    A detailed treatment of constraints can be found in [RFC7228], and
    the different IoT deployments present a continuous range of device
@@ -221,7 +221,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 4]
+Seitz, et al.            Expires April 15, 2018                 [Page 4]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -277,7 +277,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 5]
+Seitz, et al.            Expires April 15, 2018                 [Page 5]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -333,7 +333,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 6]
+Seitz, et al.            Expires April 15, 2018                 [Page 6]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -389,7 +389,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 7]
+Seitz, et al.            Expires April 15, 2018                 [Page 7]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -445,7 +445,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 8]
+Seitz, et al.            Expires April 15, 2018                 [Page 8]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -501,7 +501,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                 [Page 9]
+Seitz, et al.            Expires April 15, 2018                 [Page 9]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -520,6 +520,8 @@ Internet-Draft                     ACE                      October 2017
    protection, and a secure binding between CoAP request and response
    messages.  In OSCOAP, the CoAP messages are wrapped in COSE objects
    and sent using CoAP.
+
+   This framework RECOMMENDS the use of CoAP as replacement for HTTP.
 
 4.  Protocol Interactions
 
@@ -555,9 +557,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 10]
+Seitz, et al.            Expires April 15, 2018                [Page 10]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -613,7 +613,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 11]
+Seitz, et al.            Expires April 15, 2018                [Page 11]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -669,7 +669,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 12]
+Seitz, et al.            Expires April 15, 2018                [Page 12]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -725,7 +725,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 13]
+Seitz, et al.            Expires April 15, 2018                [Page 13]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -781,7 +781,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 14]
+Seitz, et al.            Expires April 15, 2018                [Page 14]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -837,7 +837,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 15]
+Seitz, et al.            Expires April 15, 2018                [Page 15]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -893,7 +893,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 16]
+Seitz, et al.            Expires April 15, 2018                [Page 16]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -949,7 +949,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 17]
+Seitz, et al.            Expires April 15, 2018                [Page 17]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1005,7 +1005,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 18]
+Seitz, et al.            Expires April 15, 2018                [Page 18]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1061,7 +1061,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 19]
+Seitz, et al.            Expires April 15, 2018                [Page 19]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1117,7 +1117,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 20]
+Seitz, et al.            Expires April 15, 2018                [Page 20]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1173,7 +1173,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 21]
+Seitz, et al.            Expires April 15, 2018                [Page 21]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1229,7 +1229,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 22]
+Seitz, et al.            Expires April 15, 2018                [Page 22]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1285,7 +1285,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 23]
+Seitz, et al.            Expires April 15, 2018                [Page 23]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1341,7 +1341,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 24]
+Seitz, et al.            Expires April 15, 2018                [Page 24]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1397,7 +1397,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 25]
+Seitz, et al.            Expires April 15, 2018                [Page 25]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1453,7 +1453,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 26]
+Seitz, et al.            Expires April 15, 2018                [Page 26]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1509,7 +1509,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 27]
+Seitz, et al.            Expires April 15, 2018                [Page 27]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1565,7 +1565,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 28]
+Seitz, et al.            Expires April 15, 2018                [Page 28]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1621,7 +1621,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 29]
+Seitz, et al.            Expires April 15, 2018                [Page 29]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1677,7 +1677,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 30]
+Seitz, et al.            Expires April 15, 2018                [Page 30]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1733,7 +1733,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 31]
+Seitz, et al.            Expires April 15, 2018                [Page 31]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1789,7 +1789,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 32]
+Seitz, et al.            Expires April 15, 2018                [Page 32]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1845,7 +1845,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 33]
+Seitz, et al.            Expires April 15, 2018                [Page 33]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1901,7 +1901,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 34]
+Seitz, et al.            Expires April 15, 2018                [Page 34]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -1957,7 +1957,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 35]
+Seitz, et al.            Expires April 15, 2018                [Page 35]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2013,7 +2013,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 36]
+Seitz, et al.            Expires April 15, 2018                [Page 36]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2069,7 +2069,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 37]
+Seitz, et al.            Expires April 15, 2018                [Page 37]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2125,7 +2125,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 38]
+Seitz, et al.            Expires April 15, 2018                [Page 38]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2181,7 +2181,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 39]
+Seitz, et al.            Expires April 15, 2018                [Page 39]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2237,7 +2237,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 40]
+Seitz, et al.            Expires April 15, 2018                [Page 40]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2293,7 +2293,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 41]
+Seitz, et al.            Expires April 15, 2018                [Page 41]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2349,7 +2349,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 42]
+Seitz, et al.            Expires April 15, 2018                [Page 42]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2405,7 +2405,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 43]
+Seitz, et al.            Expires April 15, 2018                [Page 43]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2461,7 +2461,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 44]
+Seitz, et al.            Expires April 15, 2018                [Page 44]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2517,7 +2517,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 45]
+Seitz, et al.            Expires April 15, 2018                [Page 45]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2573,7 +2573,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 46]
+Seitz, et al.            Expires April 15, 2018                [Page 46]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2609,6 +2609,11 @@ Internet-Draft                     ACE                      October 2017
 
 10.1.  Normative References
 
+   [I-D.ietf-ace-cbor-web-token]
+              Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
+              "CBOR Web Token (CWT)", draft-ietf-ace-cbor-web-token-08
+              (work in progress), August 2017.
+
    [I-D.jones-ace-cwt-proof-of-possession]
               Jones, M., Seitz, L., Selander, G., Wahlstroem, E.,
               Erdtman, S., and H. Tschofenig, "Proof-of-Possession Key
@@ -2620,19 +2625,19 @@ Internet-Draft                     ACE                      October 2017
               DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
               editor.org/info/rfc2119>.
 
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 47]
+
+Internet-Draft                     ACE                      October 2017
+
+
    [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
               Resource Identifier (URI): Generic Syntax", STD 66,
               RFC 3986, DOI 10.17487/RFC3986, January 2005,
               <https://www.rfc-editor.org/info/rfc3986>.
-
-
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 47]
-
-Internet-Draft                     ACE                      October 2017
-
 
    [RFC6347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
@@ -2669,11 +2674,6 @@ Internet-Draft                     ACE                      October 2017
               environments", draft-ietf-ace-actors-05 (work in
               progress), March 2017.
 
-   [I-D.ietf-ace-cbor-web-token]
-              Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
-              "CBOR Web Token (CWT)", draft-ietf-ace-cbor-web-token-08
-              (work in progress), August 2017.
-
    [I-D.ietf-core-object-security]
               Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
               "Object Security of CoAP (OSCOAP)", draft-ietf-core-
@@ -2685,7 +2685,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 48]
+Seitz, et al.            Expires April 15, 2018                [Page 48]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -2705,6 +2705,14 @@ Internet-Draft                     ACE                      October 2017
               Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
               draft-ietf-oauth-native-apps-12 (work in progress), June
               2017.
+
+   [Margi10impact]
+              Margi, C., de Oliveira, B., de Sousa, G., Simplicio Jr,
+              M., Barreto, P., Carvalho, T., Naeslund, M., and R. Gold,
+              "Impact of Operating Systems on Wireless Sensor Networks
+              (Security) Applications and Testbeds", Proceedings of
+              the 19th International Conference on Computer
+              Communications and Networks (ICCCN), 2010 August.
 
    [RFC4949]  Shirey, R., "Internet Security Glossary, Version 2",
               FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
@@ -2728,6 +2736,16 @@ Internet-Draft                     ACE                      October 2017
               DOI 10.17487/RFC6819, January 2013, <https://www.rfc-
               editor.org/info/rfc6819>.
 
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 49]
+
+Internet-Draft                     ACE                      October 2017
+
+
    [RFC7049]  Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
               October 2013, <https://www.rfc-editor.org/info/rfc7049>.
@@ -2735,16 +2753,6 @@ Internet-Draft                     ACE                      October 2017
    [RFC7159]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
               Interchange Format", RFC 7159, DOI 10.17487/RFC7159, March
               2014, <https://www.rfc-editor.org/info/rfc7159>.
-
-
-
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 49]
-
-Internet-Draft                     ACE                      October 2017
-
 
    [RFC7228]  Bormann, C., Ersue, M., and A. Keranen, "Terminology for
               Constrained-Node Networks", RFC 7228,
@@ -2786,22 +2794,18 @@ Internet-Draft                     ACE                      October 2017
               DOI 10.17487/RFC7959, August 2016, <https://www.rfc-
               editor.org/info/rfc7959>.
 
-Appendix A.  Design Justification
-
-   FIXME: Explain why autz-info.  Explain why CBOR/COSE instead of JSON/
-   JOSE.  Explain why profile, cnf, rs_cnf parameters.  Explain why aud,
-   scope.  Explain why introspect, and client token.
-
-   This section provides further insight into the design decisions of
-   the solution documented in this document.  Section 3 lists several
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 50]
+Seitz, et al.            Expires April 15, 2018                [Page 50]
 
 Internet-Draft                     ACE                      October 2017
 
 
+Appendix A.  Design Justification
+
+   This section provides further insight into the design decisions of
+   the solution documented in this document.  Section 3 lists several
    building blocks and briefly summarizes their importance.  The
    justification for offering some of those building blocks, as opposed
    to using OAuth 2.0 as is, is given below.
@@ -2813,7 +2817,8 @@ Internet-Draft                     ACE                      October 2017
       Many IoT devices are equipped with a small battery which needs to
       last for a long time.  For many constrained wireless devices, the
       highest energy cost is associated to transmitting or receiving
-      messages.  It is therefore important to keep the total
+      messages (roughly by a factor of 10 compared to e.g.  AES)
+      [Margi10impact].  It is therefore important to keep the total
       communication overhead low, including minimizing the number and
       size of messages sent and received, which has an impact of choice
       on the message format and protocol.  By using CoAP over UDP and
@@ -2837,7 +2842,6 @@ Internet-Draft                     ACE                      October 2017
       so allows, but this may also require support for trusted third
       party assisted secret key establishment using transport or
       application layer security.
-
    Small Amount of Memory:
 
       Microcontrollers embedded in IoT devices are often equipped with
@@ -2846,17 +2850,18 @@ Internet-Draft                     ACE                      October 2017
       put on those devices.  To reduce code size fewer and smaller
       protocol implementations can be put on the firmware of such a
       device.  In this case, CoAP may be used instead of HTTP, symmetric
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 51]
+
+Internet-Draft                     ACE                      October 2017
+
+
       key cryptography instead of public key cryptography, and CBOR
       instead of JSON.  Authentication and key establishment protocol,
       e.g., the DTLS handshake, in comparison with assisted key
       establishment also has an impact on memory and code.
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 51]
-
-Internet-Draft                     ACE                      October 2017
-
 
    User Interface Limitations:
 
@@ -2869,6 +2874,7 @@ Internet-Draft                     ACE                      October 2017
       scenarios, these functions need to be delegated to user-controlled
       devices that are better suitable for such tasks, such as smart
       phones and tablets.
+
    Communication Constraints:
 
       In certain constrained settings an IoT device may not be able to
@@ -2888,6 +2894,122 @@ Internet-Draft                     ACE                      October 2017
       IP could also be used.  The latter raises the need for application
       layer security over the various interfaces.
 
+   In the light of these constraints we have made the following design
+   decisions:
+
+   CBOR, COSE, CWT:
+
+      This framework REQUIRES the use of CBOR [RFC7049] as data format.
+      Where CBOR data needs to be protected, the use of COSE [RFC8152]
+      is RECOMMENDED.  Furthermore where self-contained tokens are
+      needed, this framework RECOMMENDS the use of CWT
+      [I-D.ietf-ace-cbor-web-token].  These measures aim at reducing the
+      size of messages sent over the wire, the RAM size of data objects
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 52]
+
+Internet-Draft                     ACE                      October 2017
+
+
+      that need to be kept in memory and the size of libraries that
+      devices need to support.
+
+   CoAP:
+
+      This framework RECOMMENDS the use of CoAP [RFC7252] instead of
+      HTTP.  This does not preclude the use of other protocols
+      specifically aimed at constrained devices, like e.g.  Bluetooth
+      Low energy (see Section 3.2).  This aims again at reducing the
+      size of messages sent over the wire, the RAM size of data objects
+      that need to be kept in memory and the size of libraries that
+      devices need to support.
+
+   RS Information:
+
+      This framework defines the name "RS Information" for data
+      concerning the RS that the AS returns to the client in an access
+      token response (see Section 5.6.2).  This includes the "profile"
+      and the "rs_cnf" parameters.  This aims at enabling scenarios,
+      where a powerful client, supporting multiple profiles, needs to
+      interact with a RS for which it does not know the supported
+      profiles and the raw public key.
+
+   Proof-of-Possession:
+
+      This framework makes use of proof-of-possession tokens, using the
+      "cnf" claim [I-D.jones-ace-cwt-proof-of-possession].  A
+      semantically and syntactically identical request and response
+      parameter is defined for the token endpoint, to allow requesting
+      and stating confirmation keys.  This aims at making token theft
+      harder.  Token theft is specifically relevant in constrained use
+      cases, as communication often passes through middle-boxes, which
+      could be able to steal bearer tokens and use them to gain
+      unauthorized access.
+
+
+   Auth-Info endpoint:
+
+      This framework introduces a new way of providing access tokens to
+      a RS by exposing a authz-info endpoint, to which access tokens can
+      be POSTed.  This aims at reducing the size of the request message
+      and the code complexity at the RS.  The size of the request
+      message is problematic, since many constrained protocols have
+      severe message size limitations at the physical layer (e.g. in the
+      order of 100 bytes).  This means that larger packets get
+      fragmented, which in turn combines badly with the high rate of
+      packet loss, and the need to retransmit the whole message if one
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 53]
+
+Internet-Draft                     ACE                      October 2017
+
+
+      packet gets lost.  Thus separating sending of the request and
+      sending of the access tokens helps to reduce fragmentation.
+
+   Client Credentials Grant:
+
+      This framework RECOMMENDS the use of the client credentials grant
+      for machine-to-machine communication use cases, where manual
+      intervention of the resource owner to produce a grant token is not
+      feasible.  The intention is that the resource owner would instead
+      pre-arrange authorization with the AS, based on the client's own
+      credentials.  The client can the (without manual intervention)
+      obtain access tokens from the AS.
+
+   Introspection:
+
+      This framework RECOMMENDS the use of access token introspection in
+      cases where the client is constrained in a way that it can not
+      easily obtain new access tokens (i.e. it has connectivity issues
+      that prevent it from communicating with the AS).  In that case
+      this framework RECOMMENDS the use of a long-term token, that could
+      be a simple reference.  The RS is assumed to be able to
+      communicate with the AS, and can therefore perform introspection,
+      in order to learn the claims associated with the token reference.
+      The advantage of such an approach is that the resource owner can
+      change the claims associated to the token reference without having
+      to be in contact with the client, thus granting or revoking access
+      rights.
+
+   Client Token:
+
+      In cases where the client is constrained and does not have
+      connectivity to the AS, and furthermore does not have a previous
+      security relation to the RS that it needs to communicate with,
+      this framework proposes the use of "client tokens".  A client
+      token is a data object obtained from the AS by the RS, during
+      access token introspection.  The RS passes the client token on to
+      the client.  It contains information that allows the client to
+      perform the proof of possession for its access token and to
+      authenticate the RS (e.g. with it's public key).
+
 Appendix B.  Roles and Responsibilities
 
    Resource Owner
@@ -2895,6 +3017,15 @@ Appendix B.  Roles and Responsibilities
       *  Make sure that the RS is registered at the AS.  This includes
          making known to the AS which profiles, token_types, scopes, and
          key types (symmetric/asymmetric) the RS supports.  Also making
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 54]
+
+Internet-Draft                     ACE                      October 2017
+
+
          it known to the AS which audience(s) the RS identifies itself
          with.
       *  Make sure that clients can discover the AS that is in charge of
@@ -2904,15 +3035,6 @@ Appendix B.  Roles and Responsibilities
          RS.
 
    Requesting Party
-
-
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 52]
-
-Internet-Draft                     ACE                      October 2017
-
 
       *  Make sure that the client is provisioned the necessary
          credentials to authenticate to the AS.
@@ -2951,6 +3073,15 @@ Internet-Draft                     ACE                      October 2017
          +  Authenticate to the AS.
          +  Optionally (if not pre-configured): Specify which RS, which
             resource(s), and which action(s) the request(s) will target.
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 55]
+
+Internet-Draft                     ACE                      October 2017
+
+
          +  If raw public key (rpk) or certificate is used, make sure
             the AS has the right rpk or certificate for this client.
       *  Process the access token and RS Information (B)
@@ -2962,14 +3093,6 @@ Internet-Draft                     ACE                      October 2017
 
          +  Authenticate towards the RS (this could coincide with the
             proof of possession process).
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 53]
-
-Internet-Draft                     ACE                      October 2017
-
-
          +  Transmit the token as specified by the AS (default is to the
             authz-info endpoint, alternative options are specified by
             profiles).
@@ -3006,6 +3129,15 @@ Internet-Draft                     ACE                      October 2017
       *  Send a response following the agreed upon communication
          security.
 
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 56]
+
+Internet-Draft                     ACE                      October 2017
+
+
 Appendix C.  Requirements on Profiles
 
    This section lists the requirements on profiles of this framework,
@@ -3017,15 +3149,6 @@ Appendix C.  Requirements on Profiles
       protect their communication (e.g., OSCOAP or DTLS over CoAP).
       This must provide encryption, integrity and replay protection.
       Section 5.6.4.4
-
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 54]
-
-Internet-Draft                     ACE                      October 2017
-
-
    o  Specify how the client and the RS mutually authenticate.
       Section 4
    o  Specify the Content-format of the protocol messages (e.g.,
@@ -3063,6 +3186,14 @@ Appendix D.  Assumptions on AS knowledge about C and RS
    o  The expiration time for access tokens issued to this RS (unless
       the RS accepts a default time chosen by the AS).
    o  The symmetric key shared between client or RS and AS (if any).
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 57]
+
+Internet-Draft                     ACE                      October 2017
+
+
    o  The raw public key of the client or RS (if any).
 
 Appendix E.  Deployment Examples
@@ -3074,14 +3205,6 @@ Appendix E.  Deployment Examples
 
    For each of the deployment variants, there are a number of possible
    security setups between clients, resource servers and authorization
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 55]
-
-Internet-Draft                     ACE                      October 2017
-
-
    servers.  The main focus in the following subsections is on how
    authorization of a client request for a resource hosted by a RS is
    performed.  This requires the security of the requests and responses
@@ -3119,6 +3242,14 @@ E.1.  Local Token Validation
       B: The AS responds with a PoP access token and RS Information.
       The PoP access token contains the public key of the client, and
       the RS Information contains the public key of the RS.  For
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 58]
+
+Internet-Draft                     ACE                      October 2017
+
+
       communication security this example uses DTLS RawPublicKey between
       the client and the RS.  The issued token will have a short
       validity time, i.e., "exp" close to "iat", to protect the RS from
@@ -3130,14 +3261,6 @@ E.1.  Local Token Validation
       the /temperature resource and a POST request on the /firmware
       resource.  Note that the syntax and semantics of the scope claim
       are application specific.
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 56]
-
-Internet-Draft                     ACE                      October 2017
-
-
       Note: In this example it is assumed that the client knows what
       resource it wants to access, and is therefore able to request
       specific audience and scope claims for the access token.
@@ -3178,18 +3301,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 57]
+Seitz, et al.            Expires April 15, 2018                [Page 59]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -3245,7 +3357,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 58]
+Seitz, et al.            Expires April 15, 2018                [Page 60]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -3301,7 +3413,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 59]
+Seitz, et al.            Expires April 15, 2018                [Page 61]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -3357,7 +3469,7 @@ E.2.  Introspection Aided Token Validation
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 60]
+Seitz, et al.            Expires April 15, 2018                [Page 62]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -3413,7 +3525,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 61]
+Seitz, et al.            Expires April 15, 2018                [Page 63]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -3469,7 +3581,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 62]
+Seitz, et al.            Expires April 15, 2018                [Page 64]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -3525,7 +3637,7 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-Seitz, et al.            Expires April 14, 2018                [Page 63]
+Seitz, et al.            Expires April 15, 2018                [Page 65]
 
 Internet-Draft                     ACE                      October 2017
 
@@ -3550,6 +3662,10 @@ F.1.  Version -08 to -09
       error responses.
    o  Added privacy considerations about leakage through unprotected AS
       discovery.
+   o  Added text that clarifies that introspection is optional.
+   o  Made profile parameter optional since it can be implicit.
+   o  Clarified that CoAP is not mandatory and other protocols can be
+      used.
 
 F.2.  Version -07 to -08
 
@@ -3571,6 +3687,17 @@ F.4.  Version -05 to -06
    o  Added Section 5.4 on AS authentication.
    o  Added Section 5.5 on the Authorization endpoint.
 
+
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 66]
+
+Internet-Draft                     ACE                      October 2017
+
+
 F.5.  Version -04 to -05
 
    o  Added RFC 2119 language to the specification of the required
@@ -3578,14 +3705,6 @@ F.5.  Version -04 to -05
    o  Added Section 5.3 on the relation to the OAuth2 grant types.
    o  Added CBOR abbreviations for error and the error codes defined in
       OAuth2.
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 64]
-
-Internet-Draft                     ACE                      October 2017
-
-
    o  Added clarification about token expiration and long-running
       requests in Section 5.8.2
    o  Added security considerations about tokens with symmetric pop keys
@@ -3626,6 +3745,15 @@ F.8.  Version -01 to -02
 
    o  Restructured to remove communication security parts.  These shall
       now be defined in profiles.
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 67]
+
+Internet-Draft                     ACE                      October 2017
+
+
    o  Restructured section 5 to create new sections on the OAuth
       endpoints token, introspection and authz-info.
    o  Pulled in material from draft-ietf-oauth-pop-key-distribution in
@@ -3634,14 +3762,6 @@ F.8.  Version -01 to -02
       or transport keys used for proof of possession.
    o  Introduced the "client-token" to transport client information from
       the AS to the client via the RS in conjunction with introspection.
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 65]
-
-Internet-Draft                     ACE                      October 2017
-
-
    o  Expanded the IANA section to define parameters for token request,
       introspection and CWT claims.
    o  Moved deployment scenarios to the appendix as examples.
@@ -3679,6 +3799,17 @@ F.9.  Version -00 to -01
    o  Appendix B Added list of roles and responsibilities for C, AS and
       RS.
 
+
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 68]
+
+Internet-Draft                     ACE                      October 2017
+
+
 Authors' Addresses
 
    Ludwig Seitz
@@ -3688,14 +3819,6 @@ Authors' Addresses
    Sweden
 
    Email: ludwig.seitz@ri.se
-
-
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 66]
-
-Internet-Draft                     ACE                      October 2017
 
 
    Goeran Selander
@@ -3738,15 +3861,4 @@ Internet-Draft                     ACE                      October 2017
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-Seitz, et al.            Expires April 14, 2018                [Page 67]
+Seitz, et al.            Expires April 15, 2018                [Page 69]

@@ -213,7 +213,8 @@
    environment also applies to the Internet of Things (IoT) environment, many
    IoT devices are constrained, for example, in terms of processing
    capabilities, available memory, etc. For web applications on constrained
-   nodes, this specification makes use of CoAP <xref target="RFC7252"/>.</t>
+   nodes, this specification RECOMMENDS the use of CoAP
+   <xref target="RFC7252"/> as replacement for HTTP.</t>
 
    <t>A detailed treatment of constraints can be found in <xref target="RFC7228"/>, and the
    different IoT deployments present a
@@ -529,6 +530,8 @@ security protocols (e.g., CoAP over DTLS).
     secure binding between CoAP request and response messages. In OSCOAP, the
     CoAP messages are wrapped in COSE objects and sent using CoAP.
   </t>
+
+  <t>This framework RECOMMENDS the use of CoAP as replacement for HTTP.</t>
 
 </section>
 </section>
@@ -2616,6 +2619,8 @@ C:  +--------------->|                |
     <references title="Normative References">
       <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
       &RFC8152;
+      
+      &I-D.ietf-ace-cbor-web-token;
 
       &I-D.jones-ace-cwt-proof-of-possession;
 
@@ -2639,8 +2644,6 @@ C:  +--------------->|                |
 
 -->
       &I-D.ietf-ace-actors;
-
-      &I-D.ietf-ace-cbor-web-token;
 
       &I-D.ietf-core-object-security;
 
@@ -2682,14 +2685,28 @@ C:  +--------------->|                |
 
       &I-D.ietf-core-resource-directory;
 
+      <reference anchor="Margi10impact">
+        <front>
+          <title>Impact of Operating Systems on Wireless Sensor Networks
+	  (Security) Applications and Testbeds</title>
+            <author initials="C. B." surname="Margi"/>
+            <author initials="B.T." surname="de Oliveira"/>
+	    <author initials="G.T." surname="de Sousa"/>
+	    <author initials="M.A." surname="Simplicio Jr"/>
+	    <author initials="P.S.L.M." surname="Barreto"/>
+	    <author initials="T.C.M.B." surname="Carvalho"/>
+	    <author initials="M." surname="Naeslund"/>
+	    <author initials="R." surname="Gold"/>
+            <date month="2010" year="August" />
+        </front>
+        <seriesInfo name="Proceedings of the" value="19th International Conference on Computer Communications and Networks (ICCCN)"/>
+      </reference>
+      
+      
+
     </references>
 
-    <section title="Design Justification" anchor="constraints">
-
-      <t>FIXME: Explain why autz-info. Explain why CBOR/COSE instead of
-      JSON/JOSE. Explain why profile, cnf, rs_cnf parameters. Explain why
-      aud, scope. Explain why introspect, and client token.</t>
-      
+    <section title="Design Justification" anchor="constraints">     
      <t>This section provides further insight into the design decisions
      of the solution documented in this document.  <xref target="overview"/>
      lists several building blocks and briefly summarizes their importance.
@@ -2704,16 +2721,18 @@ C:  +--------------->|                |
           Many IoT devices are equipped with a small battery which needs
           to last for a long time.  For many constrained wireless devices, the
           highest energy cost is associated to transmitting or receiving
-          messages.  It is therefore important to keep the total communication
-          overhead low, including minimizing the number and size of messages
-          sent and received, which has an impact of choice on the message format
-          and protocol.  By using CoAP over UDP and CBOR encoded messages,
-          some of these aspects are addressed.  Security protocols contribute
-          to the communication overhead and can, in some cases, be
-          optimized.  For example, authentication and key establishment may, in
-          certain cases where security requirements allow, be replaced by
-          provisioning of security context by a trusted third party, using
-          transport or application layer security.<vspace blankLines="0"/>
+          messages (roughly by a factor of 10 compared to e.g. AES)
+	  <xref target="Margi10impact"/>.  It is therefore important to keep
+	  the total communication overhead low, including minimizing the number
+	  and size of messages sent and received, which has an impact of choice
+	  on the message format and protocol.  By using CoAP over UDP and CBOR
+	  encoded messages, some of these aspects are addressed.  Security
+	  protocols contribute to the communication overhead and can, in some
+	  cases, be optimized.  For example, authentication and key
+	  establishment may, in certain cases where security requirements
+	  allow, be replaced by provisioning of security context by a trusted
+	  third party, using transport or application layer security.
+	  <vspace blankLines="0"/>
           </t>
 
           <t hangText="Low CPU Speed:"><vspace blankLines="1"/>
@@ -2726,8 +2745,7 @@ C:  +--------------->|                |
           where the security requirements so allows, but this may also require
           support for trusted third party assisted secret key establishment
           using transport or application layer security.
-	  <vspace blankLines="0"/>
-          </t>
+	  <vspace blankLines="0"/></t>
 
           <t hangText="Small Amount of Memory:"> <vspace blankLines="1"/>
           Microcontrollers embedded in IoT devices are often equipped with
@@ -2751,7 +2769,7 @@ C:  +--------------->|                |
           interface does not work in many IoT deployment scenarios, these
           functions need to be delegated to user-controlled devices that are
           better suitable for such tasks, such as smart phones and tablets.
-	  <vspace blankLines="0"/></t>
+	  <vspace blankLines="1"/></t>
 
           <t hangText="Communication Constraints:"> <vspace blankLines="1"/>
           In certain constrained settings an IoT device may not be able to
@@ -2769,12 +2787,111 @@ C:  +--------------->|                |
           limited to, other protocols such as HTTP, HTTP/2 or other specific
           protocols, such as Bluetooth Smart communication, that do not
           necessarily use IP could also be used.  The latter raises the need
-          for application layer security over the various interfaces.
-          </t>
-
+          for application layer security over the various interfaces.</t>
         </list>
       </t>
 
+      <t>In the light of these constraints we have made the following design
+      decisions:
+
+        <list style="hanging">
+
+          <t hangText="CBOR, COSE, CWT:"><vspace blankLines="1"/>
+	  This framework REQUIRES the use of CBOR <xref target="RFC7049"/> as
+	  data format.  Where CBOR data needs to be protected, the use of COSE
+	  <xref target="RFC8152"/> is RECOMMENDED.  Furthermore where
+	  self-contained tokens are needed, this framework RECOMMENDS the
+	  use of CWT <xref target="I-D.ietf-ace-cbor-web-token"/>.  These
+	  measures aim at reducing the size of messages sent over the wire,
+	  the RAM size of data objects that need to be kept in memory and
+	  the size of libraries that devices need to support.
+	  <vspace blankLines="1"/></t>
+
+	  <t hangText="CoAP:"><vspace blankLines="1"/>
+	  This framework RECOMMENDS the use of CoAP <xref target="RFC7252"/>
+	  instead of HTTP.  This does not preclude the use of other protocols
+	  specifically aimed at constrained devices, like e.g. Bluetooth Low
+	  energy (see <xref target="coap"/>).  This aims again at reducing the
+	  size of messages sent over the wire, the RAM size of data objects
+	  that need to be kept in memory and the size of libraries that devices
+	  need to support.
+	  <vspace blankLines="1"/></t>
+	  
+	  <t hangText="RS Information:"><vspace blankLines="1"/>
+	  This framework defines the name "RS Information" for data concerning
+	  the RS that the AS returns to the client in an access token response
+	  (see  <xref target="tokenResponse"/>).  This includes the "profile"
+	  and the "rs_cnf" parameters.  This aims at enabling scenarios,
+	  where a powerful client, supporting multiple profiles, needs to
+	  interact with a RS for which it does not know the supported profiles
+	  and the raw public key.
+	  <vspace blankLines="1"/></t>	  
+	  
+	  <t hangText="Proof-of-Possession:"><vspace blankLines="1"/>
+	  This framework makes use of proof-of-possession tokens, using
+	  the "cnf" claim
+	  <xref target="I-D.jones-ace-cwt-proof-of-possession"/>. A
+	  semantically and syntactically identical request and response
+	  parameter is defined for the token endpoint, to allow requesting
+	  and stating confirmation keys.  This aims at making token theft
+	  harder. Token theft is specifically relevant in constrained use cases,
+	  as communication often passes through middle-boxes, which could
+	  be able to steal bearer tokens and use them to gain unauthorized
+	  access.
+	  <vspace blankLines="1"/> </t>
+
+	  <t hangText="Auth-Info endpoint:"><vspace blankLines="1"/>
+	  This framework introduces a new way of providing access tokens
+	  to a RS by exposing a authz-info endpoint, to which access tokens
+	  can be POSTed.  This aims at reducing the size of the request
+	  message and the code complexity at the RS.  The size of the request
+	  message is problematic, since many constrained protocols have severe
+	  message size limitations at the physical layer (e.g. in the order of
+	  100 bytes). This means that larger packets get fragmented, which in
+	  turn combines badly with the high rate of packet loss, and the
+	  need to retransmit the whole message if one packet gets lost.
+	  Thus separating sending of the request and sending of the access
+	  tokens helps to reduce fragmentation.
+	  <vspace blankLines="1"/></t>
+	  
+	  <t hangText="Client Credentials Grant:"><vspace blankLines="1"/>
+	  This framework RECOMMENDS the use of the client credentials grant
+	  for machine-to-machine communication use cases, where manual
+	  intervention of the resource owner to produce a grant token is not
+	  feasible.  The intention is that the resource owner would instead
+	  pre-arrange authorization with the AS, based on the client's own
+	  credentials.  The client can the (without manual intervention) obtain
+	  access tokens from the AS.
+	  <vspace blankLines="1"/></t>
+
+	  <t hangText="Introspection:"><vspace blankLines="1"/>
+	  This framework RECOMMENDS the use of access token introspection
+	  in cases where the client is constrained in a way that it can not
+	  easily obtain new access tokens (i.e. it has connectivity issues
+	  that prevent it from communicating with the AS). In that case
+	  this framework RECOMMENDS the use of a long-term token, that could
+	  be a simple reference.  The RS is assumed to be able to communicate
+	  with the AS, and can therefore perform introspection, in order to
+	  learn the claims associated with the token reference.  The advantage
+	  of such an approach is that the resource owner can change the claims
+	  associated to the token reference without having to be in contact
+	  with the client, thus granting or revoking access rights.
+	  <vspace blankLines="1"/></t>
+
+	  <t hangText="Client Token:"><vspace blankLines="1"/>
+	  In cases where the client is constrained and does not have
+	  connectivity to the AS, and furthermore does not have a previous
+	  security relation to the RS that it needs to communicate with,
+	  this framework proposes the use of "client tokens".  A client
+	  token is a data object obtained from the AS by the RS, during access
+	  token introspection.  The RS passes the client token on to the client.
+	  It contains information that allows the client to perform the
+	  proof of possession for its access token and to authenticate the RS
+	  (e.g. with it's public key).
+	  </t>	  
+	</list>
+      </t>
+      
     </section>
 
     <section anchor="app:rolesAndResponsibilities" title="Roles and Responsibilities">
@@ -3428,6 +3545,10 @@ F:  |<--------+ Header: 2.04 Changed
 	responses.</t>
 	<t>Added privacy considerations about leakage through unprotected
 	AS discovery.</t>
+	<t>Added text that clarifies that introspection is optional.</t>
+	<t>Made profile parameter optional since it can be implicit.</t>
+	<t>Clarified that CoAP is not mandatory and other protocols can be
+	used.</t>
       </list></t>
    </section>
    <section anchor="app:f8t9" title="Version -07 to -08">
