@@ -31,7 +31,6 @@
 <!ENTITY RFC7662 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7662.xml">
 <!ENTITY RFC7744 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7744.xml">
-<!ENTITY RFC7800 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7800.xml">
 <!ENTITY I-D.ietf-ace-actors SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-actors.xml">
 <!ENTITY I-D.ietf-core-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-object-security.xml">
 <!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cbor-web-token.xml">
@@ -41,6 +40,8 @@
 <!ENTITY RFC8152 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8152.xml">
 <!ENTITY I-D.ietf-core-resource-directory SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-resource-directory.xml">
 <!ENTITY RFC3986 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3986.xml">
+<!ENTITY I-D.ietf-oauth-discovery SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-discovery.xml">
+
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -2632,8 +2633,6 @@ C:  +--------------->|                |
 
       &RFC7252;
 
-      &RFC7800;
-
       &RFC3986;
 
     </references>
@@ -2684,6 +2683,8 @@ C:  +--------------->|                |
       &I-D.ietf-oauth-native-apps;
 
       &I-D.ietf-core-resource-directory;
+      
+      &I-D.ietf-oauth-discovery;      
 
       <reference anchor="Margi10impact">
         <front>
@@ -2943,30 +2944,35 @@ C:  +--------------->|                |
 	    <t>If providing an introspection endpoint: Process token
 	    introspection requests.</t>
 	    <t>Optionally: Handle token revocation.</t>
+	    <t>Optionally: Provide discovery metadta. See <xref
+	    target="I-D.ietf-oauth-discovery"/></t>
           </list><vspace blankLines="0"/>
 	</t>
         <t hangText="Client">
 	  <list style="symbols">
 	    <t>Discover the AS in charge of the RS that is to be targeted with
 	    a request.</t>
-            <t>Submit the token request (A).
+            <t>Submit the token request (see step (A) of
+	    <xref target="fig:protocolFlow"/>).
 	      <list style="symbols">
 		<t>Authenticate to the AS.</t>
 		<t>Optionally (if not pre-configured): Specify which RS, which
 		resource(s), and which action(s) the request(s) will
 		target.</t>
-		<t>If raw public key (rpk) or certificate is used, make sure
+		<t>If raw public keys (rpk) or certificates are used, make sure
 		the AS has the right rpk or certificate for this client.</t>
 	      </list>
 	    </t>
-	    <t>Process the access token and RS Information (B)
+	    <t>Process the access token and RS Information (see step (B)
+	    of <xref target="fig:protocolFlow"/>).
 	       <list style="symbols">
 		<t>Check that the RS Information provides the necessary
 		security parameters (e.g., PoP key, information on
 		communication security protocols supported by the RS).</t>
 	      </list>
 	    </t>
-	    <t>Send the token and request to the RS (C)
+	    <t>Send the token and request to the RS (see step (C) of
+	    <xref target="fig:protocolFlow"/>).
 	      <list style="symbols">
 		<t>Authenticate towards the RS (this could coincide with the
 		proof of possession process).</t>
@@ -2978,11 +2984,8 @@ C:  +--------------->|                |
 		of through the authentication procedure).</t>
 	      </list>
 	    </t>
-	    <t>Process the RS response (F)
-	    requirements of the Requesting Party, when issuing requests
-	    (e.g., minimum communication security requirements, trust
-	    anchors).</t>
-	    <t>Register the client at the AS.</t>
+	    <t>Process the RS response (see step (F) of
+	    <xref target="fig:protocolFlow"/>) of the RS.</t>
           </list><vspace blankLines="0"/>
 	</t>
 	<t hangText="Resource Server">
@@ -2991,7 +2994,7 @@ C:  +--------------->|                |
 	    the authz-info endpoint.</t>
             <t>Process an access token.
 	      <list style="symbols">
-		<t>Verify the token is from the right AS.</t>
+		<t>Verify the token is from a recognized AS.</t>
 		<t>Verify that the token applies to this RS.</t>
 		<t>Check that the token has not expired (if the token provides
 		expiration information).</t>
@@ -3307,17 +3310,19 @@ F:  |<--------+ Header: 2.05 Content
 <section anchor="introspectionAidedTokenValidation" title="Introspection Aided Token Validation">
 
   <t>In this deployment scenario it is assumed that a client is not able to
-  access the AS at the time of the access request.  Since the RS is, however,
-  connected to the back-end infrastructure it can make use of token
-  introspection.  This access procedure involves steps A-F of
+  access the AS at the time of the access request, whereas the RS is assumed
+  to be connected to the back-end infrastructure. Thus the RS can make use of
+  token introspection.  This access procedure involves steps A-F of
   <xref target="fig:protocolFlow"/>, but assumes steps A and B have been
   carried out during a phase when the client had connectivity to AS.
   </t>
 
   <t>Since the client is assumed to be offline, at least for a certain period of
-  time, a pre-provisioned access token has to be long-lived.  The resource
-  server may use its online connectivity to validate the access token with the
-  authorization server, which is shown in the example below.</t>
+  time, a pre-provisioned access token has to be long-lived.  Since the client
+  is constrained, the token will not be self contained (i.e. not a CWT) but
+  instead just a reference.  The resource server uses its connectivity to
+  learn about the claims assoicated to the access token by using introspection,
+  which is shown in the example below.</t>
 
     <t>In the example interactions between an offline client
     (key fob), a RS (online lock), and an AS is shown.  It is

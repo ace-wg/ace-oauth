@@ -148,13 +148,13 @@ Internet-Draft                     ACE                      October 2017
      E.2.  Introspection Aided Token Validation  . . . . . . . . . .  62
    Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  66
      F.1.  Version -08 to -09  . . . . . . . . . . . . . . . . . . .  66
-     F.2.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  66
-     F.3.  Version -06 to -07  . . . . . . . . . . . . . . . . . . .  66
-     F.4.  Version -05 to -06  . . . . . . . . . . . . . . . . . . .  66
+     F.2.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  67
+     F.3.  Version -06 to -07  . . . . . . . . . . . . . . . . . . .  67
+     F.4.  Version -05 to -06  . . . . . . . . . . . . . . . . . . .  67
      F.5.  Version -04 to -05  . . . . . . . . . . . . . . . . . . .  67
      F.6.  Version -03 to -04  . . . . . . . . . . . . . . . . . . .  67
-     F.7.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  67
-     F.8.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  67
+     F.7.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  68
+     F.8.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  68
      F.9.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  68
    Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  69
 
@@ -2652,11 +2652,6 @@ Internet-Draft                     ACE                      October 2017
               RFC 7662, DOI 10.17487/RFC7662, October 2015,
               <https://www.rfc-editor.org/info/rfc7662>.
 
-   [RFC7800]  Jones, M., Bradley, J., and H. Tschofenig, "Proof-of-
-              Possession Key Semantics for JSON Web Tokens (JWTs)",
-              RFC 7800, DOI 10.17487/RFC7800, April 2016,
-              <https://www.rfc-editor.org/info/rfc7800>.
-
    [RFC8152]  Schaad, J., "CBOR Object Signing and Encryption (COSE)",
               RFC 8152, DOI 10.17487/RFC8152, July 2017,
               <https://www.rfc-editor.org/info/rfc8152>.
@@ -2679,6 +2674,11 @@ Internet-Draft                     ACE                      October 2017
               "Object Security of CoAP (OSCOAP)", draft-ietf-core-
               object-security-04 (work in progress), July 2017.
 
+   [I-D.ietf-core-resource-directory]
+              Shelby, Z., Koster, M., Bormann, C., Stok, P., and C.
+              Amsuess, "CoRE Resource Directory", draft-ietf-core-
+              resource-directory-11 (work in progress), July 2017.
+
 
 
 
@@ -2690,16 +2690,16 @@ Seitz, et al.            Expires April 15, 2018                [Page 48]
 Internet-Draft                     ACE                      October 2017
 
 
-   [I-D.ietf-core-resource-directory]
-              Shelby, Z., Koster, M., Bormann, C., Stok, P., and C.
-              Amsuess, "CoRE Resource Directory", draft-ietf-core-
-              resource-directory-11 (work in progress), July 2017.
-
    [I-D.ietf-oauth-device-flow]
               Denniss, W., Bradley, J., Jones, M., and H. Tschofenig,
               "OAuth 2.0 Device Flow for Browserless and Input
               Constrained Devices", draft-ietf-oauth-device-flow-06
               (work in progress), May 2017.
+
+   [I-D.ietf-oauth-discovery]
+              Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
+              Authorization Server Metadata", draft-ietf-oauth-
+              discovery-07 (work in progress), September 2017.
 
    [I-D.ietf-oauth-native-apps]
               Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
@@ -3063,16 +3063,16 @@ Internet-Draft                     ACE                      October 2017
       *  If providing an introspection endpoint: Process token
          introspection requests.
       *  Optionally: Handle token revocation.
+      *  Optionally: Provide discovery metadta.  See
+         [I-D.ietf-oauth-discovery]
 
    Client
 
       *  Discover the AS in charge of the RS that is to be targeted with
          a request.
-      *  Submit the token request (A).
+      *  Submit the token request (see step (A) of Figure 1).
 
          +  Authenticate to the AS.
-         +  Optionally (if not pre-configured): Specify which RS, which
-            resource(s), and which action(s) the request(s) will target.
 
 
 
@@ -3082,14 +3082,18 @@ Seitz, et al.            Expires April 15, 2018                [Page 55]
 Internet-Draft                     ACE                      October 2017
 
 
-         +  If raw public key (rpk) or certificate is used, make sure
+         +  Optionally (if not pre-configured): Specify which RS, which
+            resource(s), and which action(s) the request(s) will target.
+         +  If raw public keys (rpk) or certificates are used, make sure
             the AS has the right rpk or certificate for this client.
-      *  Process the access token and RS Information (B)
+      *  Process the access token and RS Information (see step (B) of
+         Figure 1).
 
          +  Check that the RS Information provides the necessary
             security parameters (e.g., PoP key, information on
             communication security protocols supported by the RS).
-      *  Send the token and request to the RS (C)
+      *  Send the token and request to the RS (see step (C) of
+         Figure 1).
 
          +  Authenticate towards the RS (this could coincide with the
             proof of possession process).
@@ -3099,10 +3103,7 @@ Internet-Draft                     ACE                      October 2017
          +  Perform the proof-of-possession procedure as specified by
             the profile in use (this may already have been taken care of
             through the authentication procedure).
-      *  Process the RS response (F) requirements of the Requesting
-         Party, when issuing requests (e.g., minimum communication
-         security requirements, trust anchors).
-      *  Register the client at the AS.
+      *  Process the RS response (see step (F) of Figure 1) of the RS.
 
    Resource Server
 
@@ -3110,7 +3111,7 @@ Internet-Draft                     ACE                      October 2017
          authz-info endpoint.
       *  Process an access token.
 
-         +  Verify the token is from the right AS.
+         +  Verify the token is from a recognized AS.
          +  Verify that the token applies to this RS.
          +  Check that the token has not expired (if the token provides
             expiration information).
@@ -3128,7 +3129,6 @@ Internet-Draft                     ACE                      October 2017
             using introspection (if this is possible.)
       *  Send a response following the agreed upon communication
          security.
-
 
 
 
@@ -3421,17 +3421,19 @@ Internet-Draft                     ACE                      October 2017
 E.2.  Introspection Aided Token Validation
 
    In this deployment scenario it is assumed that a client is not able
-   to access the AS at the time of the access request.  Since the RS is,
-   however, connected to the back-end infrastructure it can make use of
-   token introspection.  This access procedure involves steps A-F of
-   Figure 1, but assumes steps A and B have been carried out during a
-   phase when the client had connectivity to AS.
+   to access the AS at the time of the access request, whereas the RS is
+   assumed to be connected to the back-end infrastructure.  Thus the RS
+   can make use of token introspection.  This access procedure involves
+   steps A-F of Figure 1, but assumes steps A and B have been carried
+   out during a phase when the client had connectivity to AS.
 
    Since the client is assumed to be offline, at least for a certain
    period of time, a pre-provisioned access token has to be long-lived.
-   The resource server may use its online connectivity to validate the
-   access token with the authorization server, which is shown in the
-   example below.
+   Since the client is constrained, the token will not be self contained
+   (i.e. not a CWT) but instead just a reference.  The resource server
+   uses its connectivity to learn about the claims assoicated to the
+   access token by using introspection, which is shown in the example
+   below.
 
    In the example interactions between an offline client (key fob), a RS
    (online lock), and an AS is shown.  It is assumed that there is a
@@ -3464,8 +3466,6 @@ E.2.  Introspection Aided Token Validation
       using a pre shared security context (psk, rpk or certificate) and
       then the client is identified using client_id and client_secret as
       in classic OAuth.
-      B: The AS responds with the an access token and RS Information,
-      the latter containing a symmetric key.  Communication security
 
 
 
@@ -3474,6 +3474,8 @@ Seitz, et al.            Expires April 15, 2018                [Page 62]
 Internet-Draft                     ACE                      October 2017
 
 
+      B: The AS responds with the an access token and RS Information,
+      the latter containing a symmetric key.  Communication security
       between C and RS will be DTLS and PreSharedKey.  The PoP key is
       used as the PreSharedKey.
 
@@ -3496,6 +3498,37 @@ Internet-Draft                     ACE                      October 2017
 
    The information contained in the Request-Payload and the Response-
    Payload is shown in Figure 23.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 63]
+
+Internet-Draft                     ACE                      October 2017
+
 
    Request-Payload:
    {
@@ -3522,14 +3555,6 @@ Internet-Draft                     ACE                      October 2017
 
            Figure 23: Request and Response Payload for C offline
 
-
-
-
-Seitz, et al.            Expires April 15, 2018                [Page 63]
-
-Internet-Draft                     ACE                      October 2017
-
-
    The access token in this case is just an opaque string referencing
    the authorization information at the AS.
 
@@ -3550,6 +3575,15 @@ Internet-Draft                     ACE                      October 2017
       possession in step F.
       After receiving message E, the RS responds to the client's POST in
       step C with the CoAP response code 2.01 (Created).
+
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 64]
+
+Internet-Draft                     ACE                      October 2017
 
 
               Resource
@@ -3578,14 +3612,6 @@ Internet-Draft                     ACE                      October 2017
        |         |
 
                Figure 24: Token Introspection for C offline
-
-
-
-Seitz, et al.            Expires April 15, 2018                [Page 64]
-
-Internet-Draft                     ACE                      October 2017
-
-
       The information contained in the Request-Payload and the Response-
       Payload is shown in Figure 25.
 
@@ -3609,6 +3635,13 @@ Internet-Draft                     ACE                      October 2017
 
          Figure 25: Request and Response Payload for Introspection
 
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 65]
+
+Internet-Draft                     ACE                      October 2017
+
+
       The client uses the symmetric PoP key to establish a DTLS
       PreSharedKey secure connection to the RS.  The CoAP request PUT is
       sent to the uri-path /state on the RS, changing the state of the
@@ -3631,16 +3664,6 @@ Internet-Draft                     ACE                      October 2017
        |         |
 
        Figure 26: Resource request and response protected by OSCOAP
-
-
-
-
-
-
-Seitz, et al.            Expires April 15, 2018                [Page 65]
-
-Internet-Draft                     ACE                      October 2017
-
 
 Appendix F.  Document Updates
 
@@ -3667,6 +3690,14 @@ F.1.  Version -08 to -09
    o  Clarified that CoAP is not mandatory and other protocols can be
       used.
 
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 66]
+
+Internet-Draft                     ACE                      October 2017
+
+
 F.2.  Version -07 to -08
 
    o  Removed specification of the "cnf" claim for CBOR/COSE, and
@@ -3686,17 +3717,6 @@ F.4.  Version -05 to -06
       sections, Section 5.2, and Section 5.3.
    o  Added Section 5.4 on AS authentication.
    o  Added Section 5.5 on the Authorization endpoint.
-
-
-
-
-
-
-
-Seitz, et al.            Expires April 15, 2018                [Page 66]
-
-Internet-Draft                     ACE                      October 2017
-
 
 F.5.  Version -04 to -05
 
@@ -3723,6 +3743,17 @@ F.6.  Version -03 to -04
    o  Clarified uses of the "cnf" parameter in section 6.4.5.
    o  Clarified intended use of Client Token in section 7.4.
 
+
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 67]
+
+Internet-Draft                     ACE                      October 2017
+
+
 F.7.  Version -02 to -03
 
    o  Removed references to draft-ietf-oauth-pop-key-distribution since
@@ -3745,15 +3776,6 @@ F.8.  Version -01 to -02
 
    o  Restructured to remove communication security parts.  These shall
       now be defined in profiles.
-
-
-
-
-Seitz, et al.            Expires April 15, 2018                [Page 67]
-
-Internet-Draft                     ACE                      October 2017
-
-
    o  Restructured section 5 to create new sections on the OAuth
       endpoints token, introspection and authz-info.
    o  Pulled in material from draft-ietf-oauth-pop-key-distribution in
@@ -3780,6 +3802,14 @@ F.9.  Version -00 to -01
          token.
       *  Require that the messages between AS and client are secured,
          either with (D)TLS or with COSE_Encrypted wrappers.
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 68]
+
+Internet-Draft                     ACE                      October 2017
+
+
       *  Removed dependency on OSCOAP and added generic text about
          object security instead.
       *  Defined the "rpk" parameter in the client information to
@@ -3798,17 +3828,6 @@ F.9.  Version -00 to -01
       expiration in the absence of reliable time.
    o  Appendix B Added list of roles and responsibilities for C, AS and
       RS.
-
-
-
-
-
-
-
-Seitz, et al.            Expires April 15, 2018                [Page 68]
-
-Internet-Draft                     ACE                      October 2017
-
 
 Authors' Addresses
 
@@ -3837,6 +3856,16 @@ Authors' Addresses
    Email: erik@wahlstromtekniska.se
 
 
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 69]
+
+Internet-Draft                     ACE                      October 2017
+
+
    Samuel Erdtman
    Spotify AB
    Birger Jarlsgatan 61, 4tr
@@ -3861,4 +3890,31 @@ Authors' Addresses
 
 
 
-Seitz, et al.            Expires April 15, 2018                [Page 69]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.            Expires April 15, 2018                [Page 70]
