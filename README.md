@@ -1,9 +1,11 @@
 # Authentication and Authorization for Constrained Environments (ACE)
 
-This is the working area for the Working Group internet-draft "Authentication and Authorization for Constrained Environments (ACE)".
+This is the working area for the IETF ACE Working Group Internet-Draft "Authentication and Authorization for Constrained Environments (ACE)".
 
 * [Editor's copy](https://ace-wg.github.io/ace-oauth/draft-ietf-ace-oauth-authz.html)
+* [Working Group Draft](https://tools.ietf.org/html/draft-ietf-ace-oauth-authz)
 * [Reference implementation](https://bitbucket.org/lseitz/ace-java)
+* [Compare Editor's Copy to Working Group Draft](https://tools.ietf.org/rfcdiff?url1=https://tools.ietf.org/id/draft-ietf-ace-oauth-authz.txt&url2=https://ace-wg.github.io/ace-oauth/draft-ietf-ace-oauth-authz.txt)
  
 ## Building the Draft
 
