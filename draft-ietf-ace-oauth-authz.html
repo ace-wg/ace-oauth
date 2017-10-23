@@ -664,7 +664,7 @@
   <dt>Proof of Possession Tokens:</dt>
   <dd style="margin-left: 8"><br/><br/> An access token may be bound to a cryptographic key, which is then used by an RS to authenticate requests from a client.  Such tokens are called proof-of-possession access tokens (or PoP access tokens).  <br/><br/> The proof-of-possession (PoP) security concept assumes that the AS acts as a trusted third party that binds keys to access tokens.  These so called PoP keys are then used by the client to demonstrate the possession of the secret to the RS when accessing the resource.  The RS, when receiving an access token, needs to verify that the key used by the client matches the one bound to the access token.  When this specification uses the term "access token" it is assumed to be a PoP access token token unless specifically stated otherwise.  <br/><br/> The key bound to the access token (the PoP key) may use either symmetric or asymmetric cryptography.  The appropriate choice of the kind of cryptography depends on the constraints of the IoT devices as well as on the security requirements of the use case.  <dl><dt>Symmetric PoP key:</dt><dd style="margin-left: 8">The AS generates a random symmetric PoP key.  The key is either stored to be returned on introspection calls or encrypted and included in the access token.  The PoP key is also encrypted for the client and sent together with the access token to the client.<br/> </dd><dt>Asymmetric PoP key:</dt><dd style="margin-left: 8">An asymmetric key pair is generated on the client and the public key is sent to the AS (if it does not already have knowledge of the client's public key).  Information about the public key, which is the PoP key in this case, is either stored to be returned on introspection calls or included inside the access token and sent back to the requesting client.  The RS can identify the client's public key from the information in the token, which allows the client to use the corresponding private key for the proof of possession.  </dd></dl><p> </p><br/><br/> The access token is either a simple reference, or a structured information object (e.g., CWT <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>), protected by a cryptographic wrapper (e.g., COSE <a href="#RFC8152">[RFC8152]</a>).  The choice of PoP key does not necessarily imply a specific credential type for the integrity protection of the token.<br/> </dd>
   <dt>Scopes and Permissions:</dt>
-  <dd style="margin-left: 8"><br/><br/> In OAuth 2.0, the client specifies the type of permissions it is seeking to obtain (via the scope parameter) in the access token request.  In turn, the AS may use the scope response parameter to inform the client of the scope of the access token issued.  As the client could be a constrained device as well, this specification uses CBOR encoding as data formt, defined in <a href="#oauthProfile">Section 5</a>, to request scopes and to be informed what scopes the access token actually authorizes.  <br/><br/> The values of the scope parameter are expressed as a list of space-delimited, case-sensitive strings, with a semantic that is well-known to the AS and the RS.  More details about the concept of scopes is found under Section 3.3 in <a href="#RFC6749">[RFC6749]</a>.<br/> </dd>
+  <dd style="margin-left: 8"><br/><br/> In OAuth 2.0, the client specifies the type of permissions it is seeking to obtain (via the scope parameter) in the access token request.  In turn, the AS may use the scope response parameter to inform the client of the scope of the access token issued.  As the client could be a constrained device as well, this specification uses CBOR encoding as data formt, defined in <a href="#oauthProfile">Section 5</a>, to request scopes and to be informed what scopes the access token actually authorizes.  <br/><br/> The values of the scope parameter in OAuth 2.0 are expressed as a list of space-delimited, case-sensitive strings, with a semantic that is well-known to the AS and the RS.  More details about the concept of scopes is found under Section 3.3 in <a href="#RFC6749">[RFC6749]</a>.<br/> </dd>
   <dt>Claims:</dt>
   <dd style="margin-left: 8"><br/><br/> Information carried in the access token or returned from introspection, called claims, is in the form of name-value pairs.  An access token may, for example, include a claim identifying the AS that issued the token (via the "iss" claim) and what audience the access token is intended for (via the "aud" claim).  The audience of an access token can be a specific resource or one or many resource servers.  The resource owner policies influence what claims are put into the access token by the authorization server.  <br/><br/> While the structure and encoding of the access token varies throughout deployments, a standardized format has been defined with the JSON Web Token (JWT) <a href="#RFC7519">[RFC7519]</a> where claims are encoded as a JSON object.  In <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>, an equivalent format using CBOR encoding (CWT) has been defined.  <br/> </dd>
   <dt>Introspection:</dt>
@@ -831,7 +831,7 @@ a2                                   # map(2)
 <p id="rfc.section.5.6.p.3">The default name of this endpoint in an url-path is 'token', however implementations are not required to use this name and can define their own instead.</p>
 <p id="rfc.section.5.6.p.4">The figures of this section use CBOR diagnostic notation without the integer abbreviations for the parameters or their values for illustrative purposes. Note that implementations MUST use the integer abbreviations and the binary CBOR encoding.</p>
 <h1 id="rfc.section.5.6.1"><a href="#rfc.section.5.6.1">5.6.1.</a> <a href="#tokenRequest" id="tokenRequest">Client-to-AS Request</a></h1>
-<p id="rfc.section.5.6.1.p.1">The client sends a POST request to the token endpoint at the AS. The profile MUST specify the Content-Type and wrapping of the payload.  The content of the request consists of the parameters specified in section 4 of the OAuth 2.0 specification <a href="#RFC6749">[RFC6749]</a>, encoded as a CBOR map.</p>
+<p id="rfc.section.5.6.1.p.1">The client sends a POST request to the token endpoint at the AS. The profile MUST specify the Content-Type and wrapping of the payload.  The content of the request consists of the parameters specified in section 4 of the OAuth 2.0 specification <a href="#RFC6749">[RFC6749]</a>, encoded as a CBOR map, where the "scope" parameter can additionally be formatted as a byte array, in order to allow compact encoding of complex scope structures.</p>
 <p id="rfc.section.5.6.1.p.2">In addition to these parameters, this framework defines the following parameters for requesting an access token from a token endpoint: </p>
 
 <dl>
@@ -1049,31 +1049,31 @@ Payload:
 <div id="rfc.figure.12"/>
 <div id="fig:cborTokenParameters"/>
 <pre>
-        /-------------------+----------+------------------\
-        | Parameter name    | CBOR Key | Type             |
-        |-------------------+----------+------------------|
-        | aud               | 3        | text string      |
-        | client_id         | 8        | text string      |
-        | client_secret     | 9        | byte string      |
-        | response_type     | 10       | text string      |
-        | redirect_uri      | 11       | text string      |
-        | scope             | 12       | text string      |
-        | state             | 13       | text string      |
-        | code              | 14       | byte string      |
-        | error             | 15       | text string      |
-        | error_description | 16       | text string      |
-        | error_uri         | 17       | text string      |
-        | grant_type        | 18       | unsigned integer |
-        | access_token      | 19       | text string      |
-        | token_type        | 20       | unsigned integer |
-        | expires_in        | 21       | unsigned integer |
-        | username          | 22       | text string      |
-        | password          | 23       | text string      |
-        | refresh_token     | 24       | text string      |
-        | cnf               | 25       | map              |
-        | profile           | 26       | text string      |
-        | rs_cnf            | 31       | map              |
-        \-------------------+----------+------------------/
+        /-------------------+----------+---------------------\
+        | Parameter name    | CBOR Key | Type                |
+        |-------------------+----------+---------------------|
+        | aud               | 3        | text string         |
+        | client_id         | 8        | text string         |
+        | client_secret     | 9        | byte string         |
+        | response_type     | 10       | text string         |
+        | redirect_uri      | 11       | text string         |
+        | scope             | 12       | text or byte string |
+        | state             | 13       | text string         |
+        | code              | 14       | byte string         |
+        | error             | 15       | text string         |
+        | error_description | 16       | text string         |
+        | error_uri         | 17       | text string         |
+        | grant_type        | 18       | unsigned integer    |
+        | access_token      | 19       | text string         |
+        | token_type        | 20       | unsigned integer    |
+        | expires_in        | 21       | unsigned integer    |
+        | username          | 22       | text string         |
+        | password          | 23       | text string         |
+        | refresh_token     | 24       | text string         |
+        | cnf               | 25       | map                 |
+        | profile           | 26       | text string         |
+        | rs_cnf            | 31       | map                 |
+        \-------------------+----------+---------------------/
       </pre>
 <p class="figure">Figure 12: CBOR mappings used in token requests</p>
 <p/>
@@ -1198,35 +1198,35 @@ C:  +---------------&gt;|                |
 <div id="rfc.figure.16"/>
 <div id="fig:cborIntrospectionParameters"/>
 <pre>
-          /-----------------+----------+-----------------\
-          | Parameter name  | CBOR Key | Major Type      |
-          |-----------------+----------+-----------------|
-          | iss             | 1        | 3 (text string) |
-          | sub             | 2        | 3               |
-          | aud             | 3        | 3               |
-          | exp             | 4        | 6 tag value 1   |
-          | nbf             | 5        | 6 tag value 1   |
-          | iat             | 6        | 6 tag value 1   |
-          | cti             | 7        | 2 (byte string) |
-          | client_id       | 8        | 3               |
-          | scope           | 12       | 3               |
-          | token_type      | 20       | 3               |
-          | username        | 22       | 3               |
-          | cnf             | 25       | 5 (map)         |
-          | profile         | 26       | 0 (uint)        |
-          | token           | 27       | 3               |
-          | token_type_hint | 28       | 3               |
-          | active          | 29       | 0               |
-          | client_token    | 30       | 3               |
-          | rs_cnf          | 31       | 5               |
-          \-----------------+----------+-----------------/
+    /-----------------+----------+-----------------------\
+    | Parameter name  | CBOR Key | Major Type            |
+    |-----------------+----------+-----------------------|
+    | iss             | 1        | text string           |
+    | sub             | 2        | text string           |
+    | aud             | 3        | text string           |
+    | exp             | 4        | Epoch-based date/time |
+    | nbf             | 5        | Epoch-based date/time |
+    | iat             | 6        | Epoch-based date/time | 
+    | cti             | 7        | byte string           |
+    | client_id       | 8        | text string           |
+    | scope           | 12       | text OR byte string   |
+    | token_type      | 20       | text string           |
+    | username        | 22       | text string           |
+    | cnf             | 25       | map                   |
+    | profile         | 26       | unsigned integer      |
+    | token           | 27       | text string           |
+    | token_type_hint | 28       | text string           |
+    | active          | 29       | unsigned integer      |
+    | client_token    | 30       | byte string           |
+    | rs_cnf          | 31       | map                   |
+    \-----------------+----------+-----------------------/
         </pre>
 <p class="figure">Figure 16: CBOR Mappings to Token Introspection Parameters.</p>
 <p id="rfc.section.5.7.5.p.2">Note that we have aligned these abbreviatations with the claim abbreviations defined in <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  </p>
 <h1 id="rfc.section.5.8"><a href="#rfc.section.5.8">5.8.</a> The Access Token</h1>
 <p id="rfc.section.5.8.p.1">This framework RECOMMENDS the use of CBOR web token (CWT) as specified in <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  </p>
 <p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this draft uses the "cnf" claim from <a href="#I-D.jones-ace-cwt-proof-of-possession">[I-D.jones-ace-cwt-proof-of-possession]</a> and specifies the "scope" claim for CBOR web tokens.</p>
-<p id="rfc.section.5.8.p.3">The "scope" claim explicitly encodes the scope of a given access token.  This claim follows the same encoding rules as defined in section 3.3 of <a href="#RFC6749">[RFC6749]</a>.  The meaning of a specific scope value is application specific and expected to be known to the RS running that application.</p>
+<p id="rfc.section.5.8.p.3">The "scope" claim explicitly encodes the scope of a given access token.  This claim follows the same encoding rules as defined in section 3.3 of <a href="#RFC6749">[RFC6749]</a>, but in addition implementers MAY use byte arrays as scope values, to achieve compact encoding of large scope elements.  The meaning of a specific scope value is application specific and expected to be known to the RS running that application.</p>
 <h1 id="rfc.section.5.8.1"><a href="#rfc.section.5.8.1">5.8.1.</a> <a href="#tokenAuthInfoEndpoint" id="tokenAuthInfoEndpoint">The 'Authorization Information' Endpoint</a></h1>
 <p id="rfc.section.5.8.1.p.1">The access token, containing authorization information and information about the key used by the client, needs to be transported to the RS so that the RS can authenticate and authorize the client request.</p>
 <p id="rfc.section.5.8.1.p.2">This section defines a method for transporting the access token to the RS using a RESTful protocol such as CoAP. Profiles of this framework MAY define other methods for token transport.  </p>
@@ -2464,6 +2464,13 @@ F:  |&lt;--------+ Header: 2.04 Changed
 <p/>
 
 <ul>
+  <li>Allowed scope to be byte arrays.</li>
+  <li>Defined default names for endpoints.</li>
+</ul>
+<h1 id="rfc.appendix.F.2"><a href="#rfc.appendix.F.2">F.2.</a> <a href="#app:f8t9" id="app:f8t9">Version -07 to -08</a></h1>
+<p/>
+
+<ul>
   <li>Moved AS discovery from the DTLS profile to the framework, see <a href="#asDiscovery">Section 5.1</a>.</li>
   <li>Made the use of CBOR mandatory. If you use JSON you can use vanilla OAuth.</li>
   <li>Made it mandatory for profiles to specify C-AS security and RS-AS security (the latter only if introspection is supported).</li>
@@ -2477,11 +2484,6 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Clarified that CoAP is not mandatory and other protocols can be used.</li>
   <li>Clarified the design justification for specific features of the framework in appendix A.</li>
   <li>Clarified appendix E.2.</li>
-</ul>
-<h1 id="rfc.appendix.F.2"><a href="#rfc.appendix.F.2">F.2.</a> <a href="#app:f8t9" id="app:f8t9">Version -07 to -08</a></h1>
-<p/>
-
-<ul>
   <li>Removed specification of the "cnf" claim for CBOR/COSE, and replaced with references to <a href="#I-D.jones-ace-cwt-proof-of-possession">[I-D.jones-ace-cwt-proof-of-possession]</a></li>
 </ul>
 <h1 id="rfc.appendix.F.3"><a href="#rfc.appendix.F.3">F.3.</a> <a href="#app:f7t8" id="app:f7t8">Version -06 to -07</a></h1>

@@ -450,9 +450,9 @@ security protocols (e.g., CoAP over DTLS).
          request scopes and to be informed what scopes the access token
          actually authorizes.
          <vspace blankLines="1"/>
-         The values of the scope parameter are expressed as a list of space-delimited,
-	 case-sensitive strings, with a semantic that is well-known
-	 to the AS and the RS.
+         The values of the scope parameter in OAuth 2.0 are expressed as a list
+	 of space-delimited, case-sensitive strings, with a semantic that is
+	 well-known to the AS and the RS.
          <!-- <vspace blankLines="1"/>
          A common misconception is that the requested scopes must
          also be included in the returned access token, but the requested scopes
@@ -997,7 +997,9 @@ a2                                   # map(2)
     at the AS. The profile MUST specify the Content-Type and wrapping of the
     payload.  The content of the request consists of the parameters specified
     in section 4 of the OAuth 2.0 specification <xref
-    target="RFC6749"/>, encoded as a CBOR map.</t>
+    target="RFC6749"/>, encoded as a CBOR map, where the "scope" parameter
+    can additionally be formatted as a byte array, in order to allow
+    compact encoding of complex scope structures.</t>
 
     <t>In addition to these parameters, this framework defines the following
     parameters for requesting an access token from a token endpoint:
@@ -1404,31 +1406,31 @@ Payload:
       <figure align="center" anchor="fig:cborTokenParameters"
               title="CBOR mappings used in token requests">
         <artwork align="left"><![CDATA[
-        /-------------------+----------+------------------\
-        | Parameter name    | CBOR Key | Type             |
-        |-------------------+----------+------------------|
-        | aud               | 3        | text string      |
-        | client_id         | 8        | text string      |
-        | client_secret     | 9        | byte string      |
-        | response_type     | 10       | text string      |
-        | redirect_uri      | 11       | text string      |
-        | scope             | 12       | text string      |
-        | state             | 13       | text string      |
-        | code              | 14       | byte string      |
-        | error             | 15       | text string      |
-        | error_description | 16       | text string      |
-        | error_uri         | 17       | text string      |
-        | grant_type        | 18       | unsigned integer |
-        | access_token      | 19       | text string      |
-        | token_type        | 20       | unsigned integer |
-        | expires_in        | 21       | unsigned integer |
-        | username          | 22       | text string      |
-        | password          | 23       | text string      |
-        | refresh_token     | 24       | text string      |
-        | cnf               | 25       | map              |
-        | profile           | 26       | text string      |
-        | rs_cnf            | 31       | map              |
-        \-------------------+----------+------------------/
+        /-------------------+----------+---------------------\
+        | Parameter name    | CBOR Key | Type                |
+        |-------------------+----------+---------------------|
+        | aud               | 3        | text string         |
+        | client_id         | 8        | text string         |
+        | client_secret     | 9        | byte string         |
+        | response_type     | 10       | text string         |
+        | redirect_uri      | 11       | text string         |
+        | scope             | 12       | text or byte string |
+        | state             | 13       | text string         |
+        | code              | 14       | byte string         |
+        | error             | 15       | text string         |
+        | error_description | 16       | text string         |
+        | error_uri         | 17       | text string         |
+        | grant_type        | 18       | unsigned integer    |
+        | access_token      | 19       | text string         |
+        | token_type        | 20       | unsigned integer    |
+        | expires_in        | 21       | unsigned integer    |
+        | username          | 22       | text string         |
+        | password          | 23       | text string         |
+        | refresh_token     | 24       | text string         |
+        | cnf               | 25       | map                 |
+        | profile           | 26       | text string         |
+        | rs_cnf            | 31       | map                 |
+        \-------------------+----------+---------------------/
       ]]></artwork>
     </figure>
   </t>
@@ -1689,28 +1691,28 @@ C:  +--------------->|                |
     <figure align="center" anchor="fig:cborIntrospectionParameters"
             title="CBOR Mappings to Token Introspection Parameters.">
       <artwork align="left"><![CDATA[
-          /-----------------+----------+-----------------\
-          | Parameter name  | CBOR Key | Major Type      |
-          |-----------------+----------+-----------------|
-          | iss             | 1        | 3 (text string) |
-          | sub             | 2        | 3               |
-          | aud             | 3        | 3               |
-          | exp             | 4        | 6 tag value 1   |
-          | nbf             | 5        | 6 tag value 1   |
-          | iat             | 6        | 6 tag value 1   |
-          | cti             | 7        | 2 (byte string) |
-          | client_id       | 8        | 3               |
-          | scope           | 12       | 3               |
-          | token_type      | 20       | 3               |
-          | username        | 22       | 3               |
-          | cnf             | 25       | 5 (map)         |
-          | profile         | 26       | 0 (uint)        |
-          | token           | 27       | 3               |
-          | token_type_hint | 28       | 3               |
-          | active          | 29       | 0               |
-          | client_token    | 30       | 3               |
-          | rs_cnf          | 31       | 5               |
-          \-----------------+----------+-----------------/
+    /-----------------+----------+-----------------------\
+    | Parameter name  | CBOR Key | Major Type            |
+    |-----------------+----------+-----------------------|
+    | iss             | 1        | text string           |
+    | sub             | 2        | text string           |
+    | aud             | 3        | text string           |
+    | exp             | 4        | Epoch-based date/time |
+    | nbf             | 5        | Epoch-based date/time |
+    | iat             | 6        | Epoch-based date/time | 
+    | cti             | 7        | byte string           |
+    | client_id       | 8        | text string           |
+    | scope           | 12       | text OR byte string   |
+    | token_type      | 20       | text string           |
+    | username        | 22       | text string           |
+    | cnf             | 25       | map                   |
+    | profile         | 26       | unsigned integer      |
+    | token           | 27       | text string           |
+    | token_type_hint | 28       | text string           |
+    | active          | 29       | unsigned integer      |
+    | client_token    | 30       | byte string           |
+    | rs_cnf          | 31       | map                   |
+    \-----------------+----------+-----------------------/
         ]]></artwork>
       </figure>
     </t>
@@ -1730,8 +1732,10 @@ C:  +--------------->|                |
 
   <t>The "scope" claim explicitly encodes the scope of a given access token.
   This claim follows the same encoding rules as defined in section 3.3 of <xref
-  target="RFC6749"/>.  The meaning of a specific scope value is application
-  specific and expected to be known to the RS running that application.</t>
+  target="RFC6749"/>, but in addition implementers MAY use byte arrays as scope
+  values, to achieve compact encoding of large scope elements.  The meaning of
+  a specific scope value is application specific and expected to be known to
+  the RS running that application.</t>
 
 <section anchor="tokenAuthInfoEndpoint" title="The 'Authorization Information' Endpoint">
   <t>The access token, containing authorization information and information
@@ -3563,6 +3567,12 @@ F:  |<--------+ Header: 2.04 Changed
 </section>
 <section anchor="app:changelog" title="Document Updates">
    <section anchor="app:f9t10" title="Version -08 to -09">
+     <t><list style="symbols">
+       <t>Allowed scope to be byte arrays.</t>
+       <t>Defined default names for endpoints.</t>
+     </list></t>
+   </section>
+   <section anchor="app:f8t9" title="Version -07 to -08">
       <t><list style="symbols">
         <t>Moved AS discovery from the DTLS profile to the
 	framework, see <xref target="asDiscovery"/>.</t>
@@ -3587,13 +3597,9 @@ F:  |<--------+ Header: 2.04 Changed
 	<t>Clarified the design justification for specific features of the
 	framework in appendix A.</t>
 	<t>Clarified appendix E.2.</t>
-      </list></t>
-   </section>
-   <section anchor="app:f8t9" title="Version -07 to -08">
-      <t><list style="symbols">
-         <t>Removed specification of the "cnf" claim for CBOR/COSE, and
-	 replaced with references to <xref
-	 target="I-D.jones-ace-cwt-proof-of-possession"/></t>
+        <t>Removed specification of the "cnf" claim for CBOR/COSE, and
+	replaced with references to <xref
+	target="I-D.jones-ace-cwt-proof-of-possession"/></t>
       </list></t>
    </section>
    <section anchor="app:f7t8" title="Version -06 to -07">
