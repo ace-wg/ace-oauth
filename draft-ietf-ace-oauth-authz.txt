@@ -16,7 +16,7 @@ Expires: May 20, 2018                                           Ericsson
 
 
   Authentication and Authorization for Constrained Environments (ACE)
-                     draft-ietf-ace-oauth-authz-08
+                     draft-ietf-ace-oauth-authz-09
 
 Abstract
 
@@ -70,13 +70,13 @@ Internet-Draft                     ACE                     November 2017
 
 Table of Contents
 
-   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   4
-   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   5
+   1.  Introduction  . . . . . . . . . . . . . . . . . . . . . . . .   3
+   2.  Terminology . . . . . . . . . . . . . . . . . . . . . . . . .   4
    3.  Overview  . . . . . . . . . . . . . . . . . . . . . . . . . .   5
-     3.1.  OAuth 2.0 . . . . . . . . . . . . . . . . . . . . . . . .   7
+     3.1.  OAuth 2.0 . . . . . . . . . . . . . . . . . . . . . . . .   6
      3.2.  CoAP  . . . . . . . . . . . . . . . . . . . . . . . . . .   9
    4.  Protocol Interactions . . . . . . . . . . . . . . . . . . . .  10
-   5.  Framework . . . . . . . . . . . . . . . . . . . . . . . . . .  14
+   5.  Framework . . . . . . . . . . . . . . . . . . . . . . . . . .  13
      5.1.  Discovering Authorization Servers . . . . . . . . . . . .  15
        5.1.1.  Unauthorized Resource Request Message . . . . . . . .  15
        5.1.2.  AS Information  . . . . . . . . . . . . . . . . . . .  16
@@ -84,7 +84,7 @@ Table of Contents
      5.3.  Client Credentials  . . . . . . . . . . . . . . . . . . .  18
      5.4.  AS Authentication . . . . . . . . . . . . . . . . . . . .  18
      5.5.  The Authorization Endpoint  . . . . . . . . . . . . . . .  18
-     5.6.  The Token Endpoint  . . . . . . . . . . . . . . . . . . .  19
+     5.6.  The Token Endpoint  . . . . . . . . . . . . . . . . . . .  18
        5.6.1.  Client-to-AS Request  . . . . . . . . . . . . . . . .  19
        5.6.2.  AS-to-Client Response . . . . . . . . . . . . . . . .  22
        5.6.3.  Error Response  . . . . . . . . . . . . . . . . . . .  24
@@ -119,56 +119,41 @@ Internet-Draft                     ACE                     November 2017
      6.4.  Error responses . . . . . . . . . . . . . . . . . . . . .  37
    7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  38
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  39
-     8.1.  OAuth Introspection Response Parameter Registration . . .  39
-     8.2.  OAuth Parameter Registration  . . . . . . . . . . . . . .  39
-     8.3.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  40
-     8.4.  OAuth Grant Type            CBOR Mappings . . . . . . . .  40
-     8.5.  OAuth Token Type            CBOR Mappings . . . . . . . .  40
-       8.5.1.  Registration Template . . . . . . . . . . . . . . . .  40
-       8.5.2.  Initial Registry Contents . . . . . . . . . . . . . .  41
-     8.6.  CBOR Web Token Claims . . . . . . . . . . . . . . . . . .  41
-     8.7.  ACE OAuth Profile Registry  . . . . . . . . . . . . . . .  41
-       8.7.1.  Registration Template . . . . . . . . . . . . . . . .  41
+     8.1.  Authorization Server Information  . . . . . . . . . . . .  39
+     8.2.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  39
+     8.3.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  40
+     8.4.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  40
+     8.5.  OAuth Token Type CBOR Mappings  . . . . . . . . . . . . .  40
+       8.5.1.  Initial Registry Contents . . . . . . . . . . . . . .  41
+     8.6.  ACE OAuth Profile Registry  . . . . . . . . . . . . . . .  41
+     8.7.  OAuth Parameter Registration  . . . . . . . . . . . . . .  41
      8.8.  OAuth CBOR Parameter Mappings Registry  . . . . . . . . .  42
-       8.8.1.  Registration Template . . . . . . . . . . . . . . . .  42
-       8.8.2.  Initial Registry Contents . . . . . . . . . . . . . .  43
-     8.9.  Introspection Endpoint CBOR Mappings Registry . . . . . .  45
-       8.9.1.  Registration Template . . . . . . . . . . . . . . . .  45
-       8.9.2.  Initial Registry Contents . . . . . . . . . . . . . .  45
-     8.10. CoAP Option Number Registration . . . . . . . . . . . . .  47
-   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  48
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  48
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  48
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  49
-   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  51
-   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  55
-   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  57
-   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  58
-   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  58
-     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  59
-     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  62
-   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  66
-     F.1.  Version -08 to -09  . . . . . . . . . . . . . . . . . . .  66
-     F.2.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  66
-     F.3.  Version -06 to -07  . . . . . . . . . . . . . . . . . . .  67
-     F.4.  Version -05 to -06  . . . . . . . . . . . . . . . . . . .  67
-     F.5.  Version -04 to -05  . . . . . . . . . . . . . . . . . . .  67
-     F.6.  Version -03 to -04  . . . . . . . . . . . . . . . . . . .  67
-     F.7.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  68
-     F.8.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  68
-     F.9.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  68
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  69
-
-
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                  [Page 3]
-
-Internet-Draft                     ACE                     November 2017
-
+     8.9.  OAuth Introspection Response Parameter Registration . . .  42
+     8.10. Introspection Endpoint CBOR Mappings Registry . . . . . .  43
+     8.11. CBOR Web Token Claims . . . . . . . . . . . . . . . . . .  43
+     8.12. CoAP Option Number Registration . . . . . . . . . . . . .  43
+   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  44
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  44
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  44
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  45
+   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  48
+   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  51
+   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  54
+   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  54
+   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  55
+     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  55
+     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  59
+   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  63
+     F.1.  Version -08 to -09  . . . . . . . . . . . . . . . . . . .  63
+     F.2.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  63
+     F.3.  Version -06 to -07  . . . . . . . . . . . . . . . . . . .  64
+     F.4.  Version -05 to -06  . . . . . . . . . . . . . . . . . . .  64
+     F.5.  Version -04 to -05  . . . . . . . . . . . . . . . . . . .  64
+     F.6.  Version -03 to -04  . . . . . . . . . . . . . . . . . . .  65
+     F.7.  Version -02 to -03  . . . . . . . . . . . . . . . . . . .  65
+     F.8.  Version -01 to -02  . . . . . . . . . . . . . . . . . . .  65
+     F.9.  Version -00 to -01  . . . . . . . . . . . . . . . . . . .  65
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  66
 
 1.  Introduction
 
@@ -177,6 +162,14 @@ Internet-Draft                     ACE                     November 2017
    be described as granting access to a requesting client, for a
    resource hosted on a device, the resource server (RS).  This exchange
    is mediated by one or multiple authorization servers (AS).  Managing
+
+
+
+Seitz, et al.             Expires May 20, 2018                  [Page 3]
+
+Internet-Draft                     ACE                     November 2017
+
+
    authorization for a large number of devices and users can be a
    complex task.
 
@@ -214,18 +207,6 @@ Internet-Draft                     ACE                     November 2017
    described at contextually appropriate places throughout this
    specification, and also summarized in Appendix C.
 
-
-
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                  [Page 4]
-
-Internet-Draft                     ACE                     November 2017
-
-
 2.  Terminology
 
    The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
@@ -236,6 +217,14 @@ Internet-Draft                     ACE                     November 2017
    Certain security-related terms such as "authentication",
    "authorization", "confidentiality", "(data) integrity", "message
    authentication code", and "verify" are taken from [RFC4949].
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                  [Page 4]
+
+Internet-Draft                     ACE                     November 2017
+
 
    Since exchanges in this specification are described as RESTful
    protocol interactions, HTTP [RFC7231] offers useful terminology.
@@ -273,15 +262,6 @@ Internet-Draft                     ACE                     November 2017
    Internet of Things environment.  It consists of a set of building
    blocks.
 
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                  [Page 5]
-
-Internet-Draft                     ACE                     November 2017
-
-
    The basic block is the OAuth 2.0 [RFC6749] framework, which enjoys
    widespread deployment.  Many IoT devices can support OAuth 2.0
    without any additional extensions, but for certain constrained
@@ -294,6 +274,13 @@ Internet-Draft                     ACE                     November 2017
    defines extensions for the use of OAuth over CoAP, other underlying
    protocols are not prohibited from beeing supported in the future,
    such as HTTP/2, MQTT, BLE and QUIC.
+
+
+
+Seitz, et al.             Expires May 20, 2018                  [Page 5]
+
+Internet-Draft                     ACE                     November 2017
+
 
    A third building block is CBOR [RFC7049], for encodings where JSON
    [RFC7159] is not sufficiently compact.  CBOR is a binary encoding
@@ -327,17 +314,6 @@ Internet-Draft                     ACE                     November 2017
    mature, popular deployment variants will be documented in the form of
    ACE profiles.
 
-
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                  [Page 6]
-
-Internet-Draft                     ACE                     November 2017
-
-
 3.1.  OAuth 2.0
 
    The OAuth 2.0 authorization framework enables a client to obtain
@@ -354,6 +330,14 @@ Internet-Draft                     ACE                     November 2017
 
       The AS hosts the token endpoint that allows a client to request
       access tokens.  The client makes a POST request to the token
+
+
+
+Seitz, et al.             Expires May 20, 2018                  [Page 6]
+
+Internet-Draft                     ACE                     November 2017
+
+
       endpoint on the AS and receives the access token in the response
       (if the request was successful).
 
@@ -385,15 +369,6 @@ Internet-Draft                     ACE                     November 2017
       are called proof-of-possession access tokens (or PoP access
       tokens).
 
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                  [Page 7]
-
-Internet-Draft                     ACE                     November 2017
-
-
       The proof-of-possession (PoP) security concept assumes that the AS
       acts as a trusted third party that binds keys to access tokens.
       These so called PoP keys are then used by the client to
@@ -411,6 +386,14 @@ Internet-Draft                     ACE                     November 2017
 
       Symmetric PoP key:  The AS generates a random symmetric PoP key.
          The key is either stored to be returned on introspection calls
+
+
+
+Seitz, et al.             Expires May 20, 2018                  [Page 7]
+
+Internet-Draft                     ACE                     November 2017
+
+
          or encrypted and included in the access token.  The PoP key is
          also encrypted for the client and sent together with the access
          token to the client.
@@ -442,14 +425,6 @@ Internet-Draft                     ACE                     November 2017
       scopes and to be informed what scopes the access token actually
       authorizes.
 
-
-
-
-Seitz, et al.             Expires May 20, 2018                  [Page 8]
-
-Internet-Draft                     ACE                     November 2017
-
-
       The values of the scope parameter in OAuth 2.0 are expressed as a
       list of space-delimited, case-sensitive strings, with a semantic
       that is well-known to the AS and the RS.  More details about the
@@ -465,6 +440,15 @@ Internet-Draft                     ACE                     November 2017
       audience of an access token can be a specific resource or one or
       many resource servers.  The resource owner policies influence what
       claims are put into the access token by the authorization server.
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                  [Page 8]
+
+Internet-Draft                     ACE                     November 2017
+
 
       While the structure and encoding of the access token varies
       throughout deployments, a standardized format has been defined
@@ -499,13 +483,6 @@ Internet-Draft                     ACE                     November 2017
    does not increase the size limits of CoAP options, therefore data
    encoded in options has to be kept small.
 
-
-
-Seitz, et al.             Expires May 20, 2018                  [Page 9]
-
-Internet-Draft                     ACE                     November 2017
-
-
    Transport layer security for CoAP can be provided by DTLS 1.2
    [RFC6347] or TLS 1.2 [RFC5246].  CoAP defines a number of proxy
    operations that require transport layer security to be terminated at
@@ -520,6 +497,14 @@ Internet-Draft                     ACE                     November 2017
    protection, and a secure binding between CoAP request and response
    messages.  In OSCOAP, the CoAP messages are wrapped in COSE objects
    and sent using CoAP.
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                  [Page 9]
+
+Internet-Draft                     ACE                     November 2017
+
 
    This framework RECOMMENDS the use of CoAP as replacement for HTTP.
 
@@ -555,13 +540,6 @@ Internet-Draft                     ACE                     November 2017
    authorization server, which is often accomplished using a
    commissioning tool.
 
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 10]
-
-Internet-Draft                     ACE                     November 2017
-
-
    The consent of the resource owner, for giving a client access to a
    protected resource, can be provided dynamically as in the traditional
    OAuth flows, or it could be pre-configured by the resource owner as
@@ -576,6 +554,14 @@ Internet-Draft                     ACE                     November 2017
    this document.  In practice, various techniques for onboarding have
    been used, such as factory-based provisioning or the use of
    commissioning tools.  Regardless of the onboarding technique, this
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 10]
+
+Internet-Draft                     ACE                     November 2017
+
+
    provisioning procedure implies that the client and the AS exchange
    credentials and configuration parameters.  These credentials are used
    to mutually authenticate each other and to protect messages exchanged
@@ -605,19 +591,6 @@ Internet-Draft                     ACE                     November 2017
    known/core" to obtain information about available resources, which
    are returned in a standardized format as described in [RFC6690].
 
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 11]
-
-Internet-Draft                     ACE                     November 2017
-
-
    +--------+                               +---------------+
    |        |---(A)-- Token Request ------->|               |
    |        |                               | Authorization |
@@ -637,6 +610,13 @@ Internet-Draft                     ACE                     November 2017
    +--------+                               +--------------+
 
                       Figure 1: Basic Protocol Flow.
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 11]
+
+Internet-Draft                     ACE                     November 2017
+
 
    Requesting an Access Token (A):
 
@@ -666,14 +646,6 @@ Internet-Draft                     ACE                     November 2017
       HTTP, HTTP/2, QUIC, MQTT, Bluetooth Low Energy, etc., are also
       viable candidates.
 
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 12]
-
-Internet-Draft                     ACE                     November 2017
-
-
       Depending on the device limitations and the selected protocol,
       this exchange may be split up into two parts:
 
@@ -693,6 +665,14 @@ Internet-Draft                     ACE                     November 2017
       handed over to the AS using token introspection (see messages D
       and E) over HTTP or CoAP, in which case the different parts of
       step C may be interleaved with introspection.
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 12]
+
+Internet-Draft                     ACE                     November 2017
+
 
    Token Introspection Request (D):
 
@@ -721,15 +701,6 @@ Internet-Draft                     ACE                     November 2017
 
       If the request from the client is authorized, the RS fulfills the
       request and returns a response with the appropriate response code.
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 13]
-
-Internet-Draft                     ACE                     November 2017
-
-
       The RS uses the dynamically established keys to protect the
       response, according to used communication security protocol.
 
@@ -749,6 +720,15 @@ Internet-Draft                     ACE                     November 2017
       subsequent token requests.
 
    Proof-of-Possession
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 13]
+
+Internet-Draft                     ACE                     November 2017
+
 
       The ACE framework, by default, implements proof-of-possession for
       access tokens, i.e., that the token holder can prove being a
@@ -779,13 +759,6 @@ Internet-Draft                     ACE                     November 2017
    furthermore REQUIRED that the AS and the endpoint communicating with
    it (client or RS) perform mutual authentication.
 
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 14]
-
-Internet-Draft                     ACE                     November 2017
-
-
    Profiles MUST specify how mutual authentication is done, depending
    e.g.  on the communication protocol and the credentials used by the
    client or the RS.
@@ -803,6 +776,15 @@ Internet-Draft                     ACE                     November 2017
    responses both to client and RS.  This framework REQUIRES the use of
    CBOR [RFC7049] instead.  Depending on the profile, the CBOR payload
    MAY be enclosed in a non-CBOR cryptographic wrapper.
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 14]
+
+Internet-Draft                     ACE                     November 2017
+
 
 5.1.  Discovering Authorization Servers
 
@@ -835,13 +817,6 @@ Internet-Draft                     ACE                     November 2017
    protected as specified above, in order to allow clients to upload
    access tokens to RS (cf.  Section 5.8.1).
 
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 15]
-
-Internet-Draft                     ACE                     November 2017
-
-
    Unauthorized Resource Request messages MUST be denied with a client
    error response.  In this response, the Resource Server SHOULD provide
    proper AS Information to enable the Client to request an access token
@@ -859,6 +834,14 @@ Internet-Draft                     ACE                     November 2017
    prevent infinite loops where a dumb Client optimistically tries to
    access a requested resource with any access token received from AS.
    As malicious clients could pretend to be C to determine C's
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 15]
+
+Internet-Draft                     ACE                     November 2017
+
+
    privileges, these detailed response codes must be used only when a
    certain level of security is already available which can be achieved
    only when the Client is authenticated.
@@ -877,26 +860,18 @@ Internet-Draft                     ACE                     November 2017
    Figure 2 summarizes the parameters that may be part of the AS
    Information.
 
-           /----------------+----------+-------------------\
-           | Parameter name | CBOR Key | Major Type        |
-           |----------------+----------+-------------------|
-           | AS             |    0     |   3 (text string) |
-           | nonce          |    5     |   2 (byte string) |
-           \----------------+----------+-------------------/
+           /-------+----------+-----------------\
+           | Name  | CBOR Key | Major Type      |
+           |-------+----------+-----------------|
+           | AS    |     0    | 3 (text string) |
+           | nonce |     5    | 2 (byte string) |
+           \-------+----------+-----------------/
 
                     Figure 2: AS Information parameters
 
    Figure 3 shows an example for an AS Information message payload using
    CBOR [RFC7049] diagnostic notation, using the parameter names instead
    of the CBOR keys for better human readability.
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 16]
-
-Internet-Draft                     ACE                     November 2017
-
 
        4.01 Unauthorized
        Content-Format: application/ace+cbor
@@ -914,6 +889,15 @@ Internet-Draft                     ACE                     November 2017
 
    Note: There is an ongoing discussion how freshness of      access
    tokens
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 16]
+
+Internet-Draft                     ACE                     November 2017
+
+
       can be achieved in constrained environments.  This specification
       for now assumes that RS and AS do not have a common understanding
       of time that allows RS to achieve its security objectives without
@@ -946,14 +930,6 @@ Internet-Draft                     ACE                     November 2017
 
    The grant type is selected depending on the use case.  In cases where
    the client acts on behalf of the resource owner, authorization code
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 17]
-
-Internet-Draft                     ACE                     November 2017
-
-
    grant is recommended.  If the client acts on behalf of the resource
    owner, but does not have any display or very limited interaction
    possibilities it is recommended to use the device code grant defined
@@ -965,6 +941,18 @@ Internet-Draft                     ACE                     November 2017
    [RFC6749].  The OAuth 2.0 framework provides an extension mechanism
    for defining additional grant types so profiles of this framework MAY
    define additional grant types, if needed.
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 17]
+
+Internet-Draft                     ACE                     November 2017
+
 
 5.3.  Client Credentials
 
@@ -1002,14 +990,6 @@ Internet-Draft                     ACE                     November 2017
    specification.  Implementations should use the definition and
    recommendations of [RFC6749] and [RFC6819].
 
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 18]
-
-Internet-Draft                     ACE                     November 2017
-
-
    If clients involved cannot support HTTP and TLS, profiles MAY define
    mappings for the authorization endpoint.
 
@@ -1021,6 +1001,14 @@ Internet-Draft                     ACE                     November 2017
    help the client and RS to establish shared keys or to exchange their
    public keys.  Furthermore, this framework defines encodings using
    CBOR, as a substitute for JSON.
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 18]
+
+Internet-Draft                     ACE                     November 2017
+
 
    For the AS to be able to issue a token, the client MUST be
    authenticated and present a valid grant for the scopes requested.
@@ -1057,15 +1045,6 @@ Internet-Draft                     ACE                     November 2017
       If a client submits a request for an access token without
       specifying an "aud" parameter, and the AS does not have an
       implicit understanding of the "aud" value for this client, then
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 19]
-
-Internet-Draft                     ACE                     November 2017
-
-
       the AS MUST respond with an error message using a response code
       equivalent to the CoAP response code 4.00 (Bad Request).
 
@@ -1077,6 +1056,15 @@ Internet-Draft                     ACE                     November 2017
       is expected to be able to generate better symmetric keys than a
       potentially constrained client.  See Section 5.6.4.5 for more
       details on the formatting of the 'cnf' parameter.
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 19]
+
+Internet-Draft                     ACE                     November 2017
+
 
    The following examples illustrate different types of requests for
    proof-of-possession tokens.
@@ -1104,6 +1092,18 @@ Internet-Draft                     ACE                     November 2017
    Figure 6 shows a request for a token with an asymmetric proof-of-
    possession key.  Note that in this example COSE is used to provide
    object-security, therefore the Content-Type is "application/cose".
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1262,22 +1262,22 @@ Internet-Draft                     ACE                     November 2017
    Figure 8 summarizes the parameters that may be part of the RS
    Information.
 
-           /-------------------+--------------------------\
-           | Parameter name    | Specified in             |
-           |-------------------+--------------------------|
-           | access_token      |  RFC 6749                |
-           | token_type        |  RFC 6749                |
-           | expires_in        |  RFC 6749                |
-           | refresh_token     |  RFC 6749                |
-           | scope             |  RFC 6749                |
-           | state             |  RFC 6749                |
-           | error             |  RFC 6749                |
-           | error_description |  RFC 6749                |
-           | error_uri         |  RFC 6749                |
-           | profile           | [[ this specification ]] |
-           | cnf               | [[ this specification ]] |
-           | rs_cnf            | [[ this specification ]] |
-           \-------------------+--------------------------/
+           /-------------------+-----------------\
+           | Parameter name    | Specified in    |
+           |-------------------+-----------------|
+           | access_token      |  RFC 6749       |
+           | token_type        |  RFC 6749       |
+           | expires_in        |  RFC 6749       |
+           | refresh_token     |  RFC 6749       |
+           | scope             |  RFC 6749       |
+           | state             |  RFC 6749       |
+           | error             |  RFC 6749       |
+           | error_description |  RFC 6749       |
+           | error_uri         |  RFC 6749       |
+           | profile           | [this document] |
+           | cnf               | [this document] |
+           | rs_cnf            | [this document] |
+           \-------------------+-----------------/
 
                     Figure 8: RS Information parameters
 
@@ -1346,17 +1346,17 @@ Seitz, et al.             Expires May 20, 2018                 [Page 24]
 Internet-Draft                     ACE                     November 2017
 
 
-           /------------------------+-------------------\
-           | error code             | CBOR Value (uint) |
-           |------------------------+-------------------|
-           | invalid_request        |         0         |
-           | invalid_client         |         1         |
-           | invalid_grant          |         2         |
-           | unauthorized_client    |         3         |
-           | unsupported_grant_type |         4         |
-           | invalid_scope          |         5         |
-           | unsupported_pop_key    |         6         |
-           \------------------------+-------------------/
+           /------------------------+-------\
+           | Name                   | Value |
+           |------------------------+-------|
+           | invalid_request        |   0   |
+           | invalid_client         |   1   |
+           | invalid_grant          |   2   |
+           | unauthorized_client    |   3   |
+           | unsupported_grant_type |   4   |
+           | invalid_scope          |   5   |
+           | unsupported_pop_key    |   6   |
+           \------------------------+-------/
 
            Figure 10: CBOR abbreviations for common error codes
 
@@ -1515,7 +1515,7 @@ Internet-Draft                     ACE                     November 2017
 
 
            /-------------------+----------+---------------------\
-           | Parameter name    | CBOR Key | Type                |
+           | Name              | Value    | Type                |
            |-------------------+----------+---------------------|
            | aud               | 3        | text string         |
            | client_id         | 8        | text string         |
@@ -2133,51 +2133,51 @@ Internet-Draft                     ACE                     November 2017
 8.  IANA Considerations
 
    This specification registers new parameters for OAuth and establishes
-   registries for mappings to CBOR.
+   registries for mappings to CBOR abbreviations.
 
-8.1.  OAuth Introspection Response Parameter Registration
+8.1.  Authorization Server Information
 
-   This specification registers the following parameters in the OAuth
-   introspection response parameters
+   A new registry will be requested from IANA, entitled "Authorization
+   Server Information".  The registry is to be created as Expert Review
+   Required.
 
-   o  Name: "cnf"
-   o  Description: Key to prove the right to use an access token,
-      formatted as specified in [I-D.jones-ace-cwt-proof-of-possession].
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   The columns of this table are:
 
-   o  Name: "profile"
-   o  Description: The communication and communication security profile
-      used between client and RS, as defined in ACE profiles.
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   Name  The name of the parameter
+   CBOR Key  The CBOR unsigned integer value abbreviating this parameter
+      name.  Registration in the table is based on the value of the
+      mapping requested.  Integer values between 1 and 255 are
+      designated as Standards Track Document required.  Integer values
+      from 256 to 65535 are designated as Specification Required.
+      Integer values greater than 65535 are designated as private use.
+   Major Type  The CBOR major type allowable for the values of this
+      parameter.
+   Reference  This contains a pointer to the public specification of the
+      grant type abbreviation, if one exists.
 
-   o  Name: "client_token"
-   o  Description: Information that the RS MUST pass to the client e.g.,
-      about the proof-of-possession keys.
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   This registry will be initially populated by the values in Figure 2.
+   The Reference column for all of these entries will be this document.
 
-   o  Name: "rs_cnf"
-   o  Description: Describes the public key the RS uses to authenticate.
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+8.2.  OAuth Error Code CBOR Mappings Registry
 
-8.2.  OAuth Parameter Registration
+   A new registry will be requested from IANA, entitled "OAuth Error
+   Code CBOR Mappings Registry".  The registry is to be created as
+   Expert Review Required.
 
-   This specification registers the following parameters in the OAuth
-   Parameters Registry
+   The columns of this table are:
 
-   o  Parameter name: "profile"
-   o  Parameter usage location: token request, and token response
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   Name  The OAuth Error Code name, refers to the name in section 5.2.
+      of [RFC6749] e.g., "invalid_request".
+   Value  The abbreviation for the error code.  The value MUST be an
+      integer.  Integer values from -65536 to 65535 are designated as
+      Specification Required.  Integer values of greater than 65535
+      designated as expert review.  Integer values less than -65536 are
+      marked as private use.
+   Reference  This contains a pointer to the public specification of the
+      grant type abbreviation, if one exists.
 
-   o  Name: "cnf"
-   o  Description: Key to prove the right to use an access token,
-      formatted as defined in [I-D.jones-ace-cwt-proof-of-possession].
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   This registry will be initially populated by the values in Figure 10.
+   The Reference column for all of these entries will be this document.
 
 
 
@@ -2186,17 +2186,7 @@ Seitz, et al.             Expires May 20, 2018                 [Page 39]
 Internet-Draft                     ACE                     November 2017
 
 
-8.3.  OAuth Access Token Types
-
-   This specification registers the following new token type in the
-   OAuth Access Token Types Registry
-
-   o  Name: "PoP"
-   o  Description: A proof-of-possession token.
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-8.4.  OAuth Grant Type CBOR Mappings
+8.3.  OAuth Grant Type CBOR Mappings
 
    A new registry will be requested from IANA, entitled "OAuth Grant
    Type CBOR Mappings".  The registry is to be created as Expert Review
@@ -2206,14 +2196,12 @@ Internet-Draft                     ACE                     November 2017
 
    Name  The name of the grant type as specified in Section 1.3 of
       [RFC6749].
-   Value  The CBOR integer value abbreviating this grant type.
-      Registration in the table is based on the value of the label
-      requested.  Integer values between 1 and 255 and strings of length
-      1 are designated as Standards Track Document required.  Integer
-      values from 256 to 65535 and strings of length 2 are designated as
-      Specification Required.  Integer values of greater than 65535 and
-      strings of length greater than 2 are designated as expert review.
-      Negative integer values are marked as private use.
+   Value  The CBOR unsigned integer value abbreviating this grant type.
+      Registration in the table is based on the value of the mapping
+      requested.  Integer values between 1 and 255 are designated as
+      Standards Track Document required.  Integer values from 256 to
+      65535 are designated as Specification Required.  Integer values
+      greater than 65535 are designated as private use.
    Reference  This contains a pointer to the public specification of the
       grant type abbreviation, if one exists.
    Original Specification  This contains a pointer to the public
@@ -2222,18 +2210,30 @@ Internet-Draft                     ACE                     November 2017
    This registry will be initially populated by the values in Figure 11.
    The Reference column for all of these entries will be this document.
 
+8.4.  OAuth Access Token Types
+
+   This specification registers the following new token type in the
+   OAuth Access Token Types Registry
+
+   o  Name: "PoP"
+   o  Change Controller: IETF
+   o  Reference: [this document]
+
 8.5.  OAuth Token Type CBOR Mappings
 
    A new registry will be requested from IANA, entitled "Token Type CBOR
    Mappings".  The registry is to be created as Expert Review Required.
 
-8.5.1.  Registration Template
+   The columns of this table are:
 
-   Token Type:
-      Name of token type as registered in the OAuth token type registry
-      e.g., "Bearer".
-   Mapped value:
-
+   Name  The name of token type as registered in the OAuth Access Token
+      Types registry e.g., "Bearer".
+   Value  The CBOR unsigned integer value abbreviating this access token
+      type.  Registration in the table is based on the value of the
+      mapping requested.  Integer values between 1 and 255 are
+      designated as Standards Track Document required.  Integer values
+      from 256 to 65535 are designated as Specification Required.
+      Integer values greater than 65535 are designated as private use.
 
 
 
@@ -2242,54 +2242,54 @@ Seitz, et al.             Expires May 20, 2018                 [Page 40]
 Internet-Draft                     ACE                     November 2017
 
 
-      Integer representation for the token type value.  The key value
-      MUST be an integer.  Integer values from -65536 to 65535 are
-      designated as Specification Required.  Integer values of greater
-      than 65535 designated as expert review.  Integer values less than
-      -65536 are marked as private use.
-   Change Controller:
-      For Standards Track RFCs, list the "IESG".  For others, give the
-      name of the responsible party.  Other details (e.g., postal
-      address, email address, home page URI) may also be included.
-   Specification Document(s):
-      Reference to the document or documents that specify the
-      parameter,preferably including URIs that can be used to retrieve
-      copies of the documents.  An indication of the relevant sections
-      may also be included but is not required.
+   Reference  This contains a pointer to the public specification of the
+      OAuth token type abbreviation, if one exists.
+   Original Specification  This contains a pointer to the public
+      specification of the grant type, if one exists.
 
-8.5.2.  Initial Registry Contents
+8.5.1.  Initial Registry Contents
 
-   o  Parameter name: "Bearer"
-   o  Mapped value: 1
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   o  Name: "Bearer"
+   o  Value: 1
+   o  Reference: [this document]
+   o  Original Specification: [RFC6749]
 
-   o  Parameter name: "pop"
-   o  Mapped value: 2
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   o  Name: "pop"
+   o  Value: 2
+   o  Reference: [this document]
+   o  Original Specification: [this document]
 
-8.6.  CBOR Web Token Claims
-
-   This specification registers the following new claims in the CBOR Web
-   Token (CWT) registry:
-
-   o  Claim Name: "scope"
-   o  Claim Description: The scope of an access token as defined in
-      [RFC6749].
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-8.7.  ACE OAuth Profile Registry
+8.6.  ACE OAuth Profile Registry
 
    A new registry will be requested from IANA, entitled "ACE Profile
    Registry".  The registry is to be created as Expert Review Required.
 
-8.7.1.  Registration Template
+   The columns of this table are:
 
-   Profile name:
-      Name of the profile to be included in the profile attribute.
-   Profile description:
+   Name  The name of the profile, to be used as value of the profile
+      attribute.
+   Description  Text giving an overview of the profile and the context
+      it is developed for.
+   ID Integer value to identify the profile.  Integer values from -65536
+      to 65535 are designated as Specification Required.  Integer values
+      of greater than 65535 designated as expert review.  Integer values
+      less than -65536 are marked as private use.
+   Reference  This contains a pointer to the public specification of the
+      grant type abbreviation, if one exists.
+
+8.7.  OAuth Parameter Registration
+
+   This specification registers the following parameters in the OAuth
+   Parameters Registry
+
+   o  Name: "profile"
+   o  Parameter Usage Location: token request, token response
+   o  Change Controller: IESG
+   o  Reference: Section 5.6.4.4 of [this document]
+
+   o  Name: "cnf"
+   o  Parameter Usage Location: token request, token response
+   o  Change Controller: IESG
 
 
 
@@ -2298,22 +2298,12 @@ Seitz, et al.             Expires May 20, 2018                 [Page 41]
 Internet-Draft                     ACE                     November 2017
 
 
-      Text giving an overview of the profile and the context it is
-      developed for.
-   Profile ID:
-      Integer value to identify the profile.  Integer values from -65536
-      to 65535 are designated as Specification Required.  Integer values
-      of greater than 65535 designated as expert review.  Integer values
-      less than -65536 are marked as private use.
-   Change Controller:
-      For Standards Track RFCs, list the "IESG".  For others, give the
-      name of the responsible party.  Other details (e.g., postal
-      address, email address, home page URI) may also be included.
-   Specification Document(s):
-      Reference to the document or documents that specify the
-      parameter,preferably including URIs that can be used to retrieve
-      copies of the documents.  An indication of the relevant sections
-      may also be included but is not required.
+   o  Reference: Section 5.6.4.5 of [this document]
+
+   o  Name: "rs_cnf"
+   o  Parameter Usage Location: token response
+   o  Change Controller: IESG
+   o  Reference: Section 5.6.4.5 of [this document]
 
 8.8.  OAuth CBOR Parameter Mappings Registry
 
@@ -2321,30 +2311,40 @@ Internet-Draft                     ACE                     November 2017
    CBOR Mappings Registry".  The registry is to be created as Expert
    Review Required.
 
-8.8.1.  Registration Template
+   The columns of this table are:
 
-   Parameter name:
-      OAuth Parameter name, refers to the name in the OAuth parameter
-      registry e.g., "client_id".
-   CBOR key value:
-      Key value for the claim.  The key value MUST be an integer.
-      Integer values from -65536 to 65535 are designated as
+   Name  The OAuth Parameter name, refers to the name in the OAuth
+      parameter registry e.g., "client_id".
+   Value  The abbreviation for the parameter.  The value MUST be an
+      integer.  Integer values from -65536 to 65535 are designated as
       Specification Required.  Integer values of greater than 65535
       designated as expert review.  Integer values less than -65536 are
       marked as private use.
-   Change Controller:
-      For Standards Track RFCs, list the "IESG".  For others, give the
-      name of the responsible party.  Other details (e.g., postal
-      address, email address, home page URI) may also be included.
-   Specification Document(s):
-      Reference to the document or documents that specify the
-      parameter,preferably including URIs that can be used to retrieve
-      copies of the documents.  An indication of the relevant sections
-      may also be included but is not required.
+   Type  The allowable CBOR data types for values of this parameter.
+   Reference  This contains a pointer to the public specification of the
+      grant type abbreviation, if one exists.
 
+   This registry will be initially populated by the values in Figure 12.
+   The Reference column for all of these entries will be this document.
 
+8.9.  OAuth Introspection Response Parameter Registration
 
+   This specification registers the following parameters in the OAuth
+   Token Introspection Response registry.
 
+   o  Name: "cnf"
+   o  Description: Key to prove the right to use an access token,
+      formatted as specified in [I-D.jones-ace-cwt-proof-of-possession].
+   o  Change Controller: IESG
+   o  Reference: Section 5.7.2 of [this document]
+
+   o  Name: "profile"
+   o  Description: The communication and communication security profile
+      used between client and RS, as defined in ACE profiles.
+   o  Change Controller: IESG
+   o  Reference: Section 5.7.2 of [this document]
+
+   o  Name: "client_token"
 
 
 
@@ -2354,54 +2354,54 @@ Seitz, et al.             Expires May 20, 2018                 [Page 42]
 Internet-Draft                     ACE                     November 2017
 
 
-8.8.2.  Initial Registry Contents
-
-   o  Parameter name: "aud"
-   o  CBOR key value: 3
+   o  Description: Information that the RS MUST pass to the client e.g.,
+      about the proof-of-possession keys.
    o  Change Controller: IESG
-   o  Specification Document(s): this document
+   o  Reference: Section 5.7.2 of [this document]
 
-   o  Parameter name: "client_id"
-   o  CBOR key value: 8
+8.10.  Introspection Endpoint CBOR Mappings Registry
+
+   A new registry will be requested from IANA, entitled "Introspection
+   Endpoint CBOR Mappings Registry".  The registry is to be created as
+   Expert Review Required.
+
+   The columns of this table are:
+
+   Name  The OAuth Parameter name, refers to the name in the OAuth
+      parameter registry e.g., "client_id".
+   Value  The abbreviation for the parameter.  The value MUST be an
+      integer.  Integer values from -65536 to 65535 are designated as
+      Specification Required.  Integer values of greater than 65535
+      designated as expert review.  Integer values less than -65536 are
+      marked as private use.
+   Type  The allowable CBOR data types for values of this parameter.
+   Reference  This contains a pointer to the public specification of the
+      grant type abbreviation, if one exists.
+
+   This registry will be initially populated by the values in Figure 16.
+   The Reference column for all of these entries will be this document.
+
+8.11.  CBOR Web Token Claims
+
+   This specification registers the following new claims in the CBOR Web
+   Token (CWT) registry:
+
+   o  Claim Name: "scope"
+   o  Claim Description: The scope of an access token as defined in
+      [RFC6749].
+   o  JWT Claim Name: N/A
+   o  Claim Key: 12
+   o  Claim Value Type(s): 0 (uint), 2 (byte string), 3 (text string)
    o  Change Controller: IESG
-   o  Specification Document(s): this document
+   o  Speficiation Document(s): Section 5.8 of [this document]
 
-   o  Parameter name: "client_secret"
-   o  CBOR key value: 9
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+8.12.  CoAP Option Number Registration
 
-   o  Parameter name: "response_type"
-   o  CBOR key value: 10
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
+   This section registers the "Access-Token" CoAP Option Number in the
+   "CoRE Parameters" sub-registry "CoAP Option Numbers" in the manner
+   described in [RFC7252].
 
-   o  Parameter name: "redirect_uri"
-   o  CBOR key value: 11
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "scope"
-   o  CBOR key value: 12
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "state"
-   o  CBOR key value: 13
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "code"
-   o  CBOR key value: 14
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "error"
-   o  CBOR key value: 15
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "error_description"
+      Name: Access-Token
 
 
 
@@ -2410,229 +2410,15 @@ Seitz, et al.             Expires May 20, 2018                 [Page 43]
 Internet-Draft                     ACE                     November 2017
 
 
-   o  CBOR key value: 16
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "error_uri"
-   o  CBOR key value: 17
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "grant_type"
-   o  CBOR key value: 18
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "access_token"
-   o  CBOR key value: 19
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "token_type"
-   o  CBOR key value: 20
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "expires_in"
-   o  CBOR key value: 21
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "username"
-   o  CBOR key value: 22
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "password"
-   o  CBOR key value: 23
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "refresh_token"
-   o  CBOR key value: 24
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "cnf"
-   o  CBOR key value: 25
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 44]
-
-Internet-Draft                     ACE                     November 2017
-
-
-   o  Parameter name: "profile"
-   o  CBOR key value: 26
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-8.9.  Introspection Endpoint CBOR Mappings Registry
-
-   A new registry will be requested from IANA, entitled "Introspection
-   Endpoint CBOR Mappings Registry".  The registry is to be created as
-   Expert Review Required.
-
-8.9.1.  Registration Template
-
-   Response parameter name:
-      Name of the response parameter as defined in the "OAuth Token
-      Introspection Response" registry e.g., "active".
-   CBOR key value:
-      Key value for the claim.  The key value MUST be an integer.
-      Integer values from -65536 to 65535 are designated as
-      Specification Required.  Integer values of greater than 65535
-      designated as expert review.  Integer values less than -65536 are
-      marked as private use.
-   Change Controller:
-      For Standards Track RFCs, list the "IESG".  For others, give the
-      name of the responsible party.  Other details (e.g., postal
-      address, email address, home page URI) may also be included.
-   Specification Document(s):
-      Reference to the document or documents that specify the
-      parameter,preferably including URIs that can be used to retrieve
-      copies of the documents.  An indication of the relevant sections
-      may also be included but is not required.
-
-8.9.2.  Initial Registry Contents
-
-   o  Response parameter name: "iss"
-   o  CBOR key value: 1
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "sub"
-   o  CBOR key value: 2
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "aud"
-   o  CBOR key value: 3
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 45]
-
-Internet-Draft                     ACE                     November 2017
-
-
-   o  Response parameter name: "exp"
-   o  CBOR key value: 4
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "nbf"
-   o  CBOR key value: 5
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "iat"
-   o  CBOR key value: 6
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "cti"
-   o  CBOR key value: 7
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "client_id"
-   o  CBOR key value: 8
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "scope"
-   o  CBOR key value: 12
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "token_type"
-   o  CBOR key value: 20
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "username"
-   o  CBOR key value: 22
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "cnf"
-   o  CBOR key value: 25
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Parameter name: "profile"
-   o  CBOR key value: 26
-   o  Change Controller: IESG
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 46]
-
-Internet-Draft                     ACE                     November 2017
-
-
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "token"
-   o  CBOR key value: 27
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "token_type_hint"
-   o  CBOR key value: 28
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "active"
-   o  CBOR key value: 29
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "client_token"
-   o  CBOR key value: 30
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-   o  Response parameter name: "rs_cnf"
-   o  CBOR key value: 31
-   o  Change Controller: IESG
-   o  Specification Document(s): this document
-
-8.10.  CoAP Option Number Registration
-
-   This section registers the "Access-Token" CoAP Option Number in the
-   "CoRE Parameters" sub-registry "CoAP Option Numbers" in the manner
-   described in [RFC7252].
-
-      Name: Access-Token
       Number: TBD
-      Reference: [This document].
-      Meaning in Request: Contains an Access Token according to [This
+      Reference: [this document].
+      Meaning in Request: Contains an Access Token according to [this
       document] containing access permissions of the client.
       Meaning in Response: Not used in response.
       Safe-to-Forward: Yes
       Format: Based on the observer the format is perceived differently.
       Opaque data to the client and CWT or reference token to the RS.
       Length: Less than 255 bytes
-
-
-
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 47]
-
-Internet-Draft                     ACE                     November 2017
-
 
 9.  Acknowledgments
 
@@ -2672,6 +2458,14 @@ Internet-Draft                     ACE                     November 2017
               DOI 10.17487/RFC2119, March 1997, <https://www.rfc-
               editor.org/info/rfc2119>.
 
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 44]
+
+Internet-Draft                     ACE                     November 2017
+
+
    [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
               Resource Identifier (URI): Generic Syntax", STD 66,
               RFC 3986, DOI 10.17487/RFC3986, January 2005,
@@ -2680,15 +2474,6 @@ Internet-Draft                     ACE                     November 2017
    [RFC6347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
               Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
               January 2012, <https://www.rfc-editor.org/info/rfc6347>.
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 48]
-
-Internet-Draft                     ACE                     November 2017
-
 
    [RFC7252]  Shelby, Z., Hartke, K., and C. Bormann, "The Constrained
               Application Protocol (CoAP)", RFC 7252,
@@ -2727,6 +2512,16 @@ Internet-Draft                     ACE                     November 2017
               Amsuess, "CoRE Resource Directory", draft-ietf-core-
               resource-directory-12 (work in progress), October 2017.
 
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 45]
+
+Internet-Draft                     ACE                     November 2017
+
+
    [I-D.ietf-oauth-device-flow]
               Denniss, W., Bradley, J., Jones, M., and H. Tschofenig,
               "OAuth 2.0 Device Flow for Browserless and Input
@@ -2737,14 +2532,6 @@ Internet-Draft                     ACE                     November 2017
               Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
               Authorization Server Metadata", draft-ietf-oauth-
               discovery-07 (work in progress), September 2017.
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 49]
-
-Internet-Draft                     ACE                     November 2017
-
 
    [I-D.ietf-oauth-native-apps]
               Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
@@ -2781,6 +2568,16 @@ Internet-Draft                     ACE                     November 2017
               DOI 10.17487/RFC6819, January 2013, <https://www.rfc-
               editor.org/info/rfc6819>.
 
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 46]
+
+Internet-Draft                     ACE                     November 2017
+
+
    [RFC7049]  Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
               October 2013, <https://www.rfc-editor.org/info/rfc7049>.
@@ -2793,14 +2590,6 @@ Internet-Draft                     ACE                     November 2017
               Constrained-Node Networks", RFC 7228,
               DOI 10.17487/RFC7228, May 2014, <https://www.rfc-
               editor.org/info/rfc7228>.
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 50]
-
-Internet-Draft                     ACE                     November 2017
-
 
    [RFC7231]  Fielding, R., Ed. and J. Reschke, Ed., "Hypertext Transfer
               Protocol (HTTP/1.1): Semantics and Content", RFC 7231,
@@ -2837,6 +2626,14 @@ Internet-Draft                     ACE                     November 2017
               DOI 10.17487/RFC7959, August 2016, <https://www.rfc-
               editor.org/info/rfc7959>.
 
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 47]
+
+Internet-Draft                     ACE                     November 2017
+
+
 Appendix A.  Design Justification
 
    This section provides further insight into the design decisions of
@@ -2848,15 +2645,6 @@ Appendix A.  Design Justification
    Common IoT constraints are:
 
    Low Power Radio:
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 51]
-
-Internet-Draft                     ACE                     November 2017
-
 
       Many IoT devices are equipped with a small battery which needs to
       last for a long time.  For many constrained wireless devices, the
@@ -2894,6 +2682,14 @@ Internet-Draft                     ACE                     November 2017
       put on those devices.  To reduce code size fewer and smaller
       protocol implementations can be put on the firmware of such a
       device.  In this case, CoAP may be used instead of HTTP, symmetric
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 48]
+
+Internet-Draft                     ACE                     November 2017
+
+
       key cryptography instead of public key cryptography, and CBOR
       instead of JSON.  Authentication and key establishment protocol,
       e.g., the DTLS handshake, in comparison with assisted key
@@ -2906,14 +2702,6 @@ Internet-Draft                     ACE                     November 2017
       not want to give access to the data collected by their IoT device
       or to functions it may offer to third parties.  Since the
       classical approach of requesting permissions from end users via a
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 52]
-
-Internet-Draft                     ACE                     November 2017
-
-
       rich user interface does not work in many IoT deployment
       scenarios, these functions need to be delegated to user-controlled
       devices that are better suitable for such tasks, such as smart
@@ -2949,6 +2737,15 @@ Internet-Draft                     ACE                     November 2017
       needed, this framework RECOMMENDS the use of CWT
       [I-D.ietf-ace-cbor-web-token].  These measures aim at reducing the
       size of messages sent over the wire, the RAM size of data objects
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 49]
+
+Internet-Draft                     ACE                     November 2017
+
+
       that need to be kept in memory and the size of libraries that
       devices need to support.
 
@@ -2961,14 +2758,6 @@ Internet-Draft                     ACE                     November 2017
       size of messages sent over the wire, the RAM size of data objects
       that need to be kept in memory and the size of libraries that
       devices need to support.
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 53]
-
-Internet-Draft                     ACE                     November 2017
-
 
    RS Information:
 
@@ -3004,6 +2793,15 @@ Internet-Draft                     ACE                     November 2017
       order of 100 bytes).  This means that larger packets get
       fragmented, which in turn combines badly with the high rate of
       packet loss, and the need to retransmit the whole message if one
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 50]
+
+Internet-Draft                     ACE                     November 2017
+
+
       packet gets lost.  Thus separating sending of the request and
       sending of the access tokens helps to reduce fragmentation.
 
@@ -3018,13 +2816,6 @@ Internet-Draft                     ACE                     November 2017
       obtain access tokens from the AS.
 
    Introspection:
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 54]
-
-Internet-Draft                     ACE                     November 2017
-
 
       This framework RECOMMENDS the use of access token introspection in
       cases where the client is constrained in a way that it can not
@@ -3058,6 +2849,15 @@ Appendix B.  Roles and Responsibilities
       *  Make sure that the RS is registered at the AS.  This includes
          making known to the AS which profiles, token_types, scopes, and
          key types (symmetric/asymmetric) the RS supports.  Also making
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 51]
+
+Internet-Draft                     ACE                     November 2017
+
+
          it known to the AS which audience(s) the RS identifies itself
          with.
       *  Make sure that clients can discover the AS that is in charge of
@@ -3074,14 +2874,6 @@ Appendix B.  Roles and Responsibilities
          requirements of the Requesting Party when issuing requests
          (e.g., minimum communication security requirements, trust
          anchors).
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 55]
-
-Internet-Draft                     ACE                     November 2017
-
-
       *  Register the client at the AS.  This includes making known to
          the AS which profiles, token_types, and key types (symmetric/
          asymmetric) the client.
@@ -3113,6 +2905,15 @@ Internet-Draft                     ACE                     November 2017
       *  Submit the token request (see step (A) of Figure 1).
 
          +  Authenticate to the AS.
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 52]
+
+Internet-Draft                     ACE                     November 2017
+
+
          +  Optionally (if not pre-configured): Specify which RS, which
             resource(s), and which action(s) the request(s) will target.
          +  If raw public keys (rpk) or certificates are used, make sure
@@ -3128,16 +2929,6 @@ Internet-Draft                     ACE                     November 2017
 
          +  Authenticate towards the RS (this could coincide with the
             proof of possession process).
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 56]
-
-Internet-Draft                     ACE                     November 2017
-
-
          +  Transmit the token as specified by the AS (default is to the
             authz-info endpoint, alternative options are specified by
             profiles).
@@ -3171,6 +2962,14 @@ Internet-Draft                     ACE                     November 2017
       *  Send a response following the agreed upon communication
          security.
 
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 53]
+
+Internet-Draft                     ACE                     November 2017
+
+
 Appendix C.  Requirements on Profiles
 
    This section lists the requirements on profiles of this framework,
@@ -3186,14 +2985,6 @@ Appendix C.  Requirements on Profiles
       Section 4
    o  Specify the Content-format of the protocol messages (e.g.,
       "application/cbor" or "application/cose+cbor").  Section 4
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 57]
-
-Internet-Draft                     ACE                     November 2017
-
-
    o  Specify the proof-of-possession protocol(s) and how to select one,
       if several are available.  Also specify which key types (e.g.,
       symmetric/asymmetric) are supported by a specific proof-of-
@@ -3227,6 +3018,14 @@ Appendix D.  Assumptions on AS knowledge about C and RS
    o  The expiration time for access tokens issued to this RS (unless
       the RS accepts a default time chosen by the AS).
    o  The symmetric key shared between client or RS and AS (if any).
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 54]
+
+Internet-Draft                     ACE                     November 2017
+
+
    o  The raw public key of the client or RS (if any).
 
 Appendix E.  Deployment Examples
@@ -3242,13 +3041,6 @@ Appendix E.  Deployment Examples
    authorization of a client request for a resource hosted by a RS is
    performed.  This requires the security of the requests and responses
    between the clients and the RS to consider.
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 58]
-
-Internet-Draft                     ACE                     November 2017
-
 
    Note: CBOR diagnostic notation is used for examples of requests and
    responses.
@@ -3282,6 +3074,14 @@ E.1.  Local Token Validation
       B: The AS responds with a PoP access token and RS Information.
       The PoP access token contains the public key of the client, and
       the RS Information contains the public key of the RS.  For
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 55]
+
+Internet-Draft                     ACE                     November 2017
+
+
       communication security this example uses DTLS RawPublicKey between
       the client and the RS.  The issued token will have a short
       validity time, i.e., "exp" close to "iat", to protect the RS from
@@ -3296,15 +3096,6 @@ E.1.  Local Token Validation
       Note: In this example it is assumed that the client knows what
       resource it wants to access, and is therefore able to request
       specific audience and scope claims for the access token.
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 59]
-
-Internet-Draft                     ACE                     November 2017
-
 
             Authorization
      Client    Server
@@ -3328,6 +3119,24 @@ Internet-Draft                     ACE                     November 2017
    Payload is shown in Figure 18.  Note that a transport layer security
    based communication security profile is used in this example,
    therefore the Content-Type is "application/cbor".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 56]
+
+Internet-Draft                     ACE                     November 2017
+
 
    Request-Payload :
    {
@@ -3355,13 +3164,6 @@ Internet-Draft                     ACE                     November 2017
 
              Figure 18: Request and Response Payload Details.
 
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 60]
-
-Internet-Draft                     ACE                     November 2017
-
-
    The content of the access token is shown in Figure 19.
 
    {
@@ -3383,6 +3185,14 @@ Internet-Draft                     ACE                     November 2017
         Figure 19: Access Token including Public Key of the Client.
 
    Messages C and F are shown in Figure 20 - Figure 21.
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 57]
+
+Internet-Draft                     ACE                     November 2017
+
 
       C: The client then sends the PoP access token to the authz-info
       endpoint at the RS.  This is a plain CoAP request, i.e., no
@@ -3408,16 +3218,6 @@ Internet-Draft                     ACE                     November 2017
                 Figure 20: Access Token provisioning to RS
       The client and the RS runs the DTLS handshake using the raw public
       keys established in step B and C.
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 61]
-
-Internet-Draft                     ACE                     November 2017
-
-
       The client sends the CoAP request GET to /temperature on RS over
       DTLS.  The RS verifies that the request is authorized, based on
       previously established security context.
@@ -3439,6 +3239,16 @@ Internet-Draft                     ACE                     November 2017
        |         |
 
         Figure 21: Resource Request and Response protected by DTLS.
+
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 58]
+
+Internet-Draft                     ACE                     November 2017
+
 
 E.2.  Introspection Aided Token Validation
 
@@ -3466,14 +3276,6 @@ E.2.  Introspection Aided Token Validation
    Authorization consent from the resource owner can be pre-configured,
    but it can also be provided via an interactive flow with the resource
    owner.  An example of this for the key fob case could be that the
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 62]
-
-Internet-Draft                     ACE                     November 2017
-
-
    resource owner has a connected car, he buys a generic key that he
    wants to use with the car.  To authorize the key fob he connects it
    to his computer that then provides the UI for the device.  After that
@@ -3496,6 +3298,14 @@ Internet-Draft                     ACE                     November 2017
       using a pre shared security context (psk, rpk or certificate) and
       then the client is identified using client_id and client_secret as
       in classic OAuth.
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 59]
+
+Internet-Draft                     ACE                     November 2017
+
+
       B: The AS responds with the an access token and RS Information,
       the latter containing a symmetric key.  Communication security
       between C and RS will be DTLS and PreSharedKey.  The PoP key is
@@ -3525,7 +3335,29 @@ Internet-Draft                     ACE                     November 2017
 
 
 
-Seitz, et al.             Expires May 20, 2018                 [Page 63]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 60]
 
 Internet-Draft                     ACE                     November 2017
 
@@ -3581,7 +3413,7 @@ Internet-Draft                     ACE                     November 2017
 
 
 
-Seitz, et al.             Expires May 20, 2018                 [Page 64]
+Seitz, et al.             Expires May 20, 2018                 [Page 61]
 
 Internet-Draft                     ACE                     November 2017
 
@@ -3637,7 +3469,7 @@ Internet-Draft                     ACE                     November 2017
 
 
 
-Seitz, et al.             Expires May 20, 2018                 [Page 65]
+Seitz, et al.             Expires May 20, 2018                 [Page 62]
 
 Internet-Draft                     ACE                     November 2017
 
@@ -3671,6 +3503,7 @@ F.1.  Version -08 to -09
 
    o  Allowed scope to be byte arrays.
    o  Defined default names for endpoints.
+   o  Refactored the IANA section for briefness and consistency.
 
 F.2.  Version -07 to -08
 
@@ -3688,16 +3521,17 @@ F.2.  Version -07 to -08
    o  Added security considerations about leakage through unprotected AS
       discovery information, combining profiles and leakage through
       error responses.
-   o  Added privacy considerations about leakage through unprotected AS
-      discovery.
 
 
 
-Seitz, et al.             Expires May 20, 2018                 [Page 66]
+
+Seitz, et al.             Expires May 20, 2018                 [Page 63]
 
 Internet-Draft                     ACE                     November 2017
 
 
+   o  Added privacy considerations about leakage through unprotected AS
+      discovery.
    o  Added text that clarifies that introspection is optional.
    o  Made profile parameter optional since it can be implicit.
    o  Clarified that CoAP is not mandatory and other protocols can be
@@ -3740,20 +3574,24 @@ F.5.  Version -04 to -05
    o  Added appendix D, describing assumptions about what the AS knows
       about the client and the RS.
 
+
+
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 64]
+
+Internet-Draft                     ACE                     November 2017
+
+
 F.6.  Version -03 to -04
 
    o  Added a description of the terms "framework" and "profiles" as
       used in this document.
    o  Clarified protection of access tokens in section 3.1.
    o  Clarified uses of the "cnf" parameter in section 6.4.5.
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 67]
-
-Internet-Draft                     ACE                     November 2017
-
-
    o  Clarified intended use of Client Token in section 7.4.
 
 F.7.  Version -02 to -03
@@ -3797,19 +3635,18 @@ F.9.  Version -00 to -01
    o  Major rewrite of 5.1 to clarify the information exchanged between
       C and AS in the PoP access token request profile for IoT.
 
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 65]
+
+Internet-Draft                     ACE                     November 2017
+
+
       *  Allow the client to indicate preferences for the communication
          security protocol.
       *  Defined the term "Client Information" for the additional
          information returned to the client in addition to the access
          token.
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 68]
-
-Internet-Draft                     ACE                     November 2017
-
-
       *  Require that the messages between AS and client are secured,
          either with (D)TLS or with COSE_Encrypted wrappers.
       *  Removed dependency on OSCOAP and added generic text about
@@ -3851,19 +3688,21 @@ Authors' Addresses
    Email: goran.selander@ericsson.com
 
 
+
+
+
+
+
+Seitz, et al.             Expires May 20, 2018                 [Page 66]
+
+Internet-Draft                     ACE                     November 2017
+
+
    Erik Wahlstroem
    (no affiliation)
    Sweden
 
    Email: erik@wahlstromtekniska.se
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 69]
-
-Internet-Draft                     ACE                     November 2017
 
 
    Samuel Erdtman
@@ -3910,11 +3749,4 @@ Internet-Draft                     ACE                     November 2017
 
 
 
-
-
-
-
-
-
-
-Seitz, et al.             Expires May 20, 2018                 [Page 70]
+Seitz, et al.             Expires May 20, 2018                 [Page 67]

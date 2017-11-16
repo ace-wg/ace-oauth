@@ -69,7 +69,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-08" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-09" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -852,12 +852,12 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
       <figure align="center" anchor="fig:asinfo"
 	      title="AS Information parameters">
       <artwork align="left"><![CDATA[
-        /----------------+----------+-------------------\
-        | Parameter name | CBOR Key | Major Type        |
-        |----------------+----------+-------------------|
-        | AS             |    0     |   3 (text string) |
-        | nonce          |    5     |   2 (byte string) |
-        \----------------+----------+-------------------/
+        /-------+----------+-----------------\
+        | Name  | CBOR Key | Major Type      |
+        |-------+----------+-----------------|
+        | AS    |     0    | 3 (text string) |
+        | nonce |     5    | 2 (byte string) |
+        \-------+----------+-----------------/
       ]]></artwork></figure></t>
 
     <t><xref target="fig:as-info-payload"/> shows an example for an AS
@@ -1190,22 +1190,22 @@ Payload:
       <figure align="center" anchor="fig:rsinfo"
               title="RS Information parameters">
       <artwork align="left"><![CDATA[
-        /-------------------+--------------------------\
-        | Parameter name    | Specified in             |
-        |-------------------+--------------------------|
-        | access_token      |  RFC 6749                |
-        | token_type        |  RFC 6749                |
-        | expires_in        |  RFC 6749                |
-        | refresh_token     |  RFC 6749                |
-        | scope             |  RFC 6749                |
-        | state             |  RFC 6749                |
-        | error             |  RFC 6749                |
-        | error_description |  RFC 6749                |
-        | error_uri         |  RFC 6749                |
-        | profile           | [[ this specification ]] |
-        | cnf               | [[ this specification ]] |
-        | rs_cnf            | [[ this specification ]] |
-        \-------------------+--------------------------/
+        /-------------------+-----------------\
+        | Parameter name    | Specified in    |
+        |-------------------+-----------------|
+        | access_token      |  RFC 6749       |
+        | token_type        |  RFC 6749       |
+        | expires_in        |  RFC 6749       |
+        | refresh_token     |  RFC 6749       |
+        | scope             |  RFC 6749       |
+        | state             |  RFC 6749       |
+        | error             |  RFC 6749       |
+        | error_description |  RFC 6749       |
+        | error_uri         |  RFC 6749       |
+        | profile           | [this document] |
+        | cnf               | [this document] |
+        | rs_cnf            | [this document] |
+        \-------------------+-----------------/
       ]]></artwork></figure>
 
     </t>
@@ -1270,17 +1270,17 @@ Payload:
       <figure align="center" anchor="fig:cborErrorCodes"
               title="CBOR abbreviations for common error codes">
         <artwork align="left"><![CDATA[
-        /------------------------+-------------------\
-        | error code             | CBOR Value (uint) |
-        |------------------------+-------------------|
-        | invalid_request        |         0         |
-        | invalid_client         |         1         |
-        | invalid_grant          |         2         |
-        | unauthorized_client    |         3         |
-        | unsupported_grant_type |         4         |
-        | invalid_scope          |         5         |
-        | unsupported_pop_key    |         6         |
-        \------------------------+-------------------/
+        /------------------------+-------\
+        | Name                   | Value |
+        |------------------------+-------|
+        | invalid_request        |   0   |
+        | invalid_client         |   1   |
+        | invalid_grant          |   2   |
+        | unauthorized_client    |   3   |
+        | unsupported_grant_type |   4   |
+        | invalid_scope          |   5   |
+        | unsupported_pop_key    |   6   |
+        \------------------------+-------/
         ]]></artwork>
       </figure>
     </t>
@@ -1407,7 +1407,7 @@ Payload:
               title="CBOR mappings used in token requests">
         <artwork align="left"><![CDATA[
         /-------------------+----------+---------------------\
-        | Parameter name    | CBOR Key | Type                |
+        | Name              | Value    | Type                |
         |-------------------+----------+---------------------|
         | aud               | 3        | text string         |
         | client_id         | 8        | text string         |
@@ -1720,7 +1720,7 @@ C:  +--------------->|                |
 
 </section><!-- introspection endpoint -->
 
-<section title="The Access Token">
+<section anchor="accessToken" title="The Access Token">
   <t>This framework RECOMMENDS the use of CBOR web token (CWT) as
     specified in <xref target="I-D.ietf-ace-cbor-web-token"/>.
   </t>
@@ -1973,703 +1973,366 @@ C:  +--------------->|                |
 </section>
 
 <section anchor="iana" title="IANA Considerations">
-      <t>This specification registers new parameters for OAuth and establishes registries for mappings to CBOR.</t>
+  <t>This specification registers new parameters for OAuth and establishes
+  registries for mappings to CBOR abbreviations.</t>
 
-      <section anchor="IANAOAuthIntrospectionResponseParameterRegistrationn" title="OAuth Introspection Response Parameter Registration">
-      <t>This specification registers the following parameters in the OAuth introspection response parameters</t>
-      <t>
-        <?rfc subcompact="yes"?>
-        <list style='symbols'>
-          <t>Name: <spanx style="verb">cnf</spanx></t>
-          <t>Description: Key to prove the right to use an access token,
-	  formatted as specified in <xref
-	  target="I-D.jones-ace-cwt-proof-of-possession"/>. </t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-        </list>
-      </t>
-      <t>
-        <?rfc subcompact="yes"?>
-        <list style='symbols'>
-          <t>Name: <spanx style="verb">profile</spanx></t>
-          <t>Description: The communication and communication security
-   profile used between client and RS, as defined in ACE profiles.</t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-        </list>
-      </t>
-      <t>
-	<?rfc subcompact="yes"?>
-        <list style='symbols'>
-          <t>Name: <spanx style="verb">client_token</spanx></t>
-          <t>Description: Information that the RS MUST pass to the client
-	  e.g., about the proof-of-possession keys.</t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-	</list>
-      </t>
-     <t>
-	<?rfc subcompact="yes"?>
-        <list style='symbols'>
-          <t>Name: <spanx style="verb">rs_cnf</spanx></t>
-          <t>Description: Describes the public key the RS uses to
-	  authenticate.</t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-	</list>
-      </t>
-      </section>
-
-      <section anchor="IANAOAuthParameterRegistration" title="OAuth Parameter Registration">
-      <t>This specification registers the following parameters in the OAuth
-      Parameters Registry</t>
-      <t>
-        <?rfc subcompact="yes"?>
-        <list style='symbols'>
-          <t>Parameter name: <spanx style="verb">profile</spanx></t>
-          <t>Parameter usage location: token request, and token response</t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-        </list>
-      </t>
-      <t>
-        <?rfc subcompact="yes"?>
-        <list style='symbols'>
-          <t>Name: <spanx style="verb">cnf</spanx></t>
-          <t>Description: Key to prove the right to use an access token,
-	  formatted as defined in <xref
-	  target="I-D.jones-ace-cwt-proof-of-possession"/>. </t>
-          <t>Change Controller: IESG</t>
-          <t>Specification Document(s): this document</t>
-        </list>
-      </t>
-      </section>
-
-      <section anchor="IANAOAuthTokenType" title="OAuth Access Token Types">
-	<t>This specification registers the following new token type in the
-	OAuth Access Token Types Registry</t>
-	<t>
-          <?rfc subcompact="yes"?>
-          <list style='symbols'>
-            <t>Name: <spanx style="verb">PoP</spanx></t>
-            <t>Description: A proof-of-possession token.</t>
-	    <t>Change Controller: IESG</t>
-            <t>Specification Document(s): this document</t>
-          </list>
-	</t>
-      </section>
-
-      <section anchor="IANAGrantTypeMappings" title="OAuth Grant Type
-						     CBOR Mappings">
-	<t>A new registry will be requested from IANA, entitled "OAuth Grant
-	Type CBOR Mappings". The registry is to be created as Expert Review
-	Required.</t>
-
-	<t>The columns of this table are:
-
-	<list style='hanging'>
-	  <t hangText='Name'>The name of the grant type as specified in
-	  Section 1.3 of <xref target="RFC6749"/>.	  
-	  </t>
-
-	  <t hangText='Value'>The CBOR integer value abbreviating this
-	  grant type.  Registration in the table is based on the
-	  value of the label requested.  Integer values between 1 and 255
-	  and strings of length 1 are designated as Standards Track Document
-	  required.  Integer values from 256 to 65535 and strings of length
-	  2 are designated as Specification Required.  Integer values of
-	  greater than 65535 and strings of length greater than 2 are
-	  designated as expert review.  Negative integer values are marked as
-	  private use.</t>
-
-	  <t hangText='Reference'>This contains a pointer to the public
-	  specification of the grant type abbreviation, if one exists.</t>
-
-	  <t hangText='Original Specification'>This contains a pointer to
-	  the public specification of the grant type, if one exists.</t>
-	</list></t>
-
-	<t>This registry will be initially populated by the values in
-	<xref target="fig:grant_types"/>. The Reference column for all of
-	these entries will be this document.</t>
-	
-      </section>
+  <section anchor="IANAASInformation"
+	   title="Authorization Server Information">
+    <t>A new registry will be requested from IANA, entitled "Authorization
+    Server Information". The registry is to be created as Expert Review
+    Required.</t>
+    
+    <t>The columns of this table are:
+    
+    <list style='hanging'>
+      <t hangText='Name'>The name of the parameter</t>
       
-      <section anchor="IANATokenTypeMappings" title="OAuth Token Type
-						     CBOR Mappings">
-        <t>A new registry will be requested from IANA, entitled "Token Type
-	CBOR Mappings".  The registry is to be created as Expert Review
-	Required.</t>
+      <t hangText='CBOR Key'>The CBOR unsigned integer value abbreviating this
+      parameter name.  Registration in the table is based on the
+      value of the mapping requested.  Integer values between 1 and 255
+      are designated as Standards Track Document required.  Integer values
+      from 256 to 65535 are designated as Specification Required.  Integer
+      values greater than 65535  are designated as private use.</t>
+      
+      <t hangText='Major Type'>The CBOR major type allowable for the values of
+      this parameter.</t>
+      
+      <t hangText='Reference'>This contains a pointer to the public
+      specification of the grant type abbreviation, if one exists.</t>
+    </list></t>
+    
+    <t>This registry will be initially populated by the values in
+    <xref target="fig:asinfo"/>. The Reference column for all of
+    these entries will be this document.</t>    
+  </section>
+  
+  <section anchor="IANAOAuthErrorCBORMappingsRegistry"
+	   title="OAuth Error Code CBOR Mappings Registry">
+    <t>A new registry will be requested from IANA, entitled "OAuth Error Code
+    CBOR Mappings Registry".  The registry is to be created as Expert
+    Review Required.</t>
+    
+    <t>The columns of this table are:
+   
+    <list style='hanging'>
+      <t hangText='Name'>The OAuth Error Code name, refers to the name in
+      section 5.2. of <xref target="RFC6749"/> e.g., "invalid_request".</t>
+      
+      <t hangText='Value'>The abbreviation for the error code.  The value
+      MUST be an integer.  Integer values from -65536 to 65535 are
+      designated as Specification Required.  Integer values of greater than
+      65535 designated as expert review.  Integer values less than
+      -65536 are marked as private use.</t>
+      
+      <t hangText='Reference'>This contains a pointer to the public
+      specification of the grant type abbreviation, if one exists.</t>
+    </list></t>
+    
+    <t>This registry will be initially populated by the values in
+    <xref target="fig:cborErrorCodes"/>. The Reference column for all of
+    these entries will be this document.</t>	  
+  </section>
 
-        <section anchor="IANATokenTypeMappingsTemplate" title="Registration Template">
-          <t>
-            <list style='hanging'>
-              <t hangText='Token Type:'>
-                <vspace/>
-                Name of token type as registered in the OAuth token type registry e.g., "Bearer".
-              </t>
-              <t hangText='Mapped value:'>
-                <vspace/>
-                Integer representation for the token type value.  The key value
-		MUST be an integer. Integer values from -65536 to 65535 are
-		designated as Specification Required.  Integer values of
-		greater than 65535 designated as expert review.  Integer values
-		less than -65536 are marked as private use. 
-              </t>
-              <t hangText='Change Controller:'>
-                <vspace/>
-                For Standards Track RFCs, list the "IESG". For others, give the name of the responsible party. Other details (e.g., postal address, email address, home page URI) may also be included.
-              </t>
-              <t hangText='Specification Document(s):'>
-                <vspace/>
-                Reference to the document or documents that specify the parameter,preferably including URIs that can be used to retrieve copies of the documents. An indication of the relevant sections may also be included but is not required.
-              </t>
-            </list>
-          </t>
-        </section>
-        <section anchor="IANATokenTypeMappingsInitial" title="Initial Registry Contents">
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">Bearer</spanx></t>
-              <t>Mapped value: 1</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">pop</spanx></t>
-              <t>Mapped value: 2</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-        </section>
-      </section>
+  <section anchor="IANAGrantTypeMappings"
+	   title="OAuth Grant Type CBOR Mappings">
+    <t>A new registry will be requested from IANA, entitled "OAuth Grant
+    Type CBOR Mappings". The registry is to be created as Expert Review
+    Required.</t>
+    
+    <t>The columns of this table are:
+    
+    <list style='hanging'>
+      <t hangText='Name'>The name of the grant type as specified in
+      Section 1.3 of <xref target="RFC6749"/>.</t>
 
-      <section anchor="IANACWTClaims" title="CBOR Web Token Claims">
-	<t>This specification registers the following new claims in the CBOR
-	Web Token (CWT) registry:</t>
-	<t>
-	  <?rfc subcompact="yes"?>
-          <list style='symbols'>
-            <t>Claim Name: <spanx style="verb">scope</spanx></t>
-            <t>Claim Description: The scope of an access token as
-	    defined in <xref target="RFC6749"/>.</t>
-            <t>Change Controller: IESG</t>
-            <t>Specification Document(s): this document</t>
-          </list>
-	</t>
-      </section>
+      <t hangText='Value'>The CBOR unsigned integer value abbreviating this
+      grant type.  Registration in the table is based on the
+      value of the mapping requested.  Integer values between 1 and 255
+      are designated as Standards Track Document required.  Integer values
+      from 256 to 65535 are designated as Specification Required.  Integer
+      values greater than 65535  are designated as private use.</t>
+      
+      <t hangText='Reference'>This contains a pointer to the public
+      specification of the grant type abbreviation, if one exists.</t>
+	  
+      <t hangText='Original Specification'>This contains a pointer to
+      the public specification of the grant type, if one exists.</t>
+    </list></t>
+    
+    <t>This registry will be initially populated by the values in
+    <xref target="fig:grant_types"/>. The Reference column for all of
+    these entries will be this document.</t> 
+  </section>
 
-      <section anchor="IANATokenEndpointCBORMappingsRegistry"
-	       title="ACE OAuth Profile Registry">
-        <t>A new registry will be requested from IANA, entitled "ACE Profile Registry".  The registry is to be created as Expert Review Required.</t>
+   <section anchor="IANAOAuthTokenType" title="OAuth Access Token Types">
+    <t>This specification registers the following new token type in the
+    OAuth Access Token Types Registry</t>
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Name: <spanx style="verb">PoP</spanx></t>
+      <t>Change Controller: IETF</t>
+      <t>Reference: [this document]</t>
+    </list></t>
+   </section>
 
-        <section anchor="IANATokenEndpointCBORMappingsRegistryTemplate" title="Registration Template">
-          <t>
-            <list style='hanging'>
-              <t hangText='Profile name:'>
-                <vspace/>
-                Name of the profile to be included in the profile attribute.
-              </t>
-              <t hangText='Profile description:'>
-                <vspace/>
-                Text giving an overview of the profile and the context it is developed for.
-              </t>
-              <t hangText='Profile ID:'>
-                <vspace/>
-                Integer value to identify the profile. Integer values from
-		-65536 to 65535 are designated as Specification Required.
-		Integer values of greater than 65535 designated as expert
-		review.  Integer values	less than -65536 are marked as private
-		use.</t>
-              <t hangText='Change Controller:'>
-                <vspace/>
-                For Standards Track RFCs, list the "IESG". For others, give the name of the responsible party. Other details (e.g., postal address, email address, home page URI) may also be included.
-              </t>
-              <t hangText='Specification Document(s):'>
-                <vspace/>
-                Reference to the document or documents that specify the parameter,preferably including URIs that can be used to retrieve copies of the documents. An indication of the relevant sections may also be included but is not required.
-              </t>
-            </list>
-          </t>
-        </section>
-      </section>
+   <section anchor="IANATokenTypeMappings"
+	   title="OAuth Token Type CBOR Mappings">
+    <t>A new registry will be requested from IANA, entitled "Token Type
+    CBOR Mappings".  The registry is to be created as Expert Review
+    Required.</t>
 
-      <section anchor="IANAOAuthParameterMappingsRegistry"
-	       title="OAuth CBOR Parameter Mappings Registry">
-        <t>A new registry will be requested from IANA, entitled "Token Endpoint CBOR Mappings Registry".  The registry is to be created as Expert Review Required.</t>
-
-        <section anchor="IANAOAuthParameterMappingsRegistryTemplate" title="Registration Template">
-          <t>
-            <list style='hanging'>
-              <t hangText='Parameter name:'>
-                <vspace/>
-                OAuth Parameter name, refers to the name in the OAuth parameter registry e.g., "client_id".
-              </t>
-              <t hangText='CBOR key value:'>
-                <vspace/>
-                Key value for the claim.  The key value MUST be an integer.
-		Integer values from -65536 to 65535 are designated as
-		Specification Required.  Integer values of greater than 65535
-		designated as expert review.  Integer values less than
-	        -65536 are marked as private use.</t>
-              <t hangText='Change Controller:'>
-                <vspace/>
-                For Standards Track RFCs, list the "IESG". For others, give the name of the responsible party. Other details (e.g., postal address, email address, home page URI) may also be included.
-              </t>
-              <t hangText='Specification Document(s):'>
-                <vspace/>
-                Reference to the document or documents that specify the parameter,preferably including URIs that can be used to retrieve copies of the documents. An indication of the relevant sections may also be included but is not required.
-              </t>
-            </list>
-          </t>
-        </section>
-
-        <section anchor="IANATokenEndpointCBORMappingsRegistryInitial"
-		 title="Initial Registry Contents">
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">aud</spanx></t>
-              <t>CBOR key value: 3</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">client_id</spanx></t>
-              <t>CBOR key value: 8</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">client_secret</spanx></t>
-              <t>CBOR key value: 9</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">response_type</spanx></t>
-              <t>CBOR key value: 10</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">redirect_uri</spanx></t>
-              <t>CBOR key value: 11</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">scope</spanx></t>
-              <t>CBOR key value: 12</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">state</spanx></t>
-              <t>CBOR key value: 13</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">code</spanx></t>
-              <t>CBOR key value: 14</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">error</spanx></t>
-              <t>CBOR key value: 15</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">error_description</spanx></t>
-              <t>CBOR key value: 16</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">error_uri</spanx></t>
-              <t>CBOR key value: 17</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">grant_type</spanx></t>
-              <t>CBOR key value: 18</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">access_token</spanx></t>
-              <t>CBOR key value: 19</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">token_type</spanx></t>
-              <t>CBOR key value: 20</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">expires_in</spanx></t>
-              <t>CBOR key value: 21</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">username</spanx></t>
-              <t>CBOR key value: 22</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">password</spanx></t>
-              <t>CBOR key value: 23</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">refresh_token</spanx></t>
-              <t>CBOR key value: 24</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
-              <t>CBOR key value: 25</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">profile</spanx></t>
-              <t>CBOR key value: 26</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-
-        </section>
-      </section>
-
-      <section anchor="IANAIntrospectionEndpointCBORMappingsRegistry" title="Introspection Endpoint CBOR Mappings Registry">
-        <t>A new registry will be requested from IANA, entitled "Introspection
-	Endpoint CBOR Mappings Registry".  The registry is to be created as
-	Expert Review Required.</t>
-
-        <section anchor="IANAIntrospectionEndpointCBORMappingsRegistryTemplate" title="Registration Template">
-          <t>
-            <list style='hanging'>
-              <t hangText='Response parameter name:'>
-                <vspace/>
-                Name of the response parameter as defined in the "OAuth Token Introspection Response" registry e.g., "active".
-              </t>
-              <t hangText='CBOR key value:'>
-                <vspace/>
-                Key value for the claim.  The key value MUST be an integer.
-		Integer values from -65536 to 65535 are designated as
-		Specification Required.  Integer values of greater than 65535
-		designated as expert review.  Integer values less than
-	        -65536 are marked as private use.</t>
-              <t hangText='Change Controller:'>
-                <vspace/>
-                For Standards Track RFCs, list the "IESG". For others, give the name of the responsible party. Other details (e.g., postal address, email address, home page URI) may also be included.
-              </t>
-              <t hangText='Specification Document(s):'>
-                <vspace/>
-                Reference to the document or documents that specify the parameter,preferably including URIs that can be used to retrieve copies of the documents. An indication of the relevant sections may also be included but is not required.
-              </t>
-            </list>
-          </t>
-        </section>
-
-        <section anchor="IANAIntrospectionEndpointCBORMappingsRegistryInitial"
-		 title="Initial Registry Contents">
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">iss</spanx></t>
-              <t>CBOR key value: 1</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-         <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">sub</spanx></t>
-              <t>CBOR key value: 2</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">aud</spanx></t>
-              <t>CBOR key value: 3</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">exp</spanx></t>
-              <t>CBOR key value: 4</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">nbf</spanx></t>
-              <t>CBOR key value: 5</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">iat</spanx></t>
-              <t>CBOR key value: 6</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">cti</spanx></t>
-              <t>CBOR key value: 7</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">client_id</spanx></t>
-              <t>CBOR key value: 8</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">scope</spanx></t>
-              <t>CBOR key value: 12</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">token_type</spanx></t>
-              <t>CBOR key value: 20</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">username</spanx></t>
-              <t>CBOR key value: 22</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">cnf</spanx></t>
-              <t>CBOR key value: 25</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Parameter name: <spanx style="verb">profile</spanx></t>
-              <t>CBOR key value: 26</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">token</spanx></t>
-              <t>CBOR key value: 27</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-	  <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">token_type_hint</spanx></t>
-              <t>CBOR key value: 28</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">active</spanx></t>
-              <t>CBOR key value: 29</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">client_token</spanx></t>
-              <t>CBOR key value: 30</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-          <t>
-            <?rfc subcompact="yes"?>
-            <list style='symbols'>
-              <t>Response parameter name: <spanx style="verb">rs_cnf</spanx></t>
-              <t>CBOR key value: 31</t>
-              <t>Change Controller: IESG</t>
-              <t>Specification Document(s): this document</t>
-            </list>
-          </t>
-        </section>
-      </section>
-      <section anchor="CoAPOptionNumberRegistration" title="CoAP Option Number Registration">
-      	<t>
-      	  This section registers the "Access-Token" CoAP Option Number
-	  in the "CoRE Parameters" sub-registry "CoAP Option Numbers" in
-	  the manner described in <xref target="RFC7252"/>.
-      	</t>
-        <t>
-          <list>
-            <t>
-              Name: Access-Token
-           </t>
-            <t>
-              Number: TBD
-            </t>
-            <t>
-              Reference: [This document].
-            </t>
-            <t>
-              Meaning in Request: Contains an Access Token according to
-	      [This document] containing access permissions of the client.
-            </t>
-            <t>
-              Meaning in Response: Not used in response.
-            </t>
-            <t>
-              Safe-to-Forward: Yes
-            </t>
-            <t>
-              Format: Based on the observer the format is perceived differently.
-	      Opaque data to the client and CWT or reference token to the RS.
-            </t>
-            <t>
-	      Length: Less than 255 bytes
-            </t>
-          </list>
-        </t>
-      </section>
+    <t>The columns of this table are:
+    
+    <list style='hanging'>
+      <t hangText='Name'>The name of token type as registered in the
+      OAuth Access Token Types registry e.g., "Bearer".</t>
+	  
+      <t hangText='Value'>The CBOR unsigned integer value abbreviating this
+      access token type.  Registration in the table is based on the
+      value of the mapping requested.  Integer values between 1 and 255
+      are designated as Standards Track Document required.  Integer values
+      from 256 to 65535 are designated as Specification Required.  Integer
+      values greater than 65535  are designated as private use.</t>
+      
+      <t hangText='Reference'>This contains a pointer to the public
+      specification of the OAuth token type abbreviation, if one exists.</t>
+	  
+      <t hangText='Original Specification'>This contains a pointer to
+      the public specification of the grant type, if one exists.</t>
+    </list></t>
+	
+    <section anchor="IANATokenTypeMappingsInitial" title="Initial Registry Contents">
+      <t>
+        <?rfc subcompact="yes"?>
+        <list style='symbols'>
+          <t>Name: <spanx style="verb">Bearer</spanx></t>
+          <t>Value:  1</t>
+          <t>Reference:  [this document]</t>
+	  <t>Original Specification:  <xref target="RFC6749"/></t>
+        </list>
+      </t>
+      <t>
+        <?rfc subcompact="yes"?>
+        <list style='symbols'>
+          <t>Name: <spanx style="verb">pop</spanx></t>
+          <t>Value: 2</t>
+          <t>Reference: [this document]</t>
+	  <t>Original Specification:  [this document]</t>
+        </list>
+      </t>
     </section>
+  </section>
 
-    <section anchor="Acknowledgments" title="Acknowledgments">
-        <t>This document is a product of the ACE working group of the IETF.</t>
+ <section anchor="IANATokenEndpointCBORMappingsRegistry"
+	   title="ACE OAuth Profile Registry">
+    <t>A new registry will be requested from IANA, entitled "ACE Profile
+    Registry".  The registry is to be created as Expert Review Required.</t>
+    
+    <t>The columns of this table are:
+    
+    <list style='hanging'>
+      <t hangText='Name'> The name of the profile, to be used as value of
+      the profile attribute.</t>
+      
+      <t hangText='Description'> Text giving an overview of the profile and
+      the context it is developed for.</t>
 
-        <t>Thanks to Eve Maler for her contributions to the use of
-        OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion
-        input, and Malisa Vucinic for his input on the predecessors of this
-	proposal.</t>
+      <t hangText='ID'> Integer value to identify the profile.  Integer
+      values from -65536 to 65535 are designated as Specification Required.
+      Integer values of greater than 65535 designated as expert review.
+      Integer values less than -65536 are marked as private	use.</t>
+      
+      <t hangText='Reference'>This contains a pointer to the public
+      specification of the grant type abbreviation, if one exists.</t>
+    </list></t>
+  </section>
+  
+  <section anchor="IANAOAuthParameterRegistration"
+	   title="OAuth Parameter Registration">
+    <t>This specification registers the following parameters in the OAuth
+    Parameters Registry</t>
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Name: <spanx style="verb">profile</spanx></t>
+      <t>Parameter Usage Location: token request, token response</t>
+      <t>Change Controller: IESG</t>
+      <t>Reference: <xref target="paramProfile"/> of [this document]</t>
+    </list></t>
+    
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Name: <spanx style="verb">cnf</spanx></t>
+      <t>Parameter Usage Location: token request, token response</t>
+      <t>Change Controller: IESG</t>
+      <t>Reference: <xref target="paramCnf"/> of [this document]</t>
+    </list></t>
+    
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Name: <spanx style="verb">rs_cnf</spanx></t>
+      <t>Parameter Usage Location: token response</t>
+      <t>Change Controller: IESG</t>
+      <t>Reference: <xref target="paramCnf"/> of [this document]</t>
+    </list></t>  
+  </section>
 
-	<t>Thanks to the authors of draft-ietf-oauth-pop-key-distribution, from where
-    large parts of the security considerations where copied.</t>
+  <section anchor="IANAOAuthParameterMappingsRegistry"
+	   title="OAuth CBOR Parameter Mappings Registry">
+    <t>A new registry will be requested from IANA, entitled "Token Endpoint
+    CBOR Mappings Registry".  The registry is to be created as Expert
+    Review Required.</t>
+    
+    <t>The columns of this table are:
+    
+    <list style='hanging'>
+      <t hangText='Name'>The OAuth Parameter name, refers to the name in
+      the OAuth parameter registry e.g., "client_id".</t>
+      
+      <t hangText='Value'>The abbreviation for the parameter.  The value
+      MUST be an integer.  Integer values from -65536 to 65535 are
+      designated as Specification Required.  Integer values of greater than
+      65535 designated as expert review.  Integer values less than
+      -65536 are marked as private use.</t>
 
-	<t>Thanks to Stefanie Gerdes, Olaf Bergmann, and Carsten
-	Bormann for contributing their work on AS discovery from
-	draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>).</t>
+      <t hangText='Type'>The allowable CBOR data types for values
+      of this parameter.</t>
+      
+      <t hangText='Reference'>This contains a pointer to the public
+      specification of the grant type abbreviation, if one exists.</t>
+    </list></t>
+    
+    <t>This registry will be initially populated by the values in
+    <xref target="fig:cborTokenParameters"/>. The Reference column for all of
+    these entries will be this document.</t>	
+  </section>
+  
+  <section anchor="IANAOAuthIntrospectionResponseParameterRegistration"
+	   title="OAuth Introspection Response Parameter Registration">
+    <t>This specification registers the following parameters in the OAuth
+    Token Introspection Response registry.</t>
+    
+    <t>
+      <?rfc subcompact="yes"?>
+      <list style='symbols'>
+        <t>Name: <spanx style="verb">cnf</spanx></t>
+        <t>Description: Key to prove the right to use an access token,
+	formatted as specified in <xref
+	target="I-D.jones-ace-cwt-proof-of-possession"/>. </t>
+        <t>Change Controller: IESG</t>
+        <t>Reference: <xref target="introAS2RS"/> of [this document]</t>
+      </list>
+    </t>
+    <t>
+      <?rfc subcompact="yes"?>
+      <list style='symbols'>
+        <t>Name: <spanx style="verb">profile</spanx></t>
+        <t>Description: The communication and communication security
+	profile used between client and RS, as defined in ACE profiles.</t>
+        <t>Change Controller: IESG</t>
+        <t>Reference: <xref target="introAS2RS"/> of [this document]</t>
+      </list>
+    </t>
+    <t>
+      <?rfc subcompact="yes"?>
+      <list style='symbols'>
+        <t>Name: <spanx style="verb">client_token</spanx></t>
+        <t>Description: Information that the RS MUST pass to the client
+	e.g., about the proof-of-possession keys.</t>
+        <t>Change Controller: IESG</t>
+        <t>Reference: <xref target="introAS2RS"/> of [this document]</t>
+      </list>
+    </t>  
+  </section>
+  
+  <section anchor="IANAIntrospectionEndpointCBORMappingsRegistry"
+	   title="Introspection Endpoint CBOR Mappings Registry">
+    <t>A new registry will be requested from IANA, entitled "Introspection
+    Endpoint CBOR Mappings Registry".  The registry is to be created as
+    Expert Review Required.</t>
 
-	<t>Ludwig Seitz and Goeran Selander worked on this document as part of
-	the CelticPlus project CyberWI, with funding from Vinnova.</t>
-    </section>
+    <t>The columns of this table are:
+    
+    <list style='hanging'>
+      <t hangText='Name'>The OAuth Parameter name, refers to the name in
+      the OAuth parameter registry e.g., "client_id".</t>
+      
+      <t hangText='Value'>The abbreviation for the parameter.  The value
+      MUST be an integer.  Integer values from -65536 to 65535 are
+      designated as Specification Required.  Integer values of greater than
+      65535 designated as expert review.  Integer values less than
+      -65536 are marked as private use.</t>
+      
+      <t hangText='Type'>The allowable CBOR data types for values
+      of this parameter.</t>
+      
+      <t hangText='Reference'>This contains a pointer to the public
+      specification of the grant type abbreviation, if one exists.</t>
+    </list></t>
+    
+    <t>This registry will be initially populated by the values in
+    <xref target="fig:cborIntrospectionParameters"/>. The Reference column for all of
+    these entries will be this document.</t>	
+  </section>
 
+  <section anchor="IANACWTClaims" title="CBOR Web Token Claims">
+    <t>This specification registers the following new claims in the CBOR
+    Web Token (CWT) registry:</t>
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Claim Name: <spanx style="verb">scope</spanx></t>
+      <t>Claim Description: The scope of an access token as
+      defined in <xref target="RFC6749"/>.</t>
+      <t>JWT Claim Name: N/A</t>
+      <t>Claim Key: 12</t>
+      <t>Claim Value Type(s): 0 (uint), 2 (byte string), 3 (text string)</t>
+      <t>Change Controller: IESG</t>
+      <t>Speficiation Document(s): <xref target="accessToken"/> of [this document]</t>
+    </list></t>
+  </section>
+  
+  <section anchor="CoAPOptionNumberRegistration" title="CoAP Option Number Registration">
+    <t>
+      This section registers the "Access-Token" CoAP Option Number
+      in the "CoRE Parameters" sub-registry "CoAP Option Numbers" in
+      the manner described in <xref target="RFC7252"/>.
+    </t>
+
+    <t><list>
+      <t>Name: Access-Token</t>
+      <t>Number: TBD</t>
+      <t>Reference: [this document].</t>
+      <t>Meaning in Request: Contains an Access Token according to
+      [this document] containing access permissions of the client.
+      </t>
+      <t>Meaning in Response: Not used in response.</t>
+      <t>Safe-to-Forward: Yes</t>
+      <t>Format: Based on the observer the format is perceived differently.
+      Opaque data to the client and CWT or reference token to the RS.
+      </t>
+      <t>Length: Less than 255 bytes</t>
+    </list></t>
+  </section>
+</section>
+
+<section anchor="Acknowledgments" title="Acknowledgments">
+  <t>This document is a product of the ACE working group of the IETF.</t>
+  
+  <t>Thanks to Eve Maler for her contributions to the use of
+  OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion
+  input, and Malisa Vucinic for his input on the predecessors of this
+  proposal.</t>
+  
+  <t>Thanks to the authors of draft-ietf-oauth-pop-key-distribution, from where
+  large parts of the security considerations where copied.</t>
+  
+  <t>Thanks to Stefanie Gerdes, Olaf Bergmann, and Carsten
+  Bormann for contributing their work on AS discovery from
+  draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>).</t>
+  
+  <t>Ludwig Seitz and Goeran Selander worked on this document as part of
+  the CelticPlus project CyberWI, with funding from Vinnova.</t>
+</section>
+    
     <!-- Possibly a 'Contributors' section ... -->
   </middle>
 
@@ -3608,6 +3271,8 @@ F:  |<--------+ Header: 2.04 Changed
      <t><list style="symbols">
        <t>Allowed scope to be byte arrays.</t>
        <t>Defined default names for endpoints.</t>
+       <t>Refactored the IANA section for briefness and
+       consistency.</t>
      </list></t>
    </section>
    <section anchor="app:f8t9" title="Version -07 to -08">
