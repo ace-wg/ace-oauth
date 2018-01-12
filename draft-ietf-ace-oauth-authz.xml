@@ -282,7 +282,7 @@ participating in the CoAP protocol" is not used in this specification.</t>
 Since this specification focuses on the problem of access control to resources,
 the actors has been simplified by assuming that the client authorization server (CAS)
 functionality is not stand-alone but subsumed by either the authorization
-server or the client (see section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
+server or the client (see Section 2.2 in <xref target="I-D.ietf-ace-actors"/>).
 </t>
 
 <t>The specifications in this document is called the "framework" or "ACE framework".
@@ -977,6 +977,11 @@ a2                                   # map(2)
   establish shared keys or to exchange their public keys.  Furthermore,
   this framework defines encodings using CBOR, as a substitute for JSON.</t>
 
+  <t>The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports. 
+  A profile MUST define the details of the mapping between the fields described below, and these transports.
+  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Section 4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described below MUST be followed.</t> 
+
+  
   <t>For the AS to be able to issue a token, the client MUST be authenticated
   and present a valid grant for the scopes requested.  Profiles of this
   framework MUST specify how the AS authenticates the client and how the
@@ -989,14 +994,15 @@ a2                                   # map(2)
   <t>The figures of this section use CBOR diagnostic
   notation without the integer abbreviations for the parameters or their
   values for illustrative purposes. Note that implementations MUST use the
-  integer abbreviations and the binary CBOR encoding.</t>
+  integer abbreviations and the binary CBOR encoding, if the CBOR encoding is used.</t>
 
   <section anchor="tokenRequest" title="Client-to-AS Request">
     <t>The client sends a POST request to the token endpoint
     at the AS. The profile MUST specify the Content-Type and wrapping of the
     payload.  The content of the request consists of the parameters specified
-    in section 4 of the OAuth 2.0 specification <xref
-    target="RFC6749"/>, encoded as a CBOR map, where the "scope" parameter
+    in Section 4 of the OAuth 2.0 specification <xref
+    target="RFC6749"/>, encoded as a CBOR map (if a CBOR encoding is used), 
+	where the "scope" parameter
     can additionally be formatted as a byte array, in order to allow
     compact encoding of complex scope structures.</t>
 
@@ -1032,7 +1038,8 @@ a2                                   # map(2)
 
     <t><xref target="fig:symmATreq"/> shows a request for a token
     with a symmetric proof-of-possession key.  Note that in this example
-    it is assumed that transport layer communication security is used, therefore
+    it is assumed that transport layer communication security is used with a CBOR payload, 
+	therefore
     the Content-Type is "application/cbor".  The content is displayed in
     CBOR diagnostic notation, without abbreviations for better readability.
 
@@ -1094,10 +1101,10 @@ Decrypted payload:
     <t><xref target="fig:kidATreq"/> shows a request for a token
     where a previously communicated proof-of-possession key is only
     referenced.  Note that a transport layer based communication security
-    profile is assumed in this example, therefore the Content-Type is
+    profile with a CBOR payload is assumed in this example, therefore the Content-Type is
     "application/cbor".  Also note that the client performs a password
     based authentication in this example by submitting its client_secret
-    (see section 2.3.1. of <xref target="RFC6749"/>).
+    (see Section 2.3.1 of <xref target="RFC6749"/>).
 
     <figure align="center" anchor="fig:kidATreq"
             title="Example request for an access token bound to a
@@ -1139,8 +1146,9 @@ Payload:
    by the use of a dynamic client registration protocol exchange
    <xref target="RFC7591"/>.</t>
 
-    <t>The content of the successful reply is the RS Information. It MUST be
-    encoded as CBOR map, containing parameters as specified in section 5.1 of
+    <t>The content of the successful reply is the RS Information. 
+	When using CBOR payloads, the content MUST be
+    encoded as CBOR map, containing parameters as specified in Section 5.1 of
     <xref target="RFC6749"/>.  In addition to these parameters, the following
     parameters are also part of a successful response:
 
@@ -1211,7 +1219,7 @@ Payload:
 
     <t><xref target="fig:symmATres"/> shows a response containing a token
     and a "cnf" parameter with a symmetric proof-of-possession key.  Note that
-    transport layer security is assumed in this example,
+    transport layer security with CBOR encoding is assumed in this example,
     therefore the Content-Type is "application/cbor".
 
     <figure align="center" anchor="fig:symmATres"
@@ -1242,7 +1250,7 @@ Payload:
   <section anchor="errorsToken" title="Error Response">
     <t>The error responses for CoAP-based interactions with the AS
     are equivalent to the ones for HTTP-based interactions as defined in
-    section 5.2 of <xref target="RFC6749"/>, with the following differences:
+    Section 5.2 of <xref target="RFC6749"/>, with the following differences:
 
       <list style="symbols">
         <t>The Content-Type MUST be specified by the communication security
@@ -1253,17 +1261,17 @@ Payload:
         <t>A response code equivalent to the CoAP code 4.00 (Bad Request) MUST
 	be used for all error responses, except for invalid_client where a
 	response code equivalent to the CoAP code 4.01 (Unauthorized) MAY be
-	used under the same conditions as specified in section 5.2 of
+	used under the same conditions as specified in Section 5.2 of
 	<xref target="RFC6749"/>.
 	</t>
 
 	<t>The parameters "error", "error_description" and "error_uri" MUST
 	be abbreviated using the codes specified in <xref
-	target="fig:cborTokenParameters"/>.</t>
+	target="fig:cborTokenParameters"/>, when a CBOR encoding is used.</t>
 
 	<t>The error code (i.e., value of the "error" parameter) MUST be
 	abbreviated as specified in <xref
-	target="fig:cborErrorCodes"/>.</t>
+	target="fig:cborErrorCodes"/>, when a CBOR encoding is used.</t>
       </list>
 
       <figure align="center" anchor="fig:cborErrorCodes"
@@ -1301,14 +1309,14 @@ Payload:
 
     <section anchor="paramAud" title="Audience">
       <t>This parameter specifies for which audience the client is requesting
-      a token.  It should be encoded as CBOR text string.  The
+      a token. If using CBOR payload it should be encoded as CBOR text string.  The
       formatting and semantics of these strings are application specific.</t>
     </section>
 
     <section anchor="paramGrantType" title="Grant Type">
       <t>The abbreviations in <xref target="fig:grant_types"/> MUST be
       used in CBOR encodings instead of the string values defined
-      in <xref target="RFC6749"/>.
+      in <xref target="RFC6749"/>, if CBOR payloads are used.
 
       <figure align="center" anchor="fig:grant_types"
               title="CBOR abbreviations for common grant types ">
@@ -1334,7 +1342,7 @@ Payload:
         Token Types registry,  specifying a Proof-of-Possession token.  How the
       proof-of-possession is performed MUST be specified by the profiles.</t>
 
-      <t>The values in the "token_type" parameter MUST be CBOR text strings.</t>
+      <t>The values in the "token_type" parameter MUST be CBOR text strings, if a CBOR encoding is used. </t>
 
       <t>In this framework token type "pop" MUST be assumed by default if the
       AS does not provide a different value.</t>
@@ -1392,11 +1400,11 @@ Payload:
     </section>
   </section> <!--Parameters -->
 
-  <section anchor="tokenCborParams" title="Mapping parameters to CBOR">
+  <section anchor="tokenCborParams" title="Mapping Parameters to CBOR">
     <t>All OAuth parameters in access token requests and responses MUST be
     mapped to CBOR types as specified in <xref
     target="fig:cborTokenParameters"/>, using the given integer abbreviation
-    for the key.</t>
+    for the key, if a CBOR encoding is used.</t>
     <t>Note that we have aligned these abbreviations with the claim
     abbreviations defined in <xref target="I-D.ietf-ace-cbor-web-token"/>.</t>
 
@@ -1472,7 +1480,7 @@ Payload:
     additional context that is known by the RS to aid the AS in its
     response MAY be included.</t>
 
-    <t>The same parameters are required and optional as in section 2.1
+    <t>The same parameters are required and optional as in Section 2.1
     of RFC 7662 <xref target="RFC7662"/>.</t>
 
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
@@ -1506,7 +1514,7 @@ Payload:
 
     <t>In a successful response, the AS encodes the response parameters in
     a CBOR map including with the same required and optional parameters as in
-    section 2.2. of RFC 7662 <xref target="RFC7662"/> with the following
+    Section 2.2. of RFC 7662 <xref target="RFC7662"/> with the following
     additions:
 
     <list style="hanging">
@@ -1561,7 +1569,7 @@ Payload:
   <section anchor="errorsIntro" title="Error Response">
     <t>The error responses for CoAP-based interactions with the AS
     are equivalent to the ones for HTTP-based interactions as defined in
-    section 2.3 of <xref target="RFC7662"/>, with the following differences:
+    Section 2.3 of <xref target="RFC7662"/>, with the following differences:
 
     <list style="symbols">
       <t>If content is sent, the Content-Type MUST be set according to the
@@ -1570,7 +1578,7 @@ Payload:
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
       with the response code equivalent to the CoAP code 4.01 (Unauthorized)
-      and use the required and optional parameters from section 5.2 in RFC 6749
+      and use the required and optional parameters from Section 5.2 in RFC 6749
       <xref target="RFC6749"/>.</t>
 
       <t>If the RS does not have the right to perform this introspection
@@ -1724,7 +1732,7 @@ C:  +--------------->|                |
   claim for both JSON and CBOR web tokens.</t>
 
   <t>The "scope" claim explicitly encodes the scope of a given access token.
-  This claim follows the same encoding rules as defined in section 3.3 of <xref
+  This claim follows the same encoding rules as defined in Section 3.3 of <xref
   target="RFC6749"/>, but in addition implementers MAY use byte arrays as scope
   values, to achieve compact encoding of large scope elements.  The meaning of
   a specific scope value is application specific and expected to be known to
@@ -1860,7 +1868,7 @@ C:  +--------------->|                |
       an eavesdropper thereby completely negating proof-of-possession security.
       Profiles MUST specify how confidentiality protection is provided,
       and additional protection can be applied by encrypting the token, for
-      example encryption of CWTs is specified in section 5.1 of
+      example encryption of CWTs is specified in Section 5.1 of
       <xref target="I-D.ietf-ace-cbor-web-token"/>.</t>
 
       <t>Developers MUST ensure that the ephemeral credentials (i.e., the
@@ -2009,7 +2017,7 @@ C:  +--------------->|                |
    
     <list style='hanging'>
       <t hangText='Name'>The OAuth Error Code name, refers to the name in
-      section 5.2. of <xref target="RFC6749"/> e.g., "invalid_request".</t>
+      Section 5.2. of <xref target="RFC6749"/> e.g., "invalid_request".</t>
       
       <t hangText='CBOR Key'> The unsigned integer value abbreviating this
       error code.  Registration in the table is based on the value of the
