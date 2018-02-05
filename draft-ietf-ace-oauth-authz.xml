@@ -328,10 +328,8 @@ security protocols (e.g., CoAP over DTLS).
   security as an alternative or complement to transport layer security (DTLS
     <xref target="RFC6347"/> or TLS <xref target="RFC5246"/>). COSE is used to
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
-    which is an extension to the OAuth tokens, and "client tokens" which
-    are defined in this framework (see <xref target="clientToken"/>). The
-    default token format is defined in CBOR web token (CWT)
-    <xref target="I-D.ietf-ace-cbor-web-token"/>.
+    which is an extension to the OAuth tokens. The default token format is
+    defined in CBOR web token (CWT) <xref target="I-D.ietf-ace-cbor-web-token"/>.
     Application layer security for CoAP using COSE can be provided with OSCOAP
     <xref target="I-D.ietf-core-object-security"/>.</t>
 
@@ -612,8 +610,8 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 |        |                                      ^ |
 |        |            Introspection Request  (D)| |
 | Client |                  (optional)          | |
-|        |             Response + Client Token  | |(E)
-|        |                  (optional)          | v
+|        |                         Response     | |(E)
+|        |                         (optional)   | v
 |        |                               +--------------+
 |        |---(C)-- Token + Request ----->|              |
 |        |                               |   Resource   |
@@ -664,13 +662,12 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
       <vspace blankLines="1"/>
       The Client and the RS mutually authenticate using the security protocol
       specified in the profile (see step B) and the keys obtained in the access
-      token or the RS Information or the client token.  The RS verifies
-      that the token is integrity protected by the AS and compares the claims
-      contained in the access token with the resource request. If the RS is
-      online, validation can be handed over to the AS using token introspection
-      (see messages D and E) over HTTP or CoAP, in  which case the different
-      parts of step C may be interleaved with
-      introspection.<vspace blankLines="1"/>
+      token or the RS Information.  The RS verifies that the token is integrity
+      protected by the AS and compares the claims contained in the access token
+      with the resource request. If the RS is online, validation can be handed
+      over to the AS using token introspection (see messages D and E) over HTTP
+      or CoAP, in  which case the different parts of step C may be interleaved
+      with introspection.<vspace blankLines="1"/>
     </t>
 
     <t hangText="Token Introspection Request (D):"><vspace blankLines="0"/>
@@ -689,11 +686,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
       The AS validates the token and returns the most recent parameters, such
       as scope, audience, validity etc. associated with it back to the RS.  The
       RS then uses the received parameters to process the request to either
-      accept or to deny it. The AS can additionally return information that the
-      RS needs to pass on to the client in the form of a client token.  The
-      latter is used to establish keys for mutual authentication between
-      client and RS, when the client has no direct connectivity to the
-      AS, see <xref target="clientToken"/> for details.<vspace blankLines="1"/>
+      accept or to deny it.<vspace blankLines="1"/>
     </t>
 
     <t hangText="Protected Resource (F):"><vspace blankLines="0"/>
@@ -1385,10 +1378,6 @@ Payload:
 
 	<t>In the introspection response AS -> RS, to indicate
 	the proof-of-possession	key bound to the introspected token.</t>
-
-	<t> In the client token AS -> RS -> C, to indicate
-	the proof-of-possession	key bound to the access token.</t>
-
       </list></t>
 
       <t>Note that the COSE_Key structure in a "cnf" claim or parameter
@@ -1528,11 +1517,6 @@ Payload:
       OPTIONAL.  This indicates the profile that the RS MUST use with the
       client.  See <xref target="paramProfile"/> for more details on the
       formatting of this parameter.</t>
-
-      <t hangText="client_token">
-      OPTIONAL.  This parameter contains information that the RS
-      MUST pass on to the client.  See <xref target="clientToken"/>
-      for more details.</t>
     </list>
     </t>
 
@@ -1552,8 +1536,6 @@ Payload:
   "active" : true,
   "scope" : "read",
   "profile" : "coap_dtls",
-  "client_token" : b64'2QPhg0OhAQo ...
-  (remainder of client token omitted for brevity)',
   "cnf" : {
     "COSE_Key" : {
       "kty" : "Symmetric",
@@ -1601,83 +1583,6 @@ Payload:
     "false".</t>
   </section>
 
-  <section anchor="clientToken" title="Client Token">
-    <t>In cases where the client has limited connectivity and
-    needs to get access to a previously unknown resource servers, this framework
-    suggests the following OPTIONAL approach:  The client is pre-configured
-    with a long-term access token, which is not self-contained (i.e. it is only
-    a reference to a token at the AS) when it is commissioned.  When the client
-    then tries to access a RS it transmits this access token.  The RS then
-    performs token introspection to learn what access this token grants.  In
-    the introspection response, the AS also relays information for the client,
-    such as the proof-of-possession key, through the RS.  The RS passes on this
-    Client Token to the client in response to the submission of the token.</t>
-    
-    <t>The client_token parameter is designed to carry such information, and is
-    intended to be used as described in <xref target="fig:client_token"/>.
-
-    <figure align="center" anchor="fig:client_token"
-               title="Use of the client_token parameter.">
-      <artwork align="left"><![CDATA[
-                  Resource       Authorization
- Client            Server           Server
-    |                |                |
-    |                |                |
-C:  +--------------->|                |
-    |  POST          |                |
-    |  Access Token  |                |
-    |            D:  +--------------->|
-    |                | Introspection  |
-    |                |    Request     |
-    |                |                |
-    |            E:  +<---------------+
-    |                | Introspection  |
-    |                |   Response     |
-    |                | + Client Token |
-    |<---------------+                |
-    |  2.01 Created  |                |
-    | + Client Token |
-    ]]></artwork>
-    </figure>
-    </t>
-
-    <t>The client token is a COSE_Encrypted object, containing as payload
-    a CBOR map with the following claims:
-
-    <list style="hanging">
-      <t hangText="cnf">
-      REQUIRED if the token type is "pop", OPTIONAL otherwise.  Contains
-      information about the proof-of-possession key the client is to use with
-      its access token.  See <xref target="paramCnf"/>.</t>
-
-      <t hangText="token_type">
-      OPTIONAL. See <xref target="paramTokenType"/>.</t>
-
-      <t hangText="profile">
-      REQUIRED. See <xref target="paramProfile"/>.</t>
-
-      <t hangText="rs_cnf">
-      OPTIONAL. Contains information about the key that the RS uses
-      to authenticate towards the client.  If the key is symmetric then
-      this claim MUST NOT be part of the Client Token, since this is the
-      same key as the one specified through the "cnf" claim.  This claim uses
-      the same encoding as the "cnf" parameter.  See <xref
-      target="paramProfile"/>.</t>
-    </list>
-    </t>
-
-    <t>The AS encrypts this token using a key shared between the AS and the
-    client, so that only the client can decrypt it and access its payload.
-    How this key is established is out of scope of this framework, however it
-    can be established at the same time at which the client's long term token
-    is created.</t>
-
-    <t>An RS that is configured to perform introspection, MUST do so
-    immediately after receiving an access token, in order to be able to
-    return a potential client token to the client.  This does not
-    preclude the RS to perform additional introspection asynchronously,
-    e.g., when the token is later used.</t>
-  </section>
 
   <section anchor="introParamsCbor"
 	   title="Mapping Introspection parameters to CBOR">
@@ -1773,9 +1678,7 @@ C:  +--------------->|                |
   </t>
 
   <t>The RS MAY make an introspection request to validate the token before
-  responding to the POST request to the authz-info endpoint.  If the introspection response
-  contains a client token (<xref target="clientToken"/>) then this token
-  SHALL be included in the payload of the 2.01 (Created) response.
+  responding to the POST request to the authz-info endpoint.
   </t>
 
   <t>Profiles MUST specify how the authz-info endpoint is protected.  Note
@@ -2636,18 +2539,7 @@ C:  +--------------->|                |
 	  associated to the token reference without having to be in contact
 	  with the client, thus granting or revoking access rights.
 	  <vspace blankLines="1"/></t>
-
-	  <t hangText="Client Token:"><vspace blankLines="1"/>
-	  In cases where the client is constrained and does not have
-	  connectivity to the AS, and furthermore does not have a previous
-	  security relation to the RS that it needs to communicate with,
-	  this framework proposes the use of "client tokens".  A client
-	  token is a data object obtained from the AS by the RS, during access
-	  token introspection.  The RS passes the client token on to the client.
-	  It contains information that allows the client to perform the
-	  proof of possession for its access token and to authenticate the RS
-	  (e.g. with it's public key).
-	  </t>	  
+ 
 	</list>
       </t>
       
@@ -3293,6 +3185,8 @@ F:  |<--------+ Header: 2.04 Changed
    <section anchor="app:f10t11" title="Version -09 to -10">
      <t><list style="symbols">
        <t>Removed CBOR major type numbers.</t>
+       <t>Removed the client token design.</t>
+       <t>Rephrased to clarify that other protocols than CoAP can be used.</t>
      </list></t>
    </section>
    <section anchor="app:f9t10" title="Version -08 to -09">

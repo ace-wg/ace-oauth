@@ -403,8 +403,7 @@
 <link href="#rfc.section.5.7.1" rel="Chapter" title="5.7.1 RS-to-AS Request"/>
 <link href="#rfc.section.5.7.2" rel="Chapter" title="5.7.2 AS-to-RS Response"/>
 <link href="#rfc.section.5.7.3" rel="Chapter" title="5.7.3 Error Response"/>
-<link href="#rfc.section.5.7.4" rel="Chapter" title="5.7.4 Client Token"/>
-<link href="#rfc.section.5.7.5" rel="Chapter" title="5.7.5 Mapping Introspection parameters to CBOR"/>
+<link href="#rfc.section.5.7.4" rel="Chapter" title="5.7.4 Mapping Introspection parameters to CBOR"/>
 <link href="#rfc.section.5.8" rel="Chapter" title="5.8 The Access Token"/>
 <link href="#rfc.section.5.8.1" rel="Chapter" title="5.8.1 The 'Authorization Information' Endpoint"/>
 <link href="#rfc.section.5.8.2" rel="Chapter" title="5.8.2 Token Expiration"/>
@@ -459,7 +458,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-10" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-1-12" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-2-5" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -483,7 +482,7 @@
   <td class="right">G. Selander</td>
 </tr>
 <tr>
-  <td class="left">Expires: July 16, 2018</td>
+  <td class="left">Expires: August 9, 2018</td>
   <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -512,7 +511,7 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">January 12, 2018</td>
+  <td class="right">February 5, 2018</td>
 </tr>
 
     	
@@ -532,7 +531,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on July 16, 2018.</p>
+<p>This Internet-Draft will expire on August 9, 2018.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -573,8 +572,7 @@
 <ul><li>5.7.1.   <a href="#rfc.section.5.7.1">RS-to-AS Request</a></li>
 <li>5.7.2.   <a href="#rfc.section.5.7.2">AS-to-RS Response</a></li>
 <li>5.7.3.   <a href="#rfc.section.5.7.3">Error Response</a></li>
-<li>5.7.4.   <a href="#rfc.section.5.7.4">Client Token</a></li>
-<li>5.7.5.   <a href="#rfc.section.5.7.5">Mapping Introspection parameters to CBOR</a></li>
+<li>5.7.4.   <a href="#rfc.section.5.7.4">Mapping Introspection parameters to CBOR</a></li>
 </ul><li>5.8.   <a href="#rfc.section.5.8">The Access Token</a></li>
 <ul><li>5.8.1.   <a href="#rfc.section.5.8.1">The 'Authorization Information' Endpoint</a></li>
 <li>5.8.2.   <a href="#rfc.section.5.8.2">Token Expiration</a></li>
@@ -647,7 +645,7 @@
 <p id="rfc.section.3.p.2">The basic block is the OAuth 2.0 <a href="#RFC6749">[RFC6749]</a> framework, which enjoys widespread deployment.  Many IoT devices can support OAuth 2.0 without any additional extensions, but for certain constrained settings additional profiling is needed.  </p>
 <p id="rfc.section.3.p.3">Another building block is the lightweight web transfer protocol CoAP <a href="#RFC7252">[RFC7252]</a>, for those communication environments where HTTP is not appropriate.  CoAP typically runs on top of UDP, which further reduces overhead and message exchanges. While this specification defines extensions for the use of OAuth over CoAP, other underlying protocols are not prohibited from being supported in the future, such as HTTP/2, MQTT, BLE and QUIC.</p>
 <p id="rfc.section.3.p.4">A third building block is CBOR <a href="#RFC7049">[RFC7049]</a>, for encodings where JSON <a href="#RFC7159">[RFC7159]</a> is not sufficiently compact.  CBOR is a binary encoding designed for small code and message size, which may be used for encoding of self contained tokens, and also for encoding payload transferred in protocol messages.  </p>
-<p id="rfc.section.3.p.5">A fourth building block is the compact CBOR-based secure message format COSE <a href="#RFC8152">[RFC8152]</a>, which enables application layer security as an alternative or complement to transport layer security (DTLS <a href="#RFC6347">[RFC6347]</a> or TLS <a href="#RFC5246">[RFC5246]</a>). COSE is used to secure self-contained tokens such as proof-of-possession (PoP) tokens, which is an extension to the OAuth tokens, and "client tokens" which are defined in this framework (see <a href="#clientToken">Section 5.7.4</a>). The default token format is defined in CBOR web token (CWT) <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  Application layer security for CoAP using COSE can be provided with OSCOAP <a href="#I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</a>.</p>
+<p id="rfc.section.3.p.5">A fourth building block is the compact CBOR-based secure message format COSE <a href="#RFC8152">[RFC8152]</a>, which enables application layer security as an alternative or complement to transport layer security (DTLS <a href="#RFC6347">[RFC6347]</a> or TLS <a href="#RFC5246">[RFC5246]</a>). COSE is used to secure self-contained tokens such as proof-of-possession (PoP) tokens, which is an extension to the OAuth tokens. The default token format is defined in CBOR web token (CWT) <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  Application layer security for CoAP using COSE can be provided with OSCOAP <a href="#I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</a>.</p>
 <p id="rfc.section.3.p.6">With the building blocks listed above, solutions satisfying various IoT device and network constraints are possible.  A list of constraints is described in detail in RFC 7228 <a href="#RFC7228">[RFC7228]</a> and a description of how the building blocks mentioned above relate to the various constraints can be found in <a href="#constraints">Appendix A</a>.</p>
 <p id="rfc.section.3.p.7">Luckily, not every IoT device suffers from all constraints.  The ACE framework nevertheless takes all these aspects into account and allows several different deployment variants to co-exist, rather than mandating a one-size-fits-all solution.  It is important to cover the wide range of possible interworking use cases and the different requirements from a security point of view.  Once IoT deployments mature, popular deployment variants will be documented in the form of ACE profiles.</p>
 <h1 id="rfc.section.3.1"><a href="#rfc.section.3.1">3.1.</a> <a href="#oauth2Overview" id="oauth2Overview">OAuth 2.0</a></h1>
@@ -698,8 +696,8 @@
 |        |                                      ^ |
 |        |            Introspection Request  (D)| |
 | Client |                  (optional)          | |
-|        |             Response + Client Token  | |(E)
-|        |                  (optional)          | v
+|        |                         Response     | |(E)
+|        |                         (optional)   | v
 |        |                               +--------------+
 |        |---(C)-- Token + Request -----&gt;|              |
 |        |                               |   Resource   |
@@ -717,11 +715,11 @@
   <dt>Access Token Response (B):</dt>
   <dd style="margin-left: 8"><br/> If the AS successfully processes the request from the client, it returns an access token.  It can also return additional parameters, referred to as "RS Information".  In addition to the response parameters defined by OAuth 2.0 and the PoP access token extension, this framework defines parameters that can be used to inform the client about capabilities of the RS. More information about these parameters can be found in <a href="#tokenParams">Section 5.6.4</a>.  <br/><br/> </dd>
   <dt>Resource Request (C):</dt>
-  <dd style="margin-left: 8"><br/> The client interacts with the RS to request access to the protected resource and provides the access token.  The protocol to use between the client and the RS is not restricted to CoAP. HTTP, HTTP/2, QUIC, MQTT, Bluetooth Low Energy, etc., are also viable candidates.  <br/><br/> Depending on the device limitations and the selected protocol, this exchange may be split up into two parts: <ul class="empty"><li>(1) the client sends the access token containing, or referencing, the authorization information to the RS, that may be used for subsequent resource requests by the client, and </li><li>(2) the client makes the resource access request, using the communication security protocol and other RS Information obtained from the AS.</li></ul><p> </p><br/><br/> The Client and the RS mutually authenticate using the security protocol specified in the profile (see step B) and the keys obtained in the access token or the RS Information or the client token.  The RS verifies that the token is integrity protected by the AS and compares the claims contained in the access token with the resource request. If the RS is online, validation can be handed over to the AS using token introspection (see messages D and E) over HTTP or CoAP, in  which case the different parts of step C may be interleaved with introspection.<br/><br/> </dd>
+  <dd style="margin-left: 8"><br/> The client interacts with the RS to request access to the protected resource and provides the access token.  The protocol to use between the client and the RS is not restricted to CoAP. HTTP, HTTP/2, QUIC, MQTT, Bluetooth Low Energy, etc., are also viable candidates.  <br/><br/> Depending on the device limitations and the selected protocol, this exchange may be split up into two parts: <ul class="empty"><li>(1) the client sends the access token containing, or referencing, the authorization information to the RS, that may be used for subsequent resource requests by the client, and </li><li>(2) the client makes the resource access request, using the communication security protocol and other RS Information obtained from the AS.</li></ul><p> </p><br/><br/> The Client and the RS mutually authenticate using the security protocol specified in the profile (see step B) and the keys obtained in the access token or the RS Information.  The RS verifies that the token is integrity protected by the AS and compares the claims contained in the access token with the resource request. If the RS is online, validation can be handed over to the AS using token introspection (see messages D and E) over HTTP or CoAP, in  which case the different parts of step C may be interleaved with introspection.<br/><br/> </dd>
   <dt>Token Introspection Request (D):</dt>
   <dd style="margin-left: 8"><br/> A resource server may be configured to introspect the access token by including it in a request to the introspection endpoint at that AS.  Token introspection over CoAP is defined in <a href="#introspectionEndpoint">Section 5.7</a> and for HTTP in <a href="#RFC7662">[RFC7662]</a>.  <br/><br/> Note that token introspection is an optional step and can be omitted if the token is self-contained and the resource server is prepared to perform the token validation on its own.<br/><br/> </dd>
   <dt>Token Introspection Response (E):</dt>
-  <dd style="margin-left: 8"><br/> The AS validates the token and returns the most recent parameters, such as scope, audience, validity etc. associated with it back to the RS.  The RS then uses the received parameters to process the request to either accept or to deny it. The AS can additionally return information that the RS needs to pass on to the client in the form of a client token.  The latter is used to establish keys for mutual authentication between client and RS, when the client has no direct connectivity to the AS, see <a href="#clientToken">Section 5.7.4</a> for details.<br/><br/> </dd>
+  <dd style="margin-left: 8"><br/> The AS validates the token and returns the most recent parameters, such as scope, audience, validity etc. associated with it back to the RS.  The RS then uses the received parameters to process the request to either accept or to deny it.<br/><br/> </dd>
   <dt>Protected Resource (F):</dt>
   <dd style="margin-left: 8"><br/> If the request from the client is authorized, the RS fulfills the request and returns a response with the appropriate response code.  The RS uses the dynamically established keys to protect the response, according to used communication security protocol.  </dd>
 </dl>
@@ -1039,7 +1037,6 @@ Payload:
   <li>In the token request C -&gt; AS, to indicate the client's raw public key, or the key-identifier of a previously established key between C and RS.</li>
   <li>In the token response AS -&gt; C, to indicate the symmetric key generated by the AS for proof-of-possession.</li>
   <li>In the introspection response AS -&gt; RS, to indicate the proof-of-possession	key bound to the introspected token.</li>
-  <li>In the client token AS -&gt; RS -&gt; C, to indicate the proof-of-possession	key bound to the access token.</li>
 </ul>
 <p id="rfc.section.5.6.4.5.p.3">Note that the COSE_Key structure in a "cnf" claim or parameter may contain an "alg" or "key_ops" parameter.  If such parameters are present, a client MUST NOT use a key that is not compatible with the profile or proof-of-possession algorithm according to those parameters. An RS MUST reject a proof-of-possession using such a key.  </p>
 <h1 id="rfc.section.5.6.5"><a href="#rfc.section.5.6.5">5.6.5.</a> <a href="#tokenCborParams" id="tokenCborParams">Mapping Parameters to CBOR</a></h1>
@@ -1109,8 +1106,6 @@ Payload:
   <dd style="margin-left: 8">OPTIONAL.   This field contains information about the proof-of-possession  key that binds the client to the access token.  See <a href="#paramCnf">Section 5.6.4.5</a> for more details on the use of the "cnf" parameter.</dd>
   <dt>profile</dt>
   <dd style="margin-left: 8">OPTIONAL.  This indicates the profile that the RS MUST use with the client.  See <a href="#paramProfile">Section 5.6.4.4</a> for more details on the formatting of this parameter.</dd>
-  <dt>client_token</dt>
-  <dd style="margin-left: 8">OPTIONAL.  This parameter contains information that the RS MUST pass on to the client.  See <a href="#clientToken">Section 5.7.4</a> for more details.</dd>
 </dl>
 
 <p> </p>
@@ -1124,8 +1119,6 @@ Payload:
   "active" : true,
   "scope" : "read",
   "profile" : "coap_dtls",
-  "client_token" : b64'2QPhg0OhAQo ...
-  (remainder of client token omitted for brevity)',
   "cnf" : {
     "COSE_Key" : {
       "kty" : "Symmetric",
@@ -1150,51 +1143,9 @@ Payload:
 
 <p> </p>
 <p id="rfc.section.5.7.3.p.2">Note that a properly formed and authorized query for an inactive or otherwise invalid token does not warrant an error response by this specification.  In these cases, the authorization server MUST instead respond with an introspection response with the "active" field set to "false".</p>
-<h1 id="rfc.section.5.7.4"><a href="#rfc.section.5.7.4">5.7.4.</a> <a href="#clientToken" id="clientToken">Client Token</a></h1>
-<p id="rfc.section.5.7.4.p.1">In cases where the client has limited connectivity and needs to get access to a previously unknown resource servers, this framework suggests the following OPTIONAL approach:  The client is pre-configured with a long-term access token, which is not self-contained (i.e. it is only a reference to a token at the AS) when it is commissioned.  When the client then tries to access a RS it transmits this access token.  The RS then performs token introspection to learn what access this token grants.  In the introspection response, the AS also relays information for the client, such as the proof-of-possession key, through the RS.  The RS passes on this Client Token to the client in response to the submission of the token.</p>
+<h1 id="rfc.section.5.7.4"><a href="#rfc.section.5.7.4">5.7.4.</a> <a href="#introParamsCbor" id="introParamsCbor">Mapping Introspection parameters to CBOR</a></h1>
+<p id="rfc.section.5.7.4.p.1">The introspection request and response parameters MUST be mapped to CBOR types as specified in <a href="#fig:cborIntrospectionParameters">Figure 15</a>, using the given integer abbreviation for the key.</p>
 <div id="rfc.figure.15"/>
-<div id="fig:client_token"/>
-<pre>
-                  Resource       Authorization
- Client            Server           Server
-    |                |                |
-    |                |                |
-C:  +---------------&gt;|                |
-    |  POST          |                |
-    |  Access Token  |                |
-    |            D:  +---------------&gt;|
-    |                | Introspection  |
-    |                |    Request     |
-    |                |                |
-    |            E:  +&lt;---------------+
-    |                | Introspection  |
-    |                |   Response     |
-    |                | + Client Token |
-    |&lt;---------------+                |
-    |  2.01 Created  |                |
-    | + Client Token |
-    </pre>
-<p class="figure">Figure 15: Use of the client_token parameter.</p>
-<p id="rfc.section.5.7.4.p.2">The client_token parameter is designed to carry such information, and is intended to be used as described in <a href="#fig:client_token">Figure 15</a>.  </p>
-<p id="rfc.section.5.7.4.p.3">The client token is a COSE_Encrypted object, containing as payload a CBOR map with the following claims: </p>
-
-<dl>
-  <dt>cnf</dt>
-  <dd style="margin-left: 8">REQUIRED if the token type is "pop", OPTIONAL otherwise.  Contains information about the proof-of-possession key the client is to use with its access token.  See <a href="#paramCnf">Section 5.6.4.5</a>.</dd>
-  <dt>token_type</dt>
-  <dd style="margin-left: 8">OPTIONAL. See <a href="#paramTokenType">Section 5.6.4.3</a>.</dd>
-  <dt>profile</dt>
-  <dd style="margin-left: 8">REQUIRED. See <a href="#paramProfile">Section 5.6.4.4</a>.</dd>
-  <dt>rs_cnf</dt>
-  <dd style="margin-left: 8">OPTIONAL. Contains information about the key that the RS uses to authenticate towards the client.  If the key is symmetric then this claim MUST NOT be part of the Client Token, since this is the same key as the one specified through the "cnf" claim.  This claim uses the same encoding as the "cnf" parameter.  See <a href="#paramProfile">Section 5.6.4.4</a>.</dd>
-</dl>
-
-<p> </p>
-<p id="rfc.section.5.7.4.p.4">The AS encrypts this token using a key shared between the AS and the client, so that only the client can decrypt it and access its payload.  How this key is established is out of scope of this framework, however it can be established at the same time at which the client's long term token is created.</p>
-<p id="rfc.section.5.7.4.p.5">An RS that is configured to perform introspection, MUST do so immediately after receiving an access token, in order to be able to return a potential client token to the client.  This does not preclude the RS to perform additional introspection asynchronously, e.g., when the token is later used.</p>
-<h1 id="rfc.section.5.7.5"><a href="#rfc.section.5.7.5">5.7.5.</a> <a href="#introParamsCbor" id="introParamsCbor">Mapping Introspection parameters to CBOR</a></h1>
-<p id="rfc.section.5.7.5.p.1">The introspection request and response parameters MUST be mapped to CBOR types as specified in <a href="#fig:cborIntrospectionParameters">Figure 16</a>, using the given integer abbreviation for the key.</p>
-<div id="rfc.figure.16"/>
 <div id="fig:cborIntrospectionParameters"/>
 <pre>
     /-----------------+----------+-----------------------\
@@ -1220,8 +1171,8 @@ C:  +---------------&gt;|                |
     | rs_cnf          | 31       | map                   |
     \-----------------+----------+-----------------------/
         </pre>
-<p class="figure">Figure 16: CBOR Mappings to Token Introspection Parameters.</p>
-<p id="rfc.section.5.7.5.p.2">Note that we have aligned these abbreviations with the claim abbreviations defined in <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  </p>
+<p class="figure">Figure 15: CBOR Mappings to Token Introspection Parameters.</p>
+<p id="rfc.section.5.7.4.p.2">Note that we have aligned these abbreviations with the claim abbreviations defined in <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  </p>
 <h1 id="rfc.section.5.8"><a href="#rfc.section.5.8">5.8.</a> <a href="#accessToken" id="accessToken">The Access Token</a></h1>
 <p id="rfc.section.5.8.p.1">This framework RECOMMENDS the use of CBOR web token (CWT) as specified in <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  </p>
 <p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this draft uses the "cnf" claim from <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a> and specifies the "scope" claim for both JSON and CBOR web tokens.</p>
@@ -1232,7 +1183,7 @@ C:  +---------------&gt;|                |
 <p id="rfc.section.5.8.1.p.3">The method consists of an authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to the authz-info endpoint at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).  This response MAY contain an identifier of the token (e.g., the cti for a CWT) as a payload, in order to allow the client to refer to the token.</p>
 <p id="rfc.section.5.8.1.p.4">The RS MUST be prepared to store at least one access token for future use. This is a difference to how access tokens are handled in OAuth 2.0, where the access token is typically sent along with each request, and therefore not stored at the RS.</p>
 <p id="rfc.section.5.8.1.p.5">If the token is not valid, the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).  If the token is valid but the audience of the token does not match the RS, the RS MUST respond with a response code equivalent to the CoAP code 4.03 (Forbidden).  If the token is valid but is associated to claims that the RS cannot process (e.g., an unknown scope) the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request). In the latter case the RS MAY provide additional information in the error response, in order to clarify what went wrong.  </p>
-<p id="rfc.section.5.8.1.p.6">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint.  If the introspection response contains a client token (<a href="#clientToken">Section 5.7.4</a>) then this token SHALL be included in the payload of the 2.01 (Created) response.  </p>
+<p id="rfc.section.5.8.1.p.6">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint.  </p>
 <p id="rfc.section.5.8.1.p.7">Profiles MUST specify how the authz-info endpoint is protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
 <p id="rfc.section.5.8.1.p.8">The default name of this endpoint in an url-path is 'authz-info', however implementations are not required to use this name and can define their own instead.</p>
 <h1 id="rfc.section.5.8.2"><a href="#rfc.section.5.8.2">5.8.2.</a> <a href="#tokenValidity" id="tokenValidity">Token Expiration</a></h1>
@@ -1458,7 +1409,7 @@ C:  +---------------&gt;|                |
   <dt>Reference</dt>
   <dd style="margin-left: 8">This contains a pointer to the public specification of the grant type abbreviation, if one exists.</dd>
 </dl>
-<p id="rfc.section.8.10.p.3">This registry will be initially populated by the values in <a href="#fig:cborIntrospectionParameters">Figure 16</a>. The Reference column for all of these entries will be this document.</p>
+<p id="rfc.section.8.10.p.3">This registry will be initially populated by the values in <a href="#fig:cborIntrospectionParameters">Figure 15</a>. The Reference column for all of these entries will be this document.</p>
 <h1 id="rfc.section.8.11"><a href="#rfc.section.8.11">8.11.</a> <a href="#IANAJWTClaims" id="IANAJWTClaims">JSON Web Token Claims</a></h1>
 <p id="rfc.section.8.11.p.1">This specification registers the following new claims in the JSON Web Token (JWT) registry of JSON Web Token Claims:</p>
 <p/>
@@ -1510,7 +1461,7 @@ C:  +---------------&gt;|                |
       <td class="reference">
         <b id="I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</b>
       </td>
-      <td class="top"><a>Jones, M.</a>, <a>Wahlstroem, E.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-ace-cbor-web-token-10">CBOR Web Token (CWT)</a>", Internet-Draft draft-ietf-ace-cbor-web-token-10, December 2017.</td>
+      <td class="top"><a>Jones, M.</a>, <a>Wahlstroem, E.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-ace-cbor-web-token-12">CBOR Web Token (CWT)</a>", Internet-Draft draft-ietf-ace-cbor-web-token-12, February 2018.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1575,7 +1526,7 @@ C:  +---------------&gt;|                |
       <td class="reference">
         <b id="I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</b>
       </td>
-      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-07">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-07, November 2017.</td>
+      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-08">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-08, January 2018.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1734,8 +1685,6 @@ C:  +---------------&gt;|                |
   <dd style="margin-left: 8"><br/><br/> This framework RECOMMENDS the use of the client credentials grant for machine-to-machine communication use cases, where manual intervention of the resource owner to produce a grant token is not feasible.  The intention is that the resource owner would instead pre-arrange authorization with the AS, based on the client's own credentials.  The client can the (without manual intervention) obtain access tokens from the AS.  <br/><br/></dd>
   <dt>Introspection:</dt>
   <dd style="margin-left: 8"><br/><br/> This framework RECOMMENDS the use of access token introspection in cases where the client is constrained in a way that it can not easily obtain new access tokens (i.e. it has connectivity issues that prevent it from communicating with the AS). In that case this framework RECOMMENDS the use of a long-term token, that could be a simple reference.  The RS is assumed to be able to communicate with the AS, and can therefore perform introspection, in order to learn the claims associated with the token reference.  The advantage of such an approach is that the resource owner can change the claims associated to the token reference without having to be in contact with the client, thus granting or revoking access rights.  <br/><br/></dd>
-  <dt>Client Token:</dt>
-  <dd style="margin-left: 8"><br/><br/> In cases where the client is constrained and does not have connectivity to the AS, and furthermore does not have a previous security relation to the RS that it needs to communicate with, this framework proposes the use of "client tokens".  A client token is a data object obtained from the AS by the RS, during access token introspection.  The RS passes the client token on to the client.  It contains information that allows the client to perform the proof of possession for its access token and to authenticate the RS (e.g. with it's public key).  </dd>
 </dl>
 
 <p> </p>
@@ -1803,7 +1752,7 @@ C:  +---------------&gt;|                |
 <h1 id="rfc.appendix.E.1"><a href="#rfc.appendix.E.1">E.1.</a> <a href="#localTokenValidation" id="localTokenValidation">Local Token Validation</a></h1>
 <p id="rfc.section.E.1.p.1">In this scenario, the case where the resource server is offline is considered, i.e., it is not connected to the AS at the time of the access request.  This access procedure involves steps A, B, C, and F of <a href="#fig:protocolFlow">Figure 1</a>.  </p>
 <p id="rfc.section.E.1.p.2">Since the resource server must be able to verify the access token locally, self-contained access tokens must be used.</p>
-<p id="rfc.section.E.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 17</a>.</p>
+<p id="rfc.section.E.1.p.3">This example shows the interactions between a client, the authorization server and a temperature sensor acting as a resource server.  Message exchanges A and B are shown in <a href="#fig:RSOffline">Figure 16</a>.</p>
 <p/>
 
 <dl>
@@ -1816,7 +1765,7 @@ C:  +---------------&gt;|                |
   <dt></dt>
   <dd style="margin-left: 8">Note: In this example it is assumed that the client knows what resource it wants to access, and is therefore able to request specific audience and scope claims for the access token.</dd>
 </dl>
-<div id="rfc.figure.17"/>
+<div id="rfc.figure.16"/>
 <div id="fig:RSOffline"/>
 <pre>
          Authorization
@@ -1835,9 +1784,9 @@ B:  |&lt;--------+ Header: 2.05 Content
     |         | Payload: &lt;Response-Payload&gt;
     |         |
         </pre>
-<p class="figure">Figure 17: Token Request and Response Using Client Credentials.</p>
+<p class="figure">Figure 16: Token Request and Response Using Client Credentials.</p>
 <p/>
-<div id="rfc.figure.18"/>
+<div id="rfc.figure.17"/>
 <div id="fig:RSOfflineReq"/>
 <pre>
 Request-Payload :
@@ -1864,10 +1813,10 @@ Response-Payload :
   }
 }
         </pre>
-<p class="figure">Figure 18: Request and Response Payload Details.</p>
-<p id="rfc.section.E.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 18</a>.  Note that a transport layer security based communication security profile is used in this example, therefore the Content-Type is "application/cbor".  </p>
-<p id="rfc.section.E.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 19</a>.</p>
-<div id="rfc.figure.19"/>
+<p class="figure">Figure 17: Request and Response Payload Details.</p>
+<p id="rfc.section.E.1.p.6">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:RSOfflineReq">Figure 17</a>.  Note that a transport layer security based communication security profile is used in this example, therefore the Content-Type is "application/cbor".  </p>
+<p id="rfc.section.E.1.p.7">The content of the access token is shown in  <a href="#fig:BothcborMappingValueAsymmetricCWT">Figure 18</a>.</p>
+<div id="rfc.figure.18"/>
 <div id="fig:BothcborMappingValueAsymmetricCWT"/>
 <pre>
 {
@@ -1886,9 +1835,9 @@ Response-Payload :
   }
 }
         </pre>
-<p class="figure">Figure 19: Access Token including Public Key of the Client.</p>
+<p class="figure">Figure 18: Access Token including Public Key of the Client.</p>
 <p/>
-<div id="rfc.figure.20"/>
+<div id="rfc.figure.19"/>
 <div id="fig:RSOfflinePostAccessTokenAsymmetric"/>
 <pre>
            Resource
@@ -1902,8 +1851,8 @@ C:  +--------&gt;| Header: POST (Code=0.02)
     |  2.04   |
     |         |
 </pre>
-<p class="figure">Figure 20: Access Token provisioning to RS</p>
-<p id="rfc.section.E.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 20</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 21</a>.  </p>
+<p class="figure">Figure 19: Access Token provisioning to RS</p>
+<p id="rfc.section.E.1.p.9">Messages C and F are shown in <a href="#fig:RSOfflinePostAccessTokenAsymmetric">Figure 19</a> - <a href="#fig:RSOfflineDTLSRequestAndResponse">Figure 20</a>.  </p>
 
 <dl>
   <dt></dt>
@@ -1917,7 +1866,7 @@ C:  +--------&gt;| Header: POST (Code=0.02)
   <dt></dt>
   <dd style="margin-left: 8">F: The RS responds with a resource representation over DTLS.</dd>
 </dl>
-<div id="rfc.figure.21"/>
+<div id="rfc.figure.20"/>
 <div id="fig:RSOfflineDTLSRequestAndResponse"/>
 <pre>
            Resource
@@ -1935,12 +1884,12 @@ F:  |&lt;--------+ Header: 2.05 Content
     | 2.05    | Payload: &lt;sensor value&gt;
     |         |
       </pre>
-<p class="figure">Figure 21: Resource Request and Response protected by DTLS.</p>
+<p class="figure">Figure 20: Resource Request and Response protected by DTLS.</p>
 <p/>
 <h1 id="rfc.appendix.E.2"><a href="#rfc.appendix.E.2">E.2.</a> <a href="#introspectionAidedTokenValidation" id="introspectionAidedTokenValidation">Introspection Aided Token Validation</a></h1>
 <p id="rfc.section.E.2.p.1">In this deployment scenario it is assumed that a client is not able to access the AS at the time of the access request, whereas the RS is assumed to be connected to the back-end infrastructure. Thus the RS can make use of token introspection.  This access procedure involves steps A-F of <a href="#fig:protocolFlow">Figure 1</a>, but assumes steps A and B have been carried out during a phase when the client had connectivity to AS.  </p>
 <p id="rfc.section.E.2.p.2">Since the client is assumed to be offline, at least for a certain period of time, a pre-provisioned access token has to be long-lived.  Since the client is constrained, the token will not be self contained (i.e. not a CWT) but instead just a reference.  The resource server uses its connectivity to learn about the claims associated to the access token by using introspection, which is shown in the example below.</p>
-<p id="rfc.section.E.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  It is assumed that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 22</a>.  </p>
+<p id="rfc.section.E.2.p.3">In the example interactions between an offline client (key fob), a RS (online lock), and an AS is shown.  It is assumed that there is a provisioning step where the client has access to the AS.  This corresponds to message exchanges A and B which are shown in <a href="#fig:cOffline">Figure 21</a>.  </p>
 <p id="rfc.section.E.2.p.4">Authorization consent from the resource owner can be pre-configured, but it can also be provided via an interactive flow with the resource owner.  An example of this for the key fob case could be that the resource owner has a connected car, he buys a generic key that he wants to use with the car.  To authorize the key fob he connects it to his computer that then provides the UI for the device.  After that OAuth 2.0 implicit flow can used to authorize the key for his car at the the car manufacturers AS.</p>
 <p id="rfc.section.E.2.p.5">Note: In this example the client does not know the exact door it will be used to access since the token request is not send at the time of access. So the scope and audience parameters are set quite wide to start with and new values different form the original once can be returned from introspection later on.</p>
 <p/>
@@ -1953,7 +1902,7 @@ F:  |&lt;--------+ Header: 2.05 Content
 </dl>
 
 <p> </p>
-<div id="rfc.figure.22"/>
+<div id="rfc.figure.21"/>
 <div id="fig:cOffline"/>
 <pre>
 
@@ -1971,9 +1920,9 @@ B:  |&lt;--------+ Header: 2.05 Content
     |  2.05   | Payload: &lt;Response-Payload&gt;
     |         |
     </pre>
-<p class="figure">Figure 22: Token Request and Response using Client Credentials.</p>
+<p class="figure">Figure 21: Token Request and Response using Client Credentials.</p>
 <p/>
-<div id="rfc.figure.23"/>
+<div id="rfc.figure.22"/>
 <div id="fig:cOfflineReq"/>
 <pre>
 Request-Payload:
@@ -1999,10 +1948,10 @@ Response-Payload:
   }
 }
       </pre>
-<p class="figure">Figure 23: Request and Response Payload for C offline</p>
-<p id="rfc.section.E.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 23</a>.  </p>
+<p class="figure">Figure 22: Request and Response Payload for C offline</p>
+<p id="rfc.section.E.2.p.8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineReq">Figure 22</a>.  </p>
 <p id="rfc.section.E.2.p.9">The access token in this case is just an opaque string referencing the authorization information at the AS.</p>
-<div id="rfc.figure.24"/>
+<div id="rfc.figure.23"/>
 <div id="fig:cOfflineIntrospection"/>
 <pre>
            Resource
@@ -2030,8 +1979,8 @@ C:  +--------&gt;| Header: POST (T=CON, Code=0.02)
     |  2.01   |
     |         |
 </pre>
-<p class="figure">Figure 24: Token Introspection for C offline</p>
-<div id="rfc.figure.25"/>
+<p class="figure">Figure 23: Token Introspection for C offline</p>
+<div id="rfc.figure.24"/>
 <div id="fig:cOfflineIntroReq"/>
 <pre>
 Request-Payload:
@@ -2052,7 +2001,7 @@ Response-Payload:
   }
 }
           </pre>
-<p class="figure">Figure 25: Request and Response Payload for Introspection</p>
+<p class="figure">Figure 24: Request and Response Payload for Introspection</p>
 <p/>
 
 <dl>
@@ -2067,7 +2016,7 @@ Response-Payload:
   <dt></dt>
   <dd style="margin-left: 8"/>
   <dt></dt>
-  <dd style="margin-left: 8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineIntroReq">Figure 25</a>.  </dd>
+  <dd style="margin-left: 8">The information contained in the Request-Payload and the Response-Payload is shown in <a href="#fig:cOfflineIntroReq">Figure 24</a>.  </dd>
 </dl>
 
 <p> </p>
@@ -2081,7 +2030,7 @@ Response-Payload:
 </dl>
 
 <p> </p>
-<div id="rfc.figure.26"/>
+<div id="rfc.figure.25"/>
 <div id="fig:cOfflineDTLSRequestAndResponse"/>
 <pre>
            Resource
@@ -2098,7 +2047,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
     | 2.04    | Payload: &lt;new state for the lock&gt;
     |         |
             </pre>
-<p class="figure">Figure 26: Resource request and response protected by OSCOAP</p>
+<p class="figure">Figure 25: Resource request and response protected by OSCOAP</p>
 <p/>
 <h1 id="rfc.appendix.F"><a href="#rfc.appendix.F">Appendix F.</a> <a href="#app:changelog" id="app:changelog">Document Updates</a></h1>
 <h1 id="rfc.appendix.F.1"><a href="#rfc.appendix.F.1">F.1.</a> <a href="#app:f10t11" id="app:f10t11">Version -09 to -10</a></h1>
@@ -2106,6 +2055,8 @@ F:  |&lt;--------+ Header: 2.04 Changed
 
 <ul>
   <li>Removed CBOR major type numbers.</li>
+  <li>Removed the client token design.</li>
+  <li>Rephrased to clarify that other protocols than CoAP can be used.</li>
 </ul>
 <h1 id="rfc.appendix.F.2"><a href="#rfc.appendix.F.2">F.2.</a> <a href="#app:f9t10" id="app:f9t10">Version -08 to -09</a></h1>
 <p/>
