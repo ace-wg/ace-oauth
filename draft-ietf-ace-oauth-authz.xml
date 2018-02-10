@@ -21,7 +21,7 @@
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7521 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7521.xml">
 <!ENTITY I-D.ietf-oauth-device-flow SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-device-flow.xml">
-<!ENTITY I-D.ietf-oauth-native-apps SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-native-apps.xml">
+<!ENTITY RFC8252 SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.RFC.8252.xml">
 <!ENTITY RFC7519 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
 <!ENTITY RFC7591 SYSTEM
@@ -993,16 +993,24 @@ a2                                   # map(2)
     at the AS. The profile MUST specify the Content-Type and wrapping of the
     payload.  The content of the request consists of the parameters specified
     in Section 4 of the OAuth 2.0 specification <xref
-    target="RFC6749"/>, encoded as a CBOR map (if a CBOR encoding is used), 
+    target="RFC6749"/>.</t> 
+
+    <t>If CBOR is used then this parameter is encoded as a CBOR map, 
 	where the "scope" parameter
     can additionally be formatted as a byte array, in order to allow
     compact encoding of complex scope structures.</t>
+
+	<t>When HTTP is used as a transport then the client makes a 
+	request to the token endpoint by sending the
+   parameters using the "application/x-www-form-urlencoded"
+   format with a character encoding of UTF-8 in the HTTP
+   request entity-body, as defined in RFC 6749.</t>
 
     <t>In addition to these parameters, this framework defines the following
     parameters for requesting an access token from a token endpoint:
 
       <list style="hanging">
-	<t hangText="aud"><vspace blankLines="0"/>
+	<t hangText="aud:"><vspace blankLines="0"/>
 	OPTIONAL.  Specifies the audience for which the client is
 	requesting an access token.  If this parameter is missing, it is
 	assumed that the client and the AS have a pre-established understanding
@@ -1014,7 +1022,7 @@ a2                                   # map(2)
 	(Bad Request).
 	<vspace blankLines="1"/></t>
 
-	<t hangText="cnf"><vspace blankLines="0"/>
+	<t hangText="cnf:"><vspace blankLines="0"/>
 	OPTIONAL.  This field contains information about the key the
 	client would like to bind to the access token for proof-of-possession.
 	It is RECOMMENDED that an AS reject a request containing a symmetric key
@@ -1145,20 +1153,20 @@ Payload:
     parameters are also part of a successful response:
 
     <list style="hanging">
-	<t hangText="profile">
+	<t hangText="profile:"><vspace blankLines="0"/>
 	OPTIONAL.  This indicates the profile that the client MUST use
 	towards the RS. See <xref target="paramProfile"/> for the formatting of
 	this parameter.<vspace blankLines="1"/>. If this parameter is absent,
 	the AS assumes that the client implicitly knows which profile to use
 	towards the RS.</t>
 
-	<t hangText="cnf">
+	<t hangText="cnf:"><vspace blankLines="0"/>
 	REQUIRED if the token type is "pop" and a symmetric key is used.
 	MUST NOT be present otherwise. This field contains the symmetric
 	proof-of-possession key the client is supposed to use.  See <xref
 	target="paramCnf"/> for details on the use of this parameter.</t>
 
-	<t hangText="rs_cnf">
+	<t hangText="rs_cnf:"><vspace blankLines="0"/>
 	OPTIONAL if the token type is "pop" and asymmetric keys are used.
 	MUST NOT be present otherwise. This field contains information about
 	the public key used by the RS to authenticate.  See <xref
@@ -1166,7 +1174,7 @@ Payload:
 	parameter is absent, the AS assumes that the client already knows
 	the public key of the RS.</t>
 
-	<t hangText="token_type">
+	<t hangText="token_type:"><vspace blankLines="0"/>
 	OPTIONAL.  By default implementations of this framework SHOULD assume
 	that the token_type is "pop".  If a specific use case requires another
 	token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.
@@ -1301,8 +1309,9 @@ Payload:
 
     <section anchor="paramAud" title="Audience">
       <t>This parameter specifies for which audience the client is requesting
-      a token. If using CBOR payload it should be encoded as CBOR text string.  The
-      formatting and semantics of these strings are application specific.</t>
+      a token. The formatting and semantics of these strings are application specific.</t>
+	  
+	  <t>When encoded as a CBOR payload it is represented as a CBOR text string.</t>
     </section>
 
     <section anchor="paramGrantType" title="Grant Type">
@@ -1362,7 +1371,8 @@ Payload:
       proof-of-possession, while the "rs_cnf" parameter provides the raw public
       key of the RS.  Both parameters use the same formatting and semantics as
       the "cnf" claim specified in
-      <xref target="I-D.ietf-ace-cwt-proof-of-possession"/>.</t>
+      <xref target="I-D.ietf-ace-cwt-proof-of-possession"/> when used with a CBOR encoding.
+	  When these parameters are used in JSON then the formatting and semantics of the "cnf" claim specified in RFC 7800 <xref target="RFC7800"/>.</t>
 
       <t>In addition to the use as a claim in a CWT, the "cnf" parameter is
       used in the following contexts with the following meaning:
@@ -2056,11 +2066,18 @@ Payload:
   <section anchor="IANAOAuthParameterRegistration"
 	   title="OAuth Parameter Registration">
     <t>This specification registers the following parameters in the OAuth
-    Parameters Registry</t>
+    Parameters Registry:</t>
+	<t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Name: <spanx style="verb">aud</spanx></t>
+      <t>Parameter Usage Location: authorization request, token request</t>
+      <t>Change Controller: IESG</t>
+      <t>Reference: <xref target="tokenRequest"/> of [this document]</t>
+    </list></t>
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Name: <spanx style="verb">profile</spanx></t>
-      <t>Parameter Usage Location: token request, token response</t>
+      <t>Parameter Usage Location: token response</t>
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="paramProfile"/> of [this document]</t>
     </list></t>
@@ -2125,9 +2142,7 @@ Payload:
       <?rfc subcompact="yes"?>
       <list style='symbols'>
         <t>Name: <spanx style="verb">cnf</spanx></t>
-        <t>Description: Key to prove the right to use an access token,
-	formatted as specified in <xref
-	target="I-D.ietf-ace-cwt-proof-of-possession"/>. </t>
+        <t>Description: Key to prove the right to use a PoP token. </t>
         <t>Change Controller: IESG</t>
         <t>Reference: <xref target="introAS2RS"/> of [this document]</t>
       </list>
@@ -3186,6 +3201,7 @@ F:  |<--------+ Header: 2.04 Changed
        <t>Removed CBOR major type numbers.</t>
        <t>Removed the client token design.</t>
        <t>Rephrased to clarify that other protocols than CoAP can be used.</t>
+	   <t>Clarifications regarding the use of HTTP</t>
      </list></t>
    </section>
    <section anchor="app:f9t10" title="Version -08 to -09">
