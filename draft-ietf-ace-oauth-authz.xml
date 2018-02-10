@@ -21,7 +21,7 @@
 <!ENTITY RFC7252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7252.xml">
 <!ENTITY RFC7521 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7521.xml">
 <!ENTITY I-D.ietf-oauth-device-flow SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-device-flow.xml">
-<!ENTITY I-D.ietf-oauth-native-apps SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-native-apps.xml">
+<!ENTITY RFC8252 SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.RFC.8252.xml">
 <!ENTITY RFC7519 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7519.xml">
 <!ENTITY RFC7591 SYSTEM
@@ -328,8 +328,10 @@ security protocols (e.g., CoAP over DTLS).
   security as an alternative or complement to transport layer security (DTLS
     <xref target="RFC6347"/> or TLS <xref target="RFC5246"/>). COSE is used to
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
-    which is an extension to the OAuth tokens. The default token format is
-    defined in CBOR web token (CWT) <xref target="I-D.ietf-ace-cbor-web-token"/>.
+    which is an extension to the OAuth tokens, and "client tokens" which
+    are defined in this framework (see <xref target="clientToken"/>). The
+    default token format is defined in CBOR web token (CWT)
+    <xref target="I-D.ietf-ace-cbor-web-token"/>.
     Application layer security for CoAP using COSE can be provided with OSCOAP
     <xref target="I-D.ietf-core-object-security"/>.</t>
 
@@ -553,7 +555,7 @@ security protocols (e.g., CoAP over DTLS).
 
 <t>The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended
 further with extensions to OAuth 2.0 (such as RFC 7521 <xref target="RFC7521"/> and <xref target="I-D.ietf-oauth-device-flow"/>).
-What grant types works best depends on the usage scenario and RFC 7744 <xref target="RFC7744"/> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="I-D.ietf-oauth-native-apps"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
+What grant types works best depends on the usage scenario and RFC 7744 <xref target="RFC7744"/> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="RFC8252"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
 
 <t>
     The consent of the resource owner, for giving a client access to a protected
@@ -610,8 +612,8 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 |        |                                      ^ |
 |        |            Introspection Request  (D)| |
 | Client |                  (optional)          | |
-|        |                         Response     | |(E)
-|        |                         (optional)   | v
+|        |             Response + Client Token  | |(E)
+|        |                  (optional)          | v
 |        |                               +--------------+
 |        |---(C)-- Token + Request ----->|              |
 |        |                               |   Resource   |
@@ -662,11 +664,13 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
       <vspace blankLines="1"/>
       The Client and the RS mutually authenticate using the security protocol
       specified in the profile (see step B) and the keys obtained in the access
-      token or the RS Information.  The RS verifies that the token is integrity
-      protected by the AS and compares the claims contained in the access token
-      with the resource request. If the RS is online, validation can be handed
-      over to the AS using token introspection (see messages D and E) over HTTP
-      or CoAP.<vspace blankLines="1"/>
+      token or the RS Information or the client token.  The RS verifies
+      that the token is integrity protected by the AS and compares the claims
+      contained in the access token with the resource request. If the RS is
+      online, validation can be handed over to the AS using token introspection
+      (see messages D and E) over HTTP or CoAP, in  which case the different
+      parts of step C may be interleaved with
+      introspection.<vspace blankLines="1"/>
     </t>
 
     <t hangText="Token Introspection Request (D):"><vspace blankLines="0"/>
@@ -685,7 +689,11 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
       The AS validates the token and returns the most recent parameters, such
       as scope, audience, validity etc. associated with it back to the RS.  The
       RS then uses the received parameters to process the request to either
-      accept or to deny it.<vspace blankLines="1"/>
+      accept or to deny it. The AS can additionally return information that the
+      RS needs to pass on to the client in the form of a client token.  The
+      latter is used to establish keys for mutual authentication between
+      client and RS, when the client has no direct connectivity to the
+      AS, see <xref target="clientToken"/> for details.<vspace blankLines="1"/>
     </t>
 
     <t hangText="Protected Resource (F):"><vspace blankLines="0"/>
@@ -963,17 +971,16 @@ a2                                   # map(2)
 </section> <!--The 'Authorize' Endpoint-->
 
 <section anchor="tokenEndpoint" title="The Token Endpoint">
-  <t>In standard OAuth 2.0, the AS provides the token endpoint for submitting
+  <t>In OAuth 2.0, the AS provides the token endpoint for submitting
   access token requests.  This framework extends the functionality of the
   token endpoint, giving the AS the possibility to help the client and RS to
   establish shared keys or to exchange their public keys.  Furthermore,
-  this framework defines encodings using CBOR, as a substitute for JSON.</t>
+  this framework defines encodings using CBOR, as an alternative for JSON.</t>
 
   <t>The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports. 
   A profile MUST define the details of the mapping between the fields described below, and these transports.
   If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Section 4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described below MUST be followed.</t> 
 
-  
   <t>For the AS to be able to issue a token, the client MUST be authenticated
   and present a valid grant for the scopes requested.  Profiles of this
   framework MUST specify how the AS authenticates the client and how the
@@ -991,18 +998,26 @@ a2                                   # map(2)
   <section anchor="tokenRequest" title="Client-to-AS Request">
     <t>The client sends a POST request to the token endpoint
     at the AS. The profile MUST specify the Content-Type and wrapping of the
-    payload.  The content of the request consists of the parameters specified
+    payload. The content of the request consists of the parameters specified
     in Section 4 of the OAuth 2.0 specification <xref
-    target="RFC6749"/>, encoded as a CBOR map (if a CBOR encoding is used), 
+    target="RFC6749"/>.</t> 
+	
+	<t>When CoAP is used then the payloads are encoded as a CBOR map, 
 	where the "scope" parameter
     can additionally be formatted as a byte array, in order to allow
     compact encoding of complex scope structures.</t>
+	
+	<t>When HTTP is used as a transport then the client makes a 
+	request to the token endpoint by sending the
+   parameters using the "application/x-www-form-urlencoded"
+   format with a character encoding of UTF-8 in the HTTP
+   request entity-body, as defined in RFC 6749.</t>
 
     <t>In addition to these parameters, this framework defines the following
     parameters for requesting an access token from a token endpoint:
 
       <list style="hanging">
-	<t hangText="aud"><vspace blankLines="0"/>
+	<t hangText="aud:">
 	OPTIONAL.  Specifies the audience for which the client is
 	requesting an access token.  If this parameter is missing, it is
 	assumed that the client and the AS have a pre-established understanding
@@ -1014,7 +1029,7 @@ a2                                   # map(2)
 	(Bad Request).
 	<vspace blankLines="1"/></t>
 
-	<t hangText="cnf"><vspace blankLines="0"/>
+	<t hangText="cnf:">
 	OPTIONAL.  This field contains information about the key the
 	client would like to bind to the access token for proof-of-possession.
 	It is RECOMMENDED that an AS reject a request containing a symmetric key
@@ -1141,34 +1156,35 @@ Payload:
     <t>The content of the successful reply is the RS Information. 
 	When using CBOR payloads, the content MUST be
     encoded as CBOR map, containing parameters as specified in Section 5.1 of
-    <xref target="RFC6749"/>.  In addition to these parameters, the following
+    <xref target="RFC6749"/>. In addition to these parameters, the following
     parameters are also part of a successful response:
 
     <list style="hanging">
-	<t hangText="profile">
-	OPTIONAL.  This indicates the profile that the client MUST use
+	<t hangText="profile:">
+	OPTIONAL. This indicates the profile that the client MUST use
 	towards the RS. See <xref target="paramProfile"/> for the formatting of
-	this parameter.<vspace blankLines="1"/>. If this parameter is absent,
+	this parameter. If this parameter is absent,
 	the AS assumes that the client implicitly knows which profile to use
-	towards the RS.</t>
+	towards the RS.<vspace blankLines="1"/></t>
 
-	<t hangText="cnf">
+	<t hangText="cnf:">
 	REQUIRED if the token type is "pop" and a symmetric key is used.
 	MUST NOT be present otherwise. This field contains the symmetric
 	proof-of-possession key the client is supposed to use.  See <xref
-	target="paramCnf"/> for details on the use of this parameter.</t>
+	target="paramCnf"/> for details on the use of this parameter.
+	<vspace blankLines="1"/></t>
 
-	<t hangText="rs_cnf">
+	<t hangText="rs_cnf:">
 	OPTIONAL if the token type is "pop" and asymmetric keys are used.
 	MUST NOT be present otherwise. This field contains information about
 	the public key used by the RS to authenticate.  See <xref
 	target="paramCnf"/> for details on the use of this parameter. If this
 	parameter is absent, the AS assumes that the client already knows
-	the public key of the RS.</t>
+	the public key of the RS.<vspace blankLines="1"/></t>
 
-	<t hangText="token_type">
-	OPTIONAL.  By default implementations of this framework SHOULD assume
-	that the token_type is "pop".  If a specific use case requires another
+	<t hangText="token_type:">
+	OPTIONAL. By default implementations of this framework SHOULD assume
+	that the token_type is "pop". If a specific use case requires another
 	token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.
 	</t>
       </list>
@@ -1300,9 +1316,10 @@ Payload:
     values.</t>
 
     <section anchor="paramAud" title="Audience">
-      <t>This parameter specifies for which audience the client is requesting
-      a token. If using CBOR payload it should be encoded as CBOR text string.  The
-      formatting and semantics of these strings are application specific.</t>
+      <t>The aud parameter specifies for which audience the client is requesting
+      a token. The formatting and semantics of these strings are application specific.</t>
+	  <t>When encoded as a CBOR payload it is represented as a CBOR text string.</t>
+
     </section>
 
     <section anchor="paramGrantType" title="Grant Type">
@@ -1331,7 +1348,7 @@ Payload:
       is receiving (e.g., a bearer token). </t>
 
       <t>This document registers the new value "pop" for the OAuth Access
-        Token Types registry,  specifying a Proof-of-Possession token.  How the
+        Token Types registry, specifying a Proof-of-Possession token.  How the
       proof-of-possession is performed MUST be specified by the profiles.</t>
 
       <t>The values in the "token_type" parameter MUST be CBOR text strings, if a CBOR encoding is used. </t>
@@ -1362,7 +1379,8 @@ Payload:
       proof-of-possession, while the "rs_cnf" parameter provides the raw public
       key of the RS.  Both parameters use the same formatting and semantics as
       the "cnf" claim specified in
-      <xref target="I-D.ietf-ace-cwt-proof-of-possession"/>.</t>
+      <xref target="I-D.ietf-ace-cwt-proof-of-possession"/> when used with a CBOR encoding.
+	  When these parameters are used in JSON then the formatting and semantics of the "cnf" claim specified in RFC 7800 <xref target="RFC7800"/>.</t>
 
       <t>In addition to the use as a claim in a CWT, the "cnf" parameter is
       used in the following contexts with the following meaning:
@@ -1377,10 +1395,14 @@ Payload:
 
 	<t>In the introspection response AS -> RS, to indicate
 	the proof-of-possession	key bound to the introspected token.</t>
+
+	<t> In the client token AS -> RS -> C, to indicate
+	the proof-of-possession	key bound to the access token.</t>
+
       </list></t>
 
       <t>Note that the COSE_Key structure in a "cnf" claim or parameter
-      may contain an "alg" or "key_ops" parameter.  If such parameters are
+      may contain an "alg" or "key_ops" parameter. If such parameters are
       present, a client MUST NOT use a key that is not compatible with
       the profile or proof-of-possession algorithm according to those
       parameters. An RS MUST reject a proof-of-possession using such a key.
@@ -1516,6 +1538,11 @@ Payload:
       OPTIONAL.  This indicates the profile that the RS MUST use with the
       client.  See <xref target="paramProfile"/> for more details on the
       formatting of this parameter.</t>
+
+      <t hangText="client_token">
+      OPTIONAL.  This parameter contains information that the RS
+      MUST pass on to the client.  See <xref target="clientToken"/>
+      for more details.</t>
     </list>
     </t>
 
@@ -1535,6 +1562,8 @@ Payload:
   "active" : true,
   "scope" : "read",
   "profile" : "coap_dtls",
+  "client_token" : b64'2QPhg0OhAQo ...
+  (remainder of client token omitted for brevity)',
   "cnf" : {
     "COSE_Key" : {
       "kty" : "Symmetric",
@@ -1582,6 +1611,83 @@ Payload:
     "false".</t>
   </section>
 
+  <section anchor="clientToken" title="Client Token">
+    <t>In cases where the client has limited connectivity and
+    needs to get access to a previously unknown resource servers, this framework
+    suggests the following OPTIONAL approach:  The client is pre-configured
+    with a long-term access token, which is not self-contained (i.e. it is only
+    a reference to a token at the AS) when it is commissioned.  When the client
+    then tries to access a RS it transmits this access token.  The RS then
+    performs token introspection to learn what access this token grants.  In
+    the introspection response, the AS also relays information for the client,
+    such as the proof-of-possession key, through the RS.  The RS passes on this
+    Client Token to the client in response to the submission of the token.</t>
+    
+    <t>The client_token parameter is designed to carry such information, and is
+    intended to be used as described in <xref target="fig:client_token"/>.
+
+    <figure align="center" anchor="fig:client_token"
+               title="Use of the client_token parameter.">
+      <artwork align="left"><![CDATA[
+                  Resource       Authorization
+ Client            Server           Server
+    |                |                |
+    |                |                |
+C:  +--------------->|                |
+    |  POST          |                |
+    |  Access Token  |                |
+    |            D:  +--------------->|
+    |                | Introspection  |
+    |                |    Request     |
+    |                |                |
+    |            E:  +<---------------+
+    |                | Introspection  |
+    |                |   Response     |
+    |                | + Client Token |
+    |<---------------+                |
+    |  2.01 Created  |                |
+    | + Client Token |
+    ]]></artwork>
+    </figure>
+    </t>
+
+    <t>The client token is a COSE_Encrypted object, containing as payload
+    a CBOR map with the following claims:
+
+    <list style="hanging">
+      <t hangText="cnf">
+      REQUIRED if the token type is "pop", OPTIONAL otherwise.  Contains
+      information about the proof-of-possession key the client is to use with
+      its access token.  See <xref target="paramCnf"/>.</t>
+
+      <t hangText="token_type">
+      OPTIONAL. See <xref target="paramTokenType"/>.</t>
+
+      <t hangText="profile">
+      REQUIRED. See <xref target="paramProfile"/>.</t>
+
+      <t hangText="rs_cnf">
+      OPTIONAL. Contains information about the key that the RS uses
+      to authenticate towards the client.  If the key is symmetric then
+      this claim MUST NOT be part of the Client Token, since this is the
+      same key as the one specified through the "cnf" claim.  This claim uses
+      the same encoding as the "cnf" parameter.  See <xref
+      target="paramProfile"/>.</t>
+    </list>
+    </t>
+
+    <t>The AS encrypts this token using a key shared between the AS and the
+    client, so that only the client can decrypt it and access its payload.
+    How this key is established is out of scope of this framework, however it
+    can be established at the same time at which the client's long term token
+    is created.</t>
+
+    <t>An RS that is configured to perform introspection, MUST do so
+    immediately after receiving an access token, in order to be able to
+    return a potential client token to the client.  This does not
+    preclude the RS to perform additional introspection asynchronously,
+    e.g., when the token is later used.</t>
+  </section>
 
   <section anchor="introParamsCbor"
 	   title="Mapping Introspection parameters to CBOR">
@@ -1677,7 +1783,9 @@ Payload:
   </t>
 
   <t>The RS MAY make an introspection request to validate the token before
-  responding to the POST request to the authz-info endpoint.
+  responding to the POST request to the authz-info endpoint.  If the introspection response
+  contains a client token (<xref target="clientToken"/>) then this token
+  SHALL be included in the payload of the 2.01 (Created) response.
   </t>
 
   <t>Profiles MUST specify how the authz-info endpoint is protected.  Note
@@ -2056,11 +2164,19 @@ Payload:
   <section anchor="IANAOAuthParameterRegistration"
 	   title="OAuth Parameter Registration">
     <t>This specification registers the following parameters in the OAuth
-    Parameters Registry</t>
+    Parameters Registry:</t>
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Name: <spanx style="verb">aud</spanx></t>
+      <t>Parameter Usage Location: authorization request, token request</t>
+      <t>Change Controller: IESG</t>
+      <t>Reference: <xref target="tokenRequest"/> of [this document]</t>
+    </list></t>
+
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Name: <spanx style="verb">profile</spanx></t>
-      <t>Parameter Usage Location: token request, token response</t>
+      <t>Parameter Usage Location: token response</t>
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="paramProfile"/> of [this document]</t>
     </list></t>
@@ -2125,9 +2241,7 @@ Payload:
       <?rfc subcompact="yes"?>
       <list style='symbols'>
         <t>Name: <spanx style="verb">cnf</spanx></t>
-        <t>Description: Key to prove the right to use an access token,
-	formatted as specified in <xref
-	target="I-D.ietf-ace-cwt-proof-of-possession"/>. </t>
+        <t>Description: Key to prove the right to use a PoP token. </t>
         <t>Change Controller: IESG</t>
         <t>Reference: <xref target="introAS2RS"/> of [this document]</t>
       </list>
@@ -2137,7 +2251,7 @@ Payload:
       <list style='symbols'>
         <t>Name: <spanx style="verb">profile</spanx></t>
         <t>Description: The communication and communication security
-	profile used between client and RS, as defined in ACE profiles.</t>
+	profile used between the client and the RS, as defined in ACE profiles.</t>
         <t>Change Controller: IESG</t>
         <t>Reference: <xref target="introAS2RS"/> of [this document]</t>
       </list>
@@ -2340,7 +2454,7 @@ Payload:
 
       &I-D.ietf-oauth-device-flow;
 
-      &I-D.ietf-oauth-native-apps;
+      &RFC8252;
 
       &I-D.ietf-core-resource-directory;
       
@@ -2538,7 +2652,18 @@ Payload:
 	  associated to the token reference without having to be in contact
 	  with the client, thus granting or revoking access rights.
 	  <vspace blankLines="1"/></t>
- 
+
+	  <t hangText="Client Token:"><vspace blankLines="1"/>
+	  In cases where the client is constrained and does not have
+	  connectivity to the AS, and furthermore does not have a previous
+	  security relation to the RS that it needs to communicate with,
+	  this framework proposes the use of "client tokens".  A client
+	  token is a data object obtained from the AS by the RS, during access
+	  token introspection.  The RS passes the client token on to the client.
+	  It contains information that allows the client to perform the
+	  proof of possession for its access token and to authenticate the RS
+	  (e.g. with it's public key).
+	  </t>	  
 	</list>
       </t>
       
@@ -3184,8 +3309,6 @@ F:  |<--------+ Header: 2.04 Changed
    <section anchor="app:f10t11" title="Version -09 to -10">
      <t><list style="symbols">
        <t>Removed CBOR major type numbers.</t>
-       <t>Removed the client token design.</t>
-       <t>Rephrased to clarify that other protocols than CoAP can be used.</t>
      </list></t>
    </section>
    <section anchor="app:f9t10" title="Version -08 to -09">
