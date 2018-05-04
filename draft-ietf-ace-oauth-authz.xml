@@ -807,24 +807,10 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
     <t>Unauthorized Resource Request messages MUST be denied with a client
     error response. In this response, the Resource Server SHOULD provide proper
     AS Information to enable the Client to request an access token from
-    RS's AS as described in <xref
-    target="asInfo"/>.</t>
+    RS's AS as described in <xref target="asInfo"/>.</t>
 
-    <t>The response code MUST be 4.01 (Unauthorized) in case the sender of the
-    Unauthorized Resource Request message is not authenticated, or if RS has no
-    valid access token for C. If RS has an access token for C but not for the
-    resource that C has requested, RS MUST reject the request with a 4.03
-    (Forbidden). If RS has an access token for C but it does not cover the
-    action C requested on the resource, RS MUST reject the request with a 4.05
-    (Method Not Allowed).</t>
-
-    <t>Note: The use of the response codes 4.03 and 4.05 is intended to prevent
-    infinite loops where a dumb Client optimistically tries to access a
-    requested resource with any access token received from AS. As malicious
-    clients could pretend to be C to determine C's privileges, these detailed
-    response codes must be used only when a certain level of security is
-    already available which can be achieved only when the Client is
-    authenticated.</t>
+    <t>The handling of all client requests (including unauthorized ones)
+    by the RS is described in <xref target="requestC2RS"/>.</t>   
   </section><!-- Unauthorized Request -->
 
   <section anchor="asInfo" title="AS Information">
@@ -1731,6 +1717,38 @@ Payload:
   however implementations are not required to use this name and can define
   their own instead.</t>
   
+</section>
+
+<section anchor="requestC2RS" title="Client Requests to the RS">
+  <t>A RS receiving a client request MUST first verify that it has
+  an access token that authorizes this request, and that the client
+  has performed the proof-of-possession for that token.</t>
+  
+  <t>The response code MUST be 4.01 (Unauthorized) in case the client has
+  not performed the proof-of-possession, or if RS has no valid access token for
+  the client. If RS has an access token for the client but not for the resource
+  that was requested, RS MUST reject the request with a 4.03 (Forbidden). If RS
+  has an access token for the client but it does not cover the action that was
+  requested on the resource, RS MUST reject the request with a 4.05 (Method Not
+  Allowed).</t>
+
+  <t>Note: The use of the response codes 4.03 and 4.05 is intended to prevent
+  infinite loops where a dumb Client optimistically tries to access a
+  requested resource with any access token received from AS. As malicious
+  clients could pretend to be C to determine C's privileges, these detailed
+  response codes must be used only when a certain level of security is
+  already available which can be achieved only when the Client is
+  authenticated.</t>
+
+  <t>Note: The RS MAY use introspection for timely validation of an
+  access token, at the time when a request is presented.</t>
+
+  <t>Note: Matching the claims of the access token (e.g. scope) to a specific
+  request is application specific.</t>
+  
+  <t>If the request matches a valid token and the client has performed the
+  proof-of-possession for that token, the RS continues to process the request
+  as specified by the underlying application.</t>
 </section>
 
 <section anchor="tokenValidity" title="Token Expiration">
