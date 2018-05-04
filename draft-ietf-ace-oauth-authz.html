@@ -459,7 +459,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-11" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-3-19" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-5-4" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -483,7 +483,7 @@
   <td class="right">G. Selander</td>
 </tr>
 <tr>
-  <td class="left">Expires: September 20, 2018</td>
+  <td class="left">Expires: November 5, 2018</td>
   <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -512,7 +512,7 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">March 19, 2018</td>
+  <td class="right">May 4, 2018</td>
 </tr>
 
     	
@@ -532,7 +532,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on September 20, 2018.</p>
+<p>This Internet-Draft will expire on November 5, 2018.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -931,7 +931,7 @@ Payload:
 </dl>
 
 <p> </p>
-<p id="rfc.section.5.6.2.p.4">Note that if CBOR Web Tokens <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a> are used, the access token can also contain a "cnf" claim <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a>.  This claim is however consumed by a different party.  The access token is created by the AS and processed by the RS (and opaque to the client) whereas the RS Information is created by the AS and processed by the client; it is never forwarded to the resource server.</p>
+<p id="rfc.section.5.6.2.p.4">Note that if CBOR Web Tokens <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a> are used, the access token also contain a "cnf" claim <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a>.  This claim is however consumed by a different party.  The access token is created by the AS and processed by the RS (and opaque to the client) whereas the RS Information is created by the AS and processed by the client; it is never forwarded to the resource server.</p>
 <div id="rfc.figure.8"/>
 <div id="fig:rsinfo"/>
 <pre>
@@ -1111,6 +1111,8 @@ Payload:
   <dd style="margin-left: 8">OPTIONAL.   This field contains information about the proof-of-possession  key that binds the client to the access token.  See <a href="#paramCnf">Section 5.6.4.5</a> for more details on the use of the "cnf" parameter.</dd>
   <dt>profile</dt>
   <dd style="margin-left: 8">OPTIONAL.  This indicates the profile that the RS MUST use with the client.  See <a href="#paramProfile">Section 5.6.4.4</a> for more details on the formatting of this parameter.</dd>
+  <dt>rs_cnf</dt>
+  <dd style="margin-left: 8">OPTIONAL.  If the RS has several keys it can use to authenticate towards the client, the AS can give the RS a hint using this parameter, as to which key it should use (e.g. if the AS previously informed the client about a public key the RS is holding). See <a href="#paramCnf">Section 5.6.4.5</a> for more details on the use of this parameter.</dd>
 </dl>
 
 <p> </p>
@@ -1181,6 +1183,7 @@ Payload:
 <p id="rfc.section.5.8.p.1">This framework RECOMMENDS the use of CBOR web token (CWT) as specified in <a href="#I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</a>.  </p>
 <p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this draft uses the "cnf" claim from <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a> and specifies the "scope" claim for both JSON and CBOR web tokens.</p>
 <p id="rfc.section.5.8.p.3">The "scope" claim explicitly encodes the scope of a given access token.  This claim follows the same encoding rules as defined in Section 3.3 of <a href="#RFC6749">[RFC6749]</a>, but in addition implementers MAY use byte arrays as scope values, to achieve compact encoding of large scope elements.  The meaning of a specific scope value is application specific and expected to be known to the RS running that application.</p>
+<p id="rfc.section.5.8.p.4">If the AS needs to convey a hint to the RS about which key it should use to authenticate towards the client, the rs_cnf claim can be used with the same syntax and sematics as defined in <a href="#paramCnf">Section 5.6.4.5</a>.</p>
 <h1 id="rfc.section.5.8.1"><a href="#rfc.section.5.8.1">5.8.1.</a> <a href="#tokenAuthInfoEndpoint" id="tokenAuthInfoEndpoint">The 'Authorization Information' Endpoint</a></h1>
 <p id="rfc.section.5.8.1.p.1">The access token, containing authorization information and information about the key used by the client, needs to be transported to the RS so that the RS can authenticate and authorize the client request.</p>
 <p id="rfc.section.5.8.1.p.2">This section defines a method for transporting the access token to the RS using a RESTful protocol such as CoAP. Profiles of this framework MAY define other methods for token transport.  </p>
@@ -1463,7 +1466,7 @@ Payload:
       <td class="reference">
         <b id="I-D.ietf-ace-cbor-web-token">[I-D.ietf-ace-cbor-web-token]</b>
       </td>
-      <td class="top"><a>Jones, M.</a>, <a>Wahlstroem, E.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-ace-cbor-web-token-14">CBOR Web Token (CWT)</a>", Internet-Draft draft-ietf-ace-cbor-web-token-14, March 2018.</td>
+      <td class="top"><a>Jones, M.</a>, <a>Wahlstroem, E.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-ace-cbor-web-token-15">CBOR Web Token (CWT)</a>", Internet-Draft draft-ietf-ace-cbor-web-token-15, March 2018.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1540,7 +1543,7 @@ Payload:
       <td class="reference">
         <b id="I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</b>
       </td>
-      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-10">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-10, March 2018.</td>
+      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-12">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-12, March 2018.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1552,7 +1555,7 @@ Payload:
       <td class="reference">
         <b id="I-D.ietf-oauth-device-flow">[I-D.ietf-oauth-device-flow]</b>
       </td>
-      <td class="top"><a>Denniss, W.</a>, <a>Bradley, J.</a>, <a>Jones, M.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-oauth-device-flow-07">OAuth 2.0 Device Flow for Browserless and Input Constrained Devices</a>", Internet-Draft draft-ietf-oauth-device-flow-07, October 2017.</td>
+      <td class="top"><a>Denniss, W.</a>, <a>Bradley, J.</a>, <a>Jones, M.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-oauth-device-flow-09">OAuth 2.0 Device Flow for Browserless and Input Constrained Devices</a>", Internet-Draft draft-ietf-oauth-device-flow-09, April 2018.</td>
     </tr>
     <tr>
       <td class="reference">

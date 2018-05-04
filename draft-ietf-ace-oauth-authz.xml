@@ -1184,7 +1184,7 @@ Payload:
     </t>
 
     <t>Note that if CBOR Web Tokens <xref
-    target="I-D.ietf-ace-cbor-web-token"/> are used, the access token can also
+    target="I-D.ietf-ace-cbor-web-token"/> are used, the access token also
     contain a "cnf" claim <xref
     target="I-D.ietf-ace-cwt-proof-of-possession"/>.  This claim is however
     consumed by a different party.  The access token is created by the AS and
@@ -1521,12 +1521,20 @@ Payload:
 	OPTIONAL.   This field contains information about the
 	proof-of-possession  key that binds the client to the access token.
 	See <xref target="paramCnf"/> for more details on the use of the "cnf"
-      parameter.</t>
+        parameter.</t>
 
       <t hangText="profile">
-      OPTIONAL.  This indicates the profile that the RS MUST use with the
-      client.  See <xref target="paramProfile"/> for more details on the
-      formatting of this parameter.</t>
+	OPTIONAL.  This indicates the profile that the RS MUST use with the
+	client.  See <xref target="paramProfile"/> for more details on the
+	formatting of this parameter.</t>
+
+      <t hangText="rs_cnf">
+	OPTIONAL.  If the RS has several keys it can use to authenticate
+	towards the client, the AS can give the RS a hint using this
+	parameter, as to which key it should use (e.g. if the AS
+	previously informed the client about a public key the RS is
+        holding). See <xref target="paramCnf"/> for more details on the
+        use of this parameter.</t>
     </list>
     </t>
 
@@ -1651,6 +1659,12 @@ Payload:
   values, to achieve compact encoding of large scope elements.  The meaning of
   a specific scope value is application specific and expected to be known to
   the RS running that application.</t>
+
+  <t>If the AS needs to convey a hint to the RS about which key it
+  should use to authenticate towards the client, the rs_cnf claim can
+  be used with the same syntax and sematics as defined in
+  <xref target="paramCnf"/>.</t>
+  
 
 <section anchor="tokenAuthInfoEndpoint" title="The 'Authorization Information' Endpoint">
   <t>The access token, containing authorization information and information
