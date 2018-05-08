@@ -1,0 +1,206 @@
+I. Pre-requisites:
+
+1. Common PSK for 128-bit AES-CCM (in Hex):
+0x61, 0x62, 0x63, 0x04, 0x05, 0x06, 0x07, 0x08,
+0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10
+
+keyId="key128"
+
+2. Common PSK for 256-bit AES-CCM or HMAC-SHA-256
+0x61, 0x62, 0x63, 0x04, 0x05, 0x06, 0x07, 0x08,
+0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20
+
+keyId="key256"
+
+3. Common raw asymmetric key pairs (encoded as COSE_Key):
+
+3.1 Client key
+
+{1: 2, 3: -7, -1: 1,
+-2: h'12D6E8C4D28F83110A57D253373CAD52F01BC447E4093541F643B385E179C110',
+-3: h'283B3D8D28FFA59FE5CB540412A750FA8DFA34F6DA69BCDA68400D679C1347E8',
+-4: h'00A43BAA7ED22FF2699BA62CA4999359B146F065A95C4E46017CD25EB89A94AD29'}
+
+Or human readable:
+{
+  kty: EC2,
+  alg: ES256,
+  crv: P-256,
+  x: h'12D6E8C4D28F83110A57D253373CAD52F01BC447E4093541F643B385E179C110',
+  y: h'283B3D8D28FFA59FE5CB540412A750FA8DFA34F6DA69BCDA68400D679C1347E8',
+  d: h'00A43BAA7ED22FF2699BA62CA4999359B146F065A95C4E46017CD25EB89A94AD29',
+}
+
+NI id: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w"
+
+3.2 RS key
+
+{1: 2, 3: -7, -1: 1,
+-2: h'73B7D755827D5D59D73FD4015D47B445762F7CDB59799CD966714AB2727F1BA5'
+-3: h'1A84F5C82797643D33F7E6E6AFCF016522238CE430E1BF21A218E6B4DEEAC37A',
+-4: h'00EA086573C683477D74EB7A0C63A6D031D5DEB10F3CC2876FDA6D3400CAA4E507'}
+
+ni:///sha-256;sU09Kz-RXT8izVvD3n7v3d5vHVGF1NcYShZZ-oczcVE
+
+3.3 AS key
+
+{1: 2, 3: -7, -1: 1,
+-2: h'058F35F3C0D34D3DF50DEBC82208CDA9BE373AF7B8F7AAC381577B144D5FA781',
+-3: h'364269649744067D4600A529AE12076750D90C5EFCD9835137DB1AE2B4BACCB8',
+-4: h'0089A92D07B34F1D806FABFF444AF6507C5F18F47BB2CCFAA7FBEC447303790D53'}
+
+ni:///sha-256;IBEnVrQfrLp5gRu5jPHz7ykvkIPc4iW0CGE8Av20Nvo
+
+
+4. All Access Tokens are assumed to be encoded as CWTs protected with the following
+COSE wrapper (COSE_Encrypt0):
+
+16([h'A1010A', {5: <IV here>}, <ciphertext here>])
+
+Or human readable:
+
+16({alg: AES-CCM-16-64-128}, {iv: <IV here>}, <ciphertext here>])
+
+5. Scopes:
+
+Simple exaples will use String-based scopes, more complex scopes use AIF format as proposed in
+draft-bormann-core-ace-aif
+
+6. Portnumbers, endpoint names, profiles
+
+We will use the default CoAP-DTLS port: 5684 for tests with the DTLS profile
+and the default CoAP port: 5683 for tests with other profiles.
+
+The Token endpoint will be reachable under the URL <your-IP-address>/token
+The Introspection endpoint will be reachable under the URL
+<your-IP-address>/introspect. The Authz-info endpoint  will be reachable under
+the URL <your-IP-address>/authz-info
+
+We will use CoAP as communication protocol and the DTLS profile
+(draft-ietf-ace-dtls-authorize) unless another is explicitly named in the test
+description.
+
+Note that we do not (yet) mandate tests based on the MTI ed25519 curve, due to
+lack of widespread library support.
+
+7. Resources
+
+We will use two resources at the RS with the following URL and expected
+behaviour:
+
+A. HelloWorld.  This resource only supports the GET method, and returns the
+string: "Hello World!", it shall be reachable under the URL
+<your-IP-address>/helloWorld
+
+B. Lock. This resource supports GET and PUT. GET returns the state of the lock
+as boolean, where True stands for locked and False for unlocked. The PUT method
+allows to send a boolean state to the lock, that the resource shall store,
+overwriting its current state. This resource shall be reachable under the
+URL <your-IP-address>/lock.
+
+8. Identifiers
+
+When using PSK to authenticate, the client shall be identified by the AS as "Client1" and shall use this value as psk_identity in the DTLS handshake
+
+When using RPK to authenticate the client shall be identified with the NI identifier of the public key specified above (see RFC 6920 section 3).
+
+
+The client and AS shall use the identity "RS1" to identify the RS e.g. in the
+aud parameter.
+
+II. Tests
+
+1. Unauthorized Resource Request
+
+A client that does not have an access token tries to access the protected
+HelloWorld resource at the RS.
+
+C1: Check that the client does not get access
+C2: Check that the RS returns the AS information as specified in 5.1.2.
+
+2. Token Endpoint Test
+
+A client requests an access token at the token endpoint using the
+client credentials grant (except for 2.7 and 2.8).
+
+2.1 The client tries to access the token endpoint without authenticating
+ C3. The request should be rejected with 4.01 (Unauthorized) or 4.00 (Bad
+ Request) and error = invalid_client
+ 
+2.2 The client tries to access the token endpoint, but is not authorized
+    to do so
+ C4. The request should be rejected with 4.00 (Bad Request) or 4.01 (Unauthorized) and error = unauthorized_client
+ 
+2.3 The client sends no 'aud' parameter, and no default audience is specified
+ C5. The request should be rejected with 4.00 (Bad Request) and
+ error = invalid_request
+
+2.4 The client sends no 'scope' parameter and no default scope is specified
+ C6. The request should be rejected with 4.00 (Bad Request) and
+ error = invalid_request
+
+2.5 The client sends a cnf with a symmetric key value
+ C5. The request should be rejected with 4.00 (Bad Request) and
+ error = invalid_request
+
+2.6 The client sends a cnf with an asymmetric key that the RS cannot
+    process
+ C6. The request should be rejected with 4.00 (Bad Request) and
+ error = unsupported_pop_key
+
+2.7 The client sends a grant that is invalid
+ C7. The request should be rejected with 4.00 (Bad Request) and
+ error = invalid_grant
+
+2.8 The client sends a grant type that is not supported (e.g. "password")
+ C8. The request should be rejected with 4.00 (Bad Request) and
+ error = unsupported_grant_type
+
+2.9 The client sends a scope that is not known to the AS
+ C9. The request should be rejected with 4.00 (Bad Request) and
+ error = invalid_scope
+
+2.10 The client sends a request with aud="RS1" and scope="HelloWorld"
+ The client is authorized to this audience and socpe, and authenticates
+ correctly.  The client, RS and AS support DTLS-PSK with 256-bit keys and the
+ DTLS profile, they all use the PSK "key256" for the handshake.
+
+ C10.  The request should be granted and an access token returned.
+  The access token should use the PSK "key128" in the Encrypt0 wrapper
+ C11. The token should contain the cnf claim containing "key256",
+  the token should also contain aud="RS1" and scope="HelloWorld".
+ C12. The RS Information should contain the cnf claim with "key256"
+
+2.11 The client sends a request with aud="RS1" and scope="HelloWorld"
+ The client is authorized to this audience and socpe, and authenticates
+ correctly.  The client, RS and AS support DTLS-RPK and the
+ DTLS profile, they all use the RPKs from section I.3 for the handshakes.
+ The client sends it's public key in the token request using the
+ cnf parameter.
+
+ C13. Check that the client authenticates to the AS
+ C14. Check that the AS authenticates to the client
+ C15. Check that cnf claim in the access token contains the client's raw
+      public key
+ C16. Check that the RS information contains the rs_cnf parameter,
+      containing the RS's public key
+
+3. Introspect Endpoint Tests
+
+TBD
+
+4. Authorization Information Endpoint Tests
+
+TBD
+
+5. Access Requests with Tokens Tests
+
+TBD
+
+
+
+
+
+
