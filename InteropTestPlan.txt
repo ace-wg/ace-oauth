@@ -63,12 +63,7 @@ Or human readable:
 
 16({alg: AES-CCM-16-64-128}, {iv: <IV here>}, <ciphertext here>])
 
-5. Scopes:
-
-Simple exaples will use String-based scopes, more complex scopes use AIF format as proposed in
-draft-bormann-core-ace-aif
-
-6. Portnumbers, endpoint names, profiles
+5. Portnumbers, endpoint names, profiles
 
 We will use the default CoAP-DTLS port: 5684 for tests with the DTLS profile
 and the default CoAP port: 5683 for tests with other profiles.
@@ -85,20 +80,25 @@ description.
 Note that we do not (yet) mandate tests based on the MTI ed25519 curve, due to
 lack of widespread library support.
 
-7. Resources
+6. Resources and Scopes
 
 We will use two resources at the RS with the following URL and expected
 behaviour:
 
 A. HelloWorld.  This resource only supports the GET method, and returns the
 string: "Hello World!", it shall be reachable under the URL
-<your-IP-address>/helloWorld
+<your-IP-address>/helloWorld.
+
+The scope "HelloWorld" shall allow to perform GET on this resource
 
 B. Lock. This resource supports GET and PUT. GET returns the state of the lock
 as boolean, where True stands for locked and False for unlocked. The PUT method
 allows to send a boolean state to the lock, that the resource shall store,
 overwriting its current state. This resource shall be reachable under the
 URL <your-IP-address>/lock.
+
+The scope "r_Lock" shall allow to perform GET on this resource
+The scope "rw_Lock" shall allow to perform GET and PUT on this resource.
 
 8. Identifiers
 
@@ -192,11 +192,61 @@ client credentials grant (except for 2.7 and 2.8).
 
 3. Introspect Endpoint Tests
 
-TBD
+RS1 introspects an access token at the introspection endpoint
+
+3.1 The RS is not authorized to use the introspection endpoint
+
+ c19. The request should be rejected with 4.03 (Forbidden) and the
+      error response should not contain any payload
+
+3.2 The RS is authorized to use the introspection endpoint. The submitted token
+is invalid (i.e. does not parse to a CWT)
+
+ C20. The response should only contain the parameter active = false
+
+3.3 The submitted token has expired
+
+ C21. The response should only contain the paramter active = false
+
+3.4 The submitted token is unknown to the AS (i.e. issued by another AS,
+encrypted with an unknown key)
+
+ C22.  The response should only contain the paramter active = false
+
+3.5 The submitted token is valid for the scope "HelloWorld" and the
+audience "RS1"
+
+ C23. The response should contain the parameters active = true,
+ aud = "RS1" and scope = "HelloWorld", optionally it may also contain
+ other parameters like e.g. exp and iss.
+
 
 4. Authorization Information Endpoint Tests
 
-TBD
+Client1 POSTs a message to the authz-info endpoint at RS1
+
+4.1 The client sends random bytes to the authz-info endpoint
+
+ C24. The request should be rejected with 4.01 (Unauthorized).
+
+4.2 The client sends a token encrypted with an unknown key
+
+ C25. The request should be rejected with 4.01 (Unauthorized).
+
+4.3 The client sends a token that comes from a recognized AS with
+a known key, but with an audience claim that does not match RS1
+
+ C25. The request should be rejected with 4.03 (Forbidden).
+
+4.4 The client sends an otherwise valid token that contains an unknown
+    scope
+
+ C26. The request should be rejected with 4.00 (Bad Request).
+
+4.5  The client sends a valid token with a matching audience and
+     known scope.
+
+ C27. The request should be processed and answered with a 2.01 (Created)
 
 5. Access Requests with Tokens Tests
 
