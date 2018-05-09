@@ -31,14 +31,15 @@
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7744.xml">
 <!ENTITY RFC7800 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7800.xml">
 <!ENTITY RFC7959 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7959.xml">
+<!ENTITY RFC8126 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8126.xml">
 <!ENTITY RFC8152 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8152.xml">
 <!ENTITY RFC8174 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8174.xml">
 <!ENTITY RFC8252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8252.xml">
 <!ENTITY RFC8259 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8259.xml">
+<!ENTITY RFC8392 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8392.xml">
 <!ENTITY I-D.ietf-oauth-device-flow SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-device-flow.xml">
 <!ENTITY I-D.ietf-ace-actors SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-actors.xml">
 <!ENTITY I-D.ietf-core-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-object-security.xml">
-<!ENTITY I-D.ietf-ace-cbor-web-token SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cbor-web-token.xml">
  <!ENTITY I-D.ietf-ace-cwt-proof-of-possession SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cwt-proof-of-possession.xml">
  <!ENTITY I-D.erdtman-ace-rpcc SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.erdtman-ace-rpcc.xml">
 <!ENTITY I-D.ietf-core-resource-directory SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-resource-directory.xml">
@@ -330,7 +331,7 @@ security protocols (e.g., CoAP over DTLS).
     <xref target="RFC6347"/> or TLS <xref target="RFC5246"/>). COSE is used to
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
     which is an extension to the OAuth tokens. The default token format is
-    defined in CBOR web token (CWT) <xref target="I-D.ietf-ace-cbor-web-token"/>.
+    defined in CBOR web token (CWT) <xref target="RFC8392"/>.
     Application layer security for CoAP using COSE can be provided with OSCOAP
     <xref target="I-D.ietf-core-object-security"/>.</t>
 
@@ -432,11 +433,11 @@ security protocols (e.g., CoAP over DTLS).
         </list>
 
         <vspace blankLines="1"/> The access token is either a simple reference,
-	or a structured information object (e.g., CWT <xref
-        target="I-D.ietf-ace-cbor-web-token"/>), protected by a cryptographic
-	wrapper (e.g., COSE <xref target="RFC8152"/>).  The choice of
-	PoP key does not necessarily imply a specific credential type for the
-	integrity protection of the token.<vspace blankLines="1"/>
+	or a structured information object (e.g., CWT <xref target="RFC8392"/>),
+	protected by a cryptographic wrapper (e.g., COSE <xref
+	target="RFC8152"/>).  The choice of PoP key does not necessarily imply
+	a specific credential type for the integrity protection of the
+	token.<vspace blankLines="1"/>
       </t>
 
       <t hangText="Scopes and Permissions:"><vspace blankLines="0"/>
@@ -477,7 +478,7 @@ security protocols (e.g., CoAP over DTLS).
         While the structure and encoding of the access token varies throughout
         deployments, a standardized format has been defined with the JSON Web
         Token (JWT) <xref target="RFC7519"/> where claims are encoded as a
-	JSON object.  In <xref target="I-D.ietf-ace-cbor-web-token"/>, an
+	JSON object.  In <xref target="RFC8392"/>, an
 	equivalent format using CBOR encoding (CWT) has been defined.
 	<vspace blankLines="1"/>
       </t>
@@ -1169,13 +1170,12 @@ Payload:
     </t>
 
     <t>Note that if CBOR Web Tokens <xref
-    target="I-D.ietf-ace-cbor-web-token"/> are used, the access token also
-    contains a "cnf" claim <xref
-    target="I-D.ietf-ace-cwt-proof-of-possession"/>.  This claim is however
-    consumed by a different party.  The access token is created by the AS and
-    processed by the RS (and opaque to the client) whereas the RS Information
-    is created by the AS and processed by the client; it is never forwarded to
-    the resource server.</t>
+    target="RFC8392"/> are used, the access token also contains a "cnf" claim
+    <xref target="I-D.ietf-ace-cwt-proof-of-possession"/>.  This claim is
+    however consumed by a different party.  The access token is created by the
+    AS and processed by the RS (and opaque to the client) whereas the RS
+    Information is created by the AS and processed by the client; it is never
+    forwarded to the resource server.</t>
 
     <t><xref target="fig:rsinfo"/> summarizes the parameters that
     may be part of the RS Information.
@@ -1404,7 +1404,7 @@ Payload:
     target="fig:cborTokenParameters"/>, using the given integer abbreviation
     for the key, if a CBOR encoding is used.</t>
     <t>Note that we have aligned these abbreviations with the claim
-    abbreviations defined in <xref target="I-D.ietf-ace-cbor-web-token"/>.</t>
+    abbreviations defined in <xref target="RFC8392"/>.</t>
 
     <t>
       <figure align="center" anchor="fig:cborTokenParameters"
@@ -1472,7 +1472,7 @@ Payload:
   <section anchor="introRS2AS" title="RS-to-AS Request">
     <t>The RS sends a POST request to the introspection endpoint
     at the AS, the profile MUST specify the Content-Type and
-    wrapping of the payload.  The payload MUST be encoded as a CBOR mapw ith a
+    wrapping of the payload.  The payload MUST be encoded as a CBOR map with a
     "token" parameter containing either the access token or a reference to
     the token (e.g., the cti).  Further optional parameters representing
     additional context that is known by the RS to aid the AS in its
@@ -1609,7 +1609,7 @@ Payload:
     abbreviation for the key.</t>
 
     <t>Note that we have aligned these abbreviations with the claim
-    abbreviations defined in <xref target="I-D.ietf-ace-cbor-web-token"/>.
+    abbreviations defined in <xref target="RFC8392"/>.
     
     <figure align="center" anchor="fig:cborIntrospectionParameters"
             title="CBOR Mappings to Token Introspection Parameters.">
@@ -1644,7 +1644,7 @@ Payload:
 
 <section anchor="accessToken" title="The Access Token">
   <t>This framework RECOMMENDS the use of CBOR web token (CWT) as
-    specified in <xref target="I-D.ietf-ace-cbor-web-token"/>.
+    specified in <xref target="RFC8392"/>.
   </t>
 
   <t>In order to facilitate offline processing of access tokens,
@@ -1661,7 +1661,7 @@ Payload:
 
   <t>If the AS needs to convey a hint to the RS about which key it
   should use to authenticate towards the client, the rs_cnf claim MAY
-  be used with the same syntax and sematics as defined in
+  be used with the same syntax and semantics as defined in
   <xref target="paramCnf"/>.</t>
 
   <t>If the AS needs to convey a hint to the RS about which profile it
@@ -1790,7 +1790,6 @@ Payload:
   Observe <xref target="RFC7641"/> expires, the RS MUST send an error
   response with the response code 4.01 Unauthorized to the client and then
   terminate processing the long running request.</t>
-  <!-- FIXME: rephrase above for clarity -->
 </section>
 </section><!-- access token -->
 
@@ -1832,7 +1831,7 @@ Payload:
       Profiles MUST specify how confidentiality protection is provided,
       and additional protection can be applied by encrypting the token, for
       example encryption of CWTs is specified in Section 5.1 of
-      <xref target="I-D.ietf-ace-cbor-web-token"/>.</t>
+      <xref target="RFC8392"/>.</t>
 
       <t>Developers MUST ensure that the ephemeral credentials (i.e., the
       private key or the session key) are not leaked to third parties.  An
@@ -1871,7 +1870,7 @@ Payload:
       <section anchor="nonce" title="Use of Nonces for Replay Protection">
 	<t>RS may add a nonce to the AS Information message sent as a response
 	to an unauthorized request to ensure freshness of an Access Token
-	subsequently presented to RS. While a timestamp of some granularity
+	subsequently presented to RS. While a time-stamp of some granularity
 	would be sufficient to protect against replay attacks, using
 	randomized nonce is preferred to prevent disclosure of information
 	about RS’s internal clock characteristics.</t>
@@ -1937,26 +1936,29 @@ Payload:
 </section>
 
 <section anchor="iana" title="IANA Considerations">
-  <t>This specification registers new parameters for OAuth and establishes
-  registries for mappings to CBOR abbreviations.</t>
-
+ 
   <section anchor="IANAASInformation"
 	   title="Authorization Server Information">
-    <t>A new registry will be requested from IANA, entitled "Authorization
-    Server Information". The registry is to be created as Expert Review
-    Required.</t>
-    
-    <t>The columns of this table are:
+    <t>This section establishes the IANA "ACE Authorization Server Information"
+    registry. The registry has been created to use the "Expert Review Required"
+    registration procedure <xref target="RFC8126"/>.  Guidelines for the
+    experts are provided in <xref target="ReviewInstruct"/>.  It should
+    be noted that, in addition to the expert review, some portions of the
+    registry require a specification, potentially a Standards Track RFC, be
+    supplied as well.</t>
+        
+    <t>The columns of the registry are:
     
     <list style='hanging'>
       <t hangText='Name'>The name of the parameter</t>
       
-      <t hangText='CBOR Key'>The unsigned integer value abbreviating this
-      parameter name.  Registration in the table is based on the value of the
-      mapping requested.  Integer values between 1 and 255 are designated as
-      Standards Track Document required.  Integer values from 256 to 65535 are
-      designated as Specification Required.  Integer values greater than 65535
-      are designated as private use.</t>
+      <t hangText='CBOR Key'>CBOR map key for the parameter.  Different ranges
+      of values use different registration policies <xref target="RFC8126"/>.
+      Integer values from -256 to 255 are designated as Standards
+      Action.  Integer values from -65536 to -257 and from 256 to 65535
+      are designated as Specification Required.  Integer values greater than
+      65535 are designated as Expert Review.  Integer values less than -65536
+      are marked as Private Use.</t>
       
       <t hangText='Value Type'>The CBOR data types allowable for the values of
       this parameter.</t>
@@ -1970,24 +1972,29 @@ Payload:
     these entries will be this document.</t>    
   </section>
   
-  <section anchor="IANAOAuthErrorCBORMappingsRegistry"
+  <section anchor="IANAErrorCBORMappings"
 	   title="OAuth Error Code CBOR Mappings Registry">
-    <t>A new registry will be requested from IANA, entitled "OAuth Error Code
-    CBOR Mappings Registry".  The registry is to be created as Expert
-    Review Required.</t>
+    <t>This section establish the IANA "OAuth Error Code
+    CBOR Mappings" registry.  The registry has been created to use the "Expert
+    Review Required" registration procedure <xref target="RFC8126"/>.
+    Guidelines for the  experts are provided in Section <xref
+    target="ReviewInstruct"/>.  It should be noted that, in addition to the
+    expert review, some portions of the registry require a specification,
+    potentially a Standards Track RFC, be supplied as well.</t>
     
-    <t>The columns of this table are:
+    <t>The columns of the registry are:
    
     <list style='hanging'>
       <t hangText='Name'>The OAuth Error Code name, refers to the name in
       Section 5.2. of <xref target="RFC6749"/> e.g., "invalid_request".</t>
       
-      <t hangText='CBOR Value'> The unsigned integer value abbreviating this
-      error code.  Registration in the table is based on the value of the
-      mapping requested.  Integer values between 1 and 255 are designated as
-      Standards Track Document required.  Integer values from 256 to 65535 are
-      designated as Specification Required.  Integer values greater than 65535
-      are designated as private use.</t> 
+      <t hangText='CBOR Value'>CBOR abbreviation for this error code.
+      Different ranges of values use different registration policies <xref
+      target="RFC8126"/>.  Integer values from -256 to 255 are designated as
+      Standards Action.  Integer values from -65536 to -257 and from 256 to
+      65535 are designated as Specification Required.  Integer values greater
+      than 65535 are designated as Expert Review.  Integer values less than
+      -65536 are marked as Private Use.</t>      
       
       <t hangText='Reference'>This contains a pointer to the public
       specification of the grant type abbreviation, if one exists.</t>
@@ -2000,22 +2007,27 @@ Payload:
 
   <section anchor="IANAGrantTypeMappings"
 	   title="OAuth Grant Type CBOR Mappings">
-    <t>A new registry will be requested from IANA, entitled "OAuth Grant
-    Type CBOR Mappings". The registry is to be created as Expert Review
-    Required.</t>
+    <t>This section establishes the IANA "OAuth Grant Type CBOR Mappings"
+    registry.  The registry has been created to use the "Expert Review Required"
+    registration procedure <xref target="RFC8126"/>.  Guidelines for the
+    experts are provided in <xref target="ReviewInstruct"/>.  It should
+    be noted that, in addition to the expert review, some portions of the
+    registry require a specification, potentially a Standards Track RFC, be
+    supplied as well.</t>
     
-    <t>The columns of this table are:
+    <t>The columns of this registry are:
     
     <list style='hanging'>
       <t hangText='Name'>The name of the grant type as specified in
       Section 1.3 of <xref target="RFC6749"/>.</t>
 
-      <t hangText='CBOR Value'> The unsigned integer value abbreviating this
-      grant type.  Registration in the table is based on the value of the
-      mapping requested.  Integer values between 1 and 255 are designated as
-      Standards Track Document required.  Integer values from 256 to 65535 are
-      designated as Specification Required.  Integer values greater than 65535
-      are designated as private use.</t>
+      <t hangText='CBOR Value'>CBOR abbreviation for this grant type.
+      Different ranges of values use different registration policies <xref
+      target="RFC8126"/>.  Integer values from -256 to 255 are designated as
+      Standards Action.  Integer values from -65536 to -257 and from 256 to
+      65535 are designated as Specification Required.  Integer values greater
+      than 65535 are designated as Expert Review.  Integer values less than
+      -65536 are marked as Private Use.</t>      
       
       <t hangText='Reference'>This contains a pointer to the public
       specification of the grant type abbreviation, if one exists.</t>
@@ -2030,8 +2042,9 @@ Payload:
   </section>
 
    <section anchor="IANAOAuthTokenType" title="OAuth Access Token Types">
-    <t>This specification registers the following new token type in the
-    OAuth Access Token Types Registry</t>
+    <t>This section registers the following new token type in the
+    "OAuth Access Token Types" registry <xref
+    target="IANA.OAuthAccessTokenTypes"/>.</t>
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Name: <spanx style="verb">PoP</spanx></t>
@@ -2042,22 +2055,27 @@ Payload:
 
    <section anchor="IANATokenTypeMappings"
 	   title="OAuth Token Type CBOR Mappings">
-    <t>A new registry will be requested from IANA, entitled "Token Type
-    CBOR Mappings".  The registry is to be created as Expert Review
-    Required.</t>
+     <t>This section eatables the IANA "Token Type CBOR Mappings" registry.
+     The registry has been created to use the "Expert Review Required"
+     registration procedure <xref target="RFC8126"/>.  Guidelines for the
+     experts are provided in <xref target="ReviewInstruct"/>.  It should
+     be noted that, in addition to the expert review, some portions of the
+     registry require a specification, potentially a Standards Track RFC, be
+     supplied as well.</t>
 
-    <t>The columns of this table are:
+    <t>The columns of this registry are:
     
     <list style='hanging'>
       <t hangText='Name'>The name of token type as registered in the
       OAuth Access Token Types registry e.g., "Bearer".</t>
 	  
-      <t hangText='CBOR Value'>The unsigned integer value abbreviating this
-      access token type.  Registration in the table is based on the value of
-      the mapping requested.  Integer values between 1 and 255 are designated
-      as Standards Track Document required.  Integer values from 256 to 65535
-      are designated as Specification Required.  Integer values greater than
-      65535  are designated as private use.</t>
+      <t hangText='CBOR Value'>CBOR abbreviation for this token type.
+      Different ranges of values use different registration policies <xref
+      target="RFC8126"/>.  Integer values from -256 to 255 are designated as
+      Standards Action.  Integer values from -65536 to -257 and from 256 to
+      65535 are designated as Specification Required.  Integer values greater
+      than 65535 are designated as Expert Review.  Integer values less than
+      -65536 are marked as Private Use.</t>
       
       <t hangText='Reference'>This contains a pointer to the public
       specification of the OAuth token type abbreviation, if one exists.</t>
@@ -2088,12 +2106,16 @@ Payload:
     </section>
   </section>
 
- <section anchor="IANATokenEndpointCBORMappingsRegistry"
-	   title="ACE OAuth Profile Registry">
-    <t>A new registry will be requested from IANA, entitled "ACE Profile
-    Registry".  The registry is to be created as Expert Review Required.</t>
-    
-    <t>The columns of this table are:
+ <section anchor="IANAProfile"
+	   title="ACE Profile Registry">
+   <t>This section establishes the IANA "ACE Profile" registry.  The registry
+   has been created to use the "Expert Review Required" registration procedure
+   <xref target="RFC8126"/>.  Guidelines for the experts are provided in <xref
+   target="ReviewInstruct"/>.  It should be noted that, in addition to the
+   expert review, some portions of the registry require a specification,
+   potentially a Standards Track RFC, be supplied as well.</t>
+
+   <t>The columns of this registry are:
     
     <list style='hanging'>
       <t hangText='Name'> The name of the profile, to be used as value of
@@ -2102,22 +2124,23 @@ Payload:
       <t hangText='Description'> Text giving an overview of the profile and
       the context it is developed for.</t>
 
-      <t hangText='CBOR Value'>The unsigned integer value abbreviating this
-      profile name.  Registration in the table is based on the value of the
-      mapping requested.  Integer values between 1 and 255 are designated as
-      Standards Track Document required.  Integer values from 256 to 65535 are
-      designated as Specification Required.  Integer values greater than 65535
-      are designated as private use.</t>
+      <t hangText='CBOR Value'>CBOR abbreviation for this profile name.
+      Different ranges of values use different registration policies <xref
+      target="RFC8126"/>.  Integer values from -256 to 255 are designated as
+      Standards Action.  Integer values from -65536 to -257 and from 256 to
+      65535 are designated as Specification Required.  Integer values greater
+      than 65535 are designated as Expert Review.  Integer values less than
+      -65536 are marked as Private Use.</t>      
       
       <t hangText='Reference'>This contains a pointer to the public
       specification of the profile abbreviation, if one exists.</t>
     </list></t>
   </section>
   
-  <section anchor="IANAOAuthParameterRegistration"
+  <section anchor="IANAOAuthParameter"
 	   title="OAuth Parameter Registration">
-    <t>This specification registers the following parameters in the OAuth
-    Parameters Registry:</t>
+    <t>This section registers the following parameters in the "OAuth
+    Parameters" registry <xref target="IANA.OAuthParameters"/>:</t>
 	<t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Name: <spanx style="verb">aud</spanx></t>
@@ -2152,23 +2175,28 @@ Payload:
 
   <section anchor="IANAOAuthParameterMappingsRegistry"
 	   title="OAuth CBOR Parameter Mappings Registry">
-    <t>A new registry will be requested from IANA, entitled "Token Endpoint
-    CBOR Mappings Registry".  The registry is to be created as Expert
-    Review Required.</t>
+    <t>This section establishes the IANA "Token Endpoint CBOR Mappings"
+    registry.  The registry has been created to use the "Expert Review
+    Required" registration procedure <xref target="RFC8126"/>.  Guidelines for
+    the experts are provided in <xref target="ReviewInstruct"/>.  It should be
+    noted that, in addition to the expert review, some portions of the registry
+    require a specification, potentially a Standards Track RFC, be supplied as
+    well.</t>
     
-    <t>The columns of this table are:
+    <t>The columns of this registry are:
     
     <list style='hanging'>
       <t hangText='Name'>The OAuth Parameter name, refers to the name in
       the OAuth parameter registry e.g., "client_id".</t>
       
-      <t hangText='CBOR Key'>The unsigned integer value abbreviating this
-      parameter.  Registration in the table is based on the value of the
-      mapping requested.  Integer values between 1 and 255 are designated as
-      Standards Track Document required.  Integer values from 256 to 65535 are
-      designated as Specification Required.  Integer values greater than 65535
-      are designated as private use.</t>
-
+      <t hangText='CBOR Key'>CBOR map key for this parameter.
+      Different ranges of values use different registration policies <xref
+      target="RFC8126"/>.  Integer values from -256 to 255 are designated as
+      Standards Action.  Integer values from -65536 to -257 and from 256 to
+      65535 are designated as Specification Required.  Integer values greater
+      than 65535 are designated as Expert Review.  Integer values less than
+      -65536 are marked as Private Use.</t>      
+            
       <t hangText='Value Type'>The allowable CBOR data types for values
       of this parameter.</t>
       
@@ -2181,13 +2209,14 @@ Payload:
     these entries will be this document.</t>
 
     <t>Note that these mappings intentionally coincide with the CWT
-    claim name mappings from <xref target="I-D.ietf-ace-cbor-web-token"/>.</t>
+    claim name mappings from <xref target="RFC8392"/>.</t>
   </section>
   
   <section anchor="IANAOAuthIntrospectionResponseParameterRegistration"
 	   title="OAuth Introspection Response Parameter Registration">
-    <t>This specification registers the following parameters in the OAuth
-    Token Introspection Response registry.</t>
+    <t>This section registers the following parameters in the OAuth
+    Token Introspection Response registry <xref
+    target="IANA.TokenIntrospectionResponse"/>.</t>
     
     <t>
       <?rfc subcompact="yes"?>
@@ -2212,22 +2241,27 @@ Payload:
   
   <section anchor="IANAIntrospectionEndpointCBORMappingsRegistry"
 	   title="Introspection Endpoint CBOR Mappings Registry">
-    <t>A new registry will be requested from IANA, entitled "Introspection
-    Endpoint CBOR Mappings Registry".  The registry is to be created as
-    Expert Review Required.</t>
+    <t>This section establishes the IANA "Introspection Endpoint CBOR Mappings"
+    registry.  The registry has been created to use the "Expert Review
+    Required" registration procedure <xref target="RFC8126"/>.  Guidelines for
+    the experts are provided in <xref target="ReviewInstruct"/>.  It should be
+    noted that, in addition to the expert review, some portions of the registry
+    require a specification, potentially a Standards Track RFC, be supplied as
+    well.</t>
 
-    <t>The columns of this table are:
+    <t>The columns of this registry are:
     
     <list style='hanging'>
       <t hangText='Name'>The OAuth Parameter name, refers to the name in
       the OAuth parameter registry e.g., "client_id".</t>
       
-      <t hangText='CBOR Key'>The unsigned integer value abbreviating this
-      parameter.  Registration in the table is based on the value of the
-      mapping requested.  Integer values between 1 and 255 are designated as
-      Standards Track Document required.  Integer values from 256 to 65535 are
-      designated as Specification Required.  Integer values greater than 65535
-      are designated as private use.</t>
+      <t hangText='CBOR Key'>CBOR map key for this parameter.
+      Different ranges of values use different registration policies <xref
+      target="RFC8126"/>.  Integer values from -256 to 255 are designated as
+      Standards Action.  Integer values from -65536 to -257 and from 256 to
+      65535 are designated as Specification Required.  Integer values greater
+      than 65535 are designated as Expert Review.  Integer values less than
+      -65536 are marked as Private Use.</t>    
       
       <t hangText='Value Type'>The allowable CBOR data types for values
       of this parameter.</t>
@@ -2237,13 +2271,14 @@ Payload:
     </list></t>
     
     <t>This registry will be initially populated by the values in
-    <xref target="fig:cborIntrospectionParameters"/>. The Reference column for all of
-    these entries will be this document.</t>	
+    <xref target="fig:cborIntrospectionParameters"/>. The Reference column for
+    all of these entries will be this document.</t>	
   </section>
 
  <section anchor="IANAJWTClaims" title="JSON Web Token Claims">
    <t>This specification registers the following new claims in the JSON
-   Web Token (JWT) registry of JSON Web Token Claims:</t>
+   Web Token (JWT) registry of JSON Web Token Claims <xref
+   target="IANA.JsonWebTokenClaims"/>:</t>
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Claim Name: <spanx style="verb">scope</spanx></t>
@@ -2255,8 +2290,9 @@ Payload:
   </section>
   
   <section anchor="IANACWTClaims" title="CBOR Web Token Claims">
-    <t>This specification registers the following new claims in the CBOR
-    Web Token (CWT) registry of CBOR Web Token Claim:s</t>
+    <t>This specification registers the following new claims in the "CBOR
+    Web Token (CWT) Claims" registry <xref
+    target="IANA.CborWebTokenClaims"/>.</t>
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Claim Name: <spanx style="verb">scope</spanx></t>
@@ -2270,31 +2306,10 @@ Payload:
     </list></t>
   </section>
 
-  <!-- We don't seem to need/use this
-  <section anchor="CoAPOptionNumberRegistration" title="CoAP Option Number Registration">
-    <t>
-      This section registers the "Access-Token" CoAP Option Number
-      in the "CoRE Parameters" sub-registry "CoAP Option Numbers" in
-      the manner described in <xref target="RFC7252"/>.
-    </t>
-
-    <t><?rfc subcompact="yes"?>
-    <list style='symbols'>
-      <t>Name: <spanx style="verb">Access-Token</spanx></t>
-      <t>Number: TBD</t>
-      <t>Reference: [this document].</t>
-      <t>Meaning in Request: Contains an Access Token according to
-      [this document] containing access permissions of the client.
-      </t>
-      <t>Meaning in Response: Not used in response.</t>
-      <t>Safe-to-Forward: Yes</t>
-      <t>Format: Based on the observer the format is perceived differently.
-      Opaque data to the client and CWT or reference token to the RS.
-      </t>
-      <t>Length: Less than 255 bytes</t>
-    </list></t>
+  <section anchor="ReviewInstruct" title="Expert Review Instruction">
+    <t>FIXME</t>
   </section>
--->
+
 </section>
 
 <section anchor="Acknowledgments" title="Acknowledgments">
@@ -2339,7 +2354,7 @@ Payload:
       <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
       &RFC8152;
       
-      &I-D.ietf-ace-cbor-web-token;
+      &RFC8392;
 
       &I-D.ietf-ace-cwt-proof-of-possession;
 
@@ -2357,13 +2372,62 @@ Payload:
 
       &RFC7800;
 
+      &RFC8126;
+
+      <reference anchor="IANA.OAuthAccessTokenTypes" target="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-types">
+	<front>
+	  <title>OAuth Access Token Types</title>
+	  <author>
+	    <organization>IANA</organization>
+	  </author>
+	  <date/>
+	</front>
+      </reference>
+      
+      <reference anchor="IANA.OAuthParameters" target="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#parameters">
+	<front>
+	  <title>OAuth Parameters</title>
+	  <author>
+	    <organization>IANA</organization>
+	  </author>
+	  <date/>
+	</front>
+      </reference>
+      
+      <reference anchor="IANA.TokenIntrospectionResponse" target="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-introspection-response">
+	<front>
+	  <title>OAuth Token Introspection Response</title>
+	  <author>
+	    <organization>IANA</organization>
+	  </author>
+	  <date/>
+	</front>
+      </reference>
+      
+      <reference anchor="IANA.JsonWebTokenClaims" target="https://www.iana.org/assignments/jwt/jwt.xhtml#claims">
+	<front>
+	  <title>JSON Web Token Claims</title>
+	  <author>
+	    <organization>IANA</organization>
+	  </author>
+	  <date/>
+	</front>
+      </reference>
+      
+      <reference anchor="IANA.CborWebTokenClaims" target="https://www.iana.org/assignments/cwt/cwt.xhtml#claims-registry">
+	<front>
+	  <title>CBOR Web Token (CWT) Claims</title>
+	  <author>
+	    <organization>IANA</organization>
+	  </author>
+	  <date/>
+	</front>
+      </reference>
+
     </references>
 
     <references title="Informative References">
-      <!-- &I-D.ietf-ace-usecases;
-      &RFC7250;
-
--->
+     
       &I-D.ietf-ace-actors;
 
       &I-D.ietf-core-object-security;
@@ -2524,10 +2588,10 @@ Payload:
 	  data format.  Where CBOR data needs to be protected, the use of COSE
 	  <xref target="RFC8152"/> is RECOMMENDED.  Furthermore where
 	  self-contained tokens are needed, this framework RECOMMENDS the
-	  use of CWT <xref target="I-D.ietf-ace-cbor-web-token"/>.  These
-	  measures aim at reducing the size of messages sent over the wire,
-	  the RAM size of data objects that need to be kept in memory and
-	  the size of libraries that devices need to support.
+	  use of CWT <xref target="RFC8392"/>.  These measures aim at reducing
+	  the size of messages sent over the wire, the RAM size of data objects
+	  that need to be kept in memory and the size of libraries that devices
+	  need to support.
 	  <vspace blankLines="1"/></t>
 
 	  <t hangText="CoAP:"><vspace blankLines="1"/>
@@ -3245,6 +3309,19 @@ F:  |<--------+ Header: 2.04 Changed
 </section>
 <section anchor="app:changelog" title="Document Updates">
   <t>RFC EDITOR: PLEASE REMOVE THIS SECTION.</t>
+   <section anchor="app:f12t13" title="Version -11 to -12">
+     <t><list style="symbols">
+       <t>Moved the Request error handling to a section of its own.</t>
+       <t>Require the use of the abbreviation for profile identifiers.</t>
+       <t>Added rs_cnf parameter in the introspection response, to
+       inform RS' with several RPKs on which key to use.</t>
+       <t>Allowed use of rs_cnf as claim in the access token in order to
+       inform an RS with several RPKs on which key to use.</t>
+       <t>Clarified that profiles must specify if/how error responses
+       are protected.</t>
+       <t>Fixed label number range to align with COSE/CWT.</t>
+     </list></t>
+   </section>
   <section anchor="app:f11t12" title="Version -10 to -11">
      <t><list style="symbols">
        <t>Fixed some CBOR data type errors.</t>
