@@ -332,7 +332,7 @@ security protocols (e.g., CoAP over DTLS).
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
     which is an extension to the OAuth tokens. The default token format is
     defined in CBOR web token (CWT) <xref target="RFC8392"/>.
-    Application layer security for CoAP using COSE can be provided with OSCOAP
+    Application layer security for CoAP using COSE can be provided with OSCORE
     <xref target="I-D.ietf-core-object-security"/>.</t>
 
   <t>With the building blocks listed above, solutions satisfying various
@@ -445,8 +445,8 @@ security protocols (e.g., CoAP over DTLS).
          seeking to obtain (via the scope parameter) in the access token
 	 request.  In turn, the AS may use the scope response parameter to
 	 inform the client of the scope of the access token issued.  As the
-	 client could be a constrained device as well, this specification uses
-	 CBOR encoding as data format, defined in <xref
+	 client could be a constrained device as well, this specification
+	 defines the use of CBOR encoding as data format, see <xref
 	 target="oauthProfile"/>, to request scopes and to be informed what
 	 scopes the access token actually authorizes.
          <vspace blankLines="1"/>
@@ -525,10 +525,10 @@ security protocols (e.g., CoAP over DTLS).
   </t>
 
   <t>
-    One application of COSE is OSCOAP
+    One application of COSE is OSCORE
     <xref target="I-D.ietf-core-object-security"/>, which
     provides end-to-end confidentiality, integrity and replay protection, and a
-    secure binding between CoAP request and response messages. In OSCOAP, the
+    secure binding between CoAP request and response messages. In OSCORE, the
     CoAP messages are wrapped in COSE objects and sent using CoAP.
   </t>
 
@@ -761,18 +761,18 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 
   <t>In OAuth 2.0 the communication with the Token and the Introspection
   endpoints at the AS is assumed to be via HTTP and may use Uri-query
-  parameters.  This framework RECOMMENDS to use CoAP instead and RECOMMENDS the
-  use of the following alternative instead of Uri-query parameters: The sender
-  (client or RS) encodes the parameters of its request as a CBOR map and
-  submits that map as the payload  of the POST request.  The Content-format
-  depends on the security applied to the content and MUST be specified by the
-  profile that is used.
+  parameters.  When profiles of this framework use CoAP instead this framework
+  RECOMMENDS the use of the following alternative instead of Uri-query
+  parameters: The sender (client or RS) encodes the parameters of its request
+  as a CBOR map and submits that map as the payload  of the POST request.  The
+  Content-format depends on the security applied to the content and MUST be
+  specified by the profile that is used.
   </t>
 
   <t>The OAuth 2.0 AS uses a JSON structure in the payload of its responses
-  both to client and RS.  This framework REQUIRES the use of CBOR
-  <xref target="RFC7049"/> instead.  Depending on the profile, the CBOR
-  payload MAY be enclosed in a non-CBOR cryptographic wrapper.</t>
+  both to client and RS.  If CoAP is used, this framework RECOMMENDS the use
+  of CBOR <xref target="RFC7049"/> instead of JSON.  Depending on the profile,
+  the CBOR payload MAY be enclosed in a non-CBOR cryptographic wrapper.</t>
 
 <section anchor="asDiscovery" title="Discovering Authorization Servers">
   <t>In order to determine the AS in charge of a resource hosted at the RS, C
@@ -983,7 +983,7 @@ a2                                   # map(2)
     in Section 4 of the OAuth 2.0 specification <xref
     target="RFC6749"/>.</t> 
 
-    <t>If CBOR is used then this parameter is encoded as a CBOR map, 
+    <t>If CBOR is used then this parameter MUST be encoded as a CBOR map, 
 	where the "scope" parameter
     can additionally be formatted as a byte array, in order to allow
     compact encoding of complex scope structures.</t>
@@ -1240,9 +1240,9 @@ Payload:
 
       <list style="symbols">
         <t>The Content-Type MUST be specified by the communication security
-	profile used between client and AS.  The raw payload before being
-	processed by the communication security protocol MUST be encoded as a
-	CBOR map.</t>
+	profile used between client and AS.  When using CoAP the raw payload
+	before being processed by the communication security protocol MUST be
+	encoded as a CBOR map.</t>
 
         <t>A response code equivalent to the CoAP code 4.00 (Bad Request) MUST
 	be used for all error responses, except for invalid_client where a
@@ -1298,7 +1298,8 @@ Payload:
       a token. The formatting and semantics of these strings are application
       specific.</t>
 	  
-	  <t>When encoded as a CBOR payload it is represented as a CBOR text string.</t>
+      <t>When encoded as a CBOR payload it is represented as a CBOR text
+      string.</t>
     </section>
 
     <section anchor="paramGrantType" title="Grant Type">
@@ -1330,7 +1331,8 @@ Payload:
         Token Types registry,  specifying a Proof-of-Possession token.  How the
       proof-of-possession is performed MUST be specified by the profiles.</t>
 
-      <t>The values in the "token_type" parameter MUST be CBOR text strings, if a CBOR encoding is used. </t>
+      <t>The values in the "token_type" parameter MUST be CBOR text strings, if
+      a CBOR encoding is used. </t>
 
       <t>In this framework token type "pop" MUST be assumed by default if the
       AS does not provide a different value.</t>
@@ -1399,10 +1401,10 @@ Payload:
   </section> <!--Parameters -->
 
   <section anchor="tokenCborParams" title="Mapping Parameters to CBOR">
-    <t>All OAuth parameters in access token requests and responses MUST be
-    mapped to CBOR types as specified in <xref
+    <t>If CBOR encoding is used, all OAuth parameters in access token requests
+    and responses MUST be mapped to CBOR types as specified in <xref
     target="fig:cborTokenParameters"/>, using the given integer abbreviation
-    for the key, if a CBOR encoding is used.</t>
+    for the map keys.</t>
     <t>Note that we have aligned these abbreviations with the claim
     abbreviations defined in <xref target="RFC8392"/>.</t>
 
@@ -1472,10 +1474,10 @@ Payload:
   <section anchor="introRS2AS" title="RS-to-AS Request">
     <t>The RS sends a POST request to the introspection endpoint
     at the AS, the profile MUST specify the Content-Type and
-    wrapping of the payload.  The payload MUST be encoded as a CBOR map with a
-    "token" parameter containing either the access token or a reference to
-    the token (e.g., the cti).  Further optional parameters representing
-    additional context that is known by the RS to aid the AS in its
+    wrapping of the payload.  If CBOR is used, the payload MUST be encoded as a
+    CBOR map with a "token" entry containing either the access token
+    or a reference to the token (e.g., the cti).  Further optional parameters
+    representing additional context that is known by the RS to aid the AS in its
     response MAY be included.</t>
 
     <t>The same parameters are required and optional as in Section 2.1
@@ -1511,7 +1513,7 @@ Payload:
     <xref target="errorsIntro"/>.</t>
 
     <t>In a successful response, the AS encodes the response parameters in
-    a CBOR map including with the same required and optional parameters as in
+    a map including with the same required and optional parameters as in
     Section 2.2. of RFC 7662 <xref target="RFC7662"/> with the following
     additions:
 
@@ -1572,8 +1574,8 @@ Payload:
 
     <list style="symbols">
       <t>If content is sent, the Content-Type MUST be set according to the
-      specification of the communication security profile, and the content
-      payload MUST be encoded as a CBOR map.</t>
+      specification of the communication security profile. If CoAP is used
+      the payload MUST be encoded as a CBOR map.</t>
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
       with the response code equivalent to the CoAP code 4.01 (Unauthorized)
@@ -1603,10 +1605,10 @@ Payload:
 
   <section anchor="introParamsCbor"
 	   title="Mapping Introspection parameters to CBOR">
-    <t>The introspection request and response parameters MUST be
-    mapped to CBOR types as specified in <xref
+    <t>If CBOR is used, the introspection request and response parameters MUST
+    be mapped to CBOR types as specified in <xref
     target="fig:cborIntrospectionParameters"/>, using the given integer
-    abbreviation for the key.</t>
+    abbreviation for the map key.</t>
 
     <t>Note that we have aligned these abbreviations with the claim
     abbreviations defined in <xref target="RFC8392"/>.
@@ -1788,8 +1790,9 @@ Payload:
 
   <t>If a token that authorizes a long running request such as a CoAP
   Observe <xref target="RFC7641"/> expires, the RS MUST send an error
-  response with the response code 4.01 Unauthorized to the client and then
-  terminate processing the long running request.</t>
+  response with the response code equivalent to the CoAP code 4.01
+  (Unauthorized) to the client and then terminate processing the long running
+  request.</t>
 </section>
 </section><!-- access token -->
 
@@ -2311,6 +2314,8 @@ Payload:
   <t>Thanks to Stefanie Gerdes, Olaf Bergmann, and Carsten
   Bormann for contributing their work on AS discovery from
   draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>).</t>
+
+  <t>Thanks to Jim Schaad and Mike Jones for their comprehensive reviews.</t>
   
   <t>Ludwig Seitz and Goeran Selander worked on this document as part of
   the CelticPlus project CyberWI, with funding from Vinnova.</t>
@@ -2792,7 +2797,7 @@ Payload:
     target="paramProfile"/></t>
 
     <t>Specify the security protocol the client and RS must use to protect
-    their communication (e.g., OSCOAP or DTLS over CoAP).  This must provide
+    their communication (e.g., OSCORE or DTLS over CoAP).  This must provide
     encryption, integrity and replay protection. <xref
     target="paramProfile"/></t>
 
@@ -3272,7 +3277,7 @@ Response-Payload:
     </list>
 </t>
         <t><figure align="center" anchor="fig:cOfflineDTLSRequestAndResponse"
-            title="Resource request and response protected by OSCOAP">
+            title="Resource request and response protected by OSCORE">
             <artwork align="left"><![CDATA[
            Resource
   Client    Server
