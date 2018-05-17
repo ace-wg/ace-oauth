@@ -250,10 +250,32 @@ a known key, but with an audience claim that does not match RS1
 
 5. Access Requests with Tokens Tests
 
-TBD
+5.1 The client sends a GET request to HelloWorld after having submitted a matching token
+to authz-info (scope="HelloWorld"). The client performs the proof-of-possession correctly.
+The token shall use the common PSK as pop-key and the DTLS-PSK handshake shall be used as
+proof-of-posession.
 
+ C28. The request is granted and the HelloWorld resource returns "HelloWorld!"
 
+5.2 The client sends a PUT request to the Lock resource after having submitted a token
+that applies to the HelloWorld resource (scope="HelloWorld")
 
+ C29. The request is denied with a 4.03 (Forbidden)
 
+5.3 The client sends a PUT request to the Lock resource after having submitted a token
+that applies to the Lock resource but only allows GET (scope="r_Lock").
 
+ C30. The request is denied with a 4.05 (Method Not Allowed)
 
+5.4 The client sends a PUT request to the Lock resource after having submitted a token
+that applies to the Lock resource and allow GET and PUT (scope="rw_Lock").
+The token shall use the client RPK as pop-key and the DTLS-RPK handshake with client
+authentication as proof-of-possession. The RS shall use the RS key for server authentication.
+
+ C31. The request is granted and the RS replies with a 2.04 Changed.
+
+5.5 The client sends a GET request to the HelloWorld resource, submitting the matching token
+(scope="HelloWorld"), through the psk-identity in the DTLS-PSK handshake, using the common PSK as
+pop-key. See https://tools.ietf.org/html/draft-ietf-ace-dtls-authorize-03#section-4.1.
+
+ C32. The request is granted and the HelloWorld resource returns "HelloWorld"
