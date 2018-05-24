@@ -1,39 +1,20 @@
 I. Pre-requisites:
 
-1. Client to AS DTLS keys
+1. Client to AS DTLS PSK/RPK keys
 
-1.1. Common PSK for 128-bit AES-CCM (in Hex):
+Client1:
 0x61, 0x62, 0x63, 0x04, 0x05, 0x06, 0x07, 0x08,
 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10
 
-keyId="key128"
+psk-identity="client1"
 
-1.2. Common PSK for 256-bit AES-CCM or HMAC-SHA-256
-0x61, 0x62, 0x63, 0x04, 0x05, 0x06, 0x07, 0x08,
-0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
-0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
-0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20
+Client2:
+0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10
 
-keyId="key256"
+psk-identity="client2".
 
-2. OSCORE Keys
-
-These keys are used for the OSCORE profile for communication between the Client and the AS
-or between the Resource Server and the AS.  For communications between the Client and the
-Resource server, a key will be transmitted in the response/token.
-
-2.1 Client to AS OSCORE key
-
-{1:4,2:'os1',6:'clientId',7:'asServerId',-4:h'100f0e0d0c0b0a090a07060504636261'}
-
-2.2 RS to AS OSCORE key
-
-{1:4,2:'os2',6:'rsId',7:'asServerId',-4:h'090a07060504636261100f0e0d0c0b0a'}
-
-3. Common raw asymmetric key pairs (encoded as COSE_Key):
-
-3.1 Client key
-
+Client3:
 {1: 2, 3: -7, -1: 1,
 -2: h'12D6E8C4D28F83110A57D253373CAD52F01BC447E4093541F643B385E179C110',
 -3: h'283B3D8D28FFA59FE5CB540412A750FA8DFA34F6DA69BCDA68400D679C1347E8',
@@ -50,17 +31,9 @@ Or human readable:
 }
 
 NI id: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w"
+(see RFC 6920 section 3 for calculation of NI).
 
-3.2 RS key
-
-{1: 2, 3: -7, -1: 1,
--2: h'73B7D755827D5D59D73FD4015D47B445762F7CDB59799CD966714AB2727F1BA5'
--3: h'1A84F5C82797643D33F7E6E6AFCF016522238CE430E1BF21A218E6B4DEEAC37A',
--4: h'00EA086573C683477D74EB7A0C63A6D031D5DEB10F3CC2876FDA6D3400CAA4E507'}
-
-ni:///sha-256;sU09Kz-RXT8izVvD3n7v3d5vHVGF1NcYShZZ-oczcVE
-
-3.3 AS key
+AS raw public key:
 
 {1: 2, 3: -7, -1: 1,
 -2: h'058F35F3C0D34D3DF50DEBC82208CDA9BE373AF7B8F7AAC381577B144D5FA781',
@@ -69,9 +42,32 @@ ni:///sha-256;sU09Kz-RXT8izVvD3n7v3d5vHVGF1NcYShZZ-oczcVE
 
 ni:///sha-256;IBEnVrQfrLp5gRu5jPHz7ykvkIPc4iW0CGE8Av20Nvo
 
+RS2 raw public key:
 
-4. All Access Tokens are assumed to be encoded as CWTs protected with the following
-COSE wrapper (COSE_Encrypt0):
+{1: 2, 3: -7, -1: 1,
+-2: h'73B7D755827D5D59D73FD4015D47B445762F7CDB59799CD966714AB2727F1BA5'
+-3: h'1A84F5C82797643D33F7E6E6AFCF016522238CE430E1BF21A218E6B4DEEAC37A',
+-4: h'00EA086573C683477D74EB7A0C63A6D031D5DEB10F3CC2876FDA6D3400CAA4E507'}
+
+ni:///sha-256;sU09Kz-RXT8izVvD3n7v3d5vHVGF1NcYShZZ-oczcVE
+
+
+2. Shared keys between RS and AS
+
+RS1
+0xa1, 0xa2, 0xa3, 0x04, 0x05, 0x06, 0x07, 0x08,
+0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10
+
+keyId : "RS1".
+
+RS2
+0xb1, 0xb2, 0xb3, 0x04, 0x05, 0x06, 0x07, 0x08,
+0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10
+
+keyId : "RS2".
+
+3. All Access Tokens are assumed to be encoded as CWTs protected with the
+following COSE wrapper (COSE_Encrypt0):
 
 16([h'A1010A', {5: <IV here>}, <ciphertext here>])
 
@@ -79,7 +75,7 @@ Or human readable:
 
 16({alg: AES-CCM-16-64-128}, {iv: <IV here>}, <ciphertext here>])
 
-5. Portnumbers, endpoint names, profiles
+4. Portnumbers, endpoint names, profiles
 
 We will use the default CoAP-DTLS port: 5684 for tests with the DTLS profile
 and the default CoAP port: 5683 for tests with other profiles.
@@ -96,10 +92,10 @@ description.
 Note that we do not (yet) mandate tests based on the MTI ed25519 curve, due to
 lack of widespread library support.
 
-6. Resources and Scopes
+5. Resources and Scopes
 
 We will use two resources at the RS with the following URL and expected
-behaviour:
+behavior:
 
 A. HelloWorld.  This resource only supports the GET method, and returns the
 string: "Hello World!", it shall be reachable under the URL
@@ -116,182 +112,289 @@ URL <your-IP-address>/ace/lock.
 The scope "r_Lock" shall allow to perform GET on this resource.
 The scope "rw_Lock" shall allow to perform GET and PUT on this resource.
 
-8. Identifiers
-
-When using PSK to authenticate, the client shall be identified by the AS as
-"Client1" and shall use this value as psk_identity in the DTLS handshake
-
-When using RPK to authenticate the client shall be identified with the NI
-identifier of the public key specified above (see RFC 6920 section 3).
-
-
-The client and AS shall use the identity "RS1" to identify the RS e.g. in the
-aud parameter.
-
 II. Tests
 
 1. Unauthorized Resource Request
 
-A client that does not have an access token tries to send a GET request
-to the protected HelloWorld resource at the RS.
+Client1 that does not have an access token, no PSK or RPK tries to send a GET
+request to the protected HelloWorld resource at the RS using plain CoAP.
 
 C1: Check that the client does not get access
 C2: Check that the RS returns the AS information as specified in 5.1.2.
 
 2. Token Endpoint Test
 
-A client requests an access token at the token endpoint using the
-client credentials grant (except for 2.7 and 2.8).
+A client requests an access token at the token endpoint.
 
-2.1 The client tries to access the token endpoint without authenticating
+2.1
+
+A client establishes a DTLS connection to the AS using the DTLS-RPK handshake
+without client authentication. The client then sends a request (can be random
+bytes) to the token endpoint.
+
  C3. The request should be rejected with 4.01 (Unauthorized) or 4.00 (Bad
  Request) and error = invalid_client
  
-2.2 The client tries to access the token endpoint, but is not authorized
-    to do so
+2.2 Client1 establishes a DTLS connection to the AS using the DTLS-PSK handshake
+using the PSK "client1".
+The client then sends a request (can be random bytes) to the token endpoint.
+This client is not authorized to access the token endpoint (requires
+configuration at the AS)
+
  C4. The request should be rejected with 4.00 (Bad Request) or 4.01
  (Unauthorized) and error = unauthorized_client
  
-2.3 The client sends no 'aud' parameter, and no default audience is specified
+2.3 Client2 establishes a DTLS connection to the AS using the DTLS-PSK handshake
+using the PSK "client2".
+The client then sends a request to the token endpoint containing the following
+parameters (and missing the 'aud' parameter):
+{
+  18 : 2       //  grant_type : client credentials
+  12 : "HelloWorld"  //  scope : HelloWorld
+}
+No default audience is specified for this client, but this client is authorized
+to access the token endpoint.
+
  C5. The request should be rejected with 4.00 (Bad Request) and
- error = invalid_request
+ error = invalid_request. The AS MAY provide the explanation that the audience
+ is missing.
 
-2.4 The client sends no 'scope' parameter and no default scope is specified
+2.4 Client3 establishes a DTLS connection to the AS using the DTLS-RPK handshake
+using the RPK: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w".
+The client sends a request to the token endpoint containing the following
+parameters (and missing the 'scope' parameter):
+{
+  18 : 2       //  grant_type : client credentials
+  3  : "RS1"   //  aud : RS1
+}
+No default scope is specified for this client, but this client is authorized
+to access the token endpoint.
+
  C6. The request should be rejected with 4.00 (Bad Request) and
- error = invalid_request
+ error = invalid_request. The AS MAY provide the explanation that the
+ scope is missing.
 
-2.5 The client sends a cnf with a symmetric key value
+2.5 Client2 establishes a DTLS connection to the AS using the DTLS-PSK handshake
+using the PSK "client2".
+
+The client then sends a request to the token endpoint containing the following
+parameters:
+{
+  18 : 2       //  grant_type : client credentials
+  12 : "HelloWorld"  //  scope : HelloWorld
+   3 : "RS1"   //  aud : RS1
+  25 : {1:                               // cnf : { COSE_KEY : {
+    {2: h'91ECB5CB5DBC',                 //   kid :  ....
+     1: 4,                               //   kty : Symmetric
+    -1: h'6162630405060708090A0B0C0D0E0F10' // Octet_K  : ...
+    }       
+  }
+}
+The client is authorized to access the token endpoint and is authorized
+to request the scope "HelloWorld" on "RS1".
+
  C7. The request should be rejected with 4.00 (Bad Request) and
- error = invalid_request
+ error = invalid_request. The AS MAY provide the explanation that the
+ client is not supposed to submit a symmetric confirmation key.
 
-2.6 The client sends a cnf with an asymmetric key that the RS cannot
-    process
+2.6 Client3 establishes a DTLS connection to the AS using the DTLS-RPK handshake
+using the RPK: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w".
+
+The client sends a request to the token endpoint containing the following
+parameters:
+{
+  18 : 2       //  grant_type : client credentials
+  12 : "HelloWorld"  //  scope : HelloWorld
+   3 : "RS1"   //  aud : RS1
+  25 : {1:     // cnf : { COSE_KEY : {
+    { 1: 2,    // kty : EC2,
+      3: -7,   // alg : ES256,
+      -1: 1,   // crv : P-256,
+      -2: h'12D6E8C4D28F83110A57D253373CAD52   // x : ...
+            F01BC447E4093541F643B385E179C110',
+      -3: h'283B3D8D28FFA59FE5CB540412A750FA   // y : ...
+            8DFA34F6DA69BCDA68400D679C1347E8'
+    }       
+  }
+}
+The client is authorized to access the token endpoint and is authorized
+to request the scope "HelloWorld" on "RS1". The RS "RS1" is registered a the AS
+and does not support DTLS-RPK.
+
  C8. The request should be rejected with 4.00 (Bad Request) and
  error = unsupported_pop_key
 
-2.7 The client sends a grant that is invalid
- C9. The request should be rejected with 4.00 (Bad Request) and
- error = invalid_grant
+2.7 Client2  establishes a DTLS connection to the AS using the DTLS-PSK handshake
+using the PSK "client2". The client then sends a request to the token endpoint containing the following parameters:
+{
+  18 : 0      //  grant_type : password
+  12 : "HelloWorld"  //  scope : HelloWorld
+   3 : "RS1"   //  aud : RS1
+}
+The client is authorized to access the token endpoint and is authorized
+to request the scope "HelloWorld" on "RS1". The AS does not support the
+grant type "password".
 
-2.8 The client sends a grant type that is not supported (e.g. "password")
- C10. The request should be rejected with 4.00 (Bad Request) and
+  C9. The request should be rejected with 4.00 (Bad Request) and
  error = unsupported_grant_type
 
-2.9 The client sends a scope that is not known to the AS
- C11. The request should be rejected with 4.00 (Bad Request) and
+2.8 Client2  establishes a DTLS connection to the AS using the DTLS-PSK handshake
+using the PSK "client2". The client then sends a request to the token endpoint
+containing the following parameters:
+{
+  18 : 2       //  grant_type : client credentials
+  12 : "test"  //  scope : test
+   3 : "RS1"   //  aud : RS1
+}
+
+The client is authorized to access the token endpoint and is authorized
+to request the scope "HelloWorld" on "RS1". The scope "test" is unknown to
+the AS.
+
+  C10. The request should be rejected with 4.00 (Bad Request) and
  error = invalid_scope
 
-2.10 The client sends a request with aud="RS1" and scope="HelloWorld"
- The client is authorized to this audience and socpe, and authenticates
- correctly.  The client, RS and AS support DTLS-PSK with 256-bit keys and the
- DTLS profile, they all use the PSK "key256" for the handshake.
+2.9 Client2  establishes a DTLS connection to the AS using the DTLS-PSK handshake
+using the PSK "client2". The client then sends a request to the token endpoint
+containing the following parameters:
+{
+  18 : 2      //  grant_type : client credentials
+  12 : "HelloWorld"  //  scope : HelloWorld
+   3 : "RS1"   //  aud : RS1
+}
+The client is authorized to access the token endpoint and is authorized
+to request the scope "HelloWorld" on "RS1". Client2 and RS1 support
+DTLS-PSK with 128-bit keys and the DTLS profile. The AS and RS1 share the key: "RS1" for encrypting the CWT.
 
- C12.  The request should be granted and an access token returned.
-  The access token should use the PSK "key128" in the Encrypt0 wrapper
- C13. The token should contain the cnf claim containing "key256",
-  the token should also contain aud="RS1" and scope="HelloWorld".
- C14. The RS Information should contain the cnf claim with "key256"
+ C11.  The request should be granted and an access token returned.
+  The access token should use the PSK "RS1" for the Encrypt0 wrapper
+ C12. The token should contain the cnf claim containing a symmetric
+ 128-bit PSK generated by the AS, the token should also contain aud="RS1" and
+ scope="HelloWorld".
+ C13. The RS Information should contain the cnf claim with the same key
+ as in the cnf claim of the token. The RS information MAY contain a profile
+ claim (26 : 1  unabbreviated: profile : "coap_dtls").
 
-2.11 The client sends a request with aud="RS1" and scope="HelloWorld"
- The client is authorized to this audience and socpe, and authenticates
- correctly.  The client, RS and AS support DTLS-RPK and the
- DTLS profile, they all use the RPKs from section I.3 for the handshakes.
- The client sends it's public key in the token request using the
- cnf parameter.
+2.10 Client3 establishes a DTLS connection to the AS using the DTLS-RPK handshake
+using the RPK: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w". 
 
- C15. Check that the client authenticates to the AS
- C16. Check that the AS authenticates to the client
- C17. Check that cnf claim in the access token contains the client's raw
+The client sends a request to the token endpoint containing the following
+parameters:
+{
+  18 : 2       //  grant_type : client credentials
+  12 : "HelloWorld"  //  scope : HelloWorld
+   3 : "RS2"   //  aud : RS2
+  25 : {1:     // cnf : { COSE_KEY : {
+    { 1: 2,    // kty : EC2,
+      3: -7,   // alg : ES256,
+      -1: 1,   // crv : P-256,
+      -2: h'12D6E8C4D28F83110A57D253373CAD52   // x : ...
+            F01BC447E4093541F643B385E179C110',
+      -3: h'283B3D8D28FFA59FE5CB540412A750FA   // y : ...
+            8DFA34F6DA69BCDA68400D679C1347E8'
+    }       
+  }
+}
+The client is authorized to access the token endpoint and is authorized
+to request the scope "HelloWorld" on "RS2". The RS "RS2" is registered a the AS
+and does support DTLS-RPK. The public key of RS2 is:
+ni:///sha-256;sU09Kz-RXT8izVvD3n7v3d5vHVGF1NcYShZZ-oczcVE.
+
+AS and RS2 share symmetric key "RS2".
+
+ C14. Check that the client authenticates to the AS in the RPK handshake
+ C15. Check that cnf claim in the access token contains the client's raw
       public key
- C18. Check that the RS information contains the rs_cnf parameter,
+ C16. Check that the RS information contains the rs_cnf parameter,
       containing the RS's public key
 
-3. Introspect Endpoint Tests
+==== FIXME from here ====
+3. Authorization Information Endpoint Tests
 
-RS1 introspects an access token at the introspection endpoint
+A client POSTs a message to the authz-info endpoint at RS1
 
-3.1 The RS is not authorized to use the introspection endpoint
+3.1 A client sends random bytes to the authz-info endpoint
 
- c19. The request should be rejected with 4.03 (Forbidden) and the
-      error response should not contain any payload
+ C23. The request should be rejected with 4.01 (Unauthorized).
 
-3.2 The RS is authorized to use the introspection endpoint. The submitted token
-is invalid (i.e. does not parse to a CWT)
-
- C20. The response should only contain the parameter active = false
-
-3.3 The submitted token has expired
-
- C21. The response should only contain the paramter active = false
-
-3.4 The submitted token is unknown to the AS (i.e. issued by another AS,
-encrypted with an unknown key)
-
- C22.  The response should only contain the paramter active = false
-
-3.5 The submitted token is valid for the scope "HelloWorld" and the
-audience "RS1"
-
- C23. The response should contain the parameters active = true,
- aud = "RS1" and scope = "HelloWorld", optionally it may also contain
- other parameters like e.g. exp and iss.
-
-
-4. Authorization Information Endpoint Tests
-
-Client1 POSTs a message to the authz-info endpoint at RS1
-
-4.1 The client sends random bytes to the authz-info endpoint
+3.2 A client sends a token encrypted with an unknown key
 
  C24. The request should be rejected with 4.01 (Unauthorized).
 
-4.2 The client sends a token encrypted with an unknown key
-
- C25. The request should be rejected with 4.01 (Unauthorized).
-
-4.3 The client sends a token that comes from a recognized AS with
-a known key, but with an audience claim that does not match RS1
+3.3 Client2 sends a token that comes from a recognized AS encrypted with the
+shared key "RS1", but with an audience claim that does not match RS1 (e.g. "RS2").
 
  C25. The request should be rejected with 4.03 (Forbidden).
 
-4.4 The client sends an otherwise valid token that contains an unknown
+3.4 The client sends an otherwise valid token that contains an unknown
     scope
 
  C26. The request should be rejected with 4.00 (Bad Request).
 
-4.5  The client sends a valid token with a matching audience and
+3.5  The client sends a valid token with a matching audience and
      known scope.
 
  C27. The request should be processed and answered with a 2.01 (Created)
 
-5. Access Requests with Tokens Tests
+4. Access Requests with Tokens Tests
 
-5.1 The client sends a GET request to HelloWorld after having submitted a matching token
+4.1 The client sends a GET request to HelloWorld after having submitted a matching token
 to authz-info (scope="HelloWorld"). The client performs the proof-of-possession correctly.
 The token shall use the common PSK as pop-key and the DTLS-PSK handshake shall be used as
-proof-of-posession.
+proof-of-possession.
 
  C28. The request is granted and the HelloWorld resource returns "HelloWorld!"
 
-5.2 The client sends a PUT request to the Lock resource after having submitted a token
+4.2 The client sends a PUT request to the Lock resource after having submitted a token
 that applies to the HelloWorld resource (scope="HelloWorld")
 
  C29. The request is denied with a 4.03 (Forbidden)
 
-5.3 The client sends a PUT request to the Lock resource after having submitted a token
+4.3 The client sends a PUT request to the Lock resource after having submitted a token
 that applies to the Lock resource but only allows GET (scope="r_Lock").
 
  C30. The request is denied with a 4.05 (Method Not Allowed)
 
-5.4 The client sends a PUT request to the Lock resource after having submitted a token
+4.4 The client sends a PUT request to the Lock resource after having submitted a token
 that applies to the Lock resource and allow GET and PUT (scope="rw_Lock").
 The token shall use the client RPK as pop-key and the DTLS-RPK handshake with client
 authentication as proof-of-possession. The RS shall use the RS key for server authentication.
 
  C31. The request is granted and the RS replies with a 2.04 Changed.
 
-5.5 The client sends a GET request to the HelloWorld resource, submitting the matching token
+4.5 The client sends a GET request to the HelloWorld resource, submitting the matching token
 (scope="HelloWorld"), through the psk-identity in the DTLS-PSK handshake, using the common PSK as
 pop-key. See https://tools.ietf.org/html/draft-ietf-ace-dtls-authorize-03#section-4.1.
 
  C32. The request is granted and the HelloWorld resource returns "HelloWorld"
+
+5. Introspect Endpoint Tests
+
+RS1 introspects an access token at the introspection endpoint
+
+5.1 The RS is not authorized to use the introspection endpoint
+
+ c18. The request should be rejected with 4.03 (Forbidden) and the
+      error response should not contain any payload
+
+5.2 The RS is authorized to use the introspection endpoint. The submitted token
+is invalid (i.e. does not parse to a CWT)
+
+ C19. The response should only contain the parameter active = false
+
+5.3 The submitted token has expired
+
+ C20. The response should only contain the parameter active = false
+
+5.4 The submitted token is unknown to the AS (i.e. issued by another AS,
+encrypted with an unknown key)
+
+ C21.  The response should only contain the paramter active = false
+
+5.5 The submitted token is valid for the scope "HelloWorld" and the
+audience "RS1"
+
+ C22. The response should contain the parameters active = true,
+ aud = "RS1" and scope = "HelloWorld", optionally it may also contain
+ other parameters like e.g. exp and iss.
+
