@@ -37,6 +37,15 @@ NI id: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w"
 (see RFC 6920 section 3 for calculation of NI).
 ==================================================
 
+
+==================Client4 (PSK)===================
+0x51, 0x52, 0x53, 0x04, 0x05, 0x06, 0x07, 0x08,
+0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10
+
+psk-identity="client4".
+==================================================
+
+
 ==================AS (RPK)==================
 
 {1: 2, 3: -7, -1: 1,
@@ -138,7 +147,7 @@ II. Tests
 1. Unauthorized Resource Request
 
 Client1 that does not have an access token, no PSK or RPK tries to send a GET
-request to the protected HelloWorld resource at the RS using plain CoAP.
+request to the protected HelloWorld resource at RS1 using plain CoAP.
 
 C1.1: Check that the client does not get access
 C1.2: Check that the RS returns the AS information as specified in 5.1.2.
@@ -149,7 +158,7 @@ A client requests an access token at the token endpoint.
 
 2.1
 
-A client establishes a DTLS connection to the AS using the DTLS-RPK handshake
+Client1 establishes a DTLS connection to the AS using the DTLS-RPK handshake
 without client authentication. The client then sends a request (can be random
 bytes) to the token endpoint.
 
@@ -275,9 +284,8 @@ the AS.
   C2.8 The request should be rejected with 4.00 (Bad Request) and
  error = invalid_scope
 
-2.9 Client2  establishes a DTLS connection to the AS using the DTLS-PSK handshake
-using the PSK "client2". The client then sends a request to the token endpoint
-containing the following parameters:
+2.9 Client2 establishes a DTLS connection to the AS using the DTLS-PSK handshake using the PSK "client2". The client then sends a request to the token
+endpoint containing the following parameters:
 {
   18 : 2      //  grant_type : client credentials
   12 : "HelloWorld"  //  scope : HelloWorld
@@ -296,8 +304,7 @@ DTLS-PSK with 128-bit keys and the DTLS profile. The AS and RS1 share the key: "
  as in the cnf claim of the token. The RS information MAY contain a profile
  claim (26 : 1  unabbreviated: profile : "coap_dtls").
 
-2.10 Client3 establishes a DTLS connection to the AS using the DTLS-RPK handshake
-using the RPK: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w". 
+2.10 Client3 establishes a DTLS connection to the AS using the DTLS-RPK handshake using the RPK: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w". 
 
 The client sends a request to the token endpoint containing the following
 parameters:
@@ -324,15 +331,46 @@ ni:///sha-256;sU09Kz-RXT8izVvD3n7v3d5vHVGF1NcYShZZ-oczcVE.
 
 AS and RS2 share symmetric key "RS2".
 
- C2.11.1 The request should be granted and an access token and
+ C2.10.1 The request should be granted and an access token and
  	 RS information returned.  The access token should use the PSK
 	 "RS2" for the Encrypt0 wrapper.
- C2.11.2 Check that the client authenticates to the AS in the RPK handshake
- C2.11.3 Check that cnf claim in the access token contains the client's raw
+ C2.10.2 Check that the client authenticates to the AS in the RPK handshake
+ C2.10.3 Check that cnf claim in the access token contains the client's raw
       public key
- C2.11.4 Check that the RS information contains the rs_cnf parameter,
+ C2.10.4 Check that the RS information contains the rs_cnf parameter,
       containing the RS's public key
 
+2.11 Client4 establishes a DTLS connection to the AS using the DTLS-RSK
+handshake using the PSK "client4". The client then sends a request to the token
+endpoint containing the following parameters:
+{
+  18 : 2      //  grant_type : client credentials
+  12 : "rw_Lock"  //  scope : rw_Lock
+   3 : "RS1"   //  aud : RS1
+}
+
+The client is authorized to access the token endpoint and is authorized
+to request the scopes "HelloWorld" and "r_Lock" on "RS1". The AS and RS1 share the key: "RS1" for encrypting the CWT. Client4 is NOT authorized to request
+the scope "rw_Lock".
+
+C2.11 The request should be rejected with 4.00 (Bad Request) and
+ error = invalid_scope.
+
+2.12 Client4 establishes a DTLS connection to the AS using the DTLS-RSK
+handshake using the PSK "client4". The client then sends a request to the token
+endpoint containing the following parameters:
+{
+  18 : 2      //  grant_type : client credentials
+  12 : "r_Lock rw_Lock"  //  scope : r_Lock rw_Lock
+   3 : "RS1"   //  aud : RS1
+}
+
+The client is authorized to access the token endpoint and is authorized
+to request the scopes "HelloWorld" and "r_Lock" on "RS1". The AS and RS1 share the key: "RS1" for encrypting the CWT. Client4 is NOT authorized to request
+the scope "rw_Lock".
+
+C2.12.1 The request should be granted only for the scope "r_Lock"
+C2.12.2 The RS information should include the parameter scope : "r_Lock"
 
 3. Authorization Information Endpoint Tests
 
@@ -393,7 +431,7 @@ Note: RS1 does not recognize the scope "test".
 the AS to RS1, containing the following claims (diagnostic notation):
 
 {
-  aud : "RS2",
+  aud : "RS1",
   iss : "AS",
   scope : "HelloWorld",
   cnf : {
@@ -483,7 +521,7 @@ DTLS-PSK handshake with RS1 using the key-id: h'91ECB5CB5DBC' as psk-identity
  C4.2 The request is denied with a 4.03 (Forbidden)
 
 4.3 After having sent the token to RS2 as in test 3.6, Client2 performs a
-DTLS-PSK handshake with RS1 using the key-id: h'91ECB5CB5DBD' as psk-identity
+DTLS-PSK handshake with RS2 using the key-id: h'91ECB5CB5DBD' as psk-identity
 (corresponding to the kid in the token from test 3.6). Then Client2 sends a PUT request to the Lock resource at RS2 with a CBOR payload of FALSE.
 
  C4.3 The request is denied with a 4.05 (Method Not Allowed)
