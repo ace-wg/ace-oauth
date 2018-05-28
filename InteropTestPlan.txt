@@ -241,24 +241,7 @@ DTLS-PSK with 128-bit keys and the DTLS profile. The AS and RS1 share the key: "
  as in the cnf claim of the token. The RS information MAY contain a profile
  claim (26 : 1  unabbreviated: profile : "coap_dtls").
 
-1.7 [AS, Client3]
-
-Client3 establishes a DTLS connection to the AS using the DTLS-RPK handshake
-using the RPK: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w".
-The client sends a request to the token endpoint containing the following
-parameters (and missing the 'scope' parameter):
-{
-  18 : 2       //  grant_type : client credentials
-  3  : "RS1"   //  aud : RS1
-}
-No default scope is specified for this client, but this client is authorized
-to access the token endpoint.
-
- C1.7 The request should be rejected with 4.00 (Bad Request) and
- error = invalid_request. The AS MAY provide the explanation that the
- scope is missing.
-
-1.8 [AS, Client2]
+1.7 [AS, Client2]
 
 Client2 establishes a DTLS connection to the AS using the DTLS-PSK handshake
 using the PSK "client2".
@@ -279,9 +262,26 @@ parameters:
 The client is authorized to access the token endpoint and is authorized
 to request the scope "HelloWorld" on "RS1".
 
- C1.8 The request should be rejected with 4.00 (Bad Request) and
+ C1.7 The request should be rejected with 4.00 (Bad Request) and
  error = invalid_request. The AS MAY provide the explanation that the
  client is not supposed to submit a symmetric confirmation key.
+
+1.8 [AS, Client3]
+
+Client3 establishes a DTLS connection to the AS using the DTLS-RPK handshake
+using the RPK: "ni:///sha-256;xzLa24yOBeCkos3VFzD2gd83Urohr9TsXqY9nhdDN0w".
+The client sends a request to the token endpoint containing the following
+parameters (and missing the 'scope' parameter):
+{
+  18 : 2       //  grant_type : client credentials
+  3  : "RS1"   //  aud : RS1
+}
+No default scope is specified for this client, but this client is authorized
+to access the token endpoint.
+
+ C1.8 The request should be rejected with 4.00 (Bad Request) and
+ error = invalid_request. The AS MAY provide the explanation that the
+ scope is missing.
 
 1.9 [AS, Client3]
 
