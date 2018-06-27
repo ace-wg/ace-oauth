@@ -37,6 +37,7 @@
 <!ENTITY RFC8252 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8252.xml">
 <!ENTITY RFC8259 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8259.xml">
 <!ENTITY RFC8392 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8392.xml">
+<!ENTITY RFC7521 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7521.xml">
 <!ENTITY I-D.ietf-oauth-device-flow SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-device-flow.xml">
 <!ENTITY I-D.ietf-ace-actors SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-actors.xml">
 <!ENTITY I-D.ietf-core-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-object-security.xml">
@@ -148,12 +149,12 @@
     </author>
 
     <author fullname="Hannes Tschofenig" initials="H." surname="Tschofenig">
-      <organization>ARM Ltd.</organization>
+      <organization>Arm Ltd.</organization>
 
       <address>
         <postal>
           <street></street>
-          <code>6060</code> <city>Hall in Tirol</city>
+          <code>6067</code> <city>Absam</city>
           <country>Austria</country>
         </postal>
         <email>Hannes.Tschofenig@arm.com</email>
@@ -433,7 +434,7 @@ security protocols (e.g., CoAP over DTLS).
         </list>
 
         <vspace blankLines="1"/> The access token is either a simple reference,
-	or a structured information object (e.g., CWT <xref target="RFC8392"/>),
+	or a structured information object (e.g., CWT <xref target="RFC8392"/>)
 	protected by a cryptographic wrapper (e.g., COSE <xref
 	target="RFC8152"/>).  The choice of PoP key does not necessarily imply
 	a specific credential type for the integrity protection of the
@@ -532,7 +533,7 @@ security protocols (e.g., CoAP over DTLS).
     CoAP messages are wrapped in COSE objects and sent using CoAP.
   </t>
 
-  <t>This framework RECOMMENDS the use of CoAP as replacement for HTTP.</t>
+  <t>This framework RECOMMENDS the use of CoAP as replacement for HTTP for use in constrained environments.</t>
 
 </section>
 </section>
@@ -728,7 +729,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 	the key bound to the token.  The binding is provided by the "cnf" claim
 	<xref target="I-D.ietf-ace-cwt-proof-of-possession"/> indicating what
 	key is used for	proof-of-possession. If a client needs to submit a new
-	access token e.g., to obtain additional access rights, they can request
+	access token, e.g., to obtain additional access rights, they can request
 	that the AS binds this token to the same key as the previous one.
 	<vspace blankLines="1"/>
       </t>
@@ -853,7 +854,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 ]]></artwork></figure>
 
     <t>In this example, the attribute AS points the receiver of this message
-    to the URI “coaps://as.example.com/token” to request access permissions.
+    to the URI "coaps://as.example.com/token" to request access permissions.
     The originator of the AS Information payload (i.e., RS) uses a local clock
     that is loosely synchronized with a time scale common between RS and AS
     (e.g., wall clock time). Therefore, it has included a parameter <spanx
@@ -884,10 +885,10 @@ a2                                   # map(2)
   resource owner or uses its client credentials as grant.  The authorization
   is expressed in the form of an authorization grant.</t>
 
-  <t>The OAuth framework defines four grant types. The grant types can
+  <t>The OAuth framework <xref target="RFC6749"/> defines four grant types. The grant types can
   be split up into two groups, those granted on behalf of the resource
   owner (password, authorization code, implicit) and those for the client
-  (client credentials).</t>
+  (client credentials). Further grant types have been added later, such as <xref target="RFC7521"/> defining an assertion-based authorization grant.</t>
 
   <t>The grant type is selected depending on the use case.  In cases where
   the client acts on behalf of the resource owner, authorization code
@@ -1269,7 +1270,7 @@ Payload:
       </figure>
     </t>
 
-    <t>In addition to the error responses defined in OA 2.0, the following
+    <t>In addition to the error responses defined in OAuth 2.0, the following
     behavior MUST be implemented by the AS: If the client submits an
     asymmetric key in the token request that the RS cannot process, the AS MUST
     reject that request with a response code equivalent to the CoAP code 4.00
@@ -1314,19 +1315,19 @@ Payload:
     </section>
 
     <section anchor="paramTokenType" title="Token Type">
-      <t>The token_type parameter is defined in <xref target="RFC6749"/>,
-      allowing the AS to indicate to the client which type of access token it
+      <t>The "token_type" parameter, defined in <xref target="RFC6749"/>,
+      allows the AS to indicate to the client which type of access token it
       is receiving (e.g., a bearer token). </t>
 
       <t>This document registers the new value "pop" for the OAuth Access
-        Token Types registry,  specifying a Proof-of-Possession token.  How the
-      proof-of-possession is performed MUST be specified by the profiles.</t>
+        Token Types registry,  specifying a proof-of-possession token.  How the
+      proof-of-possession by the client to the RS is performed MUST be specified by the profiles.</t>
 
       <t>The values in the "token_type" parameter MUST be CBOR text strings, if
       a CBOR encoding is used. </t>
 
-      <t>In this framework token type "pop" MUST be assumed by default if the
-      AS does not provide a different value.</t>
+      <t>In this framework the "pop" value for the "token_type" parameter is the default. The 
+      AS may, however, provide a different value.</t>
     </section>
 
     <section anchor="paramProfile" title="Profile">
@@ -1383,7 +1384,7 @@ Payload:
       <t>Also note that the "rs_cnf" parameter is supposed to indicate the key
       that the RS uses to authenticate.  If the access token is issued
       for an audience that includes several RS, this parameter MUST NOT
-      be used, since it is them impossible to determine for which RS the
+      be used, since the client cannot determine for which RS the
       key applies.  This framework recommends to specify a different endpoint
       that the client can use to acquire RS authentication keys in such cases.
       The specification of such an endpoint is out of scope for this
@@ -1437,7 +1438,7 @@ Payload:
 <section anchor="introspectionEndpoint" title="The 'Introspect' Endpoint">
   <t>Token introspection <xref target="RFC7662"/> can be OPTIONALLY provided by
   the AS, and is then used by the RS and potentially the client to query the AS
-  for metadata about a given token e.g., validity or scope. Analogous to the
+  for metadata about a given token, e.g., validity or scope. Analogous to the
   protocol defined in RFC 7662 <xref target="RFC7662"/> for HTTP and JSON, this
   section defines adaptations to more constrained  environments using CBOR and
   leaving the choice of the application protocol to the profile.</t>
@@ -1478,7 +1479,7 @@ Payload:
     introspection endpoint at the AS to query about an OAuth 2.0
     proof-of-possession token.  Note that object security based on COSE is
     assumed in this example, therefore the Content-Type
-    is "application/cose+cbor".
+    is "application/cose+cbor". <xref target="fig:introReq"/> shows the decoded token.
 
     <figure align="center" anchor="fig:introReq"
             title="Example introspection request.">
@@ -1488,12 +1489,19 @@ Uri-Host: "as.example.com"
 Uri-Path: "introspect"
 Content-Type: "application/cose+cbor"
 Payload:
+... COSE content ...
+       ]]></artwork>
+    </figure></t>
+	<figure align="center" anchor="fig:introReq-token"
+            title="Decoded token.">
+        <artwork align="left"><![CDATA[
 {
   "token" : b64'7gj0dXJQ43U',
   "token_type_hint" : "pop"
 }
        ]]></artwork>
     </figure></t>
+	
   </section>
 
   <section anchor="introAS2RS" title="AS-to-RS Response">
@@ -1505,7 +1513,7 @@ Payload:
 
     <t>In a successful response, the AS encodes the response parameters in
     a map including with the same required and optional parameters as in
-    Section 2.2. of RFC 7662 <xref target="RFC7662"/> with the following
+    Section 2.2 of RFC 7662 <xref target="RFC7662"/> with the following
     additions:
 
     <list style="hanging">
@@ -1523,7 +1531,7 @@ Payload:
       <t hangText="rs_cnf">
 	OPTIONAL.  If the RS has several keys it can use to authenticate
 	towards the client, the AS can give the RS a hint using this
-	parameter, as to which key it should use (e.g. if the AS
+	parameter, as to which key it should use (e.g., if the AS
 	previously informed the client about a public key the RS is
         holding). See <xref target="paramCnf"/> for more details on the
         use of this parameter.</t>
@@ -1739,7 +1747,7 @@ Payload:
   <t>Note: The RS MAY use introspection for timely validation of an
   access token, at the time when a request is presented.</t>
 
-  <t>Note: Matching the claims of the access token (e.g. scope) to a specific
+  <t>Note: Matching the claims of the access token (e.g., scope) to a specific
   request is application specific.</t>
   
   <t>If the request matches a valid token and the client has performed the
@@ -1857,28 +1865,26 @@ Payload:
 	<t>Initially, no secure channel exists to protect the communication
 	between C and RS. Thus, C cannot determine if the AS information
 	contained in an unprotected response from RS to an unauthorized
-	request (c.f. <xref target="asInfo"/>) is authentic. It is therefore
+	request (see <xref target="asInfo"/>) is authentic. It is therefore
 	advisable to provide C with a (possibly hard-coded) list of trustworthy
 	authorization servers. AS information responses referring to a URI not
 	listed there would be ignored.</t>
       </section>
 
       <section anchor="nonce" title="Use of Nonces for Replay Protection">
-	<t>RS may add a nonce to the AS Information message sent as a response
+	<t>The RS may add a nonce to the AS Information message sent as a response
 	to an unauthorized request to ensure freshness of an Access Token
 	subsequently presented to RS. While a time-stamp of some granularity
 	would be sufficient to protect against replay attacks, using
 	randomized nonce is preferred to prevent disclosure of information
-	about RS’s internal clock characteristics.</t>
+	about RS's internal clock characteristics.</t>
       </section>
 
       <section anchor="mixnmatch" title="Combining profiles">
-	<t>There may exist reasonable use cases where implementers want to
-	combine different profiles of this framework, e.g., using an MQTT profile
-	between client and RS, while using a DTLS profile for interactions
-	between client and AS. Profiles should be designed in a way that
-	the security of a protocol interaction does not depend on the
-	specific security mechanisms used in other protocol interactions.</t>
+	<t>There may be use cases were different profiles of this framework are combined. 
+	For example, an MQTT-TLS profile is used between the client and the RS in combination with a CoAP-DTLS profile for interactions between the client and the AS. Ideally, profiles should be designed in a way that
+	the security of system should not depend on the
+	specific security mechanisms used in individual protocol interactions.</t>
       </section>
       <section anchor="authzInfoLeak" title="Error responses">
 	<t>The various error responses defined in this framework may leak
@@ -1909,7 +1915,7 @@ Payload:
       <t>If access tokens are only integrity protected and not encrypted, they
       may reveal information to attackers listening on the wire, or able to
       acquire the access tokens in some other way.  In the case of CWTs
-      the token may e.g., reveal the audience, the scope and the confirmation
+      the token may, e.g., reveal the audience, the scope and the confirmation
       method used by the client.  The latter may reveal the identity of the
       device or application running the client.  This may be linkable to
       the identity of the person using the client (if there is a person and
@@ -1921,7 +1927,7 @@ Payload:
       obtain the access tokens will be able to link the requests, or even
       to determine the client's identity.</t>
 
-      <t>An unprotected response to an unauthorized request (c.f.
+      <t>An unprotected response to an unauthorized request (see 
       <xref target="asInfo"/>) may disclose information about RS and/or its
       existing relationship with C. It is advisable to include as little
       information as possible in an unencrypted response. Means of encrypting
@@ -1979,7 +1985,7 @@ Payload:
    
     <list style='hanging'>
       <t hangText='Name'>The OAuth Error Code name, refers to the name in
-      Section 5.2. of <xref target="RFC6749"/> e.g., "invalid_request".</t>
+      Section 5.2. of <xref target="RFC6749"/>, e.g., "invalid_request".</t>
       
       <t hangText='CBOR Value'>CBOR abbreviation for this error code.
       Different ranges of values use different registration policies <xref
@@ -2056,7 +2062,7 @@ Payload:
     
     <list style='hanging'>
       <t hangText='Name'>The name of token type as registered in the
-      OAuth Access Token Types registry e.g., "Bearer".</t>
+      OAuth Access Token Types registry, e.g., "Bearer".</t>
 	  
       <t hangText='CBOR Value'>CBOR abbreviation for this token type.
       Different ranges of values use different registration policies <xref
@@ -2174,7 +2180,7 @@ Payload:
     
     <list style='hanging'>
       <t hangText='Name'>The OAuth Parameter name, refers to the name in
-      the OAuth parameter registry e.g., "client_id".</t>
+      the OAuth parameter registry, e.g., "client_id".</t>
       
       <t hangText='CBOR Key'>CBOR map key for this parameter.
       Different ranges of values use different registration policies <xref
@@ -2239,7 +2245,7 @@ Payload:
     
     <list style='hanging'>
       <t hangText='Name'>The OAuth Parameter name, refers to the name in
-      the OAuth parameter registry e.g., "client_id".</t>
+      the OAuth parameter registry, e.g., "client_id".</t>
       
       <t hangText='CBOR Key'>CBOR map key for this parameter.
       Different ranges of values use different registration policies <xref
@@ -2454,6 +2460,8 @@ Payload:
       &I-D.ietf-core-resource-directory;
       
       &I-D.ietf-oauth-discovery;      
+	  
+	  &RFC7521; 
 
       <reference anchor="Margi10impact">
         <front>
@@ -2491,7 +2499,7 @@ Payload:
           Many IoT devices are equipped with a small battery which needs
           to last for a long time.  For many constrained wireless devices, the
           highest energy cost is associated to transmitting or receiving
-          messages (roughly by a factor of 10 compared to e.g. AES)
+          messages (roughly by a factor of 10 compared to AES)
 	  <xref target="Margi10impact"/>.  It is therefore important to keep
 	  the total communication overhead low, including minimizing the number
 	  and size of messages sent and received, which has an impact of choice
@@ -2509,7 +2517,7 @@ Payload:
           Some IoT devices are equipped with processors that are significantly
           slower than those found in most current devices on the Internet.
           This typically has implications on what timely cryptographic
-          operations a device is capable of performing, which in turn impacts
+          operations a device is capable of performing, which in turn impacts,
           e.g., protocol latency.  Symmetric key cryptography may be used
           instead of the computationally more expensive public key cryptography
           where the security requirements so allows, but this may also require
@@ -2580,8 +2588,8 @@ Payload:
 	  <t hangText="CoAP:"><vspace blankLines="1"/>
 	  This framework RECOMMENDS the use of CoAP <xref target="RFC7252"/>
 	  instead of HTTP.  This does not preclude the use of other protocols
-	  specifically aimed at constrained devices, like e.g. Bluetooth Low
-	  energy (see <xref target="coap"/>).  This aims again at reducing the
+	  specifically aimed at constrained devices, like, e.g., Bluetooth Low
+	  Energy (see <xref target="coap"/>).  This aims again at reducing the
 	  size of messages sent over the wire, the RAM size of data objects
 	  that need to be kept in memory and the size of libraries that devices
 	  need to support.
@@ -2616,7 +2624,7 @@ Payload:
 	  can be POSTed.  This aims at reducing the size of the request
 	  message and the code complexity at the RS.  The size of the request
 	  message is problematic, since many constrained protocols have severe
-	  message size limitations at the physical layer (e.g. in the order of
+	  message size limitations at the physical layer (e.g., in the order of
 	  100 bytes). This means that larger packets get fragmented, which in
 	  turn combines badly with the high rate of packet loss, and the
 	  need to retransmit the whole message if one packet gets lost.
@@ -2946,8 +2954,8 @@ B:  |<--------+ Header: 2.05 Content
 
     <t>The information contained in the Request-Payload and the
     Response-Payload is shown in <xref target="fig:RSOfflineReq"/>.
-    Note that a transport layer security based communication security profile is used in this
-    example, therefore the Content-Type is "application/cbor".
+    Note that a TLS/DTLS-based communication security profile is used in this
+    example. Hence, the Content-Type is "application/cbor".
 
      <figure align="center" anchor="fig:RSOfflineReq"
              title="Request and Response Payload Details.">
@@ -2979,7 +2987,7 @@ Response-Payload :
     </figure></t>
 
     <t>The content of the access token is shown
-    in  <xref target="fig:BothcborMappingValueAsymmetricCWT"/>.</t>
+    in <xref target="fig:BothcborMappingValueAsymmetricCWT"/>.</t>
 
     <t><figure align="center"
                anchor="fig:BothcborMappingValueAsymmetricCWT"
@@ -3010,9 +3018,9 @@ Response-Payload :
     <list style="hanging">
       <t>C: The client then sends the PoP access token to the authz-info endpoint at
       the RS.  This is a plain CoAP request, i.e., no transport or application
-      layer security between client and RS, since the token is integrity protected
+      layer security is used between client and RS since the token is integrity protected
       between the AS and RS.  The RS verifies that the PoP access token was created by a
-      known and trusted AS, is valid, and responds to the client.  The RS caches
+      known and trusted AS, is valid, and has been issued to the client.  The RS caches
       the security context together with authorization information about this client
       contained in the PoP access token.</t>
 
@@ -3292,6 +3300,11 @@ F:  |<--------+ Header: 2.04 Changed
 </section>
 <section anchor="app:changelog" title="Document Updates">
   <t>RFC EDITOR: PLEASE REMOVE THIS SECTION.</t>
+   <section anchor="app:f12t13" title="Version -12 to -13">
+     <t><list style="symbols">
+       <t>Editorial changes</t>
+     </list></t>
+   </section>  
    <section anchor="app:f12t13" title="Version -11 to -12">
      <t><list style="symbols">
        <t>Moved the Request error handling to a section of its own.</t>
