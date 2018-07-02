@@ -143,9 +143,9 @@ Internet-Draft                  ACE-OAuth                      July 2018
      10.2.  Informative References . . . . . . . . . . . . . . . . .  46
    Appendix A.  Design Justification . . . . . . . . . . . . . . . .  49
    Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  52
-   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  55
+   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  54
    Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  55
-   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  56
+   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  55
      E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  56
      E.2.  Introspection Aided Token Validation  . . . . . . . . . .  60
    Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  64
@@ -2595,11 +2595,6 @@ Internet-Draft                  ACE-OAuth                      July 2018
               Constrained Devices", draft-ietf-oauth-device-flow-10
               (work in progress), June 2018.
 
-   [I-D.ietf-oauth-discovery]
-              Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
-              Authorization Server Metadata", draft-ietf-oauth-
-              discovery-10 (work in progress), March 2018.
-
    [Margi10impact]
               Margi, C., de Oliveira, B., de Sousa, G., Simplicio Jr,
               M., Barreto, P., Carvalho, T., Naeslund, M., and R. Gold,
@@ -2625,6 +2620,11 @@ Internet-Draft                  ACE-OAuth                      July 2018
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/info/rfc6749>.
 
+   [RFC6819]  Lodderstedt, T., Ed., McGloin, M., and P. Hunt, "OAuth 2.0
+              Threat Model and Security Considerations", RFC 6819,
+              DOI 10.17487/RFC6819, January 2013, <https://www.rfc-
+              editor.org/info/rfc6819>.
+
 
 
 
@@ -2633,11 +2633,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 47]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-   [RFC6819]  Lodderstedt, T., Ed., McGloin, M., and P. Hunt, "OAuth 2.0
-              Threat Model and Security Considerations", RFC 6819,
-              DOI 10.17487/RFC6819, January 2013, <https://www.rfc-
-              editor.org/info/rfc6819>.
 
    [RFC7049]  Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
@@ -2683,6 +2678,11 @@ Internet-Draft                  ACE-OAuth                      July 2018
               DOI 10.17487/RFC7959, August 2016, <https://www.rfc-
               editor.org/info/rfc7959>.
 
+   [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
+              BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
+              <https://www.rfc-editor.org/info/rfc8252>.
+
+
 
 
 Seitz, et al.            Expires January 3, 2019               [Page 48]
@@ -2690,14 +2690,15 @@ Seitz, et al.            Expires January 3, 2019               [Page 48]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-   [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
-              BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
-              <https://www.rfc-editor.org/info/rfc8252>.
-
    [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
               Interchange Format", STD 90, RFC 8259,
               DOI 10.17487/RFC8259, December 2017, <https://www.rfc-
               editor.org/info/rfc8259>.
+
+   [RFC8414]  Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
+              Authorization Server Metadata", RFC 8414,
+              DOI 10.17487/RFC8414, June 2018, <https://www.rfc-
+              editor.org/info/rfc8414>.
 
 Appendix A.  Design Justification
 
@@ -2737,7 +2738,6 @@ Appendix A.  Design Justification
       cryptography may be used instead of the computationally more
       expensive public key cryptography where the security requirements
       so allows, but this may also require support for trusted third
-
 
 
 
@@ -2947,8 +2947,7 @@ Internet-Draft                  ACE-OAuth                      July 2018
       *  If providing an introspection endpoint: Process token
          introspection requests.
       *  Optionally: Handle token revocation.
-      *  Optionally: Provide discovery metadata.  See
-         [I-D.ietf-oauth-discovery]
+      *  Optionally: Provide discovery metadata.  See [RFC8414]
 
    Client
 
@@ -2961,7 +2960,8 @@ Internet-Draft                  ACE-OAuth                      July 2018
             resource(s), and which action(s) the request(s) will target.
          +  If raw public keys (rpk) or certificates are used, make sure
             the AS has the right rpk or certificate for this client.
-
+      *  Process the access token and Access Information (see step (B)
+         of Figure 1).
 
 
 
@@ -2969,9 +2969,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 53]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-      *  Process the access token and Access Information (see step (B)
-         of Figure 1).
 
          +  Check that the Access Information provides the necessary
             security parameters (e.g., PoP key, information on
@@ -3014,10 +3011,13 @@ Internet-Draft                  ACE-OAuth                      July 2018
       *  Send a response following the agreed upon communication
          security.
 
+Appendix C.  Requirements on Profiles
 
+   This section lists the requirements on profiles of this framework,
+   for the convenience of profile designers.
 
-
-
+   o  Specify the communication protocol the client and RS the must use
+      (e.g., CoAP).  Section 5 and Section 5.6.4.4
 
 
 
@@ -3026,13 +3026,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 54]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-Appendix C.  Requirements on Profiles
-
-   This section lists the requirements on profiles of this framework,
-   for the convenience of profile designers.
-
-   o  Specify the communication protocol the client and RS the must use
-      (e.g., CoAP).  Section 5 and Section 5.6.4.4
    o  Specify the security protocol the client and RS must use to
       protect their communication (e.g., OSCORE or DTLS over CoAP).
       This must provide encryption, integrity and replay protection.
@@ -3074,6 +3067,13 @@ Appendix D.  Assumptions on AS knowledge about C and RS
    o  The expiration time for access tokens issued to this RS (unless
       the RS accepts a default time chosen by the AS).
    o  The symmetric key shared between client or RS and AS (if any).
+   o  The raw public key of the client or RS (if any).
+
+Appendix E.  Deployment Examples
+
+   There is a large variety of IoT deployments, as is indicated in
+   Appendix A, and this section highlights a few common variants.  This
+
 
 
 
@@ -3082,12 +3082,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 55]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-   o  The raw public key of the client or RS (if any).
-
-Appendix E.  Deployment Examples
-
-   There is a large variety of IoT deployments, as is indicated in
-   Appendix A, and this section highlights a few common variants.  This
    section is not normative but illustrates how the framework can be
    applied.
 
@@ -3130,6 +3124,12 @@ E.1.  Local Token Validation
       B: The AS responds with a PoP access token and Access Information.
       The PoP access token contains the public key of the client, and
       the Access Information contains the public key of the RS.  For
+      communication security this example uses DTLS RawPublicKey between
+      the client and the RS.  The issued token will have a short
+      validity time, i.e., "exp" close to "iat", to protect the RS from
+      replay attacks.  The token includes the claim such as "scope" with
+      the authorized access that an owner of the temperature device can
+      enjoy.  In this example, the "scope" claim, issued by the AS,
 
 
 
@@ -3138,12 +3138,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 56]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-      communication security this example uses DTLS RawPublicKey between
-      the client and the RS.  The issued token will have a short
-      validity time, i.e., "exp" close to "iat", to protect the RS from
-      replay attacks.  The token includes the claim such as "scope" with
-      the authorized access that an owner of the temperature device can
-      enjoy.  In this example, the "scope" claim, issued by the AS,
       informs the RS that the owner of the token, that can prove the
       possession of a key is authorized to make a GET request against
       the /temperature resource and a POST request on the /firmware
@@ -3175,6 +3169,12 @@ Internet-Draft                  ACE-OAuth                      July 2018
    Payload is shown in Figure 18.  Note that a TLS/DTLS-based
    communication security profile is used in this example.  Hence, the
    Content-Type is "application/cbor".
+
+
+
+
+
+
 
 
 
