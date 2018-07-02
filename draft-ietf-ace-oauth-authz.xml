@@ -293,7 +293,8 @@ define the use of this specification with concrete transport, and communication
 security protocols (e.g., CoAP over DTLS).
 </t>
 
-<t>We use the term "RS Information" for parameters describing characteristics of the RS (e.g. public key) that the AS provides to the client.</t>
+<t>We use the term "Access Information" for parameters other than the access token provided to the client by the AS to enable it to access the RS
+(e.g. public key of the RS, profile supported by RS).</t>
 
 </section>
 
@@ -607,7 +608,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 |        |---(A)-- Token Request ------->|               |
 |        |                               | Authorization |
 |        |<--(B)-- Access Token ---------|    Server     |
-|        |       + RS Information        |               |
+|        |       + Access Information    |               |
 |        |                               +---------------+
 |        |                                      ^ |
 |        |            Introspection Request  (D)| |
@@ -637,8 +638,8 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
     <t hangText="Access Token Response (B):"><vspace blankLines="0"/>
       If the AS successfully processes the request from the client, it returns
       an access token.  It can also return additional parameters, referred to
-      as "RS Information".  In addition to the response parameters defined by
-      OAuth 2.0 and the PoP access token extension, this framework defines
+      as "Access Information".  In addition to the response parameters defined
+      by OAuth 2.0 and the PoP access token extension, this framework defines
       parameters that can be used to inform the client about capabilities of
       the RS. More information about these parameters can be found in <xref target="tokenParams"/>.
       <vspace blankLines="1"/>
@@ -658,17 +659,17 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
       to the RS, that may be used for
       subsequent resource requests by the client, and </t>
 <t>(2) the client makes the resource access request, using the communication security protocol and other
-    RS Information obtained from the AS.</t>
+    Access Information obtained from the AS.</t>
 </list>
 
       <vspace blankLines="1"/>
       The Client and the RS mutually authenticate using the security protocol
       specified in the profile (see step B) and the keys obtained in the access
-      token or the RS Information.  The RS verifies that the token is integrity
-      protected by the AS and compares the claims contained in the access token
-      with the resource request. If the RS is online, validation can be handed
-      over to the AS using token introspection (see messages D and E) over HTTP
-      or CoAP.<vspace blankLines="1"/>
+      token or the Access Information.  The RS verifies that the token is
+      integrity protected by the AS and compares the claims contained in the
+      access token with the resource request. If the RS is online, validation
+      can be handed over to the AS using token introspection (see messages D
+      and E) over HTTP or CoAP.<vspace blankLines="1"/>
     </t>
 
     <t hangText="Token Introspection Request (D):"><vspace blankLines="0"/>
@@ -779,9 +780,9 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   MAY send an initial Unauthorized Resource Request message to RS.  RS then
   denies the request and sends the address of its AS back to C.</t>
 
-  <t>Instead of the initial Unauthorized Resource Request message, C MAY
-   look up the desired resource in a resource directory (cf.
-  <xref target="I-D.ietf-core-resource-directory"/>).</t>
+  <t>Instead of the initial Unauthorized Resource Request message, other
+  discovery methods may be used, or the client may be pre-provisioned with the
+  address of the AS.</t>
 
   <section anchor="rreq" title="Unauthorized Resource Request Message">
     <t>The optional Unauthorized Resource Request message is a request for a
@@ -1125,7 +1126,7 @@ Payload:
    by the use of a dynamic client registration protocol exchange
    <xref target="RFC7591"/>.</t>
 
-    <t>The content of the successful reply is the RS Information. 
+    <t>The content of the successful reply is the Access Information. 
 	When using CBOR payloads, the content MUST be
     encoded as CBOR map, containing parameters as specified in Section 5.1 of
     <xref target="RFC6749"/>.  In addition to these parameters, the following
@@ -1164,15 +1165,15 @@ Payload:
     target="RFC8392"/> are used, the access token also contains a "cnf" claim
     <xref target="I-D.ietf-ace-cwt-proof-of-possession"/>.  This claim is
     however consumed by a different party.  The access token is created by the
-    AS and processed by the RS (and opaque to the client) whereas the RS
+    AS and processed by the RS (and opaque to the client) whereas the Access
     Information is created by the AS and processed by the client; it is never
     forwarded to the resource server.</t>
 
     <t><xref target="fig:rsinfo"/> summarizes the parameters that
-    may be part of the RS Information.
+    may be part of the Access Information.
 
       <figure align="center" anchor="fig:rsinfo"
-              title="RS Information parameters">
+              title="Access Information parameters">
       <artwork align="left"><![CDATA[
         /-------------------+-----------------\
         | Parameter name    | Specified in    |
@@ -1343,7 +1344,7 @@ Payload:
       NOT be used in parameters and claims..</t>
 
       <t>Profiles MAY define additional parameters for both the token request
-      and the RS Information in the access token response in order to
+      and the Access Information in the access token response in order to
       support negotiation or signaling of profile specific parameters.
       </t>
     </section>
@@ -1671,7 +1672,8 @@ Payload:
   <xref target="paramProfile"/>.</t>
   
 
-<section anchor="tokenAuthInfoEndpoint" title="The 'Authorization Information' Endpoint">
+  <section anchor="tokenAuthInfoEndpoint"
+	   title="The 'Authorization Information' Endpoint">
   <t>The access token, containing authorization information and information
   about the key used by the client, needs to be transported to the RS so that
   the RS can authenticate and authorize the client request.</t>
@@ -2593,15 +2595,14 @@ Payload:
 	  need to support.
 	  <vspace blankLines="1"/></t>
 	  
-	  <t hangText="RS Information:"><vspace blankLines="1"/>
-	  This framework defines the name "RS Information" for data concerning
-	  the RS that the AS returns to the client in an access token response
-	  (see  <xref target="tokenResponse"/>).  This includes the "profile"
-	  and the "rs_cnf" parameters.  This aims at enabling scenarios,
-	  where a powerful client, supporting multiple profiles, needs to
-	  interact with a RS for which it does not know the supported profiles
-	  and the raw public key.
-	  <vspace blankLines="1"/></t>	  
+	  <t hangText="Access Information:"><vspace blankLines="1"/>
+	  This framework defines the name "Access Information" for data
+	  concerning the RS that the AS returns to the client in an access
+	  token response (see  <xref target="tokenResponse"/>).  This includes
+	  the "profile" and the "rs_cnf" parameters.  This aims at enabling
+	  scenarios, where a powerful client, supporting multiple profiles,
+	  needs to interact with a RS for which it does not know the supported
+	  profiles and the raw public key. <vspace blankLines="1"/></t>	  
 	  
 	  <t hangText="Proof-of-Possession:"><vspace blankLines="1"/>
 	  This framework makes use of proof-of-possession tokens, using
@@ -2727,10 +2728,10 @@ Payload:
 		the AS has the right rpk or certificate for this client.</t>
 	      </list>
 	    </t>
-	    <t>Process the access token and RS Information (see step (B)
+	    <t>Process the access token and Access Information (see step (B)
 	    of <xref target="fig:protocolFlow"/>).
 	       <list style="symbols">
-		<t>Check that the RS Information provides the necessary
+		<t>Check that the Access Information provides the necessary
 		security parameters (e.g., PoP key, information on
 		communication security protocols supported by the RS).</t>
 	      </list>
@@ -2910,12 +2911,12 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
       identifies itself with.  The AS evaluates the request and authorizes the
       client to access the resource.</t>
 
-      <t>B: The AS responds with a PoP access token and RS Information.  The PoP
-      access token contains the public key of the client, and the RS Information
-      contains the public key of the RS.  For communication security
-      this example uses DTLS RawPublicKey between the client and the RS. The issued
-      token will have a short validity time, i.e., "exp" close to "iat",
-      to protect the RS from replay attacks. The token includes
+      <t>B: The AS responds with a PoP access token and Access Information.
+      The PoP access token contains the public key of the client, and the
+      Access Information  contains the public key of the RS.  For communication
+      security this example uses DTLS RawPublicKey between the client and the
+      RS. The issued token will have a short validity time, i.e., "exp" close
+      to "iat", to protect the RS from replay attacks. The token includes
       the claim such as "scope" with the authorized access that an owner of the
       temperature device can enjoy.  In this example, the "scope" claim, issued
       by the AS, informs the RS that the owner of the token, that can prove
@@ -3120,7 +3121,7 @@ F:  |<--------+ Header: 2.05 Content
         a pre shared security context (psk, rpk or certificate) and then the
         client is identified using client_id and client_secret as in classic OAuth.</t>
 
-        <t>B: The AS responds with the an access token and RS Information,
+        <t>B: The AS responds with the an access token and Access Information,
         the latter containing a symmetric key.
         Communication security between C and RS will be DTLS and PreSharedKey.
         The PoP key is used as the PreSharedKey.
@@ -3300,6 +3301,9 @@ F:  |<--------+ Header: 2.04 Changed
   <t>RFC EDITOR: PLEASE REMOVE THIS SECTION.</t>
    <section anchor="app:f13t14" title="Version -12 to -13">
      <t><list style="symbols">
+       <t>Changed "Resource Information" to "Access Information" to
+       avoid confusion.</t>
+       <t>Clarified section about AS discovery.</t>
        <t>Editorial changes</t>
      </list></t>
    </section>  
