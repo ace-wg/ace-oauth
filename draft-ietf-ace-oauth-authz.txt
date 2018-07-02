@@ -2584,11 +2584,6 @@ Internet-Draft                  ACE-OAuth                      July 2018
               (OSCORE)", draft-ietf-core-object-security-12 (work in
               progress), March 2018.
 
-   [I-D.ietf-core-resource-directory]
-              Shelby, Z., Koster, M., Bormann, C., Stok, P., and C.
-              Amsuess, "CoRE Resource Directory", draft-ietf-core-
-              resource-directory-13 (work in progress), March 2018.
-
    [I-D.ietf-oauth-device-flow]
               Denniss, W., Bradley, J., Jones, M., and H. Tschofenig,
               "OAuth 2.0 Device Flow for Browserless and Input
@@ -2625,6 +2620,11 @@ Internet-Draft                  ACE-OAuth                      July 2018
               DOI 10.17487/RFC6819, January 2013, <https://www.rfc-
               editor.org/info/rfc6819>.
 
+   [RFC7049]  Bormann, C. and P. Hoffman, "Concise Binary Object
+              Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
+              October 2013, <https://www.rfc-editor.org/info/rfc7049>.
+
+
 
 
 
@@ -2633,10 +2633,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 47]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-   [RFC7049]  Bormann, C. and P. Hoffman, "Concise Binary Object
-              Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
-              October 2013, <https://www.rfc-editor.org/info/rfc7049>.
 
    [RFC7228]  Bormann, C., Ersue, M., and A. Keranen, "Terminology for
               Constrained-Node Networks", RFC 7228,
@@ -2682,6 +2678,10 @@ Internet-Draft                  ACE-OAuth                      July 2018
               BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
               <https://www.rfc-editor.org/info/rfc8252>.
 
+   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
+              Interchange Format", STD 90, RFC 8259,
+              DOI 10.17487/RFC8259, December 2017, <https://www.rfc-
+              editor.org/info/rfc8259>.
 
 
 
@@ -2689,11 +2689,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 48]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
-              Interchange Format", STD 90, RFC 8259,
-              DOI 10.17487/RFC8259, December 2017, <https://www.rfc-
-              editor.org/info/rfc8259>.
 
    [RFC8414]  Jones, M., Sakimura, N., and J. Bradley, "OAuth 2.0
               Authorization Server Metadata", RFC 8414,
@@ -2738,6 +2733,11 @@ Appendix A.  Design Justification
       cryptography may be used instead of the computationally more
       expensive public key cryptography where the security requirements
       so allows, but this may also require support for trusted third
+      party assisted secret key establishment using transport or
+      application layer security.
+   Small Amount of Memory:
+
+
 
 
 
@@ -2745,10 +2745,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 49]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-      party assisted secret key establishment using transport or
-      application layer security.
-   Small Amount of Memory:
 
       Microcontrollers embedded in IoT devices are often equipped with
       small amount of RAM and flash memory, which places limitations
@@ -2795,14 +2791,16 @@ Internet-Draft                  ACE-OAuth                      July 2018
    In the light of these constraints we have made the following design
    decisions:
 
+   CBOR, COSE, CWT:
+
+
+
 
 
 Seitz, et al.            Expires January 3, 2019               [Page 50]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-   CBOR, COSE, CWT:
 
       This framework REQUIRES the use of CBOR [RFC7049] as data format.
       Where CBOR data needs to be protected, the use of COSE [RFC8152]
@@ -2850,6 +2848,8 @@ Internet-Draft                  ACE-OAuth                      July 2018
       This framework introduces a new way of providing access tokens to
       a RS by exposing a authz-info endpoint, to which access tokens can
       be POSTed.  This aims at reducing the size of the request message
+      and the code complexity at the RS.  The size of the request
+      message is problematic, since many constrained protocols have
 
 
 
@@ -2858,8 +2858,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 51]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-      and the code complexity at the RS.  The size of the request
-      message is problematic, since many constrained protocols have
       severe message size limitations at the physical layer (e.g., in
       the order of 100 bytes).  This means that larger packets get
       fragmented, which in turn combines badly with the high rate of
@@ -2904,7 +2902,9 @@ Appendix B.  Roles and Responsibilities
          with.
       *  Make sure that clients can discover the AS that is in charge of
          the RS.
-
+      *  If the client-credentials grant is used, make sure that the AS
+         has the necessary, up-to-date, access control policies for the
+         RS.
 
 
 
@@ -2913,10 +2913,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 52]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-      *  If the client-credentials grant is used, make sure that the AS
-         has the necessary, up-to-date, access control policies for the
-         RS.
 
    Requesting Party
 
@@ -2963,6 +2959,10 @@ Internet-Draft                  ACE-OAuth                      July 2018
       *  Process the access token and Access Information (see step (B)
          of Figure 1).
 
+         +  Check that the Access Information provides the necessary
+            security parameters (e.g., PoP key, information on
+            communication security protocols supported by the RS).
+
 
 
 Seitz, et al.            Expires January 3, 2019               [Page 53]
@@ -2970,9 +2970,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 53]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-         +  Check that the Access Information provides the necessary
-            security parameters (e.g., PoP key, information on
-            communication security protocols supported by the RS).
       *  Send the token and request to the RS (see step (C) of
          Figure 1).
 
@@ -3018,6 +3015,9 @@ Appendix C.  Requirements on Profiles
 
    o  Specify the communication protocol the client and RS the must use
       (e.g., CoAP).  Section 5 and Section 5.6.4.4
+   o  Specify the security protocol the client and RS must use to
+      protect their communication (e.g., OSCORE or DTLS over CoAP).
+
 
 
 
@@ -3026,8 +3026,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 54]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-   o  Specify the security protocol the client and RS must use to
-      protect their communication (e.g., OSCORE or DTLS over CoAP).
       This must provide encryption, integrity and replay protection.
       Section 5.6.4.4
    o  Specify how the client and the RS mutually authenticate.
@@ -3073,6 +3071,8 @@ Appendix E.  Deployment Examples
 
    There is a large variety of IoT deployments, as is indicated in
    Appendix A, and this section highlights a few common variants.  This
+   section is not normative but illustrates how the framework can be
+   applied.
 
 
 
@@ -3081,9 +3081,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 55]
 
 Internet-Draft                  ACE-OAuth                      July 2018
 
-
-   section is not normative but illustrates how the framework can be
-   applied.
 
    For each of the deployment variants, there are a number of possible
    security setups between clients, resource servers and authorization
@@ -3130,6 +3127,9 @@ E.1.  Local Token Validation
       replay attacks.  The token includes the claim such as "scope" with
       the authorized access that an owner of the temperature device can
       enjoy.  In this example, the "scope" claim, issued by the AS,
+      informs the RS that the owner of the token, that can prove the
+      possession of a key is authorized to make a GET request against
+      the /temperature resource and a POST request on the /firmware
 
 
 
@@ -3138,9 +3138,6 @@ Seitz, et al.            Expires January 3, 2019               [Page 56]
 Internet-Draft                  ACE-OAuth                      July 2018
 
 
-      informs the RS that the owner of the token, that can prove the
-      possession of a key is authorized to make a GET request against
-      the /temperature resource and a POST request on the /firmware
       resource.  Note that the syntax and semantics of the scope claim
       are application specific.
       Note: In this example it is assumed that the client knows what
@@ -3169,6 +3166,9 @@ Internet-Draft                  ACE-OAuth                      July 2018
    Payload is shown in Figure 18.  Note that a TLS/DTLS-based
    communication security profile is used in this example.  Hence, the
    Content-Type is "application/cbor".
+
+
+
 
 
 
