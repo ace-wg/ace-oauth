@@ -622,35 +622,78 @@ Then Client3 sends a GET request to the HelloWorld resource at RS2.
  C2.15 The request is granted and the HelloWorld resource returns
    2.05 (Content) with the payload "HelloWorld!" as String.
 
-==== Not up to date from here ====
 
 5. Introspect Endpoint Tests
 
-RS1 introspects an access token at the introspection endpoint
+A resource server introspects an access token at the introspection endpoint.
 
-5.1 The RS is not authorized to use the introspection endpoint
+5.1 [RS1, AS]
+
+RS1 establishes a DTLS connection to the AS using the DTLS-PSK handshake using
+the shared key RS1. RS1 then sends an access token (can be random bytes) to the introspection endpoint. RS1 is not authorized to use the introspection endpoint.
 
  c18. The request should be rejected with 4.03 (Forbidden) and the
       error response should not contain any payload
 
-5.2 The RS is authorized to use the introspection endpoint. The submitted token
-is invalid (i.e. does not parse to a CWT)
+5.2 [RS2, AS]
 
- C19. The response should only contain the parameter active = false
+RS2 establishes a DTLS connection to the AS using the DTLS-PSK handshake using
+the shared key RS2. RS2 then sends random bytes to the introspection endpoint.
+RS2 is authorized to use the introspection endpoint.
 
-5.3 The submitted token has expired
+ C19. The response should be 2.01 (Created) and only contain the parameter
+ active : false
 
- C20. The response should only contain the parameter active = false
+5.3 [RS2, AS]
 
-5.4 The submitted token is unknown to the AS (i.e. issued by another AS,
-encrypted with an unknown key)
+RS2 establishes a DTLS connection to the AS using the DTLS-PSK handshake using
+the shared key RS2. RS2 then sends a CWT to the introspection endpoint,
+containing the "exp" claim, where the value of that claim is in the past.
 
- C21.  The response should only contain the paramter active = false
+ C20. The response should be 2.01 (Created) and only contain the parameter
+ active : false
 
-5.5 The submitted token is valid for the scope "HelloWorld" and the
-audience "RS1"
+5.4 [RS2, AS]
 
- C22. The response should contain the parameters active = true,
- aud = "RS1" and scope = "HelloWorld", optionally it may also contain
- other parameters like e.g. exp and iss.
+RS2 establishes a DTLS connection to the AS using the DTLS-PSK handshake using
+the shared key RS2. RS2 then sends a CWT to the introspection endpoint, which is
+encrypted with a key unknown to the AS (use e.g. Client4 PSK).
 
+ C21.  The response should be 2.01 (Created) and only contain the paramter
+ active : false
+
+5.5 [RS2, AS]
+RS2 establishes a DTLS connection to the AS using the DTLS-PSK handshake using
+the shared key RS2. RS2 then sends a CWT encrypted with the shared key RS1
+to the introspection endpoint. The CWT contains the following claims
+(diagnostic notation):
+
+{
+  aud : "RS2",
+  iss : "AS",
+  scope : "HelloWorld",
+  cnf : {
+      COSE_KEY : {
+          kty : Symmetric,
+	  kid : h'91ECB5CB5DBD',
+	  Octet_K : h'6162630405060708090A0B0C0D0E0F10' //can be random bytes
+       }
+   }
+} 
+
+
+ C22. The response should be 2.01 (Created) and contain the follwoing parameters:
+
+{
+  active : true,
+  aud : "RS1",
+  scope : "HelloWorld",
+  iss : "AS"
+  cnf : {
+      COSE_KEY : {
+          kty : Symmetric,
+	  kid : h'91ECB5CB5DBD',
+	  Octet_K : h'6162630405060708090A0B0C0D0E0F10' //can be random bytes
+       }
+  }
+}
