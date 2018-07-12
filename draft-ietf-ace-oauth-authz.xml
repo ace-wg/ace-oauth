@@ -932,7 +932,6 @@ a2                                   # map(2)
   therefore out of scope for this specification.  Implementations should use
   the definition and recommendations of <xref target="RFC6749"/> and
   <xref target="RFC6819"/>.</t>
-
   <t>If clients involved cannot support HTTP and TLS, profiles MAY define
   mappings for the authorization endpoint.</t>
 </section> <!--The 'Authorize' Endpoint-->
@@ -954,7 +953,7 @@ a2                                   # map(2)
   framework MUST specify how the AS authenticates the client and how the
   communication between client and AS is protected.</t>
 
-  <t>The default name of this endpoint in an url-path is 'token',
+  <t>The default name of this endpoint in an url-path is '/token',
   however implementations are not required to use this name and can define
   their own instead.</t>
 
@@ -1136,9 +1135,10 @@ Payload:
 
 	<t hangText="cnf:"><vspace blankLines="0"/>
 	REQUIRED if the token type is "pop" and a symmetric key is used.
-	MUST NOT be present otherwise. This field contains the symmetric
-	proof-of-possession key the client is supposed to use.  See <xref
-	target="paramCnf"/> for details on the use of this parameter.</t>
+	MAY be present for asymmetric proof-of-possession keys.  This field
+	contains the proof-of-possession key the client is supposed to use.
+	See <xref target="paramCnf"/> for details on the use of this
+	parameter.</t>
 
 	<t hangText="rs_cnf:"><vspace blankLines="0"/>
 	OPTIONAL if the token type is "pop" and asymmetric keys are used.
@@ -1227,7 +1227,7 @@ Payload:
 
       <list style="symbols">
         <t>The Content-Type MUST be specified by the communication security
-	profile used between client and AS.  When using CoAP the raw payload
+	profile used between client and AS.  When using CBOR the raw payload
 	before being processed by the communication security protocol MUST be
 	encoded as a CBOR map.</t>
 
@@ -1253,13 +1253,13 @@ Payload:
         /------------------------+-------------\
         | Name                   | CBOR Values |
         |------------------------+-------------|
-        | invalid_request        |      0      |
-        | invalid_client         |      1      |
-        | invalid_grant          |      2      |
-        | unauthorized_client    |      3      |
-        | unsupported_grant_type |      4      |
-        | invalid_scope          |      5      |
-        | unsupported_pop_key    |      6      |
+        | invalid_request        |      1      |
+        | invalid_client         |      2      |
+        | invalid_grant          |      3      |
+        | unauthorized_client    |      4      |
+        | unsupported_grant_type |      5      |
+        | invalid_scope          |      6      |
+        | unsupported_pop_key    |      7      |
         \------------------------+-------------/
         ]]></artwork>
       </figure>
@@ -1336,7 +1336,7 @@ Payload:
       <t>A profile MUST specify an identifier that MUST be used to uniquely
       identify itself in the "profile" parameter. The textual representation
       of the profile identifier is just intended for human readability and MUST
-      NOT be used in parameters and claims..</t>
+      NOT be used in parameters and claims.</t>
 
       <t>Profiles MAY define additional parameters for both the token request
       and the Access Information in the access token response in order to
@@ -1446,7 +1446,7 @@ Payload:
   how authentication and communication security between RS and AS is
   implemented.</t>
 
-  <t> The default name of this endpoint in an url-path is 'introspect',
+  <t> The default name of this endpoint in an url-path is '/introspect',
   however implementations are not required to use this name and can define
   their own instead.</t>
 
@@ -1569,7 +1569,7 @@ Payload:
 
     <list style="symbols">
       <t>If content is sent, the Content-Type MUST be set according to the
-      specification of the communication security profile. If CoAP is used
+      specification of the communication security profile. If CBOR is used
       the payload MUST be encoded as a CBOR map.</t>
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
@@ -1708,22 +1708,23 @@ Payload:
   responding to the POST request to the authz-info endpoint.
   </t>
 
-  <t>Profiles MUST specify how the authz-info endpoint is protected, including
-  how error responses from this endpoint are protected.  Note that since the
-  token contains information that allow the client and the RS to establish a
-  security context in the first place, mutual authentication may not be
-  possible at this point.</t>
+  <t>Profiles MUST specify whether the authz-info endpoint is protected,
+  including wheter error responses from this endpoint are protected.  Note that
+  since the token contains information that allow the client and the RS to
+  establish a security context in the first place, mutual authentication may
+  not be possible at this point.</t>
 
-  <t>The default name of this endpoint in an url-path is 'authz-info',
+  <t>The default name of this endpoint in an url-path is '/authz-info',
   however implementations are not required to use this name and can define
   their own instead.</t>
   
 </section>
 
 <section anchor="requestC2RS" title="Client Requests to the RS">
-  <t>A RS receiving a client request MUST first verify that it has
-  an access token that authorizes this request, and that the client
-  has performed the proof-of-possession for that token.</t>
+  <t>If an RS receives a request from a client, and the target resource
+  requires authorization, the RS MUST first verify that it has an access token
+  that authorizes this request, and that the client has performed the
+  proof-of-possession for that token.</t>
   
   <t>The response code MUST be 4.01 (Unauthorized) in case the client has
   not performed the proof-of-possession, or if RS has no valid access token for

@@ -461,7 +461,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-13" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-7-2" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-7-12" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -485,7 +485,7 @@
   <td class="right">G. Selander</td>
 </tr>
 <tr>
-  <td class="left">Expires: January 3, 2019</td>
+  <td class="left">Expires: January 13, 2019</td>
   <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -514,7 +514,7 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">July 2, 2018</td>
+  <td class="right">July 12, 2018</td>
 </tr>
 
     	
@@ -534,7 +534,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on January 3, 2019.</p>
+<p>This Internet-Draft will expire on January 13, 2019.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -824,7 +824,7 @@ a2                                   # map(2)
 <p id="rfc.section.5.6.p.1">In standard OAuth 2.0, the AS provides the token endpoint for submitting access token requests.  This framework extends the functionality of the token endpoint, giving the AS the possibility to help the client and RS to establish shared keys or to exchange their public keys.  Furthermore, this framework defines encodings using CBOR, as a substitute for JSON.</p>
 <p id="rfc.section.5.6.p.2">The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports.  A profile MUST define the details of the mapping between the fields described below, and these transports.  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Section 4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described below MUST be followed.</p>
 <p id="rfc.section.5.6.p.3">For the AS to be able to issue a token, the client MUST be authenticated and present a valid grant for the scopes requested.  Profiles of this framework MUST specify how the AS authenticates the client and how the communication between client and AS is protected.</p>
-<p id="rfc.section.5.6.p.4">The default name of this endpoint in an url-path is 'token', however implementations are not required to use this name and can define their own instead.</p>
+<p id="rfc.section.5.6.p.4">The default name of this endpoint in an url-path is '/token', however implementations are not required to use this name and can define their own instead.</p>
 <p id="rfc.section.5.6.p.5">The figures of this section use CBOR diagnostic notation without the integer abbreviations for the parameters or their values for illustrative purposes. Note that implementations MUST use the integer abbreviations and the binary CBOR encoding, if the CBOR encoding is used.</p>
 <h1 id="rfc.section.5.6.1"><a href="#rfc.section.5.6.1">5.6.1.</a> <a href="#tokenRequest" id="tokenRequest">Client-to-AS Request</a></h1>
 <p id="rfc.section.5.6.1.p.1">The client sends a POST request to the token endpoint at the AS. The profile MUST specify the Content-Type and wrapping of the payload.  The content of the request consists of the parameters specified in Section 4 of the OAuth 2.0 specification <a href="#RFC6749">[RFC6749]</a>.</p>
@@ -920,7 +920,7 @@ Payload:
   <dt>profile:</dt>
   <dd style="margin-left: 8"><br/> OPTIONAL.  This indicates the profile that the client MUST use towards the RS. See <a href="#paramProfile">Section 5.6.4.4</a> for the formatting of this parameter.  If this parameter is absent, the AS assumes that the client implicitly knows which profile to use towards the RS.</dd>
   <dt>cnf:</dt>
-  <dd style="margin-left: 8"><br/> REQUIRED if the token type is "pop" and a symmetric key is used.  MUST NOT be present otherwise. This field contains the symmetric proof-of-possession key the client is supposed to use.  See <a href="#paramCnf">Section 5.6.4.5</a> for details on the use of this parameter.</dd>
+  <dd style="margin-left: 8"><br/> REQUIRED if the token type is "pop" and a symmetric key is used.  MAY be present for asymmetric proof-of-possession keys.  This field contains the proof-of-possession key the client is supposed to use.  See <a href="#paramCnf">Section 5.6.4.5</a> for details on the use of this parameter.</dd>
   <dt>rs_cnf:</dt>
   <dd style="margin-left: 8"><br/> OPTIONAL if the token type is "pop" and asymmetric keys are used.  MUST NOT be present otherwise. This field contains information about the public key used by the RS to authenticate.  See <a href="#paramCnf">Section 5.6.4.5</a> for details on the use of this parameter. If this parameter is absent, the AS assumes that the client already knows the public key of the RS.</dd>
   <dt>token_type:</dt>
@@ -981,20 +981,20 @@ Payload:
         /------------------------+-------------\
         | Name                   | CBOR Values |
         |------------------------+-------------|
-        | invalid_request        |      0      |
-        | invalid_client         |      1      |
-        | invalid_grant          |      2      |
-        | unauthorized_client    |      3      |
-        | unsupported_grant_type |      4      |
-        | invalid_scope          |      5      |
-        | unsupported_pop_key    |      6      |
+        | invalid_request        |      1      |
+        | invalid_client         |      2      |
+        | invalid_grant          |      3      |
+        | unauthorized_client    |      4      |
+        | unsupported_grant_type |      5      |
+        | invalid_scope          |      6      |
+        | unsupported_pop_key    |      7      |
         \------------------------+-------------/
         </pre>
 <p class="figure">Figure 10: CBOR abbreviations for common error codes</p>
 <p id="rfc.section.5.6.3.p.1">The error responses for CoAP-based interactions with the AS are equivalent to the ones for HTTP-based interactions as defined in Section 5.2 of <a href="#RFC6749">[RFC6749]</a>, with the following differences: </p>
 
 <ul>
-  <li>The Content-Type MUST be specified by the communication security profile used between client and AS.  When using CoAP the raw payload before being processed by the communication security protocol MUST be encoded as a CBOR map.</li>
+  <li>The Content-Type MUST be specified by the communication security profile used between client and AS.  When using CBOR the raw payload before being processed by the communication security protocol MUST be encoded as a CBOR map.</li>
   <li>A response code equivalent to the CoAP code 4.00 (Bad Request) MUST be used for all error responses, except for invalid_client where a response code equivalent to the CoAP code 4.01 (Unauthorized) MAY be used under the same conditions as specified in Section 5.2 of <a href="#RFC6749">[RFC6749]</a>.  </li>
   <li>The parameters "error", "error_description" and "error_uri" MUST be abbreviated using the codes specified in <a href="#fig:cborTokenParameters">Figure 12</a>, when a CBOR encoding is used.</li>
   <li>The error code (i.e., value of the "error" parameter) MUST be abbreviated as specified in <a href="#fig:cborErrorCodes">Figure 10</a>, when a CBOR encoding is used.</li>
@@ -1029,7 +1029,7 @@ Payload:
 <p id="rfc.section.5.6.4.3.p.4">In this framework the "pop" value for the "token_type" parameter is the default. The AS may, however, provide a different value.</p>
 <h1 id="rfc.section.5.6.4.4"><a href="#rfc.section.5.6.4.4">5.6.4.4.</a> <a href="#paramProfile" id="paramProfile">Profile</a></h1>
 <p id="rfc.section.5.6.4.4.p.1">Profiles of this framework MUST define the communication protocol and the communication security protocol between the client and the RS.  The security protocol MUST provide encryption, integrity and replay protection.  Furthermore profiles MUST define proof-of-possession methods, if they support proof-of-possession tokens.</p>
-<p id="rfc.section.5.6.4.4.p.2">A profile MUST specify an identifier that MUST be used to uniquely identify itself in the "profile" parameter. The textual representation of the profile identifier is just intended for human readability and MUST NOT be used in parameters and claims..</p>
+<p id="rfc.section.5.6.4.4.p.2">A profile MUST specify an identifier that MUST be used to uniquely identify itself in the "profile" parameter. The textual representation of the profile identifier is just intended for human readability and MUST NOT be used in parameters and claims.</p>
 <p id="rfc.section.5.6.4.4.p.3">Profiles MAY define additional parameters for both the token request and the Access Information in the access token response in order to support negotiation or signaling of profile specific parameters.  </p>
 <h1 id="rfc.section.5.6.4.5"><a href="#rfc.section.5.6.4.5">5.6.4.5.</a> <a href="#paramCnf" id="paramCnf">Confirmation</a></h1>
 <p id="rfc.section.5.6.4.5.p.1">The "cnf" parameter identifies or provides the key used for proof-of-possession, while the "rs_cnf" parameter provides the raw public key of the RS.  Both parameters use the same formatting and semantics as the "cnf" claim specified in <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a> when used with a CBOR encoding.  When these parameters are used in JSON then the formatting and semantics of the "cnf" claim specified in RFC 7800 <a href="#RFC7800">[RFC7800]</a>.</p>
@@ -1079,7 +1079,7 @@ Payload:
 <h1 id="rfc.section.5.7"><a href="#rfc.section.5.7">5.7.</a> <a href="#introspectionEndpoint" id="introspectionEndpoint">The 'Introspect' Endpoint</a></h1>
 <p id="rfc.section.5.7.p.1">Token introspection <a href="#RFC7662">[RFC7662]</a> can be OPTIONALLY provided by the AS, and is then used by the RS and potentially the client to query the AS for metadata about a given token, e.g., validity or scope. Analogous to the protocol defined in RFC 7662 <a href="#RFC7662">[RFC7662]</a> for HTTP and JSON, this section defines adaptations to more constrained  environments using CBOR and leaving the choice of the application protocol to the profile.</p>
 <p id="rfc.section.5.7.p.2">Communication between the RS and the introspection endpoint at the AS MUST be integrity protected and encrypted.  Furthermore AS and RS MUST perform mutual authentication.  Finally the AS SHOULD verify that the RS has the right to access introspection information about the provided token.  Profiles of this framework that support introspection MUST specify how authentication and communication security between RS and AS is implemented.</p>
-<p id="rfc.section.5.7.p.3">The default name of this endpoint in an url-path is 'introspect', however implementations are not required to use this name and can define their own instead.</p>
+<p id="rfc.section.5.7.p.3">The default name of this endpoint in an url-path is '/introspect', however implementations are not required to use this name and can define their own instead.</p>
 <p id="rfc.section.5.7.p.4">The figures of this section uses CBOR diagnostic notation without the integer abbreviations for the parameters or their values for better readability.  </p>
 <p id="rfc.section.5.7.p.5">Note that supporting introspection is OPTIONAL for implementations of this framework.</p>
 <h1 id="rfc.section.5.7.1"><a href="#rfc.section.5.7.1">5.7.1.</a> <a href="#introRS2AS" id="introRS2AS">RS-to-AS Request</a></h1>
@@ -1145,7 +1145,7 @@ Payload:
 <p id="rfc.section.5.7.3.p.1">The error responses for CoAP-based interactions with the AS are equivalent to the ones for HTTP-based interactions as defined in Section 2.3 of <a href="#RFC7662">[RFC7662]</a>, with the following differences: </p>
 
 <ul>
-  <li>If content is sent, the Content-Type MUST be set according to the specification of the communication security profile. If CoAP is used the payload MUST be encoded as a CBOR map.</li>
+  <li>If content is sent, the Content-Type MUST be set according to the specification of the communication security profile. If CBOR is used the payload MUST be encoded as a CBOR map.</li>
   <li>If the credentials used by the RS are invalid the AS MUST respond with the response code equivalent to the CoAP code 4.01 (Unauthorized) and use the required and optional parameters from Section 5.2 in RFC 6749 <a href="#RFC6749">[RFC6749]</a>.</li>
   <li>If the RS does not have the right to perform this introspection request, the AS MUST respond with a response code equivalent to the CoAP code 4.03 (Forbidden).  In this case no payload is returned.</li>
   <li>The parameters "error", "error_description" and "error_uri" MUST be abbreviated using the codes specified in <a href="#fig:cborTokenParameters">Figure 12</a>.</li>
@@ -1196,10 +1196,10 @@ Payload:
 <p id="rfc.section.5.8.1.p.4">The RS MUST be prepared to store at least one access token for future use. This is a difference to how access tokens are handled in OAuth 2.0, where the access token is typically sent along with each request, and therefore not stored at the RS.</p>
 <p id="rfc.section.5.8.1.p.5">If the payload sent to the authz-info endpoint does not parse to a token, the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).  If the token is not valid, the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).  If the token is valid but the audience of the token does not match the RS, the RS MUST respond with a response code equivalent to the CoAP code 4.03 (Forbidden).  If the token is valid but is associated to claims that the RS cannot process (e.g., an unknown scope) the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request). In the latter case the RS MAY provide additional information in the error response, in order to clarify what went wrong.  </p>
 <p id="rfc.section.5.8.1.p.6">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint.  </p>
-<p id="rfc.section.5.8.1.p.7">Profiles MUST specify how the authz-info endpoint is protected, including how error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
-<p id="rfc.section.5.8.1.p.8">The default name of this endpoint in an url-path is 'authz-info', however implementations are not required to use this name and can define their own instead.</p>
+<p id="rfc.section.5.8.1.p.7">Profiles MUST specify whether the authz-info endpoint is protected, including wheter error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
+<p id="rfc.section.5.8.1.p.8">The default name of this endpoint in an url-path is '/authz-info', however implementations are not required to use this name and can define their own instead.</p>
 <h1 id="rfc.section.5.8.2"><a href="#rfc.section.5.8.2">5.8.2.</a> <a href="#requestC2RS" id="requestC2RS">Client Requests to the RS</a></h1>
-<p id="rfc.section.5.8.2.p.1">A RS receiving a client request MUST first verify that it has an access token that authorizes this request, and that the client has performed the proof-of-possession for that token.</p>
+<p id="rfc.section.5.8.2.p.1">If an RS receives a request from a client, and the target resource requires authorization, the RS MUST first verify that it has an access token that authorizes this request, and that the client has performed the proof-of-possession for that token.</p>
 <p id="rfc.section.5.8.2.p.2">The response code MUST be 4.01 (Unauthorized) in case the client has not performed the proof-of-possession, or if RS has no valid access token for the client. If RS has an access token for the client but not for the resource that was requested, RS MUST reject the request with a 4.03 (Forbidden). If RS has an access token for the client but it does not cover the action that was requested on the resource, RS MUST reject the request with a 4.05 (Method Not Allowed).</p>
 <p id="rfc.section.5.8.2.p.3">Note: The use of the response codes 4.03 and 4.05 is intended to prevent infinite loops where a dumb Client optimistically tries to access a requested resource with any access token received from AS. As malicious clients could pretend to be C to determine C's privileges, these detailed response codes must be used only when a certain level of security is already available which can be achieved only when the Client is authenticated.</p>
 <p id="rfc.section.5.8.2.p.4">Note: The RS MAY use introspection for timely validation of an access token, at the time when a request is presented.</p>
@@ -1464,7 +1464,7 @@ Payload:
       <td class="reference">
         <b id="I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</b>
       </td>
-      <td class="top"><a>Jones, M.</a>, <a>Seitz, L.</a>, <a>Selander, G.</a>, <a>Wahlstroem, E.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-ace-cwt-proof-of-possession-02">Proof-of-Possession Key Semantics for CBOR Web Tokens (CWTs)</a>", Internet-Draft draft-ietf-ace-cwt-proof-of-possession-02, March 2018.</td>
+      <td class="top"><a>Jones, M.</a>, <a>Seitz, L.</a>, <a>Selander, G.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-ace-cwt-proof-of-possession-03">Proof-of-Possession Key Semantics for CBOR Web Tokens (CWTs)</a>", Internet-Draft draft-ietf-ace-cwt-proof-of-possession-03, June 2018.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1577,7 +1577,7 @@ Payload:
       <td class="reference">
         <b id="I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</b>
       </td>
-      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-12">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-12, March 2018.</td>
+      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-13">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-13, June 2018.</td>
     </tr>
     <tr>
       <td class="reference">
