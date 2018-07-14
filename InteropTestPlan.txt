@@ -586,7 +586,7 @@ with the shared key "RS2" by the AS, containing the following claims
                 F01BC447E4093541F643B385E179C110',
     	  y : h'283B3D8D28FFA59FE5CB540412A750FA   
                 8DFA34F6DA69BCDA68400D679C1347E8'
-    }       
+      }       
   }
 }
 
@@ -601,16 +601,37 @@ request to the Lock resource at RS2 with a CBOR payload of FALSE.
 
  C2.13 The request is denied with a 4.05 (Method Not Allowed)
 
-2.14 [RS2, Client3]
+2.14 [RS2, Client2]
+
+After having sent the token to RS2 in test 2.10, Client2 sends and additional
+token to the authz-info endpoint at RS2 encrypted with the shared key "RS2" by the AS, containing the following claims (diagnostic notation):
+{
+  aud : "RS2",
+  iss : "AS",
+  scope : "HelloWorld",
+  cnf : {
+      COSE_KID : h'91ECB5CB5DBD'
+       
+  }
+} 
+
+C2.14.1 The request to authz-info should be processed and answered with a 2.01 (Created)
+
+Client2 then performs a DTLS-PSK handshake with RS2 using the using the key-id: h'91ECB5CB5DBD' as psk-identity (corresponding to the kid in the token from test 2.10 and before). Then Client2 sends a GET request to HelloWorld at RS2.
+
+C2.14.2 The request is granted and the HelloWorld resource returns
+   2.05 (Content) with the payload "HelloWorld!" as String.
+
+2.15 [RS2, Client3]
 
 After having sent the token to RS2 as in test 2.11, Client3 performs a DTLS-PSK
 handshake with RS1 using the key-id: h'91ECB5CB5DBE' as psk-identity
 (corresponding to the kid in the token from test 2.11). Then Client3 sends a PUT
 request to the Lock resource at RS2 with a CBOR payload of FALSE.
 
- C2.14 The request is granted and the RS replies with a 2.04 Changed.
+ C2.15 The request is granted and the RS replies with a 2.04 Changed.
 
-2.15 [RS2, Client3]
+2.16 [RS2, Client3]
 
 After having sent the token to RS2 as in test 2.12, Client3 performs a DTLS-RPK
 handshake with RS2 using the raw public key:
@@ -619,7 +640,7 @@ public key:
 "ni:///sha-256;sU09Kz-RXT8izVvD3n7v3d5vHVGF1NcYShZZ-oczcVE" in that handshake.
 Then Client3 sends a GET request to the HelloWorld resource at RS2.
 
- C2.15 The request is granted and the HelloWorld resource returns
+ C2.16 The request is granted and the HelloWorld resource returns
    2.05 (Content) with the payload "HelloWorld!" as String.
 
 
