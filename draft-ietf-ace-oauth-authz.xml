@@ -980,32 +980,9 @@ a2                                   # map(2)
    format with a character encoding of UTF-8 in the HTTP
    request entity-body, as defined in RFC 6749.</t>
 
-    <t>In addition to these parameters, this framework defines the following
-    parameters for requesting an access token from a token endpoint:
-
-      <list style="hanging">
-	<t hangText="aud:"><vspace blankLines="0"/>
-	OPTIONAL.  Specifies the audience for which the client is
-	requesting an access token.  If this parameter is missing, it is
-	assumed that the client and the AS have a pre-established understanding
-	of the audience that an access token should address.  If a client
-	submits a request for an access token without specifying an "aud"
-	parameter, and the AS does not have an implicit understanding of
-	the "aud" value for this client, then the AS MUST respond with an error
-	message	using a response code equivalent to the CoAP response code 4.00
-	(Bad Request).
-	<vspace blankLines="1"/></t>
-
-	<t hangText="cnf:"><vspace blankLines="0"/>
-	OPTIONAL.  This field contains information about the key the
-	client would like to bind to the access token for proof-of-possession.
-	It is RECOMMENDED that an AS reject a request containing a symmetric key
-	value in the 'cnf' field, since the AS is expected to be able to
-	generate better symmetric keys than a potentially constrained client.
-	See <xref target="paramCnf"/> for more details on the formatting of the
-	'cnf' parameter.</t>
-      </list>
-    </t>
+   <t>In addition to these parameters the parameters from
+   <xref target="I-D.ietf-ace-oauth-params"/> can be used 
+   for requesting an access token from a token endpoint.</t>
 
     <t>The following examples illustrate different types of requests
     for proof-of-possession tokens. </t>
@@ -1133,21 +1110,6 @@ Payload:
 	this parameter.  If this parameter is absent, the AS assumes that the
 	client implicitly knows which profile to use towards the RS.</t>
 
-	<t hangText="cnf:"><vspace blankLines="0"/>
-	REQUIRED if the token type is "pop" and a symmetric key is used.
-	MAY be present for asymmetric proof-of-possession keys.  This field
-	contains the proof-of-possession key the client is supposed to use.
-	See <xref target="paramCnf"/> for details on the use of this
-	parameter.</t>
-
-	<t hangText="rs_cnf:"><vspace blankLines="0"/>
-	OPTIONAL if the token type is "pop" and asymmetric keys are used.
-	MUST NOT be present otherwise. This field contains information about
-	the public key used by the RS to authenticate.  See <xref
-	target="paramCnf"/> for details on the use of this parameter. If this
-	parameter is absent, the AS assumes that the client already knows
-	the public key of the RS.</t>
-
 	<t hangText="token_type:"><vspace blankLines="0"/>
 	OPTIONAL.  By default implementations of this framework SHOULD assume
 	that the token_type is "pop".  If a specific use case requires another
@@ -1156,14 +1118,10 @@ Payload:
       </list>
     </t>
 
-    <t>Note that if CBOR Web Tokens <xref
-    target="RFC8392"/> are used, the access token also contains a "cnf" claim
-    <xref target="I-D.ietf-ace-cwt-proof-of-possession"/>.  This claim is
-    however consumed by a different party.  The access token is created by the
-    AS and processed by the RS (and opaque to the client) whereas the Access
-    Information is created by the AS and processed by the client; it is never
-    forwarded to the resource server.</t>
-
+    <t>Furthermore <xref target="I-D.ietf-ace-oauth-params"/> defines
+    further parameters the AS can use when responding to a request
+    to the token endpoint.</t>
+    
     <t><xref target="fig:rsinfo"/> summarizes the parameters that
     may be part of the Access Information.
 
@@ -1280,15 +1238,6 @@ Payload:
     more compact encoding of existing parameters and common parameter
     values.</t>
 
-    <section anchor="paramAud" title="Audience">
-      <t>This parameter specifies for which audience the client is requesting
-      a token. The formatting and semantics of these strings are application
-      specific.</t>
-	  
-      <t>When encoded as a CBOR payload it is represented as a CBOR text
-      string.</t>
-    </section>
-
     <section anchor="paramGrantType" title="Grant Type">
       <t>The abbreviations in <xref target="fig:grant_types"/> MUST be
       used in CBOR encodings instead of the string values defined
@@ -1343,48 +1292,6 @@ Payload:
       support negotiation or signaling of profile specific parameters.
       </t>
     </section>
-
-    <section anchor="paramCnf" title="Confirmation">
-      <t>The "cnf" parameter identifies or provides the key used for
-      proof-of-possession, while the "rs_cnf" parameter provides the raw public
-      key of the RS.  Both parameters use the same formatting and semantics as
-      the "cnf" claim specified in
-      <xref target="I-D.ietf-ace-cwt-proof-of-possession"/> when used with a
-      CBOR encoding.  When these parameters are used in JSON then the
-      formatting and semantics of the "cnf" claim specified in RFC 7800
-      <xref target="RFC7800"/>.</t>
-
-      <t>In addition to the use as a claim in a CWT, the "cnf" parameter is
-      used in the following contexts with the following meaning:
-
-      <list style="symbols">
-	<t>In the token request C -> AS, to indicate the
-	client's raw public key, or the key-identifier of a previously
-	established key between C and RS.</t>
-
-	<t>In the token response AS -> C, to indicate the
-	symmetric key generated by the AS for proof-of-possession.</t>
-
-	<t>In the introspection response AS -> RS, to indicate
-	the proof-of-possession	key bound to the introspected token.</t>
-      </list></t>
-
-      <t>Note that the COSE_Key structure in a "cnf" claim or parameter
-      may contain an "alg" or "key_ops" parameter.  If such parameters are
-      present, a client MUST NOT use a key that is not compatible with
-      the profile or proof-of-possession algorithm according to those
-      parameters. An RS MUST reject a proof-of-possession using such a key.
-      </t>
-
-      <t>Also note that the "rs_cnf" parameter is supposed to indicate the key
-      that the RS uses to authenticate.  If the access token is issued
-      for an audience that includes several RS, this parameter MUST NOT
-      be used, since the client cannot determine for which RS the
-      key applies.  This framework recommends to specify a different endpoint
-      that the client can use to acquire RS authentication keys in such cases.
-      The specification of such an endpoint is out of scope for this
-      framework.</t>
-    </section>
   </section> <!--Parameters -->
 
   <section anchor="tokenCborParams" title="Mapping Parameters to CBOR">
@@ -1402,7 +1309,6 @@ Payload:
         /-------------------+----------+---------------------\
         | Name              | CBOR Key | Value Type          |
         |-------------------+----------+---------------------|
-        | aud               | 3        | text string         |
         | client_id         | 8        | text string         |
         | client_secret     | 9        | byte string         |
         | response_type     | 10       | text string         |
@@ -1420,9 +1326,7 @@ Payload:
         | username          | 22       | text string         |
         | password          | 23       | text string         |
         | refresh_token     | 24       | byte string         |
-        | cnf               | 25       | map                 |
         | profile           | 26       | unsigned integer    |
-        | rs_cnf            | 31       | map                 |
         \-------------------+----------+---------------------/
       ]]></artwork>
     </figure>
@@ -1510,30 +1414,20 @@ Payload:
     <t>In a successful response, the AS encodes the response parameters in
     a map including with the same required and optional parameters as in
     Section 2.2 of RFC 7662 <xref target="RFC7662"/> with the following
-    additions:
+    addition:
 
     <list style="hanging">
-      <t hangText="cnf">
-	OPTIONAL.   This field contains information about the
-	proof-of-possession  key that binds the client to the access token.
-	See <xref target="paramCnf"/> for more details on the use of the "cnf"
-        parameter.</t>
-
-      <t hangText="profile">
+        <t hangText="profile">
 	OPTIONAL.  This indicates the profile that the RS MUST use with the
 	client.  See <xref target="paramProfile"/> for more details on the
 	formatting of this parameter.</t>
-
-      <t hangText="rs_cnf">
-	OPTIONAL.  If the RS has several keys it can use to authenticate
-	towards the client, the AS can give the RS a hint using this
-	parameter, as to which key it should use (e.g., if the AS
-	previously informed the client about a public key the RS is
-        holding). See <xref target="paramCnf"/> for more details on the
-        use of this parameter.</t>
     </list>
     </t>
 
+    <t>Furthermore <xref target="I-D.ietf-ace-oauth-params"/> defines
+    more parameters that the AS can use when responding to a request to the
+    introspection endpoint.</t>
+    
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
     Note that transport layer security is assumed in this
@@ -1625,12 +1519,10 @@ Payload:
     | scope           | 12       | text OR byte string              |
     | token_type      | 20       | text string                      |
     | username        | 22       | text string                      |
-    | cnf             | 25       | map                              |
     | profile         | 26       | unsigned integer                 |
     | token           | 27       | byte string                      |
     | token_type_hint | 28       | text string                      |
     | active          | 29       | True or False                    |
-    | rs_cnf          | 30       | map                              |
     \-----------------+----------+----------------------------------/
         ]]></artwork>
       </figure>
@@ -2131,37 +2023,14 @@ Payload:
   
   <section anchor="IANAOAuthParameter"
 	   title="OAuth Parameter Registration">
-    <t>This section registers the following parameters in the "OAuth
+    <t>This section registers the following parameter in the "OAuth
     Parameters" registry <xref target="IANA.OAuthParameters"/>:</t>
-	<t><?rfc subcompact="yes"?>
-    <list style='symbols'>
-      <t>Name: <spanx style="verb">aud</spanx></t>
-      <t>Parameter Usage Location: authorization request, token request</t>
-      <t>Change Controller: IESG</t>
-      <t>Reference: <xref target="tokenRequest"/> of [this document]</t>
-    </list></t>
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Name: <spanx style="verb">profile</spanx></t>
       <t>Parameter Usage Location: token response</t>
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="paramProfile"/> of [this document]</t>
-    </list></t>
-    
-    <t><?rfc subcompact="yes"?>
-    <list style='symbols'>
-      <t>Name: <spanx style="verb">cnf</spanx></t>
-      <t>Parameter Usage Location: token request, token response</t>
-      <t>Change Controller: IESG</t>
-      <t>Reference: <xref target="paramCnf"/> of [this document]</t>
-    </list></t>
-    
-    <t><?rfc subcompact="yes"?>
-    <list style='symbols'>
-      <t>Name: <spanx style="verb">rs_cnf</spanx></t>
-      <t>Parameter Usage Location: token response</t>
-      <t>Change Controller: IESG</t>
-      <t>Reference: <xref target="paramCnf"/> of [this document]</t>
     </list></t>  
   </section>
 
