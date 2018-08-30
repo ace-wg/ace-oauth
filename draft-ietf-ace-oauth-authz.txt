@@ -86,7 +86,7 @@ Table of Contents
        5.1.1.  Unauthorized Resource Request Message . . . . . . . .  15
        5.1.2.  AS Information  . . . . . . . . . . . . . . . . . . .  16
      5.2.  Authorization Grants  . . . . . . . . . . . . . . . . . .  17
-     5.3.  Client Credentials  . . . . . . . . . . . . . . . . . . .  17
+     5.3.  Client Credentials  . . . . . . . . . . . . . . . . . . .  18
      5.4.  AS Authentication . . . . . . . . . . . . . . . . . . . .  18
      5.5.  The Authorization Endpoint  . . . . . . . . . . . . . . .  18
      5.6.  The Token Endpoint  . . . . . . . . . . . . . . . . . . .  18
@@ -873,6 +873,13 @@ Internet-Draft                  ACE-OAuth                    August 2018
 
                     Figure 2: AS Information parameters
 
+   Note that the schema part of the AS parameter may need to be adapted
+   to the security protocol that is used between the client and the AS.
+   Thus the example AS value "coap://as.example.com/token" might need to
+   be transformed to "coaps://as.example.com/token".  It is assumed that
+   the client can determine the correct schema part on its own depending
+   on the way it communicates with the AS.
+
    Figure 3 shows an example for an AS Information message payload using
    CBOR [RFC7049] diagnostic notation, using the parameter names instead
    of the CBOR keys for better human readability.
@@ -884,19 +891,19 @@ Internet-Draft                  ACE-OAuth                    August 2018
 
                  Figure 3: AS Information payload example
 
-   In this example, the attribute AS points the receiver of this message
-   to the URI "coaps://as.example.com/token" to request access
-   permissions.  The originator of the AS Information payload (i.e., RS)
-   uses a local clock that is loosely synchronized with a time scale
-   common between RS and AS (e.g., wall clock time).  Therefore, it has
-   included a parameter "nonce" for replay attack prevention.
-
 
 
 Seitz, et al.             Expires March 3, 2019                [Page 16]
 
 Internet-Draft                  ACE-OAuth                    August 2018
 
+
+   In this example, the attribute AS points the receiver of this message
+   to the URI "coaps://as.example.com/token" to request access
+   permissions.  The originator of the AS Information payload (i.e., RS)
+   uses a local clock that is loosely synchronized with a time scale
+   common between RS and AS (e.g., wall clock time).  Therefore, it has
+   included a parameter "nonce" for replay attack prevention.
 
    Figure 4 illustrates the mandatory to use binary encoding of the
    message payload shown in Figure 3.
@@ -939,13 +946,6 @@ Internet-Draft                  ACE-OAuth                    August 2018
    for defining additional grant types so profiles of this framework MAY
    define additional grant types, if needed.
 
-5.3.  Client Credentials
-
-   Authentication of the client is mandatory independent of the grant
-   type when requesting the access token from the token endpoint.  In
-   the case of client credentials grant type, the authentication and
-   grant coincide.
-
 
 
 
@@ -953,6 +953,13 @@ Seitz, et al.             Expires March 3, 2019                [Page 17]
 
 Internet-Draft                  ACE-OAuth                    August 2018
 
+
+5.3.  Client Credentials
+
+   Authentication of the client is mandatory independent of the grant
+   type when requesting the access token from the token endpoint.  In
+   the case of client credentials grant type, the authentication and
+   grant coincide.
 
    Client registration and provisioning of client credentials to the
    client is out of scope for this specification.
@@ -995,13 +1002,6 @@ Internet-Draft                  ACE-OAuth                    August 2018
    public keys.  Furthermore, this framework defines encodings using
    CBOR, as a substitute for JSON.
 
-   The endpoint may, however, be exposed over HTTPS as in classical
-   OAuth or even other transports.  A profile MUST define the details of
-   the mapping between the fields described below, and these transports.
-   If HTTPS is used, JSON or CBOR payloads may be supported.  If JSON
-   payloads are used, the semantics of Section 4 of the OAuth 2.0
-   specification MUST be followed (with additions as described below).
-
 
 
 
@@ -1010,6 +1010,12 @@ Seitz, et al.             Expires March 3, 2019                [Page 18]
 Internet-Draft                  ACE-OAuth                    August 2018
 
 
+   The endpoint may, however, be exposed over HTTPS as in classical
+   OAuth or even other transports.  A profile MUST define the details of
+   the mapping between the fields described below, and these transports.
+   If HTTPS is used, JSON or CBOR payloads may be supported.  If JSON
+   payloads are used, the semantics of Section 4 of the OAuth 2.0
+   specification MUST be followed (with additions as described below).
    If CBOR payload is supported, the semantics described below MUST be
    followed.
 
@@ -1052,12 +1058,6 @@ Internet-Draft                  ACE-OAuth                    August 2018
       OPTIONAL.  Specifies the audience for which the client is
       requesting an access token.  If this parameter is missing, it is
       assumed that the client and the AS have a pre-established
-      understanding of the audience that an access token should address.
-      If a client submits a request for an access token without
-      specifying an "aud" parameter, and the AS does not have an
-      implicit understanding of the "aud" value for this client, then
-      the AS MUST respond with an error message using a response code
-      equivalent to the CoAP response code 4.00 (Bad Request).
 
 
 
@@ -1065,6 +1065,13 @@ Seitz, et al.             Expires March 3, 2019                [Page 19]
 
 Internet-Draft                  ACE-OAuth                    August 2018
 
+
+      understanding of the audience that an access token should address.
+      If a client submits a request for an access token without
+      specifying an "aud" parameter, and the AS does not have an
+      implicit understanding of the "aud" value for this client, then
+      the AS MUST respond with an error message using a response code
+      equivalent to the CoAP response code 4.00 (Bad Request).
 
    cnf:
       OPTIONAL.  This field contains information about the key the
@@ -1102,13 +1109,6 @@ Internet-Draft                  ACE-OAuth                    August 2018
    Figure 6 shows a request for a token with an asymmetric proof-of-
    possession key.  Note that in this example COSE is used to provide
    object-security, therefore the Content-Type is "application/cose".
-
-
-
-
-
-
-
 
 
 
