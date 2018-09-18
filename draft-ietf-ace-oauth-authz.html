@@ -393,11 +393,9 @@
 <link href="#rfc.section.5.6.2" rel="Chapter" title="5.6.2 AS-to-Client Response"/>
 <link href="#rfc.section.5.6.3" rel="Chapter" title="5.6.3 Error Response"/>
 <link href="#rfc.section.5.6.4" rel="Chapter" title="5.6.4 Request and Response Parameters"/>
-<link href="#rfc.section.5.6.4.1" rel="Chapter" title="5.6.4.1 Audience"/>
-<link href="#rfc.section.5.6.4.2" rel="Chapter" title="5.6.4.2 Grant Type"/>
-<link href="#rfc.section.5.6.4.3" rel="Chapter" title="5.6.4.3 Token Type"/>
-<link href="#rfc.section.5.6.4.4" rel="Chapter" title="5.6.4.4 Profile"/>
-<link href="#rfc.section.5.6.4.5" rel="Chapter" title="5.6.4.5 Confirmation"/>
+<link href="#rfc.section.5.6.4.1" rel="Chapter" title="5.6.4.1 Grant Type"/>
+<link href="#rfc.section.5.6.4.2" rel="Chapter" title="5.6.4.2 Token Type"/>
+<link href="#rfc.section.5.6.4.3" rel="Chapter" title="5.6.4.3 Profile"/>
 <link href="#rfc.section.5.6.5" rel="Chapter" title="5.6.5 Mapping Parameters to CBOR"/>
 <link href="#rfc.section.5.7" rel="Chapter" title="5.7 The 'Introspect' Endpoint"/>
 <link href="#rfc.section.5.7.1" rel="Chapter" title="5.7.1 RS-to-AS Request"/>
@@ -428,6 +426,7 @@
 <link href="#rfc.section.8.10" rel="Chapter" title="8.10 Introspection Endpoint CBOR Mappings Registry"/>
 <link href="#rfc.section.8.11" rel="Chapter" title="8.11 JSON Web Token Claims"/>
 <link href="#rfc.section.8.12" rel="Chapter" title="8.12 CBOR Web Token Claims"/>
+<link href="#rfc.section.8.13" rel="Chapter" title="8.13 ACE Content Type"/>
 <link href="#rfc.section.9" rel="Chapter" title="9 Acknowledgments"/>
 <link href="#rfc.references" rel="Chapter" title="10 References"/>
 <link href="#rfc.references.1" rel="Chapter" title="10.1 Normative References"/>
@@ -460,8 +459,8 @@
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-13" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-8-30" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-14" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-9-18" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -485,7 +484,7 @@
   <td class="right">G. Selander</td>
 </tr>
 <tr>
-  <td class="left">Expires: March 3, 2019</td>
+  <td class="left">Expires: March 22, 2019</td>
   <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -514,7 +513,7 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">August 30, 2018</td>
+  <td class="right">September 18, 2018</td>
 </tr>
 
     	
@@ -522,7 +521,7 @@
   </table>
 
   <p class="title">Authentication and Authorization for Constrained Environments (ACE) using the OAuth 2.0 Framework (ACE-OAuth)<br />
-  <span class="filename">draft-ietf-ace-oauth-authz-13</span></p>
+  <span class="filename">draft-ietf-ace-oauth-authz-14</span></p>
   
   <h1 id="rfc.abstract">
   <a href="#rfc.abstract">Abstract</a>
@@ -534,7 +533,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on March 3, 2019.</p>
+<p>This Internet-Draft will expire on March 22, 2019.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -565,11 +564,9 @@
 <li>5.6.2.   <a href="#rfc.section.5.6.2">AS-to-Client Response</a></li>
 <li>5.6.3.   <a href="#rfc.section.5.6.3">Error Response</a></li>
 <li>5.6.4.   <a href="#rfc.section.5.6.4">Request and Response Parameters</a></li>
-<ul><li>5.6.4.1.   <a href="#rfc.section.5.6.4.1">Audience</a></li>
-<li>5.6.4.2.   <a href="#rfc.section.5.6.4.2">Grant Type</a></li>
-<li>5.6.4.3.   <a href="#rfc.section.5.6.4.3">Token Type</a></li>
-<li>5.6.4.4.   <a href="#rfc.section.5.6.4.4">Profile</a></li>
-<li>5.6.4.5.   <a href="#rfc.section.5.6.4.5">Confirmation</a></li>
+<ul><li>5.6.4.1.   <a href="#rfc.section.5.6.4.1">Grant Type</a></li>
+<li>5.6.4.2.   <a href="#rfc.section.5.6.4.2">Token Type</a></li>
+<li>5.6.4.3.   <a href="#rfc.section.5.6.4.3">Profile</a></li>
 </ul><li>5.6.5.   <a href="#rfc.section.5.6.5">Mapping Parameters to CBOR</a></li>
 </ul><li>5.7.   <a href="#rfc.section.5.7">The 'Introspect' Endpoint</a></li>
 <ul><li>5.7.1.   <a href="#rfc.section.5.7.1">RS-to-AS Request</a></li>
@@ -600,6 +597,7 @@
 <li>8.10.   <a href="#rfc.section.8.10">Introspection Endpoint CBOR Mappings Registry</a></li>
 <li>8.11.   <a href="#rfc.section.8.11">JSON Web Token Claims</a></li>
 <li>8.12.   <a href="#rfc.section.8.12">CBOR Web Token Claims</a></li>
+<li>8.13.   <a href="#rfc.section.8.13">ACE Content Type</a></li>
 </ul><li>9.   <a href="#rfc.section.9">Acknowledgments</a></li>
 <li>10.   <a href="#rfc.references">References</a></li>
 <ul><li>10.1.   <a href="#rfc.references.1">Normative References</a></li>
@@ -829,18 +827,9 @@ a2                                   # map(2)
 <p id="rfc.section.5.6.p.5">The figures of this section use CBOR diagnostic notation without the integer abbreviations for the parameters or their values for illustrative purposes. Note that implementations MUST use the integer abbreviations and the binary CBOR encoding, if the CBOR encoding is used.</p>
 <h1 id="rfc.section.5.6.1"><a href="#rfc.section.5.6.1">5.6.1.</a> <a href="#tokenRequest" id="tokenRequest">Client-to-AS Request</a></h1>
 <p id="rfc.section.5.6.1.p.1">The client sends a POST request to the token endpoint at the AS. The profile MUST specify the Content-Type and wrapping of the payload.  The content of the request consists of the parameters specified in Section 4 of the OAuth 2.0 specification <a href="#RFC6749">[RFC6749]</a>.</p>
-<p id="rfc.section.5.6.1.p.2">If CBOR is used then this parameter MUST be encoded as a CBOR map, where the "scope" parameter can additionally be formatted as a byte array, in order to allow compact encoding of complex scope structures.</p>
+<p id="rfc.section.5.6.1.p.2">If CBOR is used then this parameter MUST be encoded as a CBOR map.  The "scope" parameter can be formatted as specified in <a href="#RFC6749">[RFC6749]</a> and additionally as a byte array, in order to allow compact encoding of complex scopes.</p>
 <p id="rfc.section.5.6.1.p.3">When HTTP is used as a transport then the client makes a request to the token endpoint by sending the parameters using the "application/x-www-form-urlencoded" format with a character encoding of UTF-8 in the HTTP request entity-body, as defined in RFC 6749.</p>
-<p id="rfc.section.5.6.1.p.4">In addition to these parameters, this framework defines the following parameters for requesting an access token from a token endpoint: </p>
-
-<dl>
-  <dt>aud:</dt>
-  <dd style="margin-left: 8"><br/> OPTIONAL.  Specifies the audience for which the client is requesting an access token.  If this parameter is missing, it is assumed that the client and the AS have a pre-established understanding of the audience that an access token should address.  If a client submits a request for an access token without specifying an "aud" parameter, and the AS does not have an implicit understanding of the "aud" value for this client, then the AS MUST respond with an error message	using a response code equivalent to the CoAP response code 4.00 (Bad Request).  <br/><br/></dd>
-  <dt>cnf:</dt>
-  <dd style="margin-left: 8"><br/> OPTIONAL.  This field contains information about the key the client would like to bind to the access token for proof-of-possession.  It is RECOMMENDED that an AS reject a request containing a symmetric key value in the 'cnf' field, since the AS is expected to be able to generate better symmetric keys than a potentially constrained client.  See <a href="#paramCnf">Section 5.6.4.5</a> for more details on the formatting of the 'cnf' parameter.</dd>
-</dl>
-
-<p> </p>
+<p id="rfc.section.5.6.1.p.4">In addition to these parameters the parameters from <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> can be used for requesting an access token from a token endpoint.</p>
 <p id="rfc.section.5.6.1.p.5">The following examples illustrate different types of requests for proof-of-possession tokens. </p>
 <div id="rfc.figure.5"/>
 <div id="fig:symmATreq"/>
@@ -915,40 +904,34 @@ Payload:
 <h1 id="rfc.section.5.6.2"><a href="#rfc.section.5.6.2">5.6.2.</a> <a href="#tokenResponse" id="tokenResponse">AS-to-Client Response</a></h1>
 <p id="rfc.section.5.6.2.p.1">If the access token request has been successfully verified by the AS and the client is authorized to obtain an access token corresponding to its access token request, the AS sends a response with the response code equivalent to the CoAP response code 2.01 (Created).  If client request was invalid, or not authorized, the AS returns an error response as described in <a href="#errorsToken">Section 5.6.3</a>.</p>
 <p id="rfc.section.5.6.2.p.2">Note that the AS decides which token type and profile to use when issuing a successful response.  It is assumed that the AS has prior knowledge of the capabilities of the client and the RS (see <a href="#app:registration">Appendix D</a>.  This prior knowledge may, for example, be set by the use of a dynamic client registration protocol exchange <a href="#RFC7591">[RFC7591]</a>.</p>
-<p id="rfc.section.5.6.2.p.3">The content of the successful reply is the Access Information.  When using CBOR payloads, the content MUST be encoded as CBOR map, containing parameters as specified in Section 5.1 of <a href="#RFC6749">[RFC6749]</a>.  In addition to these parameters, the following parameters are also part of a successful response: </p>
+<p id="rfc.section.5.6.2.p.3">The content of the successful reply is the Access Information.  When using CBOR payloads, the content MUST be encoded as CBOR map, containing parameters as specified in Section 5.1 of <a href="#RFC6749">[RFC6749]</a>, with the following additions and changes: </p>
 
 <dl>
   <dt>profile:</dt>
-  <dd style="margin-left: 8"><br/> OPTIONAL.  This indicates the profile that the client MUST use towards the RS. See <a href="#paramProfile">Section 5.6.4.4</a> for the formatting of this parameter.  If this parameter is absent, the AS assumes that the client implicitly knows which profile to use towards the RS.</dd>
-  <dt>cnf:</dt>
-  <dd style="margin-left: 8"><br/> REQUIRED if the token type is "pop" and a symmetric key is used.  MAY be present for asymmetric proof-of-possession keys.  This field contains the proof-of-possession key the client is supposed to use.  See <a href="#paramCnf">Section 5.6.4.5</a> for details on the use of this parameter.</dd>
-  <dt>rs_cnf:</dt>
-  <dd style="margin-left: 8"><br/> OPTIONAL if the token type is "pop" and asymmetric keys are used.  MUST NOT be present otherwise. This field contains information about the public key used by the RS to authenticate.  See <a href="#paramCnf">Section 5.6.4.5</a> for details on the use of this parameter. If this parameter is absent, the AS assumes that the client already knows the public key of the RS.</dd>
+  <dd style="margin-left: 8"><br/> OPTIONAL.  This indicates the profile that the client MUST use towards the RS. See <a href="#paramProfile">Section 5.6.4.3</a> for the formatting of this parameter.  If this parameter is absent, the AS assumes that the client implicitly knows which profile to use towards the RS.</dd>
   <dt>token_type:</dt>
-  <dd style="margin-left: 8"><br/> OPTIONAL.  By default implementations of this framework SHOULD assume that the token_type is "pop".  If a specific use case requires another token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.  </dd>
+  <dd style="margin-left: 8"><br/> This parameter is OPTIONAL, as opposed to 'required' in <a href="#RFC6749">[RFC6749]</a>. By default implementations of this framework SHOULD assume that the token_type is "pop".  If a specific use case requires another token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.  </dd>
 </dl>
 
 <p> </p>
-<p id="rfc.section.5.6.2.p.4">Note that if CBOR Web Tokens <a href="#RFC8392">[RFC8392]</a> are used, the access token also contains a "cnf" claim <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a>.  This claim is however consumed by a different party.  The access token is created by the AS and processed by the RS (and opaque to the client) whereas the Access Information is created by the AS and processed by the client; it is never forwarded to the resource server.</p>
+<p id="rfc.section.5.6.2.p.4">Furthermore <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> defines further parameters the AS can use when responding to a request to the token endpoint.</p>
 <div id="rfc.figure.8"/>
 <div id="fig:rsinfo"/>
 <pre>
-        /-------------------+-----------------\
-        | Parameter name    | Specified in    |
-        |-------------------+-----------------|
-        | access_token      |  RFC 6749       |
-        | token_type        |  RFC 6749       |
-        | expires_in        |  RFC 6749       |
-        | refresh_token     |  RFC 6749       |
-        | scope             |  RFC 6749       |
-        | state             |  RFC 6749       |
-        | error             |  RFC 6749       |
-        | error_description |  RFC 6749       |
-        | error_uri         |  RFC 6749       |
-        | profile           | [this document] |
-        | cnf               | [this document] |
-        | rs_cnf            | [this document] |
-        \-------------------+-----------------/
+        /-------------------+-------------------------------\
+        | Parameter name    | Specified in                  |
+        |-------------------+-------------------------------|
+        | access_token      |  RFC 6749                     |
+        | token_type        |  RFC 6749                     |
+        | expires_in        |  RFC 6749                     |
+        | refresh_token     |  RFC 6749                     |
+        | scope             |  RFC 6749                     |
+        | state             |  RFC 6749                     |
+        | error             |  RFC 6749                     |
+        | error_description |  RFC 6749                     |
+        | error_uri         |  RFC 6749                     |
+        | profile           | [this document]               |
+        \-------------------+-------------------------------/
       </pre>
 <p class="figure">Figure 8: Access Information parameters</p>
 <p><a href="#fig:rsinfo">Figure 8</a> summarizes the parameters that may be part of the Access Information.  </p>
@@ -1005,10 +988,7 @@ Payload:
 <p id="rfc.section.5.6.3.p.2">In addition to the error responses defined in OAuth 2.0, the following behavior MUST be implemented by the AS: If the client submits an asymmetric key in the token request that the RS cannot process, the AS MUST reject that request with a response code equivalent to the CoAP code 4.00 (Bad Request) including the error code "unsupported_pop_key" defined in <a href="#fig:cborErrorCodes">Figure 10</a>.</p>
 <h1 id="rfc.section.5.6.4"><a href="#rfc.section.5.6.4">5.6.4.</a> <a href="#tokenParams" id="tokenParams">Request and Response Parameters</a></h1>
 <p id="rfc.section.5.6.4.p.1">This section provides more detail about the new parameters that can be used in access token requests and responses, as well as abbreviations for more compact encoding of existing parameters and common parameter values.</p>
-<h1 id="rfc.section.5.6.4.1"><a href="#rfc.section.5.6.4.1">5.6.4.1.</a> <a href="#paramAud" id="paramAud">Audience</a></h1>
-<p id="rfc.section.5.6.4.1.p.1">This parameter specifies for which audience the client is requesting a token. The formatting and semantics of these strings are application specific.</p>
-<p id="rfc.section.5.6.4.1.p.2">When encoded as a CBOR payload it is represented as a CBOR text string.</p>
-<h1 id="rfc.section.5.6.4.2"><a href="#rfc.section.5.6.4.2">5.6.4.2.</a> <a href="#paramGrantType" id="paramGrantType">Grant Type</a></h1>
+<h1 id="rfc.section.5.6.4.1"><a href="#rfc.section.5.6.4.1">5.6.4.1.</a> <a href="#paramGrantType" id="paramGrantType">Grant Type</a></h1>
 <div id="rfc.figure.11"/>
 <div id="fig:grant_types"/>
 <pre>
@@ -1022,27 +1002,16 @@ Payload:
         \--------------------+------------+------------------------/
         </pre>
 <p class="figure">Figure 11: CBOR abbreviations for common grant types </p>
-<p id="rfc.section.5.6.4.2.p.1">The abbreviations in <a href="#fig:grant_types">Figure 11</a> MUST be used in CBOR encodings instead of the string values defined in <a href="#RFC6749">[RFC6749]</a>, if CBOR payloads are used.  </p>
-<h1 id="rfc.section.5.6.4.3"><a href="#rfc.section.5.6.4.3">5.6.4.3.</a> <a href="#paramTokenType" id="paramTokenType">Token Type</a></h1>
-<p id="rfc.section.5.6.4.3.p.1">The "token_type" parameter, defined in <a href="#RFC6749">[RFC6749]</a>, allows the AS to indicate to the client which type of access token it is receiving (e.g., a bearer token). </p>
-<p id="rfc.section.5.6.4.3.p.2">This document registers the new value "pop" for the OAuth Access Token Types registry,  specifying a proof-of-possession token.  How the proof-of-possession by the client to the RS is performed MUST be specified by the profiles.</p>
-<p id="rfc.section.5.6.4.3.p.3">The values in the "token_type" parameter MUST be CBOR text strings, if a CBOR encoding is used. </p>
-<p id="rfc.section.5.6.4.3.p.4">In this framework the "pop" value for the "token_type" parameter is the default. The AS may, however, provide a different value.</p>
-<h1 id="rfc.section.5.6.4.4"><a href="#rfc.section.5.6.4.4">5.6.4.4.</a> <a href="#paramProfile" id="paramProfile">Profile</a></h1>
-<p id="rfc.section.5.6.4.4.p.1">Profiles of this framework MUST define the communication protocol and the communication security protocol between the client and the RS.  The security protocol MUST provide encryption, integrity and replay protection.  Furthermore profiles MUST define proof-of-possession methods, if they support proof-of-possession tokens.</p>
-<p id="rfc.section.5.6.4.4.p.2">A profile MUST specify an identifier that MUST be used to uniquely identify itself in the "profile" parameter. The textual representation of the profile identifier is just intended for human readability and MUST NOT be used in parameters and claims.</p>
-<p id="rfc.section.5.6.4.4.p.3">Profiles MAY define additional parameters for both the token request and the Access Information in the access token response in order to support negotiation or signaling of profile specific parameters.  </p>
-<h1 id="rfc.section.5.6.4.5"><a href="#rfc.section.5.6.4.5">5.6.4.5.</a> <a href="#paramCnf" id="paramCnf">Confirmation</a></h1>
-<p id="rfc.section.5.6.4.5.p.1">The "cnf" parameter identifies or provides the key used for proof-of-possession, while the "rs_cnf" parameter provides the raw public key of the RS.  Both parameters use the same formatting and semantics as the "cnf" claim specified in <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a> when used with a CBOR encoding.  When these parameters are used in JSON then the formatting and semantics of the "cnf" claim specified in RFC 7800 <a href="#RFC7800">[RFC7800]</a>.</p>
-<p id="rfc.section.5.6.4.5.p.2">In addition to the use as a claim in a CWT, the "cnf" parameter is used in the following contexts with the following meaning: </p>
-
-<ul>
-  <li>In the token request C -&gt; AS, to indicate the client's raw public key, or the key-identifier of a previously established key between C and RS.</li>
-  <li>In the token response AS -&gt; C, to indicate the symmetric key generated by the AS for proof-of-possession.</li>
-  <li>In the introspection response AS -&gt; RS, to indicate the proof-of-possession	key bound to the introspected token.</li>
-</ul>
-<p id="rfc.section.5.6.4.5.p.3">Note that the COSE_Key structure in a "cnf" claim or parameter may contain an "alg" or "key_ops" parameter.  If such parameters are present, a client MUST NOT use a key that is not compatible with the profile or proof-of-possession algorithm according to those parameters. An RS MUST reject a proof-of-possession using such a key.  </p>
-<p id="rfc.section.5.6.4.5.p.4">Also note that the "rs_cnf" parameter is supposed to indicate the key that the RS uses to authenticate.  If the access token is issued for an audience that includes several RS, this parameter MUST NOT be used, since the client cannot determine for which RS the key applies.  This framework recommends to specify a different endpoint that the client can use to acquire RS authentication keys in such cases.  The specification of such an endpoint is out of scope for this framework.</p>
+<p id="rfc.section.5.6.4.1.p.1">The abbreviations in <a href="#fig:grant_types">Figure 11</a> MUST be used in CBOR encodings instead of the string values defined in <a href="#RFC6749">[RFC6749]</a>, if CBOR payloads are used.  </p>
+<h1 id="rfc.section.5.6.4.2"><a href="#rfc.section.5.6.4.2">5.6.4.2.</a> <a href="#paramTokenType" id="paramTokenType">Token Type</a></h1>
+<p id="rfc.section.5.6.4.2.p.1">The "token_type" parameter, defined in <a href="#RFC6749">[RFC6749]</a>, allows the AS to indicate to the client which type of access token it is receiving (e.g., a bearer token). </p>
+<p id="rfc.section.5.6.4.2.p.2">This document registers the new value "pop" for the OAuth Access Token Types registry,  specifying a proof-of-possession token.  How the proof-of-possession by the client to the RS is performed MUST be specified by the profiles.</p>
+<p id="rfc.section.5.6.4.2.p.3">The values in the "token_type" parameter MUST be CBOR text strings, if a CBOR encoding is used. </p>
+<p id="rfc.section.5.6.4.2.p.4">In this framework the "pop" value for the "token_type" parameter is the default. The AS may, however, provide a different value.</p>
+<h1 id="rfc.section.5.6.4.3"><a href="#rfc.section.5.6.4.3">5.6.4.3.</a> <a href="#paramProfile" id="paramProfile">Profile</a></h1>
+<p id="rfc.section.5.6.4.3.p.1">Profiles of this framework MUST define the communication protocol and the communication security protocol between the client and the RS.  The security protocol MUST provide encryption, integrity and replay protection.  Furthermore profiles MUST define proof-of-possession methods, if they support proof-of-possession tokens.</p>
+<p id="rfc.section.5.6.4.3.p.2">A profile MUST specify an identifier that MUST be used to uniquely identify itself in the "profile" parameter. The textual representation of the profile identifier is just intended for human readability and MUST NOT be used in parameters and claims.</p>
+<p id="rfc.section.5.6.4.3.p.3">Profiles MAY define additional parameters for both the token request and the Access Information in the access token response in order to support negotiation or signaling of profile specific parameters.  </p>
 <h1 id="rfc.section.5.6.5"><a href="#rfc.section.5.6.5">5.6.5.</a> <a href="#tokenCborParams" id="tokenCborParams">Mapping Parameters to CBOR</a></h1>
 <p id="rfc.section.5.6.5.p.1">If CBOR encoding is used, all OAuth parameters in access token requests and responses MUST be mapped to CBOR types as specified in <a href="#fig:cborTokenParameters">Figure 12</a>, using the given integer abbreviation for the map keys.</p>
 <p id="rfc.section.5.6.5.p.2">Note that we have aligned these abbreviations with the claim abbreviations defined in <a href="#RFC8392">[RFC8392]</a>.</p>
@@ -1052,27 +1021,24 @@ Payload:
         /-------------------+----------+---------------------\
         | Name              | CBOR Key | Value Type          |
         |-------------------+----------+---------------------|
-        | aud               | 3        | text string         |
-        | client_id         | 8        | text string         |
-        | client_secret     | 9        | byte string         |
-        | response_type     | 10       | text string         |
-        | redirect_uri      | 11       | text string         |
-        | scope             | 12       | text or byte string |
-        | state             | 13       | text string         |
-        | code              | 14       | byte string         |
-        | error             | 15       | unsinged integer    |
-        | error_description | 16       | text string         |
-        | error_uri         | 17       | text string         |
-        | grant_type        | 18       | unsigned integer    |
-        | access_token      | 19       | byte string         |
-        | token_type        | 20       | unsigned integer    |
-        | expires_in        | 21       | unsigned integer    |
-        | username          | 22       | text string         |
-        | password          | 23       | text string         |
-        | refresh_token     | 24       | byte string         |
-        | cnf               | 25       | map                 |
-        | profile           | 26       | unsigned integer    |
-        | rs_cnf            | 31       | map                 |
+        | scope             | 9        | text or byte string |
+        | profile           | 10       | unsigned integer    |
+        | error             | 11       | unsinged integer    |    
+        | grant_type        | 12       | unsigned integer    |
+        | access_token      | 13       | byte string         |
+        | token_type        | 14       | unsigned integer    |
+        | client_id         | 24       | text string         |
+        | client_secret     | 25       | byte string         |
+        | response_type     | 26       | text string         |
+        | state             | 27       | text string         |
+        | redirect_uri      | 28       | text string         |
+        | error_description | 29       | text string         |
+        | error_uri         | 30       | text string         |
+        | code              | 31       | byte string         |
+        | expires_in        | 32       | unsigned integer    |
+        | username          | 33       | text string         |
+        | password          | 34       | text string         |
+        | refresh_token     | 35       | byte string         | 
         \-------------------+----------+---------------------/
       </pre>
 <p class="figure">Figure 12: CBOR mappings used in token requests</p>
@@ -1109,18 +1075,15 @@ Payload:
 <p id="rfc.section.5.7.1.p.3">For example, <a href="#fig:introReq">Figure 13</a> shows a RS calling the token introspection endpoint at the AS to query about an OAuth 2.0 proof-of-possession token.  Note that object security based on COSE is assumed in this example, therefore the Content-Type is "application/cose+cbor". <a href="#fig:introReq-payl">Figure 14</a> shows the decoded payload.  </p>
 <h1 id="rfc.section.5.7.2"><a href="#rfc.section.5.7.2">5.7.2.</a> <a href="#introAS2RS" id="introAS2RS">AS-to-RS Response</a></h1>
 <p id="rfc.section.5.7.2.p.1">If the introspection request is authorized and successfully processed, the AS sends a response with the response code equivalent to the CoAP code 2.01 (Created).  If the introspection request was invalid, not authorized or couldn't be processed the AS returns an error response as described in <a href="#errorsIntro">Section 5.7.3</a>.</p>
-<p id="rfc.section.5.7.2.p.2">In a successful response, the AS encodes the response parameters in a map including with the same required and optional parameters as in Section 2.2 of RFC 7662 <a href="#RFC7662">[RFC7662]</a> with the following additions: </p>
+<p id="rfc.section.5.7.2.p.2">In a successful response, the AS encodes the response parameters in a map including with the same required and optional parameters as in Section 2.2 of RFC 7662 <a href="#RFC7662">[RFC7662]</a> with the following addition: </p>
 
 <dl>
-  <dt>cnf</dt>
-  <dd style="margin-left: 8">OPTIONAL.   This field contains information about the proof-of-possession  key that binds the client to the access token.  See <a href="#paramCnf">Section 5.6.4.5</a> for more details on the use of the "cnf" parameter.</dd>
   <dt>profile</dt>
-  <dd style="margin-left: 8">OPTIONAL.  This indicates the profile that the RS MUST use with the client.  See <a href="#paramProfile">Section 5.6.4.4</a> for more details on the formatting of this parameter.</dd>
-  <dt>rs_cnf</dt>
-  <dd style="margin-left: 8">OPTIONAL.  If the RS has several keys it can use to authenticate towards the client, the AS can give the RS a hint using this parameter, as to which key it should use (e.g., if the AS previously informed the client about a public key the RS is holding). See <a href="#paramCnf">Section 5.6.4.5</a> for more details on the use of this parameter.</dd>
+  <dd style="margin-left: 8">OPTIONAL.  This indicates the profile that the RS MUST use with the client.  See <a href="#paramProfile">Section 5.6.4.3</a> for more details on the formatting of this parameter.</dd>
 </dl>
 
 <p> </p>
+<p id="rfc.section.5.7.2.p.3">Furthermore <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> defines more parameters that the AS can use when responding to a request to the introspection endpoint.</p>
 <div id="rfc.figure.15"/>
 <div id="fig:introRes"/>
 <pre>
@@ -1141,7 +1104,7 @@ Payload:
 }
       </pre>
 <p class="figure">Figure 15: Example introspection response.</p>
-<p id="rfc.section.5.7.2.p.3">For example, <a href="#fig:introRes">Figure 15</a> shows an AS response to the introspection request in <a href="#fig:introReq">Figure 13</a>.  Note that transport layer security is assumed in this example, therefore the Content-Type is "application/cbor".  </p>
+<p id="rfc.section.5.7.2.p.4">For example, <a href="#fig:introRes">Figure 15</a> shows an AS response to the introspection request in <a href="#fig:introReq">Figure 13</a>.  Note that transport layer security is assumed in this example, therefore the Content-Type is "application/cbor".  </p>
 <h1 id="rfc.section.5.7.3"><a href="#rfc.section.5.7.3">5.7.3.</a> <a href="#errorsIntro" id="errorsIntro">Error Response</a></h1>
 <p id="rfc.section.5.7.3.p.1">The error responses for CoAP-based interactions with the AS are equivalent to the ones for HTTP-based interactions as defined in Section 2.3 of <a href="#RFC7662">[RFC7662]</a>, with the following differences: </p>
 
@@ -1170,16 +1133,14 @@ Payload:
     | nbf             | 5        | integer or floating-point number |
     | iat             | 6        | integer or floating-point number |
     | cti             | 7        | byte string                      |
-    | client_id       | 8        | text string                      |
-    | scope           | 12       | text OR byte string              |
-    | token_type      | 20       | text string                      |
-    | username        | 22       | text string                      |
-    | cnf             | 25       | map                              |
-    | profile         | 26       | unsigned integer                 |
-    | token           | 27       | byte string                      |
-    | token_type_hint | 28       | text string                      |
-    | active          | 29       | True or False                    |
-    | rs_cnf          | 30       | map                              |
+    | scope           | 9        | text OR byte string              |
+    | token_type      | 13       | text string                      |
+    | token           | 14       | byte string                      |  
+    | active          | 15       | True or False                    |
+    | profile         | 16       | unsigned integer                 |
+    | client_id       | 24       | text string                      |
+    | username        | 33       | text string                      |  
+    | token_type_hint | 36       | text string                      |
     \-----------------+----------+----------------------------------/
         </pre>
 <p class="figure">Figure 16: CBOR Mappings to Token Introspection Parameters.</p>
@@ -1188,8 +1149,8 @@ Payload:
 <p id="rfc.section.5.8.p.1">This framework RECOMMENDS the use of CBOR web token (CWT) as specified in <a href="#RFC8392">[RFC8392]</a>.  </p>
 <p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this draft uses the "cnf" claim from <a href="#I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</a> and specifies the "scope" claim for both JSON and CBOR web tokens.</p>
 <p id="rfc.section.5.8.p.3">The "scope" claim explicitly encodes the scope of a given access token.  This claim follows the same encoding rules as defined in Section 3.3 of <a href="#RFC6749">[RFC6749]</a>, but in addition implementers MAY use byte arrays as scope values, to achieve compact encoding of large scope elements.  The meaning of a specific scope value is application specific and expected to be known to the RS running that application.</p>
-<p id="rfc.section.5.8.p.4">If the AS needs to convey a hint to the RS about which key it should use to authenticate towards the client, the rs_cnf claim MAY be used with the same syntax and semantics as defined in <a href="#paramCnf">Section 5.6.4.5</a>.</p>
-<p id="rfc.section.5.8.p.5">If the AS needs to convey a hint to the RS about which profile it should use to communicate with the client, the AS MAY include a "profile" claim in the access token, with the same syntax and semantics as defined in <a href="#paramProfile">Section 5.6.4.4</a>.</p>
+<p id="rfc.section.5.8.p.4">If the AS needs to convey a hint to the RS about which key it should use to authenticate towards the client, the rs_cnf claim MAY be used with the same syntax and semantics as defined in <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a>.</p>
+<p id="rfc.section.5.8.p.5">If the AS needs to convey a hint to the RS about which profile it should use to communicate with the client, the AS MAY include a "profile" claim in the access token, with the same syntax and semantics as defined in <a href="#paramProfile">Section 5.6.4.3</a>.</p>
 <h1 id="rfc.section.5.8.1"><a href="#rfc.section.5.8.1">5.8.1.</a> <a href="#tokenAuthInfoEndpoint" id="tokenAuthInfoEndpoint">The 'Authorization Information' Endpoint</a></h1>
 <p id="rfc.section.5.8.1.p.1">The access token, containing authorization information and information about the key used by the client, needs to be transported to the RS so that the RS can authenticate and authorize the client request.</p>
 <p id="rfc.section.5.8.1.p.2">This section defines a method for transporting the access token to the RS using a RESTful protocol such as CoAP. Profiles of this framework MAY define other methods for token transport.  </p>
@@ -1341,38 +1302,14 @@ Payload:
   <dd style="margin-left: 8">This contains a pointer to the public specification of the profile abbreviation, if one exists.</dd>
 </dl>
 <h1 id="rfc.section.8.7"><a href="#rfc.section.8.7">8.7.</a> <a href="#IANAOAuthParameter" id="IANAOAuthParameter">OAuth Parameter Registration</a></h1>
-<p id="rfc.section.8.7.p.1">This section registers the following parameters in the "OAuth Parameters" registry <a href="#IANA.OAuthParameters">[IANA.OAuthParameters]</a>:</p>
-<p/>
-
-<ul>
-  <li>Name: <samp>aud</samp></li>
-  <li>Parameter Usage Location: authorization request, token request</li>
-  <li>Change Controller: IESG</li>
-  <li>Reference: <a href="#tokenRequest">Section 5.6.1</a> of [this document]</li>
-</ul>
+<p id="rfc.section.8.7.p.1">This section registers the following parameter in the "OAuth Parameters" registry <a href="#IANA.OAuthParameters">[IANA.OAuthParameters]</a>:</p>
 <p/>
 
 <ul>
   <li>Name: <samp>profile</samp></li>
   <li>Parameter Usage Location: token response</li>
   <li>Change Controller: IESG</li>
-  <li>Reference: <a href="#paramProfile">Section 5.6.4.4</a> of [this document]</li>
-</ul>
-<p/>
-
-<ul>
-  <li>Name: <samp>cnf</samp></li>
-  <li>Parameter Usage Location: token request, token response</li>
-  <li>Change Controller: IESG</li>
-  <li>Reference: <a href="#paramCnf">Section 5.6.4.5</a> of [this document]</li>
-</ul>
-<p/>
-
-<ul>
-  <li>Name: <samp>rs_cnf</samp></li>
-  <li>Parameter Usage Location: token response</li>
-  <li>Change Controller: IESG</li>
-  <li>Reference: <a href="#paramCnf">Section 5.6.4.5</a> of [this document]</li>
+  <li>Reference: <a href="#paramProfile">Section 5.6.4.3</a> of [this document]</li>
 </ul>
 <h1 id="rfc.section.8.8"><a href="#rfc.section.8.8">8.8.</a> <a href="#IANAOAuthParameterMappingsRegistry" id="IANAOAuthParameterMappingsRegistry">OAuth CBOR Parameter Mappings Registry</a></h1>
 <p id="rfc.section.8.8.p.1">This section establishes the IANA "Token Endpoint CBOR Mappings" registry.  The registry has been created to use the "Expert Review Required" registration procedure <a href="#RFC8126">[RFC8126]</a>.  It should be noted that, in addition to the expert review, some portions of the registry require a specification, potentially a Standards Track RFC, be supplied as well.</p>
@@ -1391,17 +1328,7 @@ Payload:
 <p id="rfc.section.8.8.p.3">This registry will be initially populated by the values in <a href="#fig:cborTokenParameters">Figure 12</a>. The Reference column for all of these entries will be this document.</p>
 <p id="rfc.section.8.8.p.4">Note that these mappings intentionally coincide with the CWT claim name mappings from <a href="#RFC8392">[RFC8392]</a>.</p>
 <h1 id="rfc.section.8.9"><a href="#rfc.section.8.9">8.9.</a> <a href="#IANAOAuthIntrospectionResponseParameterRegistration" id="IANAOAuthIntrospectionResponseParameterRegistration">OAuth Introspection Response Parameter Registration</a></h1>
-<p id="rfc.section.8.9.p.1">This section registers the following parameters in the OAuth Token Introspection Response registry <a href="#IANA.TokenIntrospectionResponse">[IANA.TokenIntrospectionResponse]</a>.</p>
-<p/>
-
-<ul>
-  <li>Name: <samp>cnf</samp></li>
-  <li>Description: Key to prove the right to use a PoP token. </li>
-  <li>Change Controller: IESG</li>
-  <li>Reference: <a href="#introAS2RS">Section 5.7.2</a> of [this document]</li>
-</ul>
-
-<p> </p>
+<p id="rfc.section.8.9.p.1">This section registers the following parameter in the OAuth Token Introspection Response registry <a href="#IANA.TokenIntrospectionResponse">[IANA.TokenIntrospectionResponse]</a>.</p>
 <p/>
 
 <ul>
@@ -1437,6 +1364,22 @@ Payload:
   <li>Change Controller: IESG</li>
   <li>Reference: <a href="#accessToken">Section 5.8</a> of [this document]</li>
 </ul>
+<p/>
+
+<ul>
+  <li>Claim Name: <samp>profile</samp></li>
+  <li>Claim Description: The profile a token is supposed to be used with.</li>
+  <li>Change Controller: IESG</li>
+  <li>Reference: <a href="#accessToken">Section 5.8</a> of [this document]</li>
+</ul>
+<p/>
+
+<ul>
+  <li>Claim Name: <samp>rs_cnf</samp></li>
+  <li>Claim Description: The public key the RS is supposed to use to authenticate to the client wielding this token.</li>
+  <li>Change Controller: IESG</li>
+  <li>Reference: <a href="#accessToken">Section 5.8</a> of [this document]</li>
+</ul>
 <h1 id="rfc.section.8.12"><a href="#rfc.section.8.12">8.12.</a> <a href="#IANACWTClaims" id="IANACWTClaims">CBOR Web Token Claims</a></h1>
 <p id="rfc.section.8.12.p.1">This specification registers the following new claims in the "CBOR Web Token (CWT) Claims" registry <a href="#IANA.CborWebTokenClaims">[IANA.CborWebTokenClaims]</a>.</p>
 <p/>
@@ -1446,10 +1389,34 @@ Payload:
   <li>Claim Description: The scope of an access token as defined in <a href="#RFC6749">[RFC6749]</a>.</li>
   <li>JWT Claim Name: N/A</li>
   <li>Claim Key: 12</li>
-  <li>Claim Value Type(s): 0 (uint), 2 (byte string), 3 (text string)</li>
+  <li>Claim Value Type(s): byte string or text string</li>
   <li>Change Controller: IESG</li>
   <li>Specification Document(s): <a href="#accessToken">Section 5.8</a> of [this document]</li>
 </ul>
+<p/>
+
+<ul>
+  <li>Claim Name: <samp>profile</samp></li>
+  <li>Claim Description: The profile a token is supposed to be used with.</li>
+  <li>JWT Claim Name: N/A</li>
+  <li>Claim Key: 16</li>
+  <li>Claim Value Type(s): integer</li>
+  <li>Change Controller: IESG</li>
+  <li>Specification Document(s): <a href="#accessToken">Section 5.8</a> of [this document]</li>
+</ul>
+<p/>
+
+<ul>
+  <li>Claim Name: <samp>rs_cnf</samp></li>
+  <li>Claim Description: The public key the RS is supposed to use to authenticate to the client wielding this token.</li>
+  <li>JWT Claim Name: N/A</li>
+  <li>Claim Key: 17</li>
+  <li>Claim Value Type(s): map</li>
+  <li>Change Controller: IESG</li>
+  <li>Specification Document(s): <a href="#accessToken">Section 5.8</a> of [this document]</li>
+</ul>
+<h1 id="rfc.section.8.13"><a href="#rfc.section.8.13">8.13.</a> <a href="#IANAcontentType" id="IANAcontentType">ACE Content Type</a></h1>
+<p id="rfc.section.8.13.p.1">FIXME</p>
 <h1 id="rfc.section.9"><a href="#rfc.section.9">9.</a> <a href="#Acknowledgments" id="Acknowledgments">Acknowledgments</a></h1>
 <p id="rfc.section.9.p.1">This document is a product of the ACE working group of the IETF.</p>
 <p id="rfc.section.9.p.2">Thanks to Eve Maler for her contributions to the use of OAuth 2.0 and UMA in IoT scenarios, Robert Taylor for his discussion input, and Malisa Vucinic for his input on the predecessors of this proposal.</p>
@@ -1466,6 +1433,12 @@ Payload:
         <b id="I-D.ietf-ace-cwt-proof-of-possession">[I-D.ietf-ace-cwt-proof-of-possession]</b>
       </td>
       <td class="top"><a>Jones, M.</a>, <a>Seitz, L.</a>, <a>Selander, G.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/draft-ietf-ace-cwt-proof-of-possession-03">Proof-of-Possession Key Semantics for CBOR Web Tokens (CWTs)</a>", Internet-Draft draft-ietf-ace-cwt-proof-of-possession-03, June 2018.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</b>
+      </td>
+      <td class="top"><a>IETF</a>, "<a href="FIXME: Remove once ID is submitted">Additional OAuth Parameters for Authorization in Constrained Environments (ACE)</a>"</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1529,12 +1502,6 @@ Payload:
     </tr>
     <tr>
       <td class="reference">
-        <b id="RFC7800">[RFC7800]</b>
-      </td>
-      <td class="top"><a>Jones, M.</a>, <a>Bradley, J.</a> and <a>H. Tschofenig</a>, "<a href="http://tools.ietf.org/html/rfc7800">Proof-of-Possession Key Semantics for JSON Web Tokens (JWTs)</a>", RFC 7800, DOI 10.17487/RFC7800, April 2016.</td>
-    </tr>
-    <tr>
-      <td class="reference">
         <b id="RFC8126">[RFC8126]</b>
       </td>
       <td class="top"><a>Cotton, M.</a>, <a>Leiba, B.</a> and <a>T. Narten</a>, "<a href="http://tools.ietf.org/html/rfc8126">Guidelines for Writing an IANA Considerations Section in RFCs</a>", BCP 26, RFC 8126, DOI 10.17487/RFC8126, June 2017.</td>
@@ -1578,7 +1545,7 @@ Payload:
       <td class="reference">
         <b id="I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</b>
       </td>
-      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-14">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-14, July 2018.</td>
+      <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-15">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-15, August 2018.</td>
     </tr>
     <tr>
       <td class="reference">
@@ -1761,12 +1728,12 @@ Payload:
 <p id="rfc.section.C.p.1">This section lists the requirements on profiles of this framework, for the convenience of profile designers.  </p>
 
 <ul>
-  <li>Specify the communication protocol the client and RS the must use (e.g., CoAP). <a href="#oauthProfile">Section 5</a> and <a href="#paramProfile">Section 5.6.4.4</a></li>
-  <li>Specify the security protocol the client and RS must use to protect their communication (e.g., OSCORE or DTLS over CoAP).  This must provide encryption, integrity and replay protection. <a href="#paramProfile">Section 5.6.4.4</a></li>
+  <li>Specify the communication protocol the client and RS the must use (e.g., CoAP). <a href="#oauthProfile">Section 5</a> and <a href="#paramProfile">Section 5.6.4.3</a></li>
+  <li>Specify the security protocol the client and RS must use to protect their communication (e.g., OSCORE or DTLS over CoAP).  This must provide encryption, integrity and replay protection. <a href="#paramProfile">Section 5.6.4.3</a></li>
   <li>Specify how the client and the RS mutually authenticate. <a href="#specs">Section 4</a></li>
   <li>Specify the Content-format of the protocol messages (e.g., "application/cbor" or "application/cose+cbor"). <a href="#specs">Section 4</a></li>
-  <li>Specify the proof-of-possession protocol(s) and how to select one, if several are available.  Also specify which key types (e.g., symmetric/asymmetric) are supported by a specific proof-of-possession protocol. <a href="#paramTokenType">Section 5.6.4.3</a></li>
-  <li>Specify a unique profile identifier. <a href="#paramProfile">Section 5.6.4.4</a></li>
+  <li>Specify the proof-of-possession protocol(s) and how to select one, if several are available.  Also specify which key types (e.g., symmetric/asymmetric) are supported by a specific proof-of-possession protocol. <a href="#paramTokenType">Section 5.6.4.2</a></li>
+  <li>Specify a unique profile identifier. <a href="#paramProfile">Section 5.6.4.3</a></li>
   <li>If introspection is supported: Specify the communication and security protocol for introspection.<a href="#introspectionEndpoint">Section 5.7</a></li>
   <li>Specify the communication and security protocol for interactions between client and AS. <a href="#tokenEndpoint">Section 5.6</a></li>
   <li>Specify how/if the authz-info endpoint is protected, including how error responses are protected. <a href="#tokenAuthInfoEndpoint">Section 5.8.1</a></li>
