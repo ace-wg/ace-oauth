@@ -65,7 +65,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-13" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-14" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -975,10 +975,10 @@ a2                                   # map(2)
     in Section 4 of the OAuth 2.0 specification <xref
     target="RFC6749"/>.</t> 
 
-    <t>If CBOR is used then this parameter MUST be encoded as a CBOR map, 
-	where the "scope" parameter
-    can additionally be formatted as a byte array, in order to allow
-    compact encoding of complex scope structures.</t>
+    <t>If CBOR is used then this parameter MUST be encoded as a CBOR map.
+    The "scope" parameter can be formatted as specified in
+    <xref target="RFC6749"/> and additionally as a byte array, in order to
+    allow compact encoding of complex scopes.</t>
 
 	<t>When HTTP is used as a transport then the client makes a 
 	request to the token endpoint by sending the
@@ -995,10 +995,10 @@ a2                                   # map(2)
 
     <t><xref target="fig:symmATreq"/> shows a request for a token
     with a symmetric proof-of-possession key.  Note that in this example
-    it is assumed that transport layer communication security is used with a CBOR payload, 
-	therefore
-    the Content-Type is "application/cbor".  The content is displayed in
-    CBOR diagnostic notation, without abbreviations for better readability.
+    it is assumed that transport layer communication security is used with a
+    CBOR payload, therefore the Content-Type is "application/cbor".  The
+    content is displayed in CBOR diagnostic notation, without abbreviations for
+    better readability.
 
     <figure align="center" anchor="fig:symmATreq"
             title="Example request for an access token bound to a
@@ -1106,8 +1106,7 @@ Payload:
     <t>The content of the successful reply is the Access Information. 
 	When using CBOR payloads, the content MUST be
     encoded as CBOR map, containing parameters as specified in Section 5.1 of
-    <xref target="RFC6749"/>.  In addition to these parameters, the following
-    parameters are also part of a successful response:
+    <xref target="RFC6749"/>, with the following additions and changes:
 
     <list style="hanging">
 	<t hangText="profile:"><vspace blankLines="0"/>
@@ -1117,9 +1116,11 @@ Payload:
 	client implicitly knows which profile to use towards the RS.</t>
 
 	<t hangText="token_type:"><vspace blankLines="0"/>
-	OPTIONAL.  By default implementations of this framework SHOULD assume
-	that the token_type is "pop".  If a specific use case requires another
-	token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.
+	This parameter is OPTIONAL, as opposed to 'required' in
+	<xref target="RFC6749"/>. By default implementations of this framework
+	SHOULD assume that the token_type is "pop".  If a specific use case
+	requires another token_type (e.g., "Bearer") to be used then this
+	parameter is REQUIRED.
 	</t>
       </list>
     </t>
@@ -1134,22 +1135,20 @@ Payload:
       <figure align="center" anchor="fig:rsinfo"
               title="Access Information parameters">
       <artwork align="left"><![CDATA[
-        /-------------------+-----------------\
-        | Parameter name    | Specified in    |
-        |-------------------+-----------------|
-        | access_token      |  RFC 6749       |
-        | token_type        |  RFC 6749       |
-        | expires_in        |  RFC 6749       |
-        | refresh_token     |  RFC 6749       |
-        | scope             |  RFC 6749       |
-        | state             |  RFC 6749       |
-        | error             |  RFC 6749       |
-        | error_description |  RFC 6749       |
-        | error_uri         |  RFC 6749       |
-        | profile           | [this document] |
-        | cnf               | [this document] |
-        | rs_cnf            | [this document] |
-        \-------------------+-----------------/
+        /-------------------+-------------------------------\
+        | Parameter name    | Specified in                  |
+        |-------------------+-------------------------------|
+        | access_token      |  RFC 6749                     |
+        | token_type        |  RFC 6749                     |
+        | expires_in        |  RFC 6749                     |
+        | refresh_token     |  RFC 6749                     |
+        | scope             |  RFC 6749                     |
+        | state             |  RFC 6749                     |
+        | error             |  RFC 6749                     |
+        | error_description |  RFC 6749                     |
+        | error_uri         |  RFC 6749                     |
+        | profile           | [this document]               |
+        \-------------------+-------------------------------/
       ]]></artwork></figure>
 
     </t>
@@ -1315,24 +1314,24 @@ Payload:
         /-------------------+----------+---------------------\
         | Name              | CBOR Key | Value Type          |
         |-------------------+----------+---------------------|
-        | client_id         | 8        | text string         |
-        | client_secret     | 9        | byte string         |
-        | response_type     | 10       | text string         |
-        | redirect_uri      | 11       | text string         |
-        | scope             | 12       | text or byte string |
-        | state             | 13       | text string         |
-        | code              | 14       | byte string         |
-        | error             | 15       | unsinged integer    |
-        | error_description | 16       | text string         |
-        | error_uri         | 17       | text string         |
-        | grant_type        | 18       | unsigned integer    |
-        | access_token      | 19       | byte string         |
-        | token_type        | 20       | unsigned integer    |
-        | expires_in        | 21       | unsigned integer    |
-        | username          | 22       | text string         |
-        | password          | 23       | text string         |
-        | refresh_token     | 24       | byte string         |
-        | profile           | 26       | unsigned integer    |
+        | scope             | 9        | text or byte string |
+        | profile           | 10       | unsigned integer    |
+        | error             | 11       | unsinged integer    |    
+        | grant_type        | 12       | unsigned integer    |
+        | access_token      | 13       | byte string         |
+        | token_type        | 14       | unsigned integer    |
+        | client_id         | 24       | text string         |
+        | client_secret     | 25       | byte string         |
+        | response_type     | 26       | text string         |
+        | state             | 27       | text string         |
+        | redirect_uri      | 28       | text string         |
+        | error_description | 29       | text string         |
+        | error_uri         | 30       | text string         |
+        | code              | 31       | byte string         |
+        | expires_in        | 32       | unsigned integer    |
+        | username          | 33       | text string         |
+        | password          | 34       | text string         |
+        | refresh_token     | 35       | byte string         | 
         \-------------------+----------+---------------------/
       ]]></artwork>
     </figure>
@@ -1521,14 +1520,14 @@ Payload:
     | nbf             | 5        | integer or floating-point number |
     | iat             | 6        | integer or floating-point number |
     | cti             | 7        | byte string                      |
-    | client_id       | 8        | text string                      |
-    | scope           | 12       | text OR byte string              |
-    | token_type      | 20       | text string                      |
-    | username        | 22       | text string                      |
-    | profile         | 26       | unsigned integer                 |
-    | token           | 27       | byte string                      |
-    | token_type_hint | 28       | text string                      |
-    | active          | 29       | True or False                    |
+    | scope           | 9        | text OR byte string              |
+    | token_type      | 13       | text string                      |
+    | token           | 14       | byte string                      |  
+    | active          | 15       | True or False                    |
+    | profile         | 16       | unsigned integer                 |
+    | client_id       | 24       | text string                      |
+    | username        | 33       | text string                      |  
+    | token_type_hint | 36       | text string                      |
     \-----------------+----------+----------------------------------/
         ]]></artwork>
       </figure>
@@ -2080,19 +2079,9 @@ Payload:
   
   <section anchor="IANAOAuthIntrospectionResponseParameterRegistration"
 	   title="OAuth Introspection Response Parameter Registration">
-    <t>This section registers the following parameters in the OAuth
+    <t>This section registers the following parameter in the OAuth
     Token Introspection Response registry <xref
     target="IANA.TokenIntrospectionResponse"/>.</t>
-    
-    <t>
-      <?rfc subcompact="yes"?>
-      <list style='symbols'>
-        <t>Name: <spanx style="verb">cnf</spanx></t>
-        <t>Description: Key to prove the right to use a PoP token. </t>
-        <t>Change Controller: IESG</t>
-        <t>Reference: <xref target="introAS2RS"/> of [this document]</t>
-      </list>
-    </t>
     <t>
       <?rfc subcompact="yes"?>
       <list style='symbols'>
