@@ -431,7 +431,7 @@ security protocols (e.g., CoAP over DTLS).
 
         <vspace blankLines="1"/> The access token is either a simple reference,
 	or a structured information object (e.g., CWT <xref target="RFC8392"/>)
-	protected by a cryptographic wrapper (e.g., COSE <xref
+protected by a cryptographic wrapper (e.g., COSE <xref
 	target="RFC8152"/>).  The choice of PoP key does not necessarily imply
 	a specific credential type for the integrity protection of the
 	token.<vspace blankLines="1"/>
@@ -761,10 +761,12 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   parameters.  When profiles of this framework use CoAP instead, this framework
   REQUIRES the use of the following alternative instead of Uri-query
   parameters: The sender (client or RS) encodes the parameters of its request
-  as a CBOR map and submits that map as the payload  of the POST request.  The
-  Content-format depends on the security applied to the content and MUST be
-  specified by the profile that is used.
-  </t>
+  as a CBOR map and submits that map as the payload  of the POST request.  Profiles
+  that use CBOR encoding of protocol message parameters MUST use the
+  media format 'application/ace+cbor', unless the protocol message is wrapped
+  in another Content-Format (e.g. object security). If CoAP is used for
+  communication, the Content-Format MUST be abbreviated with the ID: 19
+  (see <xref target="IANAcoapContentFormat"/>.</t>
 
   <t>The OAuth 2.0 AS uses a JSON structure in the payload of its responses
   both to client and RS.  If CoAP is used, this framework REQUIRES the use
@@ -972,8 +974,8 @@ a2                                   # map(2)
 
   <section anchor="tokenRequest" title="Client-to-AS Request">
     <t>The client sends a POST request to the token endpoint
-    at the AS. The profile MUST specify the Content-Type and wrapping of the
-    payload.  The content of the request consists of the parameters specified
+    at the AS. The profile MUST specify how the communication is protected.
+    The content of the request consists of the parameters specified
     in Section 4 of the OAuth 2.0 specification <xref
     target="RFC6749"/>.</t> 
 
@@ -1019,10 +1021,7 @@ a2                                   # map(2)
     for proof-of-possession tokens. </t>
 
     <t><xref target="fig:symmATreq"/> shows a request for a token
-    with a symmetric proof-of-possession key.  Note that in this example
-    it is assumed that transport layer communication security is used with a CBOR payload, 
-	therefore
-    the Content-Type is "application/cbor".  The content is displayed in
+    with a symmetric proof-of-possession key.  The content is displayed in
     CBOR diagnostic notation, without abbreviations for better readability.
 
     <figure align="center" anchor="fig:symmATreq"
@@ -1032,7 +1031,7 @@ a2                                   # map(2)
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor"
+Content-Format: "application/ace+cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
@@ -1044,8 +1043,8 @@ Payload:
 
     <t><xref target="fig:asymmATreq"/> shows a request for a token with an
     asymmetric proof-of-possession key.  Note that in this example COSE is used
-    to provide object-security, therefore the Content-Type is
-    "application/cose".
+    to provide object-security, therefore the Content-Format is
+    "application/cose" wrapping the "application/ace+cbor" type content.
 
     <figure align="center" anchor="fig:asymmATreq"
             title="Example token request bound to an asymmetric key.">
@@ -1053,7 +1052,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "token"
-Content-Type: "application/cose"
+Content-Format: "application/cose"
 Payload:
   16(  # COSE_ENCRYPTED
       [ h'a1010a', # protected header: {"alg" : "AES-CCM-16-64-128"}
@@ -1082,9 +1081,7 @@ Decrypted payload:
 
     <t><xref target="fig:kidATreq"/> shows a request for a token
     where a previously communicated proof-of-possession key is only
-    referenced.  Note that a transport layer based communication security
-    profile with a CBOR payload is assumed in this example, therefore the Content-Type is
-    "application/cbor".  Also note that the client performs a password
+    referenced.  Note that the client performs a password
     based authentication in this example by submitting its client_secret
     (see Section 2.3.1 of <xref target="RFC6749"/>).
 
@@ -1095,7 +1092,7 @@ Decrypted payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "token"
-Content-Type: "application/cbor"
+Content-Format: "application/ace+cbor"
 Payload:
 {
   "grant_type" : "client_credentials",
@@ -1199,16 +1196,14 @@ Payload:
     </t>
 
     <t><xref target="fig:symmATres"/> shows a response containing a token
-    and a "cnf" parameter with a symmetric proof-of-possession key.  Note that
-    transport layer security with CBOR encoding is assumed in this example,
-    therefore the Content-Type is "application/cbor".
+    and a "cnf" parameter with a symmetric proof-of-possession key.
 
     <figure align="center" anchor="fig:symmATres"
             title="Example AS response with an access token bound to a
 		   symmetric key.">
       <artwork align="left"><![CDATA[
 Header: Created (Code=2.01)
-Content-Type: "application/cbor"
+Content-Format: "application/ace+cbor"
 Payload:
 {
   "access_token" : b64'SlAV32hkKG ...
@@ -1234,10 +1229,8 @@ Payload:
     Section 5.2 of <xref target="RFC6749"/>, with the following differences:
 
       <list style="symbols">
-        <t>The Content-Type MUST be specified by the communication security
-	profile used between client and AS.  When using CBOR the raw payload
-	before being processed by the communication security protocol MUST be
-	encoded as a CBOR map.</t>
+        <t>When using CBOR the raw payload before being processed by the
+	communication security protocol MUST be	encoded as a CBOR map.</t>
 
         <t>A response code equivalent to the CoAP code 4.00 (Bad Request) MUST
 	be used for all error responses, except for invalid_client where a
@@ -1468,12 +1461,11 @@ Payload:
 
   <section anchor="introRS2AS" title="RS-to-AS Request">
     <t>The RS sends a POST request to the introspection endpoint
-    at the AS, the profile MUST specify the Content-Type and
-    wrapping of the payload.  If CBOR is used, the payload MUST be encoded as a
-    CBOR map with a "token" entry containing either the access token
-    or a reference to the token (e.g., the cti).  Further optional parameters
-    representing additional context that is known by the RS to aid the AS in its
-    response MAY be included.</t>
+    at the AS, the profile MUST specify how the communication is protected.
+    If CBOR is used, the payload MUST be encoded as a CBOR map with a "token"
+    entry containing either the access token or a reference to the token (e.g.,
+    the cti).  Further optional parameters representing additional context
+    that is known by the RS to aid the AS in its response MAY be included.</t>
 
     <t>The same parameters are required and optional as in Section 2.1
     of RFC 7662 <xref target="RFC7662"/>.</t>
@@ -1481,8 +1473,8 @@ Payload:
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
     introspection endpoint at the AS to query about an OAuth 2.0
     proof-of-possession token.  Note that object security based on COSE is
-    assumed in this example, therefore the Content-Type
-    is "application/cose+cbor". <xref target="fig:introReq-payl"/> shows the
+    assumed in this example, therefore the Content-Format
+    is "application/cose". <xref target="fig:introReq-payl"/> shows the
     decoded payload.
 
     <figure align="center" anchor="fig:introReq"
@@ -1491,7 +1483,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "introspect"
-Content-Type: "application/cose+cbor"
+Content-Format: "application/cose"
 Payload:
 ... COSE content ...
        ]]></artwork>
@@ -1544,15 +1536,12 @@ Payload:
 
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
-    Note that transport layer security is assumed in this
-    example, therefore the Content-Type is "application/cbor".
-
 
     <figure align="center" anchor="fig:introRes"
             title="Example introspection response.">
       <artwork align="left"><![CDATA[
 Header: Created Code=2.01)
-Content-Type: "application/cbor"
+Content-Format: "application/ace+cbor"
 Payload:
 {
   "active" : true,
@@ -1576,9 +1565,8 @@ Payload:
     Section 2.3 of <xref target="RFC7662"/>, with the following differences:
 
     <list style="symbols">
-      <t>If content is sent, the Content-Type MUST be set according to the
-      specification of the communication security profile. If CBOR is used
-      the payload MUST be encoded as a CBOR map.</t>
+      <t>If content is sent and CBOR is used the payload MUST be encoded as a
+      CBOR map and the Content-Format "application/ace+cbor" MUST be used.</t>
 
       <t>If the credentials used by the RS are invalid the AS MUST respond
       with the response code equivalent to the CoAP code 4.01 (Unauthorized)
@@ -2353,7 +2341,7 @@ Payload:
     This registration follows the procedures specified in <xref
     target="RFC6838"/>.</t>
 
-    <section anchor="IANA.ace+cbor" title="ace+cbor Media Type Registration">
+    <section anchor="IANAacecbor" title="Media Type Registration">
       <t>Type name: application</t>
 
       <t>Subtype name: ace+cbor</t>
@@ -2395,7 +2383,14 @@ Payload:
     
   </section>
 
-  FIXME CoAP Content-Format registration
+  <section anchor="IANAcoapContentFormat" title="CoAP Content-Format Registry">
+    <t>This document registers the following entry to the "CoAP Content-Formats"
+    registry:</t>
+    <t>Media Type: application/ace+cbor</t>
+    <t>Encoding</t>
+    <t>ID: 19</t>
+    <t>Reference: [this document]</t>
+  </section>
   
 </section><!-- IANA considerations -->
 
@@ -2868,10 +2863,6 @@ Payload:
     <t>Specify how the client and the RS mutually authenticate. <xref
     target="specs"/></t>
 
-    <t>Specify the Content-format of the protocol messages
-    (e.g., "application/cbor" or "application/cose+cbor"). <xref
-    target="specs"/></t>
-
     <t>Specify the proof-of-possession protocol(s) and how to select one,
     if several are available.  Also specify which key types
     (e.g., symmetric/asymmetric) are supported by a specific proof-of-possession
@@ -3005,11 +2996,11 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
-    |         | Content-Type: application/cbor
+    |         | Content-Format: application/ace+cbor
     |         | Payload: <Request-Payload>
     |         |
 B:  |<--------+ Header: 2.05 Content
-    |  2.05   | Content-Type: application/cbor
+    |  2.05   | Content-Format: application/ace+cbor
     |         | Payload: <Response-Payload>
     |         |
         ]]></artwork>
@@ -3017,8 +3008,6 @@ B:  |<--------+ Header: 2.05 Content
 
     <t>The information contained in the Request-Payload and the
     Response-Payload is shown in <xref target="fig:RSOfflineReq"/>.
-    Note that a TLS/DTLS-based communication security profile is used in this
-    example. Hence, the Content-Type is "application/cbor".
 
      <figure align="center" anchor="fig:RSOfflineReq"
              title="Request and Response Payload Details.">
@@ -3212,11 +3201,11 @@ F:  |<--------+ Header: 2.05 Content
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
-    |         | Content-Type: application/cbor
+    |         | Content-Format: application/ace+cbor
     |         | Payload: <Request-Payload>
     |         |
 B:  |<--------+ Header: 2.05 Content
-    |         | Content-Type: application/cbor
+    |         | Content-Format: application/ace+cbor
     |  2.05   | Payload: <Response-Payload>
     |         |
     ]]></artwork>
@@ -3286,7 +3275,7 @@ Response-Payload:
     |         |
 C:  +-------->| Header: POST (T=CON, Code=0.02)
     |  POST   | Uri-Path:"authz-info"
-    |         | Content-Type: "application/cbor"
+    |         | Content-Format: "application/ace+cbor"
     |         | Payload: b64'VGVzdCB0b2tlbg=='
     |         |
     |         |     Authorization
@@ -3294,11 +3283,11 @@ C:  +-------->| Header: POST (T=CON, Code=0.02)
     |         |          |
     |      D: +--------->| Header: POST (Code=0.02)
     |         |  POST    | Uri-Path: "introspect"
-    |         |          | Content-Type: "application/cbor"
+    |         |          | Content-Format: "application/ace+cbor"
     |         |          | Payload: <Request-Payload>
     |         |          |
     |      E: |<---------+ Header: 2.05 Content
-    |         |  2.05    | Content-Type: "application/cbor"
+    |         |  2.05    | Content-Format: "application/ace+cbor"
     |         |          | Payload: <Response-Payload>
     |         |          |
     |         |
