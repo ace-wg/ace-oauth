@@ -14,6 +14,7 @@
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6690 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6690.xml">
 <!ENTITY RFC6749 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6749.xml">
+<!ENTITY RFC6750 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6750.xml">
 <!ENTITY RFC6819 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6819.xml">
 <!ENTITY RFC6838 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6838.xml">
 <!ENTITY RFC7049 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7049.xml">
@@ -1247,17 +1248,27 @@ Payload:
         | unsupported_grant_type |      5      |
         | invalid_scope          |      6      |
         | unsupported_pop_key    |      7      |
+	| incompatible_profiles  |      8      |
         \------------------------+-------------/
         ]]></artwork>
       </figure>
     </t>
 
     <t>In addition to the error responses defined in OAuth 2.0, the following
-    behavior MUST be implemented by the AS: If the client submits an
-    asymmetric key in the token request that the RS cannot process, the AS MUST
-    reject that request with a response code equivalent to the CoAP code 4.00
-    (Bad Request) including the error code "unsupported_pop_key" defined in
-    <xref target="fig:cborErrorCodes"/>.</t>
+    behavior MUST be implemented by the AS:
+
+    <list style="symbols">
+      <t>If the client submits an asymmetric key in the token request that the
+      RS cannot process, the AS MUST reject that request with a response code
+      equivalent to the CoAP code 4.00 (Bad Request) including the error code
+      "unsupported_pop_key" defined in <xref target="fig:cborErrorCodes"/>.</t>
+
+      <t>If the client and the RS it has requested an access token for do
+      not share a common profile, the AS MUST reject that request with a
+      response code equivalent to the CoAP code 4.00 (Bad Request) including
+      the error code "incompatible_profiles" defined in <xref
+      target="fig:cborErrorCodes"/>.</t>
+    </list></t>
   </section>
 
   <section anchor="tokenParams"
@@ -1627,6 +1638,10 @@ Payload:
   clarify what went wrong.
   </t>
 
+  <t>The RS MAY use the error codes from section 3.1 of <xref target="RFC6750"/>
+  when giving error responses, in order to provide additional detail.</t>
+  
+  
   <t>The RS MAY make an introspection request to validate the token before
   responding to the POST request to the authz-info endpoint.
   </t>
@@ -1861,11 +1876,12 @@ Payload:
  
   <section anchor="IANAASInformation"
 	   title="Authorization Server Information">
-    <t>This section establishes the IANA "ACE Authorization Server Information"
-    registry. The registry has been created to use the "Expert Review Required"
-    registration procedure <xref target="RFC8126"/>.  It should be noted that,
-    in addition to the expert review, some portions of the registry require a
-    specification, potentially a Standards Track RFC, be supplied as well.</t>
+    <t>This specification establishes the IANA "ACE Authorization Server
+    Information" registry. The registry has been created to use the "Expert
+    Review Required" registration procedure <xref target="RFC8126"/>.  It
+    should be noted that, in addition to the expert review, some portions of
+    the registry require a specification, potentially a Standards Track RFC, be
+    supplied as well.</t>
         
     <t>The columns of the registry are:
     
@@ -1891,10 +1907,35 @@ Payload:
     <xref target="fig:asinfo"/>. The Reference column for all of
     these entries will be this document.</t>    
   </section>
-  
+
+  <section anchor="IANAOAuthErrorCodes"
+	   title="OAuth Extensions Error Registration">
+    <t>This specification registers the follwoing error values in the OAuth
+    Extensions Error registry defined in <xref target="RFC6749"/>.</t>
+
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Error name: <spanx style="verb">unsupported_pop_key</spanx></t>
+      <t>Error usage location: AS token endpoint error response</t>
+      <t>Related protocol extension: The ACE framework [this document]</t>
+      <t>Change Controller: IESG</t>
+      <t>Specification doucment(s): <xref target="errorsToken"/> of
+      [this document]</t>
+    </list></t>
+    
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Error name: <spanx style="verb">incompatible_profiles</spanx></t>
+      <t>Error usage location: AS token endpoint error response</t>
+      <t>Related protocol extension: The ACE framework [this document]</t>
+      <t>Change Controller: IESG</t>
+      <t>Specification doucment(s): <xref target="errorsToken"/> of
+      [this document]</t>
+    </list></t>
+  </section>
   <section anchor="IANAErrorCBORMappings"
 	   title="OAuth Error Code CBOR Mappings Registry">
-    <t>This section establish the IANA "OAuth Error Code
+    <t>This specification establishes the IANA "OAuth Error Code
     CBOR Mappings" registry.  The registry has been created to use the "Expert
     Review Required" registration procedure <xref target="RFC8126"/>.  It
     should be noted that, in addition to the expert review, some portions of
@@ -1926,7 +1967,7 @@ Payload:
 
   <section anchor="IANAGrantTypeMappings"
 	   title="OAuth Grant Type CBOR Mappings">
-    <t>This section establishes the IANA "OAuth Grant Type CBOR Mappings"
+    <t>This specification establishes the IANA "OAuth Grant Type CBOR Mappings"
     registry.  The registry has been created to use the "Expert Review Required"
     registration procedure <xref target="RFC8126"/>. It should be noted that,
     in addition to the expert review, some portions of the registry require a
@@ -1972,11 +2013,12 @@ Payload:
 
    <section anchor="IANATokenTypeMappings"
 	   title="OAuth Token Type CBOR Mappings">
-     <t>This section eatables the IANA "Token Type CBOR Mappings" registry.
-     The registry has been created to use the "Expert Review Required"
-     registration procedure <xref target="RFC8126"/>.  It should be noted that,
-     in addition to the expert review, some portions of the registry require a
-     specification, potentially a Standards Track RFC, be supplied as well.</t>
+     <t>This specification established the IANA "Token Type CBOR Mappings"
+     registry.  The registry has been created to use the "Expert Review
+     Required" registration procedure <xref target="RFC8126"/>.  It should be
+     noted that, in addition to the expert review, some portions of the
+     registry require a specification, potentially a Standards Track RFC, be
+     supplied as well.</t>
 
     <t>The columns of this registry are:
     
@@ -2023,10 +2065,10 @@ Payload:
 
  <section anchor="IANAProfile"
 	   title="ACE Profile Registry">
-   <t>This section establishes the IANA "ACE Profile" registry.  The registry
-   has been created to use the "Expert Review Required" registration procedure
-   <xref target="RFC8126"/>.  It should be noted that, in addition to the
-   expert review, some portions of the registry require a specification,
+   <t>This specification establishes the IANA "ACE Profile" registry.  The
+   registry has been created to use the "Expert Review Required" registration
+   procedure <xref target="RFC8126"/>.  It should be noted that, in addition to
+   the expert review, some portions of the registry require a specification,
    potentially a Standards Track RFC, be supplied as well.</t>
 
    <t>The columns of this registry are:
@@ -2053,7 +2095,7 @@ Payload:
   
   <section anchor="IANAOAuthParameter"
 	   title="OAuth Parameter Registration">
-    <t>This section registers the following parameter in the "OAuth
+    <t>This specification registers the following parameter in the "OAuth
     Parameters" registry <xref target="IANA.OAuthParameters"/>:</t>
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
@@ -2066,7 +2108,7 @@ Payload:
 
   <section anchor="IANAOAuthParameterMappingsRegistry"
 	   title="OAuth CBOR Parameter Mappings Registry">
-    <t>This section establishes the IANA "Token Endpoint CBOR Mappings"
+    <t>This specification establishes the IANA "Token Endpoint CBOR Mappings"
     registry.  The registry has been created to use the "Expert Review
     Required" registration procedure <xref target="RFC8126"/>.  It should be
     noted that, in addition to the expert review, some portions of the registry
@@ -2104,7 +2146,7 @@ Payload:
   
   <section anchor="IANAOAuthIntrospectionResponseParameterRegistration"
 	   title="OAuth Introspection Response Parameter Registration">
-    <t>This section registers the following parameter in the OAuth
+    <t>This specification registers the following parameter in the OAuth
     Token Introspection Response registry <xref
     target="IANA.TokenIntrospectionResponse"/>.</t>
     <t>
@@ -2121,12 +2163,12 @@ Payload:
   
   <section anchor="IANAIntrospectionEndpointCBORMappingsRegistry"
 	   title="Introspection Endpoint CBOR Mappings Registry">
-    <t>This section establishes the IANA "Introspection Endpoint CBOR Mappings"
-    registry.  The registry has been created to use the "Expert Review
-    Required" registration procedure <xref target="RFC8126"/>.  It should be
-    noted that, in addition to the expert review, some portions of the registry
-    require a specification, potentially a Standards Track RFC, be supplied as
-    well.</t>
+    <t>This specification establishes the IANA "Introspection Endpoint CBOR
+    Mappings" registry.  The registry has been created to use the "Expert
+    Review Required" registration procedure <xref target="RFC8126"/>.  It
+    should be noted that, in addition to the expert review, some portions of
+    the registry require a specification, potentially a Standards Track RFC, be
+    supplied as well.</t>
 
     <t>The columns of this registry are:
     
@@ -2228,7 +2270,7 @@ Payload:
   </section>
 
   <section anchor="IANAmediaType" title="Media Type Registrations">
-    <t>This document registers the 'application/ace+cbor' media type for
+    <t>This specification registers the 'application/ace+cbor' media type for
     messages of the protocols defined in this document carrying parameters
     encoded in CBOR.  This registration follows the procedures specified in
     <xref target="RFC6838"/>.</t>
@@ -2273,7 +2315,8 @@ Payload:
   </section>
     
   <section anchor="IANAcoapContentFormat" title="CoAP Content-Format Registry">
-    <t>This document registers the following entry to the "CoAP Content-Formats"
+    <t>This specification registers the following entry to the "CoAP
+    Content-Formats"
     registry:</t>
     <t>Media Type: application/ace+cbor</t>
     <t>Encoding</t>
@@ -2328,6 +2371,8 @@ Payload:
       &RFC2119;
       &RFC3986;
       &RFC6347;
+      &RFC6749;    
+      &RFC6750;
       &RFC6838;
       &RFC7252;
       &RFC7662;
@@ -2394,7 +2439,6 @@ Payload:
       &RFC4949;
       &RFC5246;
       &RFC6690;
-      &RFC6749;
       &RFC6819;
       &RFC7049;
       &RFC7228;
@@ -3254,6 +3298,13 @@ F:  |<--------+ Header: 2.04 Changed
 </section>
 <section anchor="app:changelog" title="Document Updates">
   <t>RFC EDITOR: PLEASE REMOVE THIS SECTION.</t>
+
+  <section anchor="app:f16t17" title="Version -15 to -16">
+    <t><list style="symbols">
+      <t>Added text the RS using RFC6750 error codes.</t>
+      <t>Defined an error code for incompatible token request parameters.</t>
+    </list></t>
+  </section>
   <section anchor="app:f15t16" title="Version -14 to -15">
     <t><list style="symbols">
       <t>Added text about refresh tokens.</t>
