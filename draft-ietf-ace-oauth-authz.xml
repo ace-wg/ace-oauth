@@ -992,9 +992,10 @@ a2                                   # map(2)
     in Section 4 of the OAuth 2.0 specification <xref
     target="RFC6749"/>.</t>
 
-    <t>In addition to these parameters the parameters from
-    <xref target="I-D.ietf-ace-oauth-params"/> can be used 
-    for requesting an access token from a token endpoint.</t>
+    <t>In addition to these parameters, a client MUST be able to
+    use the parameters from <xref target="I-D.ietf-ace-oauth-params"/>
+    in an access token request to the token endpoint and the AS MUST
+    be able to process these additional parameters.</t>
 
     <t>If CBOR is used then this parameter MUST be encoded as a CBOR map.
     The "scope" parameter can be formatted as specified in
@@ -1026,7 +1027,7 @@ Payload:
 {
   "grant_type" : "client_credentials",
   "client_id" : "myclient",
-  "aud" : "tempSensor4711"
+  "req_aud" : "tempSensor4711"
  }
         ]]></artwork>
     </figure></t>
@@ -1035,6 +1036,8 @@ Payload:
     asymmetric proof-of-possession key.  Note that in this example COSE is used
     to provide object-security, therefore the Content-Format is
     "application/cose" wrapping the "application/ace+cbor" type content.
+    Also note that in this example the audience is implicitly known by
+    both client and AS.
 
     <figure align="center" anchor="fig:asymmATreq"
             title="Example token request bound to an asymmetric key.">
@@ -1056,7 +1059,7 @@ Decrypted payload:
 {
   "grant_type" : "client_credentials",
   "client_id" : "myclient",
-  "cnf" : {
+  "req_cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
       "kid" : h'11',
@@ -1088,9 +1091,9 @@ Payload:
   "grant_type" : "client_credentials",
   "client_id" : "myclient",
   "client_secret" : "mysecret234",
-  "aud" : "valve424",
+  "req_aud" : "valve424",
   "scope" : "read",
-  "cnf" : {
+  "req_cnf" : {
     "kid" : b64'6kg0dXJM13U'
   }
 }
@@ -1144,8 +1147,8 @@ Payload:
     </t>
 
     <t>Furthermore <xref target="I-D.ietf-ace-oauth-params"/> defines
-    further parameters the AS can use when responding to a request
-    to the token endpoint.</t>
+    additional parameters that the AS MUST be able to use when responding to a
+    request to the token endpoint.</t>
     
     <t><xref target="fig:rsinfo"/> summarizes the parameters that
     may be part of the Access Information. This does not include
@@ -1461,8 +1464,8 @@ Payload:
     </t>
 
     <t>Furthermore <xref target="I-D.ietf-ace-oauth-params"/> defines
-    more parameters that the AS can use when responding to a request to the
-    introspection endpoint.</t>
+    more parameters that the AS MUST be able to use when responding to a
+    request to the introspection endpoint.</t>
     
     <t>For example, <xref target="fig:introRes"/> shows an AS
     response to the introspection request in <xref target="fig:introReq"/>.
@@ -2944,10 +2947,10 @@ B:  |<--------+ Header: 2.05 Content
 Request-Payload :
 {
   "grant_type" : "client_credentials",
-  "aud" : "tempSensorInLivingRoom",
+  "req_aud" : "tempSensorInLivingRoom",
   "client_id" : "myclient",
   "client_secret" : "qwerty"
-  "cnf" : {
+  "req_cnf" : {
     "COSE_Key" : {
       "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
       "kty" : "EC",
@@ -3293,6 +3296,7 @@ F:  |<--------+ Header: 2.04 Changed
       <t>Added text the RS using RFC6750 error codes.</t>
       <t>Defined an error code for incompatible token request parameters.</t>
       <t>Removed references to the actors draft.</t>
+      <t>Fixed errors in examples.</t>
     </list></t>
   </section>
   <section anchor="app:f15t16" title="Version -14 to -15">

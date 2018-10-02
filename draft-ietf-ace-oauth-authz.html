@@ -465,7 +465,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-15" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-10-1" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-10-2" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -489,7 +489,7 @@
   <td class="right">G. Selander</td>
 </tr>
 <tr>
-  <td class="left">Expires: April 4, 2019</td>
+  <td class="left">Expires: April 5, 2019</td>
   <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -518,7 +518,7 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">October 1, 2018</td>
+  <td class="right">October 2, 2018</td>
 </tr>
 
     	
@@ -538,7 +538,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on April 4, 2019.</p>
+<p>This Internet-Draft will expire on April 5, 2019.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -838,7 +838,7 @@ a2                                   # map(2)
 <p id="rfc.section.5.6.p.5">The figures of this section use CBOR diagnostic notation without the integer abbreviations for the parameters or their values for illustrative purposes. Note that implementations MUST use the integer abbreviations and the binary CBOR encoding, if the CBOR encoding is used.</p>
 <h1 id="rfc.section.5.6.1"><a href="#rfc.section.5.6.1">5.6.1.</a> <a href="#tokenRequest" id="tokenRequest">Client-to-AS Request</a></h1>
 <p id="rfc.section.5.6.1.p.1">The client sends a POST request to the token endpoint at the AS. The profile MUST specify how the communication is protected.  The content of the request consists of the parameters specified in Section 4 of the OAuth 2.0 specification <a href="#RFC6749">[RFC6749]</a>.</p>
-<p id="rfc.section.5.6.1.p.2">In addition to these parameters the parameters from <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> can be used for requesting an access token from a token endpoint.</p>
+<p id="rfc.section.5.6.1.p.2">In addition to these parameters, a client MUST be able to use the parameters from <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> in an access token request to the token endpoint and the AS MUST be able to process these additional parameters.</p>
 <p id="rfc.section.5.6.1.p.3">If CBOR is used then this parameter MUST be encoded as a CBOR map.  The "scope" parameter can be formatted as specified in <a href="#RFC6749">[RFC6749]</a> and additionally as a byte array, in order to allow compact encoding of complex scopes.</p>
 <p id="rfc.section.5.6.1.p.4">When HTTP is used as a transport then the client makes a request to the token endpoint by sending the parameters using the "application/x-www-form-urlencoded" format with a character encoding of UTF-8 in the HTTP request entity-body, as defined in RFC 6749.</p>
 <p id="rfc.section.5.6.1.p.5">The following examples illustrate different types of requests for proof-of-possession tokens. </p>
@@ -853,7 +853,7 @@ Payload:
 {
   "grant_type" : "client_credentials",
   "client_id" : "myclient",
-  "aud" : "tempSensor4711"
+  "req_aud" : "tempSensor4711"
  }
         </pre>
 <p class="figure">Figure 5: Example request for an access token bound to a      symmetric key.</p>
@@ -878,7 +878,7 @@ Decrypted payload:
 {
   "grant_type" : "client_credentials",
   "client_id" : "myclient",
-  "cnf" : {
+  "req_cnf" : {
     "COSE_Key" : {
       "kty" : "EC",
       "kid" : h'11',
@@ -890,7 +890,7 @@ Decrypted payload:
 }
         </pre>
 <p class="figure">Figure 6: Example token request bound to an asymmetric key.</p>
-<p><a href="#fig:asymmATreq">Figure 6</a> shows a request for a token with an asymmetric proof-of-possession key.  Note that in this example COSE is used to provide object-security, therefore the Content-Format is "application/cose" wrapping the "application/ace+cbor" type content.  </p>
+<p><a href="#fig:asymmATreq">Figure 6</a> shows a request for a token with an asymmetric proof-of-possession key.  Note that in this example COSE is used to provide object-security, therefore the Content-Format is "application/cose" wrapping the "application/ace+cbor" type content.  Also note that in this example the audience is implicitly known by both client and AS.  </p>
 <div id="rfc.figure.7"/>
 <div id="fig:kidATreq"/>
 <pre>
@@ -903,9 +903,9 @@ Payload:
   "grant_type" : "client_credentials",
   "client_id" : "myclient",
   "client_secret" : "mysecret234",
-  "aud" : "valve424",
+  "req_aud" : "valve424",
   "scope" : "read",
-  "cnf" : {
+  "req_cnf" : {
     "kid" : b64'6kg0dXJM13U'
   }
 }
@@ -926,7 +926,7 @@ Payload:
 </dl>
 
 <p> </p>
-<p id="rfc.section.5.6.2.p.4">Furthermore <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> defines further parameters the AS can use when responding to a request to the token endpoint.</p>
+<p id="rfc.section.5.6.2.p.4">Furthermore <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> defines additional parameters that the AS MUST be able to use when responding to a request to the token endpoint.</p>
 <div id="rfc.figure.8"/>
 <div id="fig:rsinfo"/>
 <pre>
@@ -1102,7 +1102,7 @@ Payload:
 </dl>
 
 <p> </p>
-<p id="rfc.section.5.7.2.p.3">Furthermore <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> defines more parameters that the AS can use when responding to a request to the introspection endpoint.</p>
+<p id="rfc.section.5.7.2.p.3">Furthermore <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> defines more parameters that the AS MUST be able to use when responding to a request to the introspection endpoint.</p>
 <div id="rfc.figure.15"/>
 <div id="fig:introRes"/>
 <pre>
@@ -1875,10 +1875,10 @@ B:  |&lt;--------+ Header: 2.05 Content
 Request-Payload :
 {
   "grant_type" : "client_credentials",
-  "aud" : "tempSensorInLivingRoom",
+  "req_aud" : "tempSensorInLivingRoom",
   "client_id" : "myclient",
   "client_secret" : "qwerty"
-  "cnf" : {
+  "req_cnf" : {
     "COSE_Key" : {
       "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
       "kty" : "EC",
@@ -2147,6 +2147,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Added text the RS using RFC6750 error codes.</li>
   <li>Defined an error code for incompatible token request parameters.</li>
   <li>Removed references to the actors draft.</li>
+  <li>Fixed errors in examples.</li>
 </ul>
 <h1 id="rfc.appendix.F.2"><a href="#rfc.appendix.F.2">F.2.</a> <a href="#app:f15t16" id="app:f15t16">Version -14 to -15</a></h1>
 <p/>
