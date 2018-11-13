@@ -1705,17 +1705,17 @@ Payload:
     reliable network connection to the AS and to be able to handle two
     secure sessions in parallel (C to RS and AS to RS).</t>
 
-    <t>The RS and the AS both store a sequence number linked to their common
-    security association.  The AS increments this number for each access
-    token it issues and includes it in the access token, which is a
-    CWT.  The RS keeps track of the most recently received sequence
-    number, and only accepts tokens as valid, that are in a certain range
-    around this number.  This method does only require the RS to keep track
-    of the sequence number.  The method does not provide timely expiration,
-    but it makes sure that older tokens cease to be valid after a certain
-    number of newer ones got issued.  For a constrained RS with no network
-    connectivity and no means of reliably measuring time, this is the best
-    that can be achieved.</t>
+    <t>In order to support token expiration for devices that have no reliable
+    way of synchronizing their internal clocks, this specification defines the
+    following aproach: The claim "exi" ("expires in") can be used, to provide
+    the RS with the lifetime of the token in seconds from the time the RS first
+    receives the token.  This approach is of course vulnerable to malicious
+    clients holding back tokens they do not want to expire. Such an attack can
+    only be prevented if the RS is able to communicate with the AS in some
+    regular intervalls, so that the can AS provide the RS with a list of expired
+    tokens.  The drawback of this mitigation is that the RS might as well
+    use the communication with the AS to synchronize its internal clock.
+    </t>
 
   </list></t>
 
@@ -2221,6 +2221,18 @@ Payload:
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="accessToken"/> of [this document]</t>
     </list></t>
+    
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Claim Name: <spanx style="verb">exi</spanx></t>
+      <t>Claim Description: "Expires in". Lifetime of the token in seconds
+      from the time the RS first sees it.  Used to implement a weaker from of
+      token expiration for devices that cannot synchronize their internal
+      clocks.</t>
+      <t>Change Controller: IESG</t>
+      <t>Reference: <xref target="tokenValidity"/> of [this document]</t>
+    </list></t>
+    
   </section>
   
   <section anchor="IANACWTClaims" title="CBOR Web Token Claims">
