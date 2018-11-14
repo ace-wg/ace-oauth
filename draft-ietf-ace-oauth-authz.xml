@@ -760,22 +760,23 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
   when accessing a resource and between AS and RS
   if introspection is used.  In constrained settings TLS is not always feasible,
   or desirable.  Nevertheless it is REQUIRED that the
-  data exchanged with the AS is encrypted and integrity protected.  It is
-  furthermore REQUIRED that the AS and the endpoint communicating with it
-  (client or RS) perform mutual authentication.</t>
+  data exchanged with the AS is encrypted, integrity protected and protected
+  against message replay.  It is also REQUIRED that the AS and the
+  endpoint communicating with it (client or RS) perform mutual authentication.
+  Furthermore it MUST be assured that responses are bound to the requests in
+  the sense that the receiver of a response can be certain that the response
+  actually belongs to a certain request.</t>
 
-  <t>Profiles MUST specify how mutual authentication is done, depending e.g.
-  on the communication protocol and the credentials used by the client or the
-  RS.
-  </t>
+  <t>Profiles MUST specify a communication security protocol that provides
+  the features required above.</t>
 
   <t>In OAuth 2.0 the communication with the Token and the Introspection
   endpoints at the AS is assumed to be via HTTP and may use Uri-query
   parameters.  When profiles of this framework use CoAP instead, this framework
   REQUIRES the use of the following alternative instead of Uri-query
   parameters: The sender (client or RS) encodes the parameters of its request
-  as a CBOR map and submits that map as the payload  of the POST request.  Profiles
-  that use CBOR encoding of protocol message parameters MUST use the
+  as a CBOR map and submits that map as the payload  of the POST request.
+  Profiles that use CBOR encoding of protocol message parameters MUST use the
   media format 'application/ace+cbor', unless the protocol message is wrapped
   in another Content-Format (e.g. object security). If CoAP is used for
   communication, the Content-Format MUST be abbreviated with the ID: 19
@@ -1313,7 +1314,8 @@ Payload:
       <t>Profiles of this framework MUST define the communication
       protocol and the communication security protocol between the client
       and the RS.  The security protocol MUST provide encryption, integrity and
-      replay protection.  Furthermore profiles MUST define proof-of-possession
+      replay protection. It MUST also provide a binding between requests and
+      responses.  Furthermore profiles MUST define proof-of-possession
       methods, if they support proof-of-possession tokens.</t>
 
       <t>A profile MUST specify an identifier that MUST be used to uniquely
@@ -1382,11 +1384,13 @@ Payload:
   leaving the choice of the application protocol to the profile.</t>
 
   <t>Communication between the requesting entity and the introspection endpoint
-  at the AS MUST be integrity protected and encrypted.  Furthermore the two 
-  MUST perform mutual authentication.  Finally the AS SHOULD verify that the
-  requesting entity has the right to access introspection information about the
-  provided token.  Profiles of this framework that support introspection MUST
-  specify how authentication and communication security between the requesting
+  at the AS MUST be integrity protected and encrypted.  The communication
+  security protocol MUST also provide a binding between requests and
+  responses.  Furthermore the two interacting parties  MUST perform mutual
+  authentication.  Finally the AS SHOULD verify that the requesting entity has
+  the right to access introspection information about the provided token.
+  Profiles of this framework that support introspection MUST specify how
+  authentication and communication security between the requesting
   entity and the AS is implemented.</t>
 
   <t> The default name of this endpoint in an url-path is '/introspect',
@@ -1801,6 +1805,60 @@ Payload:
 	listed there would be ignored.</t>
       </section>
 
+      <section anchor="minimalCommSecReq" title="Minimal security requirements
+						 for communication">
+	<t>This section summarizes the minimal requirements for the
+	communication security of the different protocol interations.
+
+	<list style="hanging">
+	  <t hangText="C-AS">All communication between the client and the
+	  Authorization Server MUST be encrypted, integrity and replay
+	  protected. Furthermore responses from the AS to the client MUST be
+	  bound to the client's request to avoid attacks where the attacker
+	  swaps the intended response for an older one valid for a previous
+	  request.  This requires that the client and the Authorization Server
+	  have previously exchanged either a shared secret, or their public
+	  keys in order to negotiate a secure communication. Furthermore the
+	  client MUST be able to determine whether an AS has the authority
+	  to issue access tokens for a certain RS.  This can be done through
+	  pre-configured lists, or through an online lookup mechanism that
+	  in turn also must be secured.
+	  </t>
+
+	  <t hangText="RS-AS">The communication between the Resource
+	  Server and the Authorization Server via the introspection endpoint
+	  MUST be encrypted, integrity and replay protected. Furthermore
+	  responses from the AS to the RS MUST be bound to the RS's request.
+	  This requires that the client and the Authorization Server
+	  have previously exchanged either a shared secret, or their public
+	  keys in order to negotiate a secure communication. Furthermore the
+	  RS MUST be able to determine whether an AS has the authority
+	  to issue access tokens itself.  This is usally configured out of
+	  band, but could also be performed through an online lookup mechanism
+	  provided that it is also secured in the same way.</t>
+
+	  <t hangText="C-RS">The initial communication between the client
+	  and the Resource Server can not be secured in general, since
+	  the RS is not in possession of on access token for that client,
+	  which would carry the necessary paraemters.  Certain security
+	  mechanisms (e.g. DTLS with server-side authentication via a
+	  certificate or a raw public key) can be possible and are RECOMMEND
+	  if supported by both parties.  After the client has successfully
+	  transmitted the access token to the RS, a secure communication
+	  protocol MUST be established between client and RS for the
+	  actual resource request.  This protocol MUST provide encryption,
+	  integrity and replay protection as well as a binding between
+	  requests and responses.  This requires that the client learned
+	  either the RS's public key or received a symmetric
+	  proof-of-possession key bound to the access token from the AS.
+	  The RS must have learned either the client's public key or a shared
+	  symmetric key from the claims in the token or an introspection
+	  request.  Since ACE does not provide profile negotiation between
+	  C and RS, the client MUST have learned what profile the RS
+	  supports (e.g. from the AS or pre-configured) and initiate the
+	  communication accordingly.</t>
+	</list></t>
+      </section>
       <section anchor="nonce" title="Use of Nonces for Replay Protection">
 	<t>The RS may add a nonce to the AS Information message sent as a response
 	to an unauthorized request to ensure freshness of an Access Token
@@ -2817,10 +2875,12 @@ Payload:
     <t>Specify a unique profile identifier. <xref target="paramProfile"/></t>
 
     <t>If introspection is supported: Specify the communication and security
-    protocol for introspection.<xref target="introspectionEndpoint"/></t>
+    protocol for introspection. <xref target="introspectionEndpoint"/></t>
 
     <t>Specify the communication and security protocol for interactions between
-    client and AS. <xref target="tokenEndpoint"/></t>
+    client and AS. This must provide encryption, integrity protection,
+    replay protection and a binding between requests and responses. <xref
+    target="oauthProfile"/> and <xref target="tokenEndpoint"/></t>
 
     <t>Specify how/if the authz-info endpoint is protected, including
     how error responses are protected. <xref

@@ -5,14 +5,14 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                      RISE
 Intended status: Standards Track                             G. Selander
-Expires: May 17, 2019                                           Ericsson
+Expires: May 18, 2019                                           Ericsson
                                                            E. Wahlstroem
 
                                                               S. Erdtman
                                                               Spotify AB
                                                            H. Tschofenig
                                                                 Arm Ltd.
-                                                       November 13, 2018
+                                                       November 14, 2018
 
 
   Authentication and Authorization for Constrained Environments (ACE)
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on May 17, 2019.
+   This Internet-Draft will expire on May 18, 2019.
 
 
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 1]
+Seitz, et al.             Expires May 18, 2019                  [Page 1]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -109,7 +109,7 @@ Table of Contents
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 2]
+Seitz, et al.             Expires May 18, 2019                  [Page 2]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -117,64 +117,65 @@ Internet-Draft                  ACE-OAuth                  November 2018
        5.8.3.  Token Expiration  . . . . . . . . . . . . . . . . . .  33
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  34
      6.1.  Unprotected AS Information  . . . . . . . . . . . . . . .  36
-     6.2.  Use of Nonces for Replay Protection . . . . . . . . . . .  36
-     6.3.  Combining profiles  . . . . . . . . . . . . . . . . . . .  36
-     6.4.  Error responses . . . . . . . . . . . . . . . . . . . . .  36
-   7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  36
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  37
-     8.1.  Authorization Server Information  . . . . . . . . . . . .  37
-     8.2.  OAuth Extensions Error Registration . . . . . . . . . . .  38
-     8.3.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  38
-     8.4.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  39
-     8.5.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  39
-     8.6.  OAuth Token Type CBOR Mappings  . . . . . . . . . . . . .  40
-       8.6.1.  Initial Registry Contents . . . . . . . . . . . . . .  40
-     8.7.  ACE Profile Registry  . . . . . . . . . . . . . . . . . .  40
-     8.8.  OAuth Parameter Registration  . . . . . . . . . . . . . .  41
-     8.9.  Token Endpoint CBOR Mappings Registry . . . . . . . . . .  41
-     8.10. OAuth Introspection Response Parameter Registration . . .  42
-     8.11. Introspection Endpoint CBOR Mappings Registry . . . . . .  42
-     8.12. JSON Web Token Claims . . . . . . . . . . . . . . . . . .  43
-     8.13. CBOR Web Token Claims . . . . . . . . . . . . . . . . . .  43
-     8.14. Media Type Registrations  . . . . . . . . . . . . . . . .  44
-     8.15. CoAP Content-Format Registry  . . . . . . . . . . . . . .  45
-   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  45
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  46
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  46
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  48
-   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  50
-   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  53
-   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  56
-   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  56
-   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  57
-     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  57
-     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  61
-   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  65
-     F.1.  Version -15 to -16  . . . . . . . . . . . . . . . . . . .  65
-     F.2.  Version -14 to -15  . . . . . . . . . . . . . . . . . . .  65
-     F.3.  Version -13 to -14  . . . . . . . . . . . . . . . . . . .  65
-     F.4.  Version -12 to -13  . . . . . . . . . . . . . . . . . . .  66
-     F.5.  Version -11 to -12  . . . . . . . . . . . . . . . . . . .  66
-     F.6.  Version -10 to -11  . . . . . . . . . . . . . . . . . . .  66
-     F.7.  Version -09 to -10  . . . . . . . . . . . . . . . . . . .  66
-     F.8.  Version -08 to -09  . . . . . . . . . . . . . . . . . . .  66
-     F.9.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  67
-     F.10. Version -06 to -07  . . . . . . . . . . . . . . . . . . .  67
-     F.11. Version -05 to -06  . . . . . . . . . . . . . . . . . . .  67
-     F.12. Version -04 to -05  . . . . . . . . . . . . . . . . . . .  67
+     6.2.  Minimal security requirements        for communication  .  36
+     6.3.  Use of Nonces for Replay Protection . . . . . . . . . . .  37
+     6.4.  Combining profiles  . . . . . . . . . . . . . . . . . . .  37
+     6.5.  Error responses . . . . . . . . . . . . . . . . . . . . .  37
+   7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  37
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  38
+     8.1.  Authorization Server Information  . . . . . . . . . . . .  38
+     8.2.  OAuth Extensions Error Registration . . . . . . . . . . .  39
+     8.3.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  39
+     8.4.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  40
+     8.5.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  40
+     8.6.  OAuth Token Type CBOR Mappings  . . . . . . . . . . . . .  41
+       8.6.1.  Initial Registry Contents . . . . . . . . . . . . . .  41
+     8.7.  ACE Profile Registry  . . . . . . . . . . . . . . . . . .  41
+     8.8.  OAuth Parameter Registration  . . . . . . . . . . . . . .  42
+     8.9.  Token Endpoint CBOR Mappings Registry . . . . . . . . . .  42
+     8.10. OAuth Introspection Response Parameter Registration . . .  43
+     8.11. Introspection Endpoint CBOR Mappings Registry . . . . . .  43
+     8.12. JSON Web Token Claims . . . . . . . . . . . . . . . . . .  44
+     8.13. CBOR Web Token Claims . . . . . . . . . . . . . . . . . .  44
+     8.14. Media Type Registrations  . . . . . . . . . . . . . . . .  45
+     8.15. CoAP Content-Format Registry  . . . . . . . . . . . . . .  46
+   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  46
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  47
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  47
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  49
+   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  51
+   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  54
+   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  57
+   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  57
+   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  58
+     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  58
+     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  62
+   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  66
+     F.1.  Version -15 to -16  . . . . . . . . . . . . . . . . . . .  66
+     F.2.  Version -14 to -15  . . . . . . . . . . . . . . . . . . .  66
+     F.3.  Version -13 to -14  . . . . . . . . . . . . . . . . . . .  66
+     F.4.  Version -12 to -13  . . . . . . . . . . . . . . . . . . .  67
+     F.5.  Version -11 to -12  . . . . . . . . . . . . . . . . . . .  67
+     F.6.  Version -10 to -11  . . . . . . . . . . . . . . . . . . .  67
+     F.7.  Version -09 to -10  . . . . . . . . . . . . . . . . . . .  67
+     F.8.  Version -08 to -09  . . . . . . . . . . . . . . . . . . .  67
+     F.9.  Version -07 to -08  . . . . . . . . . . . . . . . . . . .  68
+     F.10. Version -06 to -07  . . . . . . . . . . . . . . . . . . .  68
+     F.11. Version -05 to -06  . . . . . . . . . . . . . . . . . . .  68
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 3]
+Seitz, et al.             Expires May 18, 2019                  [Page 3]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
-     F.13. Version -03 to -04  . . . . . . . . . . . . . . . . . . .  68
-     F.14. Version -02 to -03  . . . . . . . . . . . . . . . . . . .  68
-     F.15. Version -01 to -02  . . . . . . . . . . . . . . . . . . .  68
-     F.16. Version -00 to -01  . . . . . . . . . . . . . . . . . . .  69
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  69
+     F.12. Version -04 to -05  . . . . . . . . . . . . . . . . . . .  68
+     F.13. Version -03 to -04  . . . . . . . . . . . . . . . . . . .  69
+     F.14. Version -02 to -03  . . . . . . . . . . . . . . . . . . .  69
+     F.15. Version -01 to -02  . . . . . . . . . . . . . . . . . . .  69
+     F.16. Version -00 to -01  . . . . . . . . . . . . . . . . . . .  70
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  70
 
 1.  Introduction
 
@@ -220,8 +221,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-
-Seitz, et al.             Expires May 17, 2019                  [Page 4]
+Seitz, et al.             Expires May 18, 2019                  [Page 4]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -277,7 +277,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 5]
+Seitz, et al.             Expires May 18, 2019                  [Page 5]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -333,7 +333,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 6]
+Seitz, et al.             Expires May 18, 2019                  [Page 6]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -389,7 +389,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 7]
+Seitz, et al.             Expires May 18, 2019                  [Page 7]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -445,7 +445,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 8]
+Seitz, et al.             Expires May 18, 2019                  [Page 8]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -501,7 +501,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                  [Page 9]
+Seitz, et al.             Expires May 18, 2019                  [Page 9]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -557,7 +557,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 10]
+Seitz, et al.             Expires May 18, 2019                 [Page 10]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -613,7 +613,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 11]
+Seitz, et al.             Expires May 18, 2019                 [Page 11]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -669,7 +669,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 12]
+Seitz, et al.             Expires May 18, 2019                 [Page 12]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -725,7 +725,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 13]
+Seitz, et al.             Expires May 18, 2019                 [Page 13]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -776,22 +776,24 @@ Internet-Draft                  ACE-OAuth                  November 2018
    and RS when accessing a resource and between AS and RS if
    introspection is used.  In constrained settings TLS is not always
    feasible, or desirable.  Nevertheless it is REQUIRED that the data
-   exchanged with the AS is encrypted and integrity protected.  It is
+   exchanged with the AS is encrypted, integrity protected and protected
+   against message replay.  It is also REQUIRED that the AS and the
 
 
 
-
-Seitz, et al.             Expires May 17, 2019                 [Page 14]
+Seitz, et al.             Expires May 18, 2019                 [Page 14]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
-   furthermore REQUIRED that the AS and the endpoint communicating with
-   it (client or RS) perform mutual authentication.
+   endpoint communicating with it (client or RS) perform mutual
+   authentication.  Furthermore it MUST be assured that responses are
+   bound to the requests in the sense that the receiver of a response
+   can be certain that the response actually belongs to a certain
+   request.
 
-   Profiles MUST specify how mutual authentication is done, depending
-   e.g.  on the communication protocol and the credentials used by the
-   client or the RS.
+   Profiles MUST specify a communication security protocol that provides
+   the features required above.
 
    In OAuth 2.0 the communication with the Token and the Introspection
    endpoints at the AS is assumed to be via HTTP and may use Uri-query
@@ -831,17 +833,17 @@ Internet-Draft                  ACE-OAuth                  November 2018
    Resource Request message when any of the following holds:
 
    o  The request has been received on an unprotected channel.
-   o  RS has no valid access token for the sender of the request
-      regarding the requested action on that resource.
 
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 15]
+Seitz, et al.             Expires May 18, 2019                 [Page 15]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+   o  RS has no valid access token for the sender of the request
+      regarding the requested action on that resource.
    o  RS has a valid access token for the sender of the request, but
       this does not allow the requested action on the requested
       resource.
@@ -887,16 +889,17 @@ Internet-Draft                  ACE-OAuth                  November 2018
    to the security protocol that is used between the client and the AS.
    Thus the example AS value "coap://as.example.com/token" might need to
    be transformed to "coaps://as.example.com/token".  It is assumed that
-   the client can determine the correct schema part on its own depending
-   on the way it communicates with the AS.
 
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 16]
+Seitz, et al.             Expires May 18, 2019                 [Page 16]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   the client can determine the correct schema part on its own depending
+   on the way it communicates with the AS.
 
    Figure 3 shows an example for an AS Information message payload using
    CBOR [RFC7049] diagnostic notation, using the parameter names instead
@@ -943,17 +946,17 @@ Internet-Draft                  ACE-OAuth                  November 2018
    later, such as [RFC7521] defining an assertion-based authorization
    grant.
 
-   The grant type is selected depending on the use case.  In cases where
-   the client acts on behalf of the resource owner, authorization code
-   grant is recommended.  If the client acts on behalf of the resource
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 17]
+Seitz, et al.             Expires May 18, 2019                 [Page 17]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+   The grant type is selected depending on the use case.  In cases where
+   the client acts on behalf of the resource owner, authorization code
+   grant is recommended.  If the client acts on behalf of the resource
    owner, but does not have any display or very limited interaction
    possibilities it is recommended to use the device code grant defined
    in [I-D.ietf-oauth-device-flow].  In cases where the client does not
@@ -998,17 +1001,17 @@ Internet-Draft                  ACE-OAuth                  November 2018
    Since it requires the use of a user agent (i.e., browser), it is not
    expected that these types of grant flow will be used by constrained
    clients.  This endpoint is therefore out of scope for this
-   specification.  Implementations should use the definition and
-   recommendations of [RFC6749] and [RFC6819].
 
 
 
 
-
-Seitz, et al.             Expires May 17, 2019                 [Page 18]
+Seitz, et al.             Expires May 18, 2019                 [Page 18]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   specification.  Implementations should use the definition and
+   recommendations of [RFC6749] and [RFC6819].
 
    If clients involved cannot support HTTP and TLS, profiles MAY define
    mappings for the authorization endpoint.
@@ -1055,16 +1058,16 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    In addition to these parameters, a client MUST be able to use the
    parameters from [I-D.ietf-ace-oauth-params] in an access token
-   request to the token endpoint and the AS MUST be able to process
-   these additional parameters.
 
 
 
-
-Seitz, et al.             Expires May 17, 2019                 [Page 19]
+Seitz, et al.             Expires May 18, 2019                 [Page 19]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   request to the token endpoint and the AS MUST be able to process
+   these additional parameters.
 
    If CBOR is used then this parameter MUST be encoded as a CBOR map.
    The "scope" parameter can be formatted as specified in [RFC6749] and
@@ -1114,10 +1117,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-
-
-
-Seitz, et al.             Expires May 17, 2019                 [Page 20]
+Seitz, et al.             Expires May 18, 2019                 [Page 20]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1173,7 +1173,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 21]
+Seitz, et al.             Expires May 18, 2019                 [Page 21]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1229,7 +1229,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 22]
+Seitz, et al.             Expires May 18, 2019                 [Page 22]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1285,7 +1285,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 23]
+Seitz, et al.             Expires May 18, 2019                 [Page 23]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1341,7 +1341,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 24]
+Seitz, et al.             Expires May 18, 2019                 [Page 24]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1397,7 +1397,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 25]
+Seitz, et al.             Expires May 18, 2019                 [Page 25]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1435,7 +1435,8 @@ Internet-Draft                  ACE-OAuth                  November 2018
    Profiles of this framework MUST define the communication protocol and
    the communication security protocol between the client and the RS.
    The security protocol MUST provide encryption, integrity and replay
-   protection.  Furthermore profiles MUST define proof-of-possession
+   protection.  It MUST also provide a binding between requests and
+   responses.  Furthermore profiles MUST define proof-of-possession
    methods, if they support proof-of-possession tokens.
 
    A profile MUST specify an identifier that MUST be used to uniquely
@@ -1452,8 +1453,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-
-Seitz, et al.             Expires May 17, 2019                 [Page 26]
+Seitz, et al.             Expires May 18, 2019                 [Page 26]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1509,19 +1509,20 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 27]
+Seitz, et al.             Expires May 18, 2019                 [Page 27]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
    Communication between the requesting entity and the introspection
-   endpoint at the AS MUST be integrity protected and encrypted.
-   Furthermore the two MUST perform mutual authentication.  Finally the
-   AS SHOULD verify that the requesting entity has the right to access
-   introspection information about the provided token.  Profiles of this
-   framework that support introspection MUST specify how authentication
-   and communication security between the requesting entity and the AS
-   is implemented.
+   endpoint at the AS MUST be integrity protected and encrypted.  The
+   communication security protocol MUST also provide a binding between
+   requests and responses.  Furthermore the two interacting parties MUST
+   perform mutual authentication.  Finally the AS SHOULD verify that the
+   requesting entity has the right to access introspection information
+   about the provided token.  Profiles of this framework that support
+   introspection MUST specify how authentication and communication
+   security between the requesting entity and the AS is implemented.
 
    The default name of this endpoint in an url-path is '/introspect',
    however implementations are not required to use this name and can
@@ -1564,8 +1565,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-
-Seitz, et al.             Expires May 17, 2019                 [Page 28]
+Seitz, et al.             Expires May 18, 2019                 [Page 28]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1621,7 +1621,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 29]
+Seitz, et al.             Expires May 18, 2019                 [Page 29]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1677,7 +1677,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 30]
+Seitz, et al.             Expires May 18, 2019                 [Page 30]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1733,7 +1733,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 31]
+Seitz, et al.             Expires May 18, 2019                 [Page 31]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1789,7 +1789,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 32]
+Seitz, et al.             Expires May 18, 2019                 [Page 32]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1845,7 +1845,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 33]
+Seitz, et al.             Expires May 18, 2019                 [Page 33]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1901,7 +1901,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 34]
+Seitz, et al.             Expires May 18, 2019                 [Page 34]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1957,7 +1957,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 35]
+Seitz, et al.             Expires May 18, 2019                 [Page 35]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -1972,7 +1972,63 @@ Internet-Draft                  ACE-OAuth                  November 2018
    authorization servers.  AS information responses referring to a URI
    not listed there would be ignored.
 
-6.2.  Use of Nonces for Replay Protection
+6.2.  Minimal security requirements for communication
+
+   This section summarizes the minimal requirements for the
+   communication security of the different protocol interations.
+
+   C-AS  All communication between the client and the Authorization
+      Server MUST be encrypted, integrity and replay protected.
+      Furthermore responses from the AS to the client MUST be bound to
+      the client's request to avoid attacks where the attacker swaps the
+      intended response for an older one valid for a previous request.
+      This requires that the client and the Authorization Server have
+      previously exchanged either a shared secret, or their public keys
+      in order to negotiate a secure communication.  Furthermore the
+      client MUST be able to determine whether an AS has the authority
+      to issue access tokens for a certain RS.  This can be done through
+      pre-configured lists, or through an online lookup mechanism that
+      in turn also must be secured.
+   RS-AS  The communication between the Resource Server and the
+      Authorization Server via the introspection endpoint MUST be
+      encrypted, integrity and replay protected.  Furthermore responses
+      from the AS to the RS MUST be bound to the RS's request.  This
+      requires that the client and the Authorization Server have
+      previously exchanged either a shared secret, or their public keys
+      in order to negotiate a secure communication.  Furthermore the RS
+      MUST be able to determine whether an AS has the authority to issue
+      access tokens itself.  This is usally configured out of band, but
+      could also be performed through an online lookup mechanism
+      provided that it is also secured in the same way.
+   C-RS  The initial communication between the client and the Resource
+      Server can not be secured in general, since the RS is not in
+      possession of on access token for that client, which would carry
+      the necessary paraemters.  Certain security mechanisms (e.g.  DTLS
+      with server-side authentication via a certificate or a raw public
+      key) can be possible and are RECOMMEND if supported by both
+      parties.  After the client has successfully transmitted the access
+      token to the RS, a secure communication protocol MUST be
+      established between client and RS for the actual resource request.
+      This protocol MUST provide encryption, integrity and replay
+
+
+
+Seitz, et al.             Expires May 18, 2019                 [Page 36]
+
+Internet-Draft                  ACE-OAuth                  November 2018
+
+
+      protection as well as a binding between requests and responses.
+      This requires that the client learned either the RS's public key
+      or received a symmetric proof-of-possession key bound to the
+      access token from the AS.  The RS must have learned either the
+      client's public key or a shared symmetric key from the claims in
+      the token or an introspection request.  Since ACE does not provide
+      profile negotiation between C and RS, the client MUST have learned
+      what profile the RS supports (e.g. from the AS or pre-configured)
+      and initiate the communication accordingly.
+
+6.3.  Use of Nonces for Replay Protection
 
    The RS may add a nonce to the AS Information message sent as a
    response to an unauthorized request to ensure freshness of an Access
@@ -1981,7 +2037,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
    using randomized nonce is preferred to prevent disclosure of
    information about RS's internal clock characteristics.
 
-6.3.  Combining profiles
+6.4.  Combining profiles
 
    There may be use cases were different profiles of this framework are
    combined.  For example, an MQTT-TLS profile is used between the
@@ -1991,7 +2047,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
    the specific security mechanisms used in individual protocol
    interactions.
 
-6.4.  Error responses
+6.5.  Error responses
 
    The various error responses defined in this framework may leak
    information to an adversary.  For example errors responses for
@@ -2013,7 +2069,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 36]
+Seitz, et al.             Expires May 18, 2019                 [Page 37]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2069,7 +2125,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 37]
+Seitz, et al.             Expires May 18, 2019                 [Page 38]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2125,7 +2181,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 38]
+Seitz, et al.             Expires May 18, 2019                 [Page 39]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2181,7 +2237,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 39]
+Seitz, et al.             Expires May 18, 2019                 [Page 40]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2237,7 +2293,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 40]
+Seitz, et al.             Expires May 18, 2019                 [Page 41]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2293,7 +2349,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 41]
+Seitz, et al.             Expires May 18, 2019                 [Page 42]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2349,7 +2405,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 42]
+Seitz, et al.             Expires May 18, 2019                 [Page 43]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2405,7 +2461,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 43]
+Seitz, et al.             Expires May 18, 2019                 [Page 44]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2461,7 +2517,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 44]
+Seitz, et al.             Expires May 18, 2019                 [Page 45]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2517,7 +2573,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 45]
+Seitz, et al.             Expires May 18, 2019                 [Page 46]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2573,7 +2629,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 46]
+Seitz, et al.             Expires May 18, 2019                 [Page 47]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2629,7 +2685,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 47]
+Seitz, et al.             Expires May 18, 2019                 [Page 48]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2685,7 +2741,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 48]
+Seitz, et al.             Expires May 18, 2019                 [Page 49]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2741,7 +2797,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 49]
+Seitz, et al.             Expires May 18, 2019                 [Page 50]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2797,7 +2853,7 @@ Appendix A.  Design Justification
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 50]
+Seitz, et al.             Expires May 18, 2019                 [Page 51]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2853,7 +2909,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 51]
+Seitz, et al.             Expires May 18, 2019                 [Page 52]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2909,7 +2965,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 52]
+Seitz, et al.             Expires May 18, 2019                 [Page 53]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -2965,7 +3021,7 @@ Appendix B.  Roles and Responsibilities
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 53]
+Seitz, et al.             Expires May 18, 2019                 [Page 54]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3021,7 +3077,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 54]
+Seitz, et al.             Expires May 18, 2019                 [Page 55]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3077,7 +3133,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 55]
+Seitz, et al.             Expires May 18, 2019                 [Page 56]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3101,9 +3157,11 @@ Appendix C.  Requirements on Profiles
       possession protocol.  Section 5.6.4.2
    o  Specify a unique profile identifier.  Section 5.6.4.3
    o  If introspection is supported: Specify the communication and
-      security protocol for introspection.Section 5.7
+      security protocol for introspection.  Section 5.7
    o  Specify the communication and security protocol for interactions
-      between client and AS.  Section 5.6
+      between client and AS.  This must provide encryption, integrity
+      protection, replay protection and a binding between requests and
+      responses.  Section 5 and Section 5.6
    o  Specify how/if the authz-info endpoint is protected, including how
       error responses are protected.  Section 5.8.1
    o  Optionally define other methods of token transport than the authz-
@@ -3128,15 +3186,15 @@ Appendix D.  Assumptions on AS knowledge about C and RS
    o  The expiration time for access tokens issued to this RS (unless
       the RS accepts a default time chosen by the AS).
    o  The symmetric key shared between client or RS and AS (if any).
-   o  The raw public key of the client or RS (if any).
 
 
 
-
-Seitz, et al.             Expires May 17, 2019                 [Page 56]
+Seitz, et al.             Expires May 18, 2019                 [Page 57]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   o  The raw public key of the client or RS (if any).
 
 Appendix E.  Deployment Examples
 
@@ -3184,16 +3242,16 @@ E.1.  Local Token Validation
       B: The AS responds with a PoP access token and Access Information.
       The PoP access token contains the public key of the client, and
       the Access Information contains the public key of the RS.  For
-      communication security this example uses DTLS RawPublicKey between
-      the client and the RS.  The issued token will have a short
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 57]
+Seitz, et al.             Expires May 18, 2019                 [Page 58]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+      communication security this example uses DTLS RawPublicKey between
+      the client and the RS.  The issued token will have a short
       validity time, i.e., "exp" close to "iat", to protect the RS from
       replay attacks.  The token includes the claim such as "scope" with
       the authorized access that an owner of the temperature device can
@@ -3243,9 +3301,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-
-
-Seitz, et al.             Expires May 17, 2019                 [Page 58]
+Seitz, et al.             Expires May 18, 2019                 [Page 59]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3301,7 +3357,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 59]
+Seitz, et al.             Expires May 18, 2019                 [Page 60]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3357,7 +3413,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 60]
+Seitz, et al.             Expires May 18, 2019                 [Page 61]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3413,7 +3469,7 @@ E.2.  Introspection Aided Token Validation
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 61]
+Seitz, et al.             Expires May 18, 2019                 [Page 62]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3469,7 +3525,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 62]
+Seitz, et al.             Expires May 18, 2019                 [Page 63]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3525,7 +3581,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 63]
+Seitz, et al.             Expires May 18, 2019                 [Page 64]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3581,7 +3637,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 64]
+Seitz, et al.             Expires May 18, 2019                 [Page 65]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3637,7 +3693,7 @@ F.3.  Version -13 to -14
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 65]
+Seitz, et al.             Expires May 18, 2019                 [Page 66]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3693,7 +3749,7 @@ F.8.  Version -08 to -09
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 66]
+Seitz, et al.             Expires May 18, 2019                 [Page 67]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3749,7 +3805,7 @@ F.12.  Version -04 to -05
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 67]
+Seitz, et al.             Expires May 18, 2019                 [Page 68]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3805,7 +3861,7 @@ F.15.  Version -01 to -02
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 68]
+Seitz, et al.             Expires May 18, 2019                 [Page 69]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3861,7 +3917,7 @@ Authors' Addresses
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 69]
+Seitz, et al.             Expires May 18, 2019                 [Page 70]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
@@ -3917,4 +3973,4 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 
 
-Seitz, et al.             Expires May 17, 2019                 [Page 70]
+Seitz, et al.             Expires May 18, 2019                 [Page 71]
