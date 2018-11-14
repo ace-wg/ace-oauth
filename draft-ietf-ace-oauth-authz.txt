@@ -1758,6 +1758,10 @@ Internet-Draft                  ACE-OAuth                  November 2018
    (e.g., the cti for a CWT) as a payload, in order to allow the client
    to refer to the token.
 
+   If the access token is a CWT and is sent via CoAP, the content format
+   "application/cwt" MUST be used.  If a token is sent via HTTP the
+   equivalent media type "application/cwt" MUST be used.
+
    The RS MUST be prepared to store at least one access token for future
    use.  This is a difference to how access tokens are handled in OAuth
    2.0, where the access token is typically sent along with each
@@ -1782,10 +1786,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    The RS MAY make an introspection request to validate the token before
    responding to the POST request to the authz-info endpoint.
 
-   Profiles MUST specify whether the authz-info endpoint is protected,
-   including whether error responses from this endpoint are protected.
-   Note that since the token contains information that allow the client
-
 
 
 
@@ -1794,6 +1794,9 @@ Seitz, et al.             Expires May 18, 2019                 [Page 32]
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+   Profiles MUST specify whether the authz-info endpoint is protected,
+   including whether error responses from this endpoint are protected.
+   Note that since the token contains information that allow the client
    and the RS to establish a security context in the first place, mutual
    authentication may not be possible at this point.
 
@@ -1838,9 +1841,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    Depending on the capabilities of the RS, there are various ways in
    which it can verify the validity of a received access token.  Here
-   follows a list of the possibilities including what functionality they
-   require of the RS.
-
 
 
 
@@ -1849,6 +1849,9 @@ Seitz, et al.             Expires May 18, 2019                 [Page 33]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   follows a list of the possibilities including what functionality they
+   require of the RS.
 
    o  The token is a CWT and includes an "exp" claim and possibly the
       "nbf" claim.  The RS verifies these by comparing them to values
@@ -1895,9 +1898,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    (AEAD) algorithm.  Consequently, the token integrity protection MUST
    be applied to prevent the token from being modified, particularly
    since it contains a reference to the symmetric key or the asymmetric
-   key.  If the access token contains the symmetric key, this symmetric
-   key MUST be encrypted by the authorization server so that only the
-   resource server can decrypt it.  Note that using an AEAD algorithm is
 
 
 
@@ -1906,6 +1906,9 @@ Seitz, et al.             Expires May 18, 2019                 [Page 34]
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+   key.  If the access token contains the symmetric key, this symmetric
+   key MUST be encrypted by the authorization server so that only the
+   resource server can decrypt it.  Note that using an AEAD algorithm is
    preferable over using a MAC unless the message needs to be publicly
    readable.
 
@@ -1950,9 +1953,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    than one RS, since otherwise any RS in the audience that receives
    that access token can impersonate the client towards the other
    members of the audience.
-
-
-
 
 
 
