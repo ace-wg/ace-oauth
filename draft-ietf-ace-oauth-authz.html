@@ -866,13 +866,9 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "token"
-Content-Format: "application/cose"
+Content-Format: "application/oscore"
 Payload:
-  16(  # COSE_ENCRYPTED
-      [ h'a1010a', # protected header: {"alg" : "AES-CCM-16-64-128"}
-      {5 : b64'ifUvZaHFgJM7UmGnjA'},  # unprotected header, IV
-      b64'WXThuZo6TMCaZZqi6ef/8WHTjOdGk8kNzaIhIQ' # ciphertext
-      ]
+  0x44025d1 ... (full payload ommitted for brevity) ... 68b3825e
   )
 
 
@@ -892,7 +888,7 @@ Decrypted payload:
 }
         </pre>
 <p class="figure">Figure 6: Example token request bound to an asymmetric key.</p>
-<p><a href="#fig:asymmATreq">Figure 6</a> shows a request for a token with an asymmetric proof-of-possession key.  Note that in this example COSE is used to provide object-security, therefore the Content-Format is "application/cose" wrapping the "application/ace+cbor" type content.  Also note that in this example the audience is implicitly known by both client and AS.  </p>
+<p><a href="#fig:asymmATreq">Figure 6</a> shows a request for a token with an asymmetric proof-of-possession key.  Note that in this example OSCORE <a href="#I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</a> is used to provide object-security, therefore the Content-Format is "application/oscore" wrapping the "application/ace+cbor" type content.  Also note that in this example the audience is implicitly known by both client and AS.  </p>
 <div id="rfc.figure.7"/>
 <div id="fig:kidATreq"/>
 <pre>
@@ -1035,7 +1031,7 @@ Payload:
 <h1 id="rfc.section.5.6.5"><a href="#rfc.section.5.6.5">5.6.5.</a> <a href="#tokenCborParams" id="tokenCborParams">Mapping Parameters to CBOR</a></h1>
 <p id="rfc.section.5.6.5.p.1">If CBOR encoding is used, all OAuth parameters in access token requests and responses MUST be mapped to CBOR types as specified in <a href="#fig:cborTokenParameters">Figure 12</a>, using the given integer abbreviation for the map keys.</p>
 <p id="rfc.section.5.6.5.p.2">Note that we have aligned these abbreviations with the claim abbreviations defined in <a href="#RFC8392">[RFC8392]</a>.</p>
-<p id="rfc.section.5.6.5.p.3">Note also that abbreviations from -24 to 23 have a 1 byte encoding size in CBOR. We have thus choosen to assign abbreviations in that range to parameters we expect to be used most frequently in constrained scenarios.</p>
+<p id="rfc.section.5.6.5.p.3">Note also that abbreviations from -24 to 23 have a 1 byte encoding size in CBOR. We have thus chosen to assign abbreviations in that range to parameters we expect to be used most frequently in constrained scenarios.</p>
 <div id="rfc.figure.12"/>
 <div id="fig:cborTokenParameters"/>
 <pre>
@@ -1079,7 +1075,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "introspect"
-Content-Format: "application/cose"
+Content-Format: "application/oscore"
 Payload:
 ... COSE content ...
        </pre>
@@ -1093,7 +1089,7 @@ Payload:
 }
        </pre>
 <p class="figure">Figure 14: Decoded token.</p>
-<p id="rfc.section.5.7.1.p.3">For example, <a href="#fig:introReq">Figure 13</a> shows a RS calling the token introspection endpoint at the AS to query about an OAuth 2.0 proof-of-possession token.  Note that object security based on COSE is assumed in this example, therefore the Content-Format is "application/cose". <a href="#fig:introReq-payl">Figure 14</a> shows the decoded payload.  </p>
+<p id="rfc.section.5.7.1.p.3">For example, <a href="#fig:introReq">Figure 13</a> shows a RS calling the token introspection endpoint at the AS to query about an OAuth 2.0 proof-of-possession token.  Note that object security based on OSCORE <a href="#I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</a> is assumed in this example, therefore the Content-Format is "application/oscore". <a href="#fig:introReq-payl">Figure 14</a> shows the decoded payload.  </p>
 <h1 id="rfc.section.5.7.2"><a href="#rfc.section.5.7.2">5.7.2.</a> <a href="#introRes" id="introRes">Introspection Response</a></h1>
 <p id="rfc.section.5.7.2.p.1">If the introspection request is authorized and successfully processed, the AS sends a response with the response code equivalent to the CoAP code 2.01 (Created).  If the introspection request was invalid, not authorized or couldn't be processed the AS returns an error response as described in <a href="#errorsIntro">Section 5.7.3</a>.</p>
 <p id="rfc.section.5.7.2.p.2">In a successful response, the AS encodes the response parameters in a map including with the same required and optional parameters as in Section 2.2 of RFC 7662 <a href="#RFC7662">[RFC7662]</a> with the following addition: </p>
@@ -1197,7 +1193,7 @@ Payload:
 <ul>
   <li>The token is a CWT and includes an "exp" claim and possibly the "nbf" claim.  The RS verifies these by comparing them to values from its internal clock as defined in <a href="#RFC7519">[RFC7519]</a>.  In this case the RS's internal clock must reflect the current date and time, or at least be synchronized with the AS's clock.  How this clock synchronization would be performed is out of scope for this specification.</li>
   <li>The RS verifies the validity of the token by performing an introspection request as specified in <a href="#introspectionEndpoint">Section 5.7</a>.  This requires the RS to have a reliable network connection to the AS and to be able to handle two secure sessions in parallel (C to RS and AS to RS).</li>
-  <li>In order to support token expiration for devices that have no reliable way of synchronizing their internal clocks, this specification defines the following aproach: The claim "exi" ("expires in") can be used, to provide the RS with the lifetime of the token in seconds from the time the RS first receives the token.  This approach is of course vulnerable to malicious clients holding back tokens they do not want to expire. Such an attack can only be prevented if the RS is able to communicate with the AS in some regular intervalls, so that the can AS provide the RS with a list of expired tokens.  The drawback of this mitigation is that the RS might as well use the communication with the AS to synchronize its internal clock.  </li>
+  <li>In order to support token expiration for devices that have no reliable way of synchronizing their internal clocks, this specification defines the following approach: The claim "exi" ("expires in") can be used, to provide the RS with the lifetime of the token in seconds from the time the RS first receives the token.  This approach is of course vulnerable to malicious clients holding back tokens they do not want to expire. Such an attack can only be prevented if the RS is able to communicate with the AS in some regular intervals, so that the can AS provide the RS with a list of expired tokens.  The drawback of this mitigation is that the RS might as well use the communication with the AS to synchronize its internal clock.  </li>
 </ul>
 <p id="rfc.section.5.8.3.p.3">If a token that authorizes a long running request such as a CoAP Observe <a href="#RFC7641">[RFC7641]</a> expires, the RS MUST send an error response with the response code equivalent to the CoAP code 4.01 (Unauthorized) to the client and then terminate processing the long running request.</p>
 <h1 id="rfc.section.6"><a href="#rfc.section.6">6.</a> <a href="#security" id="security">Security Considerations</a></h1>
@@ -1211,15 +1207,15 @@ Payload:
 <h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#unprotected-as-information" id="unprotected-as-information">Unprotected AS Information</a></h1>
 <p id="rfc.section.6.1.p.1">Initially, no secure channel exists to protect the communication between C and RS. Thus, C cannot determine if the AS information contained in an unprotected response from RS to an unauthorized request (see <a href="#asInfo">Section 5.1.2</a>) is authentic. It is therefore advisable to provide C with a (possibly hard-coded) list of trustworthy authorization servers. AS information responses referring to a URI not listed there would be ignored.</p>
 <h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#minimalCommSecReq" id="minimalCommSecReq">Minimal security requirements        for communication</a></h1>
-<p id="rfc.section.6.2.p.1">This section summarizes the minimal requirements for the communication security of the different protocol interations.  </p>
+<p id="rfc.section.6.2.p.1">This section summarizes the minimal requirements for the communication security of the different protocol interactions.  </p>
 
 <dl>
   <dt>C-AS</dt>
   <dd style="margin-left: 8">All communication between the client and the Authorization Server MUST be encrypted, integrity and replay protected. Furthermore responses from the AS to the client MUST be bound to the client's request to avoid attacks where the attacker swaps the intended response for an older one valid for a previous request.  This requires that the client and the Authorization Server have previously exchanged either a shared secret, or their public keys in order to negotiate a secure communication. Furthermore the client MUST be able to determine whether an AS has the authority to issue access tokens for a certain RS.  This can be done through pre-configured lists, or through an online lookup mechanism that in turn also must be secured.  </dd>
   <dt>RS-AS</dt>
-  <dd style="margin-left: 8">The communication between the Resource Server and the Authorization Server via the introspection endpoint MUST be encrypted, integrity and replay protected. Furthermore responses from the AS to the RS MUST be bound to the RS's request.  This requires that the client and the Authorization Server have previously exchanged either a shared secret, or their public keys in order to negotiate a secure communication. Furthermore the RS MUST be able to determine whether an AS has the authority to issue access tokens itself.  This is usally configured out of band, but could also be performed through an online lookup mechanism provided that it is also secured in the same way.</dd>
+  <dd style="margin-left: 8">The communication between the Resource Server and the Authorization Server via the introspection endpoint MUST be encrypted, integrity and replay protected. Furthermore responses from the AS to the RS MUST be bound to the RS's request.  This requires that the client and the Authorization Server have previously exchanged either a shared secret, or their public keys in order to negotiate a secure communication. Furthermore the RS MUST be able to determine whether an AS has the authority to issue access tokens itself.  This is usually configured out of band, but could also be performed through an online lookup mechanism provided that it is also secured in the same way.</dd>
   <dt>C-RS</dt>
-  <dd style="margin-left: 8">The initial communication between the client and the Resource Server can not be secured in general, since the RS is not in possession of on access token for that client, which would carry the necessary paraemters.  Certain security mechanisms (e.g. DTLS with server-side authentication via a certificate or a raw public key) can be possible and are RECOMMEND if supported by both parties.  After the client has successfully transmitted the access token to the RS, a secure communication protocol MUST be established between client and RS for the actual resource request.  This protocol MUST provide encryption, integrity and replay protection as well as a binding between requests and responses.  This requires that the client learned either the RS's public key or received a symmetric proof-of-possession key bound to the access token from the AS.  The RS must have learned either the client's public key or a shared symmetric key from the claims in the token or an introspection request.  Since ACE does not provide profile negotiation between C and RS, the client MUST have learned what profile the RS supports (e.g. from the AS or pre-configured) and initiate the communication accordingly.</dd>
+  <dd style="margin-left: 8">The initial communication between the client and the Resource Server can not be secured in general, since the RS is not in possession of on access token for that client, which would carry the necessary parameters.  Certain security mechanisms (e.g. DTLS with server-side authentication via a certificate or a raw public key) can be possible and are RECOMMEND if supported by both parties.  After the client has successfully transmitted the access token to the RS, a secure communication protocol MUST be established between client and RS for the actual resource request.  This protocol MUST provide encryption, integrity and replay protection as well as a binding between requests and responses.  This requires that the client learned either the RS's public key or received a symmetric proof-of-possession key bound to the access token from the AS.  The RS must have learned either the client's public key or a shared symmetric key from the claims in the token or an introspection request.  Since ACE does not provide profile negotiation between C and RS, the client MUST have learned what profile the RS supports (e.g. from the AS or pre-configured) and initiate the communication accordingly.</dd>
 </dl>
 <h1 id="rfc.section.6.3"><a href="#rfc.section.6.3">6.3.</a> <a href="#nonce" id="nonce">Use of Nonces for Replay Protection</a></h1>
 <p id="rfc.section.6.3.p.1">The RS may add a nonce to the AS Information message sent as a response to an unauthorized request to ensure freshness of an Access Token subsequently presented to RS. While a time-stamp of some granularity would be sufficient to protect against replay attacks, using randomized nonce is preferred to prevent disclosure of information about RS's internal clock characteristics.</p>
@@ -1250,7 +1246,7 @@ Payload:
 </dl>
 <p id="rfc.section.8.1.p.3">This registry will be initially populated by the values in <a href="#fig:asinfo">Figure 2</a>. The Reference column for all of these entries will be this document.</p>
 <h1 id="rfc.section.8.2"><a href="#rfc.section.8.2">8.2.</a> <a href="#IANAOAuthErrorCodes" id="IANAOAuthErrorCodes">OAuth Extensions Error Registration</a></h1>
-<p id="rfc.section.8.2.p.1">This specification registers the follwoing error values in the OAuth Extensions Error registry defined in <a href="#RFC6749">[RFC6749]</a>.</p>
+<p id="rfc.section.8.2.p.1">This specification registers the following error values in the OAuth Extensions Error registry defined in <a href="#RFC6749">[RFC6749]</a>.</p>
 <p/>
 
 <ul>
@@ -1258,7 +1254,7 @@ Payload:
   <li>Error usage location: AS token endpoint error response</li>
   <li>Related protocol extension: The ACE framework [this document]</li>
   <li>Change Controller: IESG</li>
-  <li>Specification doucment(s): <a href="#errorsToken">Section 5.6.3</a> of [this document]</li>
+  <li>Specification document(s): <a href="#errorsToken">Section 5.6.3</a> of [this document]</li>
 </ul>
 <p/>
 
@@ -1267,7 +1263,7 @@ Payload:
   <li>Error usage location: AS token endpoint error response</li>
   <li>Related protocol extension: The ACE framework [this document]</li>
   <li>Change Controller: IESG</li>
-  <li>Specification doucment(s): <a href="#errorsToken">Section 5.6.3</a> of [this document]</li>
+  <li>Specification document(s): <a href="#errorsToken">Section 5.6.3</a> of [this document]</li>
 </ul>
 <h1 id="rfc.section.8.3"><a href="#rfc.section.8.3">8.3.</a> <a href="#IANAErrorCBORMappings" id="IANAErrorCBORMappings">OAuth Error Code CBOR Mappings Registry</a></h1>
 <p id="rfc.section.8.3.p.1">This specification establishes the IANA "OAuth Error Code CBOR Mappings" registry.  The registry has been created to use the "Expert Review Required" registration procedure <a href="#RFC8126">[RFC8126]</a>.  It should be noted that, in addition to the expert review, some portions of the registry require a specification, potentially a Standards Track RFC, be supplied as well.</p>

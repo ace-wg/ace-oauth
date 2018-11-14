@@ -102,7 +102,7 @@ Table of Contents
        5.7.1.  Introspection Request . . . . . . . . . . . . . . . .  28
        5.7.2.  Introspection Response  . . . . . . . . . . . . . . .  29
        5.7.3.  Error Response  . . . . . . . . . . . . . . . . . . .  30
-       5.7.4.  Mapping Introspection parameters to CBOR  . . . . . .  30
+       5.7.4.  Mapping Introspection parameters to CBOR  . . . . . .  31
      5.8.  The Access Token  . . . . . . . . . . . . . . . . . . . .  31
        5.8.1.  The Authorization Information Endpoint  . . . . . . .  32
        5.8.2.  Client Requests to the RS . . . . . . . . . . . . . .  33
@@ -114,14 +114,14 @@ Seitz, et al.             Expires May 18, 2019                  [Page 2]
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
-       5.8.3.  Token Expiration  . . . . . . . . . . . . . . . . . .  33
+       5.8.3.  Token Expiration  . . . . . . . . . . . . . . . . . .  34
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  34
      6.1.  Unprotected AS Information  . . . . . . . . . . . . . . .  36
      6.2.  Minimal security requirements        for communication  .  36
      6.3.  Use of Nonces for Replay Protection . . . . . . . . . . .  37
      6.4.  Combining profiles  . . . . . . . . . . . . . . . . . . .  37
      6.5.  Error responses . . . . . . . . . . . . . . . . . . . . .  37
-   7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  37
+   7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  38
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  38
      8.1.  Authorization Server Information  . . . . . . . . . . . .  38
      8.2.  OAuth Extensions Error Registration . . . . . . . . . . .  39
@@ -1101,11 +1101,11 @@ Internet-Draft                  ACE-OAuth                  November 2018
                                    key.
 
    Figure 6 shows a request for a token with an asymmetric proof-of-
-   possession key.  Note that in this example COSE is used to provide
-   object-security, therefore the Content-Format is "application/cose"
-   wrapping the "application/ace+cbor" type content.  Also note that in
-   this example the audience is implicitly known by both client and AS.
-
+   possession key.  Note that in this example OSCORE
+   [I-D.ietf-core-object-security] is used to provide object-security,
+   therefore the Content-Format is "application/oscore" wrapping the
+   "application/ace+cbor" type content.  Also note that in this example
+   the audience is implicitly known by both client and AS.
 
 
 
@@ -1125,13 +1125,9 @@ Internet-Draft                  ACE-OAuth                  November 2018
    Header: POST (Code=0.02)
    Uri-Host: "as.example.com"
    Uri-Path: "token"
-   Content-Format: "application/cose"
+   Content-Format: "application/oscore"
    Payload:
-     16(  # COSE_ENCRYPTED
-         [ h'a1010a', # protected header: {"alg" : "AES-CCM-16-64-128"}
-         {5 : b64'ifUvZaHFgJM7UmGnjA'},  # unprotected header, IV
-         b64'WXThuZo6TMCaZZqi6ef/8WHTjOdGk8kNzaIhIQ' # ciphertext
-         ]
+     0x44025d1 ... (full payload ommitted for brevity) ... 68b3825e
      )
 
 
@@ -1156,6 +1152,10 @@ Internet-Draft                  ACE-OAuth                  November 2018
    proof-of-possession key is only referenced.  Note that the client
    performs a password based authentication in this example by
    submitting its client_secret (see Section 2.3.1 of [RFC6749]).
+
+
+
+
 
 
 
@@ -1468,7 +1468,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
    abbreviations defined in [RFC8392].
 
    Note also that abbreviations from -24 to 23 have a 1 byte encoding
-   size in CBOR.  We have thus choosen to assign abbreviations in that
+   size in CBOR.  We have thus chosen to assign abbreviations in that
    range to parameters we expect to be used most frequently in
    constrained scenarios.
 
@@ -1550,18 +1550,18 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    For example, Figure 13 shows a RS calling the token introspection
    endpoint at the AS to query about an OAuth 2.0 proof-of-possession
-   token.  Note that object security based on COSE is assumed in this
-   example, therefore the Content-Format is "application/cose".
-   Figure 14 shows the decoded payload.
+   token.  Note that object security based on OSCORE
+   [I-D.ietf-core-object-security] is assumed in this example, therefore
+   the Content-Format is "application/oscore".  Figure 14 shows the
+   decoded payload.
 
-   Header: POST (Code=0.02)
-   Uri-Host: "as.example.com"
-   Uri-Path: "introspect"
-   Content-Format: "application/cose"
-   Payload:
-   ... COSE content ...
 
-                 Figure 13: Example introspection request.
+
+
+
+
+
+
 
 
 
@@ -1569,6 +1569,15 @@ Seitz, et al.             Expires May 18, 2019                 [Page 28]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   Header: POST (Code=0.02)
+   Uri-Host: "as.example.com"
+   Uri-Path: "introspect"
+   Content-Format: "application/oscore"
+   Payload:
+   ... COSE content ...
+
+                 Figure 13: Example introspection request.
 
    {
      "token" : b64'7gj0dXJQ43U',
@@ -1600,6 +1609,23 @@ Internet-Draft                  ACE-OAuth                  November 2018
    For example, Figure 15 shows an AS response to the introspection
    request in Figure 13.
 
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.             Expires May 18, 2019                 [Page 29]
+
+Internet-Draft                  ACE-OAuth                  November 2018
+
+
    Header: Created Code=2.01)
    Content-Format: "application/ace+cbor"
    Payload:
@@ -1617,14 +1643,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    }
 
                 Figure 15: Example introspection response.
-
-
-
-
-Seitz, et al.             Expires May 18, 2019                 [Page 29]
-
-Internet-Draft                  ACE-OAuth                  November 2018
-
 
 5.7.3.  Error Response
 
@@ -1654,24 +1672,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    respond with an introspection response with the "active" field set to
    "false".
 
-5.7.4.  Mapping Introspection parameters to CBOR
-
-   If CBOR is used, the introspection request and response parameters
-   MUST be mapped to CBOR types as specified in Figure 16, using the
-   given integer abbreviation for the map key.
-
-   Note that we have aligned these abbreviations with the claim
-   abbreviations defined in [RFC8392].
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1681,6 +1681,15 @@ Seitz, et al.             Expires May 18, 2019                 [Page 30]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+5.7.4.  Mapping Introspection parameters to CBOR
+
+   If CBOR is used, the introspection request and response parameters
+   MUST be mapped to CBOR types as specified in Figure 16, using the
+   given integer abbreviation for the map key.
+
+   Note that we have aligned these abbreviations with the claim
+   abbreviations defined in [RFC8392].
 
        /-----------------+----------+----------------------------------\
        | Parameter name  | CBOR Key | Value Type                       |
@@ -1721,6 +1730,14 @@ Internet-Draft                  ACE-OAuth                  November 2018
    elements.  The meaning of a specific scope value is application
    specific and expected to be known to the RS running that application.
 
+
+
+
+Seitz, et al.             Expires May 18, 2019                 [Page 31]
+
+Internet-Draft                  ACE-OAuth                  November 2018
+
+
    If the AS needs to convey a hint to the RS about which key it should
    use to authenticate towards the client, the rs_cnf claim MAY be used
    with the same syntax and semantics as defined in
@@ -1730,13 +1747,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    should use to communicate with the client, the AS MAY include a
    "profile" claim in the access token, with the same syntax and
    semantics as defined in Section 5.6.4.3.
-
-
-
-Seitz, et al.             Expires May 18, 2019                 [Page 31]
-
-Internet-Draft                  ACE-OAuth                  November 2018
-
 
 5.8.1.  The Authorization Information Endpoint
 
@@ -1776,6 +1786,14 @@ Internet-Draft                  ACE-OAuth                  November 2018
    equivalent to the CoAP code 4.03 (Forbidden).  If the token is valid
    but is associated to claims that the RS cannot process (e.g., an
    unknown scope) the RS MUST respond with a response code equivalent to
+
+
+
+Seitz, et al.             Expires May 18, 2019                 [Page 32]
+
+Internet-Draft                  ACE-OAuth                  November 2018
+
+
    the CoAP code 4.00 (Bad Request).  In the latter case the RS MAY
    provide additional information in the error response, in order to
    clarify what went wrong.
@@ -1785,14 +1803,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    The RS MAY make an introspection request to validate the token before
    responding to the POST request to the authz-info endpoint.
-
-
-
-
-Seitz, et al.             Expires May 18, 2019                 [Page 32]
-
-Internet-Draft                  ACE-OAuth                  November 2018
-
 
    Profiles MUST specify whether the authz-info endpoint is protected,
    including whether error responses from this endpoint are protected.
@@ -1833,6 +1843,13 @@ Internet-Draft                  ACE-OAuth                  November 2018
    Note: Matching the claims of the access token (e.g., scope) to a
    specific request is application specific.
 
+
+
+Seitz, et al.             Expires May 18, 2019                 [Page 33]
+
+Internet-Draft                  ACE-OAuth                  November 2018
+
+
    If the request matches a valid token and the client has performed the
    proof-of-possession for that token, the RS continues to process the
    request as specified by the underlying application.
@@ -1841,15 +1858,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    Depending on the capabilities of the RS, there are various ways in
    which it can verify the validity of a received access token.  Here
-
-
-
-
-Seitz, et al.             Expires May 18, 2019                 [Page 33]
-
-Internet-Draft                  ACE-OAuth                  November 2018
-
-
    follows a list of the possibilities including what functionality they
    require of the RS.
 
@@ -1867,13 +1875,13 @@ Internet-Draft                  ACE-OAuth                  November 2018
       RS).
    o  In order to support token expiration for devices that have no
       reliable way of synchronizing their internal clocks, this
-      specification defines the following aproach: The claim "exi"
+      specification defines the following approach: The claim "exi"
       ("expires in") can be used, to provide the RS with the lifetime of
       the token in seconds from the time the RS first receives the
       token.  This approach is of course vulnerable to malicious clients
       holding back tokens they do not want to expire.  Such an attack
       can only be prevented if the RS is able to communicate with the AS
-      in some regular intervalls, so that the can AS provide the RS with
+      in some regular intervals, so that the can AS provide the RS with
       a list of expired tokens.  The drawback of this mitigation is that
       the RS might as well use the communication with the AS to
       synchronize its internal clock.
@@ -1889,6 +1897,15 @@ Internet-Draft                  ACE-OAuth                  November 2018
    authorization in RESTful environments provided in OAuth 2.0 [RFC6749]
    apply to this work.  Furthermore [RFC6819] provides additional
    security considerations for OAuth which apply to IoT deployments as
+
+
+
+
+Seitz, et al.             Expires May 18, 2019                 [Page 34]
+
+Internet-Draft                  ACE-OAuth                  November 2018
+
+
    well.  If the introspection endpoint is used, the security
    considerations from [RFC7662] also apply.
 
@@ -1898,14 +1915,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    (AEAD) algorithm.  Consequently, the token integrity protection MUST
    be applied to prevent the token from being modified, particularly
    since it contains a reference to the symmetric key or the asymmetric
-
-
-
-Seitz, et al.             Expires May 18, 2019                 [Page 34]
-
-Internet-Draft                  ACE-OAuth                  November 2018
-
-
    key.  If the access token contains the symmetric key, this symmetric
    key MUST be encrypted by the authorization server so that only the
    resource server can decrypt it.  Note that using an AEAD algorithm is
@@ -1946,6 +1955,13 @@ Internet-Draft                  ACE-OAuth                  November 2018
    the client and for the resource server.  Shorter keys also lead to
    shorter messages (particularly with asymmetric keying material).
 
+
+
+Seitz, et al.             Expires May 18, 2019                 [Page 35]
+
+Internet-Draft                  ACE-OAuth                  November 2018
+
+
    When authorization servers bind symmetric keys to access tokens, they
    SHOULD scope these access tokens to a specific permissions.
    Furthermore access tokens using symmetric keys for proof-of-
@@ -1953,14 +1969,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    than one RS, since otherwise any RS in the audience that receives
    that access token can impersonate the client towards the other
    members of the audience.
-
-
-
-
-Seitz, et al.             Expires May 18, 2019                 [Page 35]
-
-Internet-Draft                  ACE-OAuth                  November 2018
-
 
 6.1.  Unprotected AS Information
 
@@ -1975,7 +1983,7 @@ Internet-Draft                  ACE-OAuth                  November 2018
 6.2.  Minimal security requirements for communication
 
    This section summarizes the minimal requirements for the
-   communication security of the different protocol interations.
+   communication security of the different protocol interactions.
 
    C-AS  All communication between the client and the Authorization
       Server MUST be encrypted, integrity and replay protected.
@@ -1997,19 +2005,11 @@ Internet-Draft                  ACE-OAuth                  November 2018
       previously exchanged either a shared secret, or their public keys
       in order to negotiate a secure communication.  Furthermore the RS
       MUST be able to determine whether an AS has the authority to issue
-      access tokens itself.  This is usally configured out of band, but
+      access tokens itself.  This is usually configured out of band, but
       could also be performed through an online lookup mechanism
       provided that it is also secured in the same way.
    C-RS  The initial communication between the client and the Resource
       Server can not be secured in general, since the RS is not in
-      possession of on access token for that client, which would carry
-      the necessary paraemters.  Certain security mechanisms (e.g.  DTLS
-      with server-side authentication via a certificate or a raw public
-      key) can be possible and are RECOMMEND if supported by both
-      parties.  After the client has successfully transmitted the access
-      token to the RS, a secure communication protocol MUST be
-      established between client and RS for the actual resource request.
-      This protocol MUST provide encryption, integrity and replay
 
 
 
@@ -2018,6 +2018,14 @@ Seitz, et al.             Expires May 18, 2019                 [Page 36]
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+      possession of on access token for that client, which would carry
+      the necessary parameters.  Certain security mechanisms (e.g.  DTLS
+      with server-side authentication via a certificate or a raw public
+      key) can be possible and are RECOMMEND if supported by both
+      parties.  After the client has successfully transmitted the access
+      token to the RS, a secure communication protocol MUST be
+      established between client and RS for the actual resource request.
+      This protocol MUST provide encryption, integrity and replay
       protection as well as a binding between requests and responses.
       This requires that the client learned either the RS's public key
       or received a symmetric proof-of-possession key bound to the
@@ -2059,14 +2067,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    cases, where this assessment does not apply, detailed error messages
    can be replaced by more generic ones.
 
-7.  Privacy Considerations
-
-   Implementers and users should be aware of the privacy implications of
-   the different possible deployments of this framework.
-
-   The AS is in a very central position and can potentially learn
-   sensitive information about the clients requesting access tokens.  If
-
 
 
 Seitz, et al.             Expires May 18, 2019                 [Page 37]
@@ -2074,6 +2074,13 @@ Seitz, et al.             Expires May 18, 2019                 [Page 37]
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+7.  Privacy Considerations
+
+   Implementers and users should be aware of the privacy implications of
+   the different possible deployments of this framework.
+
+   The AS is in a very central position and can potentially learn
+   sensitive information about the clients requesting access tokens.  If
    the client credentials grant is used, the AS can track what kind of
    access the client intends to perform.  With other grants this can be
    prevented by the Resource Owner.  To do so, the resource owner needs
@@ -2116,13 +2123,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    registry require a specification, potentially a Standards Track RFC,
    be supplied as well.
 
-   The columns of the registry are:
-
-   Name  The name of the parameter
-   CBOR Key  CBOR map key for the parameter.  Different ranges of values
-      use different registration policies [RFC8126].  Integer values
-      from -256 to 255 are designated as Standards Action.  Integer
-
 
 
 Seitz, et al.             Expires May 18, 2019                 [Page 38]
@@ -2130,6 +2130,12 @@ Seitz, et al.             Expires May 18, 2019                 [Page 38]
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+   The columns of the registry are:
+
+   Name  The name of the parameter
+   CBOR Key  CBOR map key for the parameter.  Different ranges of values
+      use different registration policies [RFC8126].  Integer values
+      from -256 to 255 are designated as Standards Action.  Integer
       values from -65536 to -257 and from 256 to 65535 are designated as
       Specification Required.  Integer values greater than 65535 are
       designated as Expert Review.  Integer values less than -65536 are
@@ -2144,20 +2150,20 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
 8.2.  OAuth Extensions Error Registration
 
-   This specification registers the follwoing error values in the OAuth
+   This specification registers the following error values in the OAuth
    Extensions Error registry defined in [RFC6749].
 
    o  Error name: "unsupported_pop_key"
    o  Error usage location: AS token endpoint error response
    o  Related protocol extension: The ACE framework [this document]
    o  Change Controller: IESG
-   o  Specification doucment(s): Section 5.6.3 of [this document]
+   o  Specification document(s): Section 5.6.3 of [this document]
 
    o  Error name: "incompatible_profiles"
    o  Error usage location: AS token endpoint error response
    o  Related protocol extension: The ACE framework [this document]
    o  Change Controller: IESG
-   o  Specification doucment(s): Section 5.6.3 of [this document]
+   o  Specification document(s): Section 5.6.3 of [this document]
 
 8.3.  OAuth Error Code CBOR Mappings Registry
 
@@ -2172,12 +2178,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    Name  The OAuth Error Code name, refers to the name in Section 5.2.
       of [RFC6749], e.g., "invalid_request".
-   CBOR Value  CBOR abbreviation for this error code.  Different ranges
-      of values use different registration policies [RFC8126].  Integer
-      values from -256 to 255 are designated as Standards Action.
-      Integer values from -65536 to -257 and from 256 to 65535 are
-      designated as Specification Required.  Integer values greater than
-
 
 
 
@@ -2186,6 +2186,11 @@ Seitz, et al.             Expires May 18, 2019                 [Page 39]
 Internet-Draft                  ACE-OAuth                  November 2018
 
 
+   CBOR Value  CBOR abbreviation for this error code.  Different ranges
+      of values use different registration policies [RFC8126].  Integer
+      values from -256 to 255 are designated as Standards Action.
+      Integer values from -65536 to -257 and from 256 to 65535 are
+      designated as Specification Required.  Integer values greater than
       65535 are designated as Expert Review.  Integer values less than
       -65536 are marked as Private Use.
    Reference  This contains a pointer to the public specification of the
@@ -2229,11 +2234,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    o  Name: "PoP"
    o  Change Controller: IETF
-   o  Reference: [this document]
-
-
-
-
 
 
 
@@ -2241,6 +2241,8 @@ Seitz, et al.             Expires May 18, 2019                 [Page 40]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   o  Reference: [this document]
 
 8.6.  OAuth Token Type CBOR Mappings
 
@@ -2288,8 +2290,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
    a specification, potentially a Standards Track RFC, be supplied as
    well.
 
-   The columns of this registry are:
-
 
 
 
@@ -2297,6 +2297,8 @@ Seitz, et al.             Expires May 18, 2019                 [Page 41]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   The columns of this registry are:
 
    Name  The name of the profile, to be used as value of the profile
       attribute.
@@ -2344,8 +2346,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
       -65536 are marked as Private Use.
    Value Type  The allowable CBOR data types for values of this
       parameter.
-   Reference  This contains a pointer to the public specification of the
-      parameter abbreviation, if one exists.
 
 
 
@@ -2353,6 +2353,9 @@ Seitz, et al.             Expires May 18, 2019                 [Page 42]
 
 Internet-Draft                  ACE-OAuth                  November 2018
 
+
+   Reference  This contains a pointer to the public specification of the
+      parameter abbreviation, if one exists.
 
    This registry will be initially populated by the values in Figure 12.
    The Reference column for all of these entries will be this document.
@@ -2399,9 +2402,6 @@ Internet-Draft                  ACE-OAuth                  November 2018
 
    This registry will be initially populated by the values in Figure 16.
    The Reference column for all of these entries will be this document.
-
-
-
 
 
 

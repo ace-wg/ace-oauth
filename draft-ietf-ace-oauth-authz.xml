@@ -1034,9 +1034,10 @@ Payload:
     </figure></t>
 
     <t><xref target="fig:asymmATreq"/> shows a request for a token with an
-    asymmetric proof-of-possession key.  Note that in this example COSE is used
+    asymmetric proof-of-possession key.  Note that in this example OSCORE
+    <xref target="I-D.ietf-core-object-security"/> is used
     to provide object-security, therefore the Content-Format is
-    "application/cose" wrapping the "application/ace+cbor" type content.
+    "application/oscore" wrapping the "application/ace+cbor" type content.
     Also note that in this example the audience is implicitly known by
     both client and AS.
 
@@ -1046,13 +1047,9 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "token"
-Content-Format: "application/cose"
+Content-Format: "application/oscore"
 Payload:
-  16(  # COSE_ENCRYPTED
-      [ h'a1010a', # protected header: {"alg" : "AES-CCM-16-64-128"}
-      {5 : b64'ifUvZaHFgJM7UmGnjA'},  # unprotected header, IV
-      b64'WXThuZo6TMCaZZqi6ef/8WHTjOdGk8kNzaIhIQ' # ciphertext
-      ]
+  0x44025d1 ... (full payload ommitted for brevity) ... 68b3825e
   )
 
 
@@ -1339,7 +1336,7 @@ Payload:
     abbreviations defined in <xref target="RFC8392"/>.</t>
 
     <t>Note also that abbreviations from -24 to 23 have a 1 byte encoding
-    size in CBOR. We have thus choosen to assign abbreviations in that
+    size in CBOR. We have thus chosen to assign abbreviations in that
     range to parameters we expect to be used most frequently in constrained
     scenarios.</t>
 
@@ -1419,10 +1416,10 @@ Payload:
 
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
     introspection endpoint at the AS to query about an OAuth 2.0
-    proof-of-possession token.  Note that object security based on COSE is
-    assumed in this example, therefore the Content-Format
-    is "application/cose". <xref target="fig:introReq-payl"/> shows the
-    decoded payload.
+    proof-of-possession token.  Note that object security based on OSCORE
+    <xref target="I-D.ietf-core-object-security"/> is assumed in this example,
+    therefore the Content-Format is "application/oscore". <xref
+    target="fig:introReq-payl"/> shows the decoded payload.
 
     <figure align="center" anchor="fig:introReq"
             title="Example introspection request.">
@@ -1430,12 +1427,12 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "introspect"
-Content-Format: "application/cose"
+Content-Format: "application/oscore"
 Payload:
 ... COSE content ...
        ]]></artwork>
     </figure>
-	<figure align="center" anchor="fig:introReq-payl"
+    <figure align="center" anchor="fig:introReq-payl"
             title="Decoded token.">
         <artwork align="left"><![CDATA[
 {
@@ -1714,12 +1711,12 @@ Payload:
 
     <t>In order to support token expiration for devices that have no reliable
     way of synchronizing their internal clocks, this specification defines the
-    following aproach: The claim "exi" ("expires in") can be used, to provide
+    following approach: The claim "exi" ("expires in") can be used, to provide
     the RS with the lifetime of the token in seconds from the time the RS first
     receives the token.  This approach is of course vulnerable to malicious
     clients holding back tokens they do not want to expire. Such an attack can
     only be prevented if the RS is able to communicate with the AS in some
-    regular intervalls, so that the can AS provide the RS with a list of expired
+    regular intervals, so that the can AS provide the RS with a list of expired
     tokens.  The drawback of this mitigation is that the RS might as well
     use the communication with the AS to synchronize its internal clock.
     </t>
@@ -1812,7 +1809,7 @@ Payload:
       <section anchor="minimalCommSecReq" title="Minimal security requirements
 						 for communication">
 	<t>This section summarizes the minimal requirements for the
-	communication security of the different protocol interations.
+	communication security of the different protocol interactions.
 
 	<list style="hanging">
 	  <t hangText="C-AS">All communication between the client and the
@@ -1837,14 +1834,14 @@ Payload:
 	  have previously exchanged either a shared secret, or their public
 	  keys in order to negotiate a secure communication. Furthermore the
 	  RS MUST be able to determine whether an AS has the authority
-	  to issue access tokens itself.  This is usally configured out of
+	  to issue access tokens itself.  This is usually configured out of
 	  band, but could also be performed through an online lookup mechanism
 	  provided that it is also secured in the same way.</t>
 
 	  <t hangText="C-RS">The initial communication between the client
 	  and the Resource Server can not be secured in general, since
 	  the RS is not in possession of on access token for that client,
-	  which would carry the necessary paraemters.  Certain security
+	  which would carry the necessary parameters.  Certain security
 	  mechanisms (e.g. DTLS with server-side authentication via a
 	  certificate or a raw public key) can be possible and are RECOMMEND
 	  if supported by both parties.  After the client has successfully
@@ -1967,7 +1964,7 @@ Payload:
 
   <section anchor="IANAOAuthErrorCodes"
 	   title="OAuth Extensions Error Registration">
-    <t>This specification registers the follwoing error values in the OAuth
+    <t>This specification registers the following error values in the OAuth
     Extensions Error registry defined in <xref target="RFC6749"/>.</t>
 
     <t><?rfc subcompact="yes"?>
@@ -1976,7 +1973,7 @@ Payload:
       <t>Error usage location: AS token endpoint error response</t>
       <t>Related protocol extension: The ACE framework [this document]</t>
       <t>Change Controller: IESG</t>
-      <t>Specification doucment(s): <xref target="errorsToken"/> of
+      <t>Specification document(s): <xref target="errorsToken"/> of
       [this document]</t>
     </list></t>
     
@@ -1986,7 +1983,7 @@ Payload:
       <t>Error usage location: AS token endpoint error response</t>
       <t>Related protocol extension: The ACE framework [this document]</t>
       <t>Change Controller: IESG</t>
-      <t>Specification doucment(s): <xref target="errorsToken"/> of
+      <t>Specification document(s): <xref target="errorsToken"/> of
       [this document]</t>
     </list></t>
   </section>
