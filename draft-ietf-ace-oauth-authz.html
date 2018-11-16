@@ -414,6 +414,7 @@
 <link href="#rfc.section.6.4" rel="Chapter" title="6.4 Combining profiles"/>
 <link href="#rfc.section.6.5" rel="Chapter" title="6.5 Unprotected Information"/>
 <link href="#rfc.section.6.6" rel="Chapter" title="6.6 Identifying Resource Servers"/>
+<link href="#rfc.section.6.7" rel="Chapter" title="6.7 Denial of service against or with      Introspection"/>
 <link href="#rfc.section.7" rel="Chapter" title="7 Privacy Considerations"/>
 <link href="#rfc.section.8" rel="Chapter" title="8 IANA Considerations"/>
 <link href="#rfc.section.8.1" rel="Chapter" title="8.1 Authorization Server Information"/>
@@ -593,6 +594,7 @@
 <li>6.4.   <a href="#rfc.section.6.4">Combining profiles</a></li>
 <li>6.5.   <a href="#rfc.section.6.5">Unprotected Information</a></li>
 <li>6.6.   <a href="#rfc.section.6.6">Identifying Resource Servers</a></li>
+<li>6.7.   <a href="#rfc.section.6.7">Denial of service against or with      Introspection</a></li>
 </ul><li>7.   <a href="#rfc.section.7">Privacy Considerations</a></li>
 <li>8.   <a href="#rfc.section.8">IANA Considerations</a></li>
 <ul><li>8.1.   <a href="#rfc.section.8.1">Authorization Server Information</a></li>
@@ -1239,6 +1241,10 @@ Payload:
 <p id="rfc.section.6.6.p.1">The audience claim as defined in <a href="#RFC7519">[RFC7519]</a> and the equivalent "req_aud" parameter defined in <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
 <p id="rfc.section.6.6.p.2">URLs are not a good way of identifying mobile devices that can switch networks and thus be associated with new URLs.  If the audience represents a single RS, and asymmetric keys are used, the RS can be uniquely identified by a hash of its public key.  If this approach is used this framework RECOMMENDS to apply the procedure from section 3 of <a href="#RFC6920">[RFC6920]</a>.</p>
 <p id="rfc.section.6.6.p.3">If the audience addresses a group of resource servers, the mapping of group identifier to individual RS has to be provisioned to each RS before the group-audience is usable.  Managing dynamic groups could be an issue, if the RS is not always reachable when the group memberships change. Furthermore issuing access tokens bound to symmetric proof-of-possession keys that apply to a group-audience is problematic, as an RS that is in possession of the access token can impersonate the client towards the other RSs that are part of the group.  It is therefore NOT RECOMMENDED to issue access tokens bound to a group audience and symmetric proof-of possession keys.</p>
+<h1 id="rfc.section.6.7"><a href="#rfc.section.6.7">6.7.</a> <a href="#introDos" id="introDos">Denial of service against or with      Introspection</a></h1>
+<p id="rfc.section.6.7.p.1">The optional introspection mechanism provided by OAuth and supported in the ACE framework allows for two types of attacks that need to be considered by implementers.</p>
+<p id="rfc.section.6.7.p.2">First an attacker could perform a denial of service attack against the introspection endpoint at the AS in order to prevent validation of access tokens.  To mitigate this attack, an RS that is configured to use introspection MUST NOT allow access based on a token for which it couln't reach the introspection endpoint.</p>
+<p id="rfc.section.6.7.p.3">Second an attacker could use the fact that an RS performs introspection to perform a denial of service attack against that RS by repeatedly sending tokens to its authz-info endpoint that require an introspection call. RS can mitigate such attacks by implementing a rate limit on how many introspection requests they perform in a given time intervall and rejecting incoming requests to authz-info for a certain amount of time, when that rate limit has been reached.</p>
 <h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#privacy" id="privacy">Privacy Considerations</a></h1>
 <p id="rfc.section.7.p.1">Implementers and users should be aware of the privacy implications of the different possible deployments of this framework.</p>
 <p id="rfc.section.7.p.2">The AS is in a very central position and can potentially learn sensitive information about the clients requesting access tokens.  If the client credentials grant is used, the AS can track what kind of access the client intends to perform.  With other grants this can be prevented by the Resource Owner.  To do so, the resource owner needs to bind the grants it issues to anonymous, ephemeral credentials that do not allow the AS to link different grants and thus different access token requests by the same client.</p>
