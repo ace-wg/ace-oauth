@@ -404,6 +404,7 @@
 <link href="#rfc.section.5.7.4" rel="Chapter" title="5.7.4 Mapping Introspection parameters to CBOR"/>
 <link href="#rfc.section.5.8" rel="Chapter" title="5.8 The Access Token"/>
 <link href="#rfc.section.5.8.1" rel="Chapter" title="5.8.1 The Authorization Information Endpoint"/>
+<link href="#rfc.section.5.8.1.1" rel="Chapter" title="5.8.1.1 Verifying an Access Token"/>
 <link href="#rfc.section.5.8.2" rel="Chapter" title="5.8.2 Client Requests to the RS"/>
 <link href="#rfc.section.5.8.3" rel="Chapter" title="5.8.3 Token Expiration"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations"/>
@@ -411,7 +412,7 @@
 <link href="#rfc.section.6.2" rel="Chapter" title="6.2 Minimal security requirements        for communication"/>
 <link href="#rfc.section.6.3" rel="Chapter" title="6.3 Use of Nonces for Replay Protection"/>
 <link href="#rfc.section.6.4" rel="Chapter" title="6.4 Combining profiles"/>
-<link href="#rfc.section.6.5" rel="Chapter" title="6.5 Error responses"/>
+<link href="#rfc.section.6.5" rel="Chapter" title="6.5 Unprotected Information"/>
 <link href="#rfc.section.6.6" rel="Chapter" title="6.6 Identifying Resource Servers"/>
 <link href="#rfc.section.7" rel="Chapter" title="7 Privacy Considerations"/>
 <link href="#rfc.section.8" rel="Chapter" title="8 IANA Considerations"/>
@@ -582,14 +583,15 @@
 <li>5.7.4.   <a href="#rfc.section.5.7.4">Mapping Introspection parameters to CBOR</a></li>
 </ul><li>5.8.   <a href="#rfc.section.5.8">The Access Token</a></li>
 <ul><li>5.8.1.   <a href="#rfc.section.5.8.1">The Authorization Information Endpoint</a></li>
-<li>5.8.2.   <a href="#rfc.section.5.8.2">Client Requests to the RS</a></li>
+<ul><li>5.8.1.1.   <a href="#rfc.section.5.8.1.1">Verifying an Access Token</a></li>
+</ul><li>5.8.2.   <a href="#rfc.section.5.8.2">Client Requests to the RS</a></li>
 <li>5.8.3.   <a href="#rfc.section.5.8.3">Token Expiration</a></li>
 </ul></ul><li>6.   <a href="#rfc.section.6">Security Considerations</a></li>
 <ul><li>6.1.   <a href="#rfc.section.6.1">Unprotected AS Information</a></li>
 <li>6.2.   <a href="#rfc.section.6.2">Minimal security requirements        for communication</a></li>
 <li>6.3.   <a href="#rfc.section.6.3">Use of Nonces for Replay Protection</a></li>
 <li>6.4.   <a href="#rfc.section.6.4">Combining profiles</a></li>
-<li>6.5.   <a href="#rfc.section.6.5">Error responses</a></li>
+<li>6.5.   <a href="#rfc.section.6.5">Unprotected Information</a></li>
 <li>6.6.   <a href="#rfc.section.6.6">Identifying Resource Servers</a></li>
 </ul><li>7.   <a href="#rfc.section.7">Privacy Considerations</a></li>
 <li>8.   <a href="#rfc.section.8">IANA Considerations</a></li>
@@ -1175,7 +1177,7 @@ Payload:
 <h1 id="rfc.section.5.8.1"><a href="#rfc.section.5.8.1">5.8.1.</a> <a href="#tokenAuthInfoEndpoint" id="tokenAuthInfoEndpoint">The Authorization Information Endpoint</a></h1>
 <p id="rfc.section.5.8.1.p.1">The access token, containing authorization information and information about the key used by the client, needs to be transported to the RS so that the RS can authenticate and authorize the client request.</p>
 <p id="rfc.section.5.8.1.p.2">This section defines a method for transporting the access token to the RS using a RESTful protocol such as CoAP. Profiles of this framework MAY define other methods for token transport.  </p>
-<p id="rfc.section.5.8.1.p.3">The method consists of an authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to the authz-info endpoint at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).</p>
+<p id="rfc.section.5.8.1.p.3">The method consists of an authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to the authz-info endpoint at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).  Section <a href="#verifyToken">Section 5.8.1.1</a> outlines how an RS MUST proceed to verify the validity of an access token.</p>
 <p id="rfc.section.5.8.1.p.4">If the access token is a CWT and is sent via CoAP, the content format "application/cwt" MUST be used. If a token is sent via HTTP the equivalent media type "application/cwt" MUST be used.</p>
 <p id="rfc.section.5.8.1.p.5">The RS MUST be prepared to store at least one access token for future use. This is a difference to how access tokens are handled in OAuth 2.0, where the access token is typically sent along with each request, and therefore not stored at the RS.</p>
 <p id="rfc.section.5.8.1.p.6">If the payload sent to the authz-info endpoint does not parse to a token, the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).  If the token is not valid, the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).  If the token is valid but the audience of the token does not match the RS, the RS MUST respond with a response code equivalent to the CoAP code 4.03 (Forbidden).  If the token is valid but is associated to claims that the RS cannot process (e.g., an unknown scope) the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request). In the latter case the RS MAY provide additional information in the error response, in order to clarify what went wrong.  </p>
@@ -1184,6 +1186,8 @@ Payload:
 <p id="rfc.section.5.8.1.p.9">Profiles MUST specify whether the authz-info endpoint is protected, including whether error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
 <p id="rfc.section.5.8.1.p.10">The default name of this endpoint in an url-path is '/authz-info', however implementations are not required to use this name and can define their own instead.</p>
 <p id="rfc.section.5.8.1.p.11">A RS MAY use introspection on a token received through the authz-info endpoint, e.g. if the token is an opaque reference.  Some transport protocols may provide a way to indicate that the RS is busy and the client should retry after an interval; this type of status update would be appropriate while the RS is waiting for an introspection response.</p>
+<h1 id="rfc.section.5.8.1.1"><a href="#rfc.section.5.8.1.1">5.8.1.1.</a> <a href="#verifyToken" id="verifyToken">Verifying an Access Token</a></h1>
+<p id="rfc.section.5.8.1.1.p.1">FIXME: check issuer, check audience, check expiration or exi, check signature/AEAD/MAC, check that scope applies.  </p>
 <h1 id="rfc.section.5.8.2"><a href="#rfc.section.5.8.2">5.8.2.</a> <a href="#requestC2RS" id="requestC2RS">Client Requests to the RS</a></h1>
 <p id="rfc.section.5.8.2.p.1">If an RS receives a request from a client, and the target resource requires authorization, the RS MUST first verify that it has an access token that authorizes this request, and that the client has performed the proof-of-possession for that token.</p>
 <p id="rfc.section.5.8.2.p.2">The response code MUST be 4.01 (Unauthorized) in case the client has not performed the proof-of-possession, or if RS has no valid access token for the client. If RS has an access token for the client but not for the resource that was requested, RS MUST reject the request with a 4.03 (Forbidden). If RS has an access token for the client but it does not cover the action that was requested on the resource, RS MUST reject the request with a 4.05 (Method Not Allowed).</p>
@@ -1226,8 +1230,10 @@ Payload:
 <p id="rfc.section.6.3.p.1">The RS may add a nonce to the AS Information message sent as a response to an unauthorized request to ensure freshness of an Access Token subsequently presented to RS. While a time-stamp of some granularity would be sufficient to protect against replay attacks, using randomized nonce is preferred to prevent disclosure of information about RS's internal clock characteristics.</p>
 <h1 id="rfc.section.6.4"><a href="#rfc.section.6.4">6.4.</a> <a href="#mixnmatch" id="mixnmatch">Combining profiles</a></h1>
 <p id="rfc.section.6.4.p.1">There may be use cases were different profiles of this framework are combined.  For example, an MQTT-TLS profile is used between the client and the RS in combination with a CoAP-DTLS profile for interactions between the client and the AS. Ideally, profiles should be designed in a way that the security of system should not depend on the specific security mechanisms used in individual protocol interactions.</p>
-<h1 id="rfc.section.6.5"><a href="#rfc.section.6.5">6.5.</a> <a href="#authzInfoLeak" id="authzInfoLeak">Error responses</a></h1>
-<p id="rfc.section.6.5.p.1">The various error responses defined in this framework may leak information to an adversary.  For example errors responses for requests to the Authorization Information endpoint can reveal information about an otherwise opaque access token to an adversary who has intercepted this token.  This framework is written under the assumption that, in general, the benefits of detailed error messages outweigh the risk due to information leakage. For particular use cases, where this assessment does not apply, detailed error messages can be replaced by more generic ones.</p>
+<h1 id="rfc.section.6.5"><a href="#rfc.section.6.5">6.5.</a> <a href="#authzInfoLeak" id="authzInfoLeak">Unprotected Information</a></h1>
+<p id="rfc.section.6.5.p.1">Communication with the authz-info endpoint, as well as the various error responses defined in this framework all potentially include sending information over an unprotected channel.  These messages may leak information to an adversary.  For example errors responses for requests to the Authorization Information endpoint can reveal information about an otherwise opaque access token to an adversary who has intercepted this token.</p>
+<p id="rfc.section.6.5.p.2">As far as error messages are concerned, this framework is written under the assumption that, in general, the benefits of detailed error messages outweigh the risk due to information leakage. For particular use cases, where this assessment does not apply, detailed error messages can be replaced by more generic ones.</p>
+<p id="rfc.section.6.5.p.3">In some scenarios it may be possible to protect the communication with the authz-info endpoint (e.g. through DTLS with only server-side authentication). In cases where this is not possible this framework RECOMMENDS to use encrypted CWTs or opaque references and need to be subjected to introspection by the RS.</p>
 <h1 id="rfc.section.6.6"><a href="#rfc.section.6.6">6.6.</a> <a href="#aud" id="aud">Identifying Resource Servers</a></h1>
 <p id="rfc.section.6.6.p.1">The audience claim as defined in <a href="#RFC7519">[RFC7519]</a> and the equivalent "req_aud" parameter defined in <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
 <p id="rfc.section.6.6.p.2">URLs are not a good way of identifying mobile devices that can switch networks and thus be associated with new URLs.  If the audience represents a single RS, and asymmetric keys are used, the RS can be uniquely identified by a hash of its public key.  If this approach is used this framework RECOMMENDS to apply the procedure from section 3 of <a href="#RFC6920">[RFC6920]</a>.</p>

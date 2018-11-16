@@ -1622,7 +1622,9 @@ Payload:
   RS.  A client using this method MUST make a POST request to the authz-info
   endpoint at the RS with the access token in the payload. The RS receiving the
   token MUST verify the validity of the token.  If the token is valid, the RS
-  MUST respond to the POST request with 2.01 (Created).</t>
+  MUST respond to the POST request with 2.01 (Created).  Section <xref
+  target="verifyToken"/> outlines how an RS MUST proceed to verify the validity
+  of an access token.</t>
 
   <t>If the access token is a CWT and is sent via CoAP, the content format
   "application/cwt" MUST be used. If a token is sent via HTTP the equivalent
@@ -1668,6 +1670,13 @@ Payload:
   may provide a way to indicate that the RS is busy and the client should
   retry after an interval; this type of status update would be appropriate
   while the RS is waiting for an introspection response.</t>
+
+  <section anchor="verifyToken" title="Verifying an Access Token">
+    <t>
+      FIXME: check issuer, check audience, check expiration or exi,
+      check signature/AEAD/MAC, check that scope applies.
+    </t>
+  </section>
   
 </section>
 
@@ -1886,18 +1895,28 @@ Payload:
 	the security of system should not depend on the
 	specific security mechanisms used in individual protocol interactions.</t>
       </section>
-      <section anchor="authzInfoLeak" title="Error responses">
-	<t>The various error responses defined in this framework may leak
-	information to an adversary.  For example errors responses for requests
-	to the Authorization Information endpoint can reveal information about
-	an otherwise opaque access token to an adversary who has intercepted
-	this token.  This framework is written under the assumption that,
-	in general, the benefits of detailed error messages outweigh the risk
-	due to information leakage. For particular use cases, where this
-	assessment does not apply, detailed error messages can be replaced by
-	more generic ones.</t>
-      </section>
+      <section anchor="authzInfoLeak" title="Unprotected Information">
+	<t>Communication with the authz-info endpoint, as well as the
+	various error responses defined in this framework all potentially
+	include sending information over an unprotected channel.
+	These messages may leak information to an adversary.  For example
+	errors responses for requests to the Authorization Information endpoint
+	can reveal information about an otherwise opaque access token to an
+	adversary who has intercepted this token.</t>
 
+	<t>As far as error messages are concerned, this framework is written
+	under the assumption that, in general, the benefits of detailed error
+	messages outweigh the risk due to information leakage. For particular
+	use cases, where this assessment does not apply, detailed error
+	messages can be replaced by more generic ones.</t>
+
+	<t>In some scenarios it may be possible to protect the
+	communication with the authz-info endpoint (e.g. through
+	DTLS with only server-side authentication). In cases where
+	this is not possible this framework RECOMMENDS to use encrypted
+	CWTs or opaque references and need to be subjected to introspection
+	by the RS.</t>
+      </section>
       <section anchor="aud" title="Identifying Resource Servers">
 	<t>The audience claim as defined in <xref target="RFC7519"/>
 	and the equivalent "req_aud" parameter defined in <xref
