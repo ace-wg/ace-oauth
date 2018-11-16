@@ -412,6 +412,7 @@
 <link href="#rfc.section.6.3" rel="Chapter" title="6.3 Use of Nonces for Replay Protection"/>
 <link href="#rfc.section.6.4" rel="Chapter" title="6.4 Combining profiles"/>
 <link href="#rfc.section.6.5" rel="Chapter" title="6.5 Error responses"/>
+<link href="#rfc.section.6.6" rel="Chapter" title="6.6 Identifying Resource Servers"/>
 <link href="#rfc.section.7" rel="Chapter" title="7 Privacy Considerations"/>
 <link href="#rfc.section.8" rel="Chapter" title="8 IANA Considerations"/>
 <link href="#rfc.section.8.1" rel="Chapter" title="8.1 Authorization Server Information"/>
@@ -589,6 +590,7 @@
 <li>6.3.   <a href="#rfc.section.6.3">Use of Nonces for Replay Protection</a></li>
 <li>6.4.   <a href="#rfc.section.6.4">Combining profiles</a></li>
 <li>6.5.   <a href="#rfc.section.6.5">Error responses</a></li>
+<li>6.6.   <a href="#rfc.section.6.6">Identifying Resource Servers</a></li>
 </ul><li>7.   <a href="#rfc.section.7">Privacy Considerations</a></li>
 <li>8.   <a href="#rfc.section.8">IANA Considerations</a></li>
 <ul><li>8.1.   <a href="#rfc.section.8.1">Authorization Server Information</a></li>
@@ -1206,7 +1208,7 @@ Payload:
 <p id="rfc.section.6.p.4">The authorization server MUST offer confidentiality protection for any interactions with the client.  This step is extremely important since the client may obtain the proof-of-possession key from the authorization server for use with a specific access token.  Not using confidentiality protection exposes this secret (and the access token) to an eavesdropper thereby completely negating proof-of-possession security.  Profiles MUST specify how confidentiality protection is provided, and additional protection can be applied by encrypting the token, for example encryption of CWTs is specified in Section 5.1 of <a href="#RFC8392">[RFC8392]</a>.</p>
 <p id="rfc.section.6.p.5">Developers MUST ensure that the ephemeral credentials (i.e., the private key or the session key) are not leaked to third parties.  An adversary in possession of the ephemeral credentials bound to the access token will be able to impersonate the client.  Be aware that this is a real risk with many constrained environments, since adversaries can often easily get physical access to the devices.  This risk can also be mitigated to some extent by making sure that keys are refreshed more frequently.</p>
 <p id="rfc.section.6.p.6">If clients are capable of doing so, they should frequently request fresh access tokens, as this allows the AS to keep the lifetime of the tokens short. This allows the AS to use shorter proof-of-possession key sizes, which translate to a performance benefit for the client and for the resource server.  Shorter keys also lead to shorter messages (particularly with asymmetric keying material).</p>
-<p id="rfc.section.6.p.7">When authorization servers bind symmetric keys to access tokens, they SHOULD scope these access tokens to a specific permissions.  Furthermore access tokens using symmetric keys for proof-of-possession SHOULD NOT be targeted at an audience that contains more than one RS, since otherwise any RS in the audience that receives that access token can impersonate the client towards the other members of the audience.</p>
+<p id="rfc.section.6.p.7">When authorization servers bind symmetric keys to access tokens, they SHOULD scope these access tokens to a specific permission.</p>
 <h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#unprotected-as-information" id="unprotected-as-information">Unprotected AS Information</a></h1>
 <p id="rfc.section.6.1.p.1">Initially, no secure channel exists to protect the communication between C and RS. Thus, C cannot determine if the AS information contained in an unprotected response from RS to an unauthorized request (see <a href="#asInfo">Section 5.1.2</a>) is authentic. It is therefore advisable to provide C with a (possibly hard-coded) list of trustworthy authorization servers. AS information responses referring to a URI not listed there would be ignored.</p>
 <h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#minimalCommSecReq" id="minimalCommSecReq">Minimal security requirements        for communication</a></h1>
@@ -1226,6 +1228,10 @@ Payload:
 <p id="rfc.section.6.4.p.1">There may be use cases were different profiles of this framework are combined.  For example, an MQTT-TLS profile is used between the client and the RS in combination with a CoAP-DTLS profile for interactions between the client and the AS. Ideally, profiles should be designed in a way that the security of system should not depend on the specific security mechanisms used in individual protocol interactions.</p>
 <h1 id="rfc.section.6.5"><a href="#rfc.section.6.5">6.5.</a> <a href="#authzInfoLeak" id="authzInfoLeak">Error responses</a></h1>
 <p id="rfc.section.6.5.p.1">The various error responses defined in this framework may leak information to an adversary.  For example errors responses for requests to the Authorization Information endpoint can reveal information about an otherwise opaque access token to an adversary who has intercepted this token.  This framework is written under the assumption that, in general, the benefits of detailed error messages outweigh the risk due to information leakage. For particular use cases, where this assessment does not apply, detailed error messages can be replaced by more generic ones.</p>
+<h1 id="rfc.section.6.6"><a href="#rfc.section.6.6">6.6.</a> <a href="#aud" id="aud">Identifying Resource Servers</a></h1>
+<p id="rfc.section.6.6.p.1">The audience claim as defined in <a href="#RFC7519">[RFC7519]</a> and the equivalent "req_aud" parameter defined in <a href="#I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
+<p id="rfc.section.6.6.p.2">URLs are not a good way of identifying mobile devices that can switch networks and thus be associated with new URLs.  If the audience represents a single RS, and asymmetric keys are used, the RS can be uniquely identified by a hash of its public key.  If this approach is used this framework RECOMMENDS to apply the procedure from section 3 of <a href="#RFC6920">[RFC6920]</a>.</p>
+<p id="rfc.section.6.6.p.3">If the audience addresses a group of resource servers, the mapping of group identifier to individual RS has to be provisioned to each RS before the group-audience is usable.  Managing dynamic groups could be an issue, if the RS is not always reachable when the group memberships change. Furthermore issuing access tokens bound to symmetric proof-of-possession keys that apply to a group-audience is problematic, as an RS that is in possession of the access token can impersonate the client towards the other RSs that are part of the group.  It is therefore NOT RECOMMENDED to issue access tokens bound to a group audience and symmetric proof-of possession keys.</p>
 <h1 id="rfc.section.7"><a href="#rfc.section.7">7.</a> <a href="#privacy" id="privacy">Privacy Considerations</a></h1>
 <p id="rfc.section.7.p.1">Implementers and users should be aware of the privacy implications of the different possible deployments of this framework.</p>
 <p id="rfc.section.7.p.2">The AS is in a very central position and can potentially learn sensitive information about the clients requesting access tokens.  If the client credentials grant is used, the AS can track what kind of access the client intends to perform.  With other grants this can be prevented by the Resource Owner.  To do so, the resource owner needs to bind the grants it issues to anonymous, ephemeral credentials that do not allow the AS to link different grants and thus different access token requests by the same client.</p>
@@ -1591,6 +1597,12 @@ Payload:
         <b id="RFC6838">[RFC6838]</b>
       </td>
       <td class="top"><a>Freed, N.</a>, <a>Klensin, J.</a> and <a>T. Hansen</a>, "<a href="http://tools.ietf.org/html/rfc6838">Media Type Specifications and Registration Procedures</a>", BCP 13, RFC 6838, DOI 10.17487/RFC6838, January 2013.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="RFC6920">[RFC6920]</b>
+      </td>
+      <td class="top"><a>Farrell, S.</a>, <a>Kutscher, D.</a>, <a>Dannewitz, C.</a>, <a>Ohlman, B.</a>, <a>Keranen, A.</a> and <a>P. Hallam-Baker</a>, "<a href="http://tools.ietf.org/html/rfc6920">Naming Things with Hashes</a>", RFC 6920, DOI 10.17487/RFC6920, April 2013.</td>
     </tr>
     <tr>
       <td class="reference">

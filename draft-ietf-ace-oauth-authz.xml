@@ -17,6 +17,7 @@
 <!ENTITY RFC6750 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6750.xml">
 <!ENTITY RFC6819 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6819.xml">
 <!ENTITY RFC6838 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6838.xml">
+<!ENTITY RFC6920 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6920.xml">
 <!ENTITY RFC7049 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7049.xml">
 <!ENTITY RFC7228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7228.xml">
 <!ENTITY RFC7231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7231.xml">
@@ -1802,11 +1803,7 @@ Payload:
       (particularly with asymmetric keying material).</t>
 
       <t>When authorization servers bind symmetric keys to access tokens,
-      they SHOULD scope these access tokens to a specific permissions.
-      Furthermore access tokens using symmetric keys for proof-of-possession
-      SHOULD NOT be targeted at an audience that contains more than one RS,
-      since otherwise any RS in the audience that receives that access token
-      can impersonate the client towards the other members of the audience.</t>
+      they SHOULD scope these access tokens to a specific permission.</t>
 
       <section anchor="unprotected-as-information"
 	       title="Unprotected AS Information">
@@ -1899,6 +1896,35 @@ Payload:
 	due to information leakage. For particular use cases, where this
 	assessment does not apply, detailed error messages can be replaced by
 	more generic ones.</t>
+      </section>
+
+      <section anchor="aud" title="Identifying Resource Servers">
+	<t>The audience claim as defined in <xref target="RFC7519"/>
+	and the equivalent "req_aud" parameter defined in <xref
+	target="I-D.ietf-ace-oauth-params"/> are intentionally vague
+	on how to match the audience value to a specific RS.
+	This is intended to allow application specific semantics to be
+	used.  This section attempts to give some general
+	guidance for the use of audiences in constrained environments.</t>
+
+	<t>URLs are not a good way of identifying mobile devices that can
+	switch networks and thus be associated with new URLs.  If the
+	audience represents a single RS, and asymmetric keys are used,
+	the RS can be uniquely identified by a hash of its public key.
+	If this approach is used this framework RECOMMENDS to apply the
+	procedure from section 3 of <xref target="RFC6920"/>.</t>
+
+	<t>If the audience addresses a group of resource servers, the
+	mapping of group identifier to individual RS has to be
+	provisioned to each RS before the group-audience is usable.
+	Managing dynamic groups could be an issue, if the RS is not always
+	reachable when the group memberships change. Furthermore issuing
+	access tokens bound to symmetric proof-of-possession keys that apply
+	to a group-audience is problematic, as an RS that is in possession
+	of the access token can impersonate the client towards the other RSs
+	that are part of the group.  It is therefore NOT RECOMMENDED to
+	issue access tokens bound to a group audience and symmetric proof-of
+	possession keys.</t>
       </section>
 </section>
 
@@ -2457,6 +2483,7 @@ Payload:
       &RFC6749;    
       &RFC6750;
       &RFC6838;
+      &RFC6920;
       &RFC7252;
       &RFC7662;
       &RFC8126;
