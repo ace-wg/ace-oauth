@@ -405,6 +405,7 @@
 <link href="#rfc.section.5.8" rel="Chapter" title="5.8 The Access Token"/>
 <link href="#rfc.section.5.8.1" rel="Chapter" title="5.8.1 The Authorization Information Endpoint"/>
 <link href="#rfc.section.5.8.1.1" rel="Chapter" title="5.8.1.1 Verifying an Access Token"/>
+<link href="#rfc.section.5.8.1.2" rel="Chapter" title="5.8.1.2 Protecting the Authzorization       Information Endpoint"/>
 <link href="#rfc.section.5.8.2" rel="Chapter" title="5.8.2 Client Requests to the RS"/>
 <link href="#rfc.section.5.8.3" rel="Chapter" title="5.8.3 Token Expiration"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations"/>
@@ -585,6 +586,7 @@
 </ul><li>5.8.   <a href="#rfc.section.5.8">The Access Token</a></li>
 <ul><li>5.8.1.   <a href="#rfc.section.5.8.1">The Authorization Information Endpoint</a></li>
 <ul><li>5.8.1.1.   <a href="#rfc.section.5.8.1.1">Verifying an Access Token</a></li>
+<li>5.8.1.2.   <a href="#rfc.section.5.8.1.2">Protecting the Authzorization       Information Endpoint</a></li>
 </ul><li>5.8.2.   <a href="#rfc.section.5.8.2">Client Requests to the RS</a></li>
 <li>5.8.3.   <a href="#rfc.section.5.8.3">Token Expiration</a></li>
 </ul></ul><li>6.   <a href="#rfc.section.6">Security Considerations</a></li>
@@ -1207,6 +1209,11 @@ Payload:
 <p id="rfc.section.5.8.1.1.p.4">Finally the RS MUST verify the cryptographic wrapper of the token (e.g.  a COSE message) based on shared cryptographic material with recognized AS.  If this verification fails, the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).</p>
 <p id="rfc.section.5.8.1.1.p.5">Note that the Subject (sub) claim cannot always be verified when the token is submitted to the RS, since the client may not have authenticated yet. Also note that a counter for the expires_in (exi) claim MUST be initialized when the RS first verifies this token.</p>
 <p id="rfc.section.5.8.1.1.p.6">When sending error responses, the RS MAY use the error codes from section 3.1 of <a href="#RFC6750">[RFC6750]</a>, in order to provide additional detail to the client.</p>
+<h1 id="rfc.section.5.8.1.2"><a href="#rfc.section.5.8.1.2">5.8.1.2.</a> <a href="#protAuthzInfo" id="protAuthzInfo">Protecting the Authzorization       Information Endpoint</a></h1>
+<p id="rfc.section.5.8.1.2.p.1">As this framework can be used in RESTful environments, it is important to make sure that attackers cannot perform unauthorized requests on the auth-info endpoints, other than submitting access tokens.</p>
+<p id="rfc.section.5.8.1.2.p.2">Specifically it SHOULD NOT be possible to perform GET, DELETE or PUT on the authz-info endpoint and on it's children (if any).</p>
+<p id="rfc.section.5.8.1.2.p.3">The POST method SHOULD NOT be allowed on children of the authz-info endpoint.</p>
+<p id="rfc.section.5.8.1.2.p.4">The RS SHOULD implement rate limiting measures to mitigate attacks aiming to overload the processing capacity of the RS by repeatedly submitting tokens. For CoAP-based communication the RS could use the mechanisms from <a href="#I-D.ietf-core-too-many-reqs">[I-D.ietf-core-too-many-reqs]</a> to indicate that it is overloaded.</p>
 <h1 id="rfc.section.5.8.2"><a href="#rfc.section.5.8.2">5.8.2.</a> <a href="#requestC2RS" id="requestC2RS">Client Requests to the RS</a></h1>
 <p id="rfc.section.5.8.2.p.1">If an RS receives a request from a client, and the target resource requires authorization, the RS MUST first verify that it has an access token that authorizes this request, and that the client has performed the proof-of-possession for that token.</p>
 <p id="rfc.section.5.8.2.p.2">The response code MUST be 4.01 (Unauthorized) in case the client has not performed the proof-of-possession, or if RS has no valid access token for the client. If RS has an access token for the client but not for the resource that was requested, RS MUST reject the request with a 4.03 (Forbidden). If RS has an access token for the client but it does not cover the action that was requested on the resource, RS MUST reject the request with a 4.05 (Method Not Allowed).</p>
@@ -1686,6 +1693,12 @@ Payload:
         <b id="I-D.ietf-core-object-security">[I-D.ietf-core-object-security]</b>
       </td>
       <td class="top"><a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-object-security-15">Object Security for Constrained RESTful Environments (OSCORE)</a>", Internet-Draft draft-ietf-core-object-security-15, August 2018.</td>
+    </tr>
+    <tr>
+      <td class="reference">
+        <b id="I-D.ietf-core-too-many-reqs">[I-D.ietf-core-too-many-reqs]</b>
+      </td>
+      <td class="top"><a>Keranen, A.</a>, "<a href="http://tools.ietf.org/html/draft-ietf-core-too-many-reqs-06">Too Many Requests Response Code for the Constrained Application Protocol</a>", Internet-Draft draft-ietf-core-too-many-reqs-06, November 2018.</td>
     </tr>
     <tr>
       <td class="reference">
