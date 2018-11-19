@@ -469,7 +469,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-16" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-11-16" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-11-19" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -493,7 +493,7 @@
   <td class="right">G. Selander</td>
 </tr>
 <tr>
-  <td class="left">Expires: May 20, 2019</td>
+  <td class="left">Expires: May 23, 2019</td>
   <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -522,7 +522,7 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">November 16, 2018</td>
+  <td class="right">November 19, 2018</td>
 </tr>
 
     	
@@ -542,7 +542,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on May 20, 2019.</p>
+<p>This Internet-Draft will expire on May 23, 2019.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -1182,14 +1182,31 @@ Payload:
 <p id="rfc.section.5.8.1.p.3">The method consists of an authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to the authz-info endpoint at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).  Section <a href="#verifyToken">Section 5.8.1.1</a> outlines how an RS MUST proceed to verify the validity of an access token.</p>
 <p id="rfc.section.5.8.1.p.4">If the access token is a CWT and is sent via CoAP, the content format "application/cwt" MUST be used. If a token is sent via HTTP the equivalent media type "application/cwt" MUST be used.</p>
 <p id="rfc.section.5.8.1.p.5">The RS MUST be prepared to store at least one access token for future use. This is a difference to how access tokens are handled in OAuth 2.0, where the access token is typically sent along with each request, and therefore not stored at the RS.</p>
-<p id="rfc.section.5.8.1.p.6">If the payload sent to the authz-info endpoint does not parse to a token, the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).  If the token is not valid, the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).  If the token is valid but the audience of the token does not match the RS, the RS MUST respond with a response code equivalent to the CoAP code 4.03 (Forbidden).  If the token is valid but is associated to claims that the RS cannot process (e.g., an unknown scope) the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request). In the latter case the RS MAY provide additional information in the error response, in order to clarify what went wrong.  </p>
-<p id="rfc.section.5.8.1.p.7">The RS MAY use the error codes from section 3.1 of <a href="#RFC6750">[RFC6750]</a> when giving error responses, in order to provide additional detail.</p>
-<p id="rfc.section.5.8.1.p.8">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint.  </p>
-<p id="rfc.section.5.8.1.p.9">Profiles MUST specify whether the authz-info endpoint is protected, including whether error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
-<p id="rfc.section.5.8.1.p.10">The default name of this endpoint in an url-path is '/authz-info', however implementations are not required to use this name and can define their own instead.</p>
-<p id="rfc.section.5.8.1.p.11">A RS MAY use introspection on a token received through the authz-info endpoint, e.g. if the token is an opaque reference.  Some transport protocols may provide a way to indicate that the RS is busy and the client should retry after an interval; this type of status update would be appropriate while the RS is waiting for an introspection response.</p>
+<p id="rfc.section.5.8.1.p.6">If the payload sent to the authz-info endpoint does not parse to a token, the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).</p>
+<p id="rfc.section.5.8.1.p.7">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint.  </p>
+<p id="rfc.section.5.8.1.p.8">Profiles MUST specify whether the authz-info endpoint is protected, including whether error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
+<p id="rfc.section.5.8.1.p.9">The default name of this endpoint in an url-path is '/authz-info', however implementations are not required to use this name and can define their own instead.</p>
+<p id="rfc.section.5.8.1.p.10">A RS MAY use introspection on a token received through the authz-info endpoint, e.g. if the token is an opaque reference.  Some transport protocols may provide a way to indicate that the RS is busy and the client should retry after an interval; this type of status update would be appropriate while the RS is waiting for an introspection response.</p>
 <h1 id="rfc.section.5.8.1.1"><a href="#rfc.section.5.8.1.1">5.8.1.1.</a> <a href="#verifyToken" id="verifyToken">Verifying an Access Token</a></h1>
-<p id="rfc.section.5.8.1.1.p.1">FIXME: check issuer, check audience, check expiration or exi, check signature/AEAD/MAC, check that scope applies.  </p>
+<p id="rfc.section.5.8.1.1.p.1">When an RS receives an access token, it MUST verify it before storing it. The verification is based on the claims of the token and its cryptographic wrapper (if any), so the RS needs to retrieve those claims.  If the claims cannot be retrieved the RS MUST discard the token and in case of an interaction via the authz-info endpoint, return an error message with a response code equivalent to the CoAP code 4.00 (Bad Request).</p>
+<p id="rfc.section.5.8.1.1.p.2">The following claims MUST be checked if present, and errors returned when a check fails, in the order of priority of this list: </p>
+
+<dl>
+  <dt>iss</dt>
+  <dd style="margin-left: 8">The issuer claim must identify an AS that has the authority to issue access tokens for the receiving RS.  If that is not the case the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).</dd>
+  <dt>exp</dt>
+  <dd style="margin-left: 8">The expiration date must be in the future. Note that this has to be verified again at access time.  If that is not the case the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).</dd>
+  <dt>aud</dt>
+  <dd style="margin-left: 8">The audience claim must refer to an audience that the RS identifies with. If that is not the case the RS MUST respond with a response code equivalent to the CoAP code 4.03 (Forbidden).</dd>
+  <dt>scope</dt>
+  <dd style="margin-left: 8">The RS must recognize value of the scope claim.  If that is not the case the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).  The RS MAY provide additional information in the error response, in order to clarify what went wrong.</dd>
+</dl>
+
+<p> </p>
+<p id="rfc.section.5.8.1.1.p.3">If the access token contains any other claims that the RS cannot process the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request). The RS MAY provide additional detail in the error response to clarify which claim couldn't be processed.</p>
+<p id="rfc.section.5.8.1.1.p.4">Finally the RS MUST verify the cryptographic wrapper of the token (e.g.  a COSE message) based on shared cryptographic material with recognized AS.  If this verification fails, the RS MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).</p>
+<p id="rfc.section.5.8.1.1.p.5">Note that the Subject (sub) claim cannot always be verified when the token is submitted to the RS, since the client may not have authenticated yet. Also note that a counter for the expires_in (exi) claim MUST be initialized when the RS first verifies this token.</p>
+<p id="rfc.section.5.8.1.1.p.6">When sending error responses, the RS MAY use the error codes from section 3.1 of <a href="#RFC6750">[RFC6750]</a>, in order to provide additional detail to the client.</p>
 <h1 id="rfc.section.5.8.2"><a href="#rfc.section.5.8.2">5.8.2.</a> <a href="#requestC2RS" id="requestC2RS">Client Requests to the RS</a></h1>
 <p id="rfc.section.5.8.2.p.1">If an RS receives a request from a client, and the target resource requires authorization, the RS MUST first verify that it has an access token that authorizes this request, and that the client has performed the proof-of-possession for that token.</p>
 <p id="rfc.section.5.8.2.p.2">The response code MUST be 4.01 (Unauthorized) in case the client has not performed the proof-of-possession, or if RS has no valid access token for the client. If RS has an access token for the client but not for the resource that was requested, RS MUST reject the request with a 4.03 (Forbidden). If RS has an access token for the client but it does not cover the action that was requested on the resource, RS MUST reject the request with a 4.05 (Method Not Allowed).</p>
@@ -1197,8 +1214,8 @@ Payload:
 <p id="rfc.section.5.8.2.p.4">Note: The RS MAY use introspection for timely validation of an access token, at the time when a request is presented.</p>
 <p id="rfc.section.5.8.2.p.5">Note: Matching the claims of the access token (e.g., scope) to a specific request is application specific.</p>
 <p id="rfc.section.5.8.2.p.6">If the request matches a valid token and the client has performed the proof-of-possession for that token, the RS continues to process the request as specified by the underlying application.</p>
-<h1 id="rfc.section.5.8.3"><a href="#rfc.section.5.8.3">5.8.3.</a> <a href="#tokenValidity" id="tokenValidity">Token Expiration</a></h1>
-<p id="rfc.section.5.8.3.p.1">Depending on the capabilities of the RS, there are various ways in which it can verify the validity of a received access token.  Here follows a list of the possibilities including what functionality they require of the RS.</p>
+<h1 id="rfc.section.5.8.3"><a href="#rfc.section.5.8.3">5.8.3.</a> <a href="#tokenExpiration" id="tokenExpiration">Token Expiration</a></h1>
+<p id="rfc.section.5.8.3.p.1">Depending on the capabilities of the RS, there are various ways in which it can verify the expiration of a received access token.  Here follows a list of the possibilities including what functionality they require of the RS.</p>
 <p/>
 
 <ul>
@@ -1458,7 +1475,7 @@ Payload:
   <li>Claim Name: <samp>exi</samp></li>
   <li>Claim Description: "Expires in". Lifetime of the token in seconds from the time the RS first sees it.  Used to implement a weaker from of token expiration for devices that cannot synchronize their internal clocks.</li>
   <li>Change Controller: IESG</li>
-  <li>Reference: <a href="#tokenValidity">Section 5.8.3</a> of [this document]</li>
+  <li>Reference: <a href="#tokenExpiration">Section 5.8.3</a> of [this document]</li>
 </ul>
 <h1 id="rfc.section.8.13"><a href="#rfc.section.8.13">8.13.</a> <a href="#IANACWTClaims" id="IANACWTClaims">CBOR Web Token Claims</a></h1>
 <p id="rfc.section.8.13.p.1">This specification registers the following new claims in the "CBOR Web Token (CWT) Claims" registry <a href="#IANA.CborWebTokenClaims">[IANA.CborWebTokenClaims]</a>.</p>
@@ -2316,7 +2333,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
   <li>Added RFC 2119 language to the specification of the required behavior of profile specifications.</li>
   <li>Added <a href="#clientCredentials">Section 5.3</a> on the relation to the OAuth2 grant types.</li>
   <li>Added CBOR abbreviations for error and the error codes defined in OAuth2.</li>
-  <li>Added clarification about token expiration and long-running requests in <a href="#tokenValidity">Section 5.8.3</a></li>
+  <li>Added clarification about token expiration and long-running requests in <a href="#tokenExpiration">Section 5.8.3</a></li>
   <li>Added security considerations about tokens with symmetric pop keys valid for more than one RS.</li>
   <li>Added privacy considerations section.</li>
   <li>Added IANA registry mapping the confirmation types from RFC 7800 to equivalent COSE types.</li>

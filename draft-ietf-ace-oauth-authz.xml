@@ -1637,19 +1637,7 @@ Payload:
   
   <t>If the payload sent to the authz-info endpoint does not parse
   to a token, the RS MUST respond with a response code equivalent to the CoAP
-  code 4.00 (Bad Request).  If the token is not valid, the RS MUST respond with
-  a response code equivalent to the CoAP code 4.01 (Unauthorized).  If the
-  token is valid but the audience of the token does not match the RS, the RS
-  MUST respond with a response code equivalent to the CoAP code 4.03
-  (Forbidden).  If the token is valid but is associated to claims that the RS
-  cannot process (e.g., an unknown scope) the RS MUST respond with a response
-  code equivalent to the CoAP code 4.00 (Bad Request). In the latter case the
-  RS MAY provide additional information in the error response, in order to
-  clarify what went wrong.
-  </t>
-
-  <t>The RS MAY use the error codes from section 3.1 of <xref target="RFC6750"/>
-  when giving error responses, in order to provide additional detail.</t>
+  code 4.00 (Bad Request).</t>
   
   <t>The RS MAY make an introspection request to validate the token before
   responding to the POST request to the authz-info endpoint.
@@ -1672,10 +1660,55 @@ Payload:
   while the RS is waiting for an introspection response.</t>
 
   <section anchor="verifyToken" title="Verifying an Access Token">
-    <t>
-      FIXME: check issuer, check audience, check expiration or exi,
-      check signature/AEAD/MAC, check that scope applies.
+    <t>When an RS receives an access token, it MUST verify it before storing
+    it. The verification is based on the claims of the token and its
+    cryptographic wrapper (if any), so the RS needs to retrieve those claims.
+    If the claims cannot be retrieved the RS MUST discard the token and
+    in case of an interaction via the authz-info endpoint, return an error
+    message with a response code equivalent to the CoAP code 4.00 (Bad
+    Request).</t>
+
+    <t>The following claims MUST be checked if present, and errors
+    returned when a check fails, in the order of priority of this list:
+
+    <list style="hanging">
+      <t hangText="iss">The issuer claim must identify an AS that
+      has the authority to issue access tokens for the receiving RS.
+      If that is not the case the RS MUST respond with a response code
+      equivalent to the CoAP code 4.01 (Unauthorized).</t>
+      <t hangText="exp">The expiration date must be in the future. Note that
+      this has to be verified again at access time.  If that is not the case
+      the RS MUST respond with a response code equivalent to the CoAP code 4.01
+      (Unauthorized).</t>
+      <t hangText="aud">The audience claim must refer to an audience that
+      the RS identifies with. If that is not the case the RS MUST respond with
+      a response code equivalent to the CoAP code 4.03 (Forbidden).</t>
+      <t hangText="scope">The RS must recognize value of the scope claim.
+      If that is not the case the RS MUST respond with a response code
+      equivalent to the CoAP code 4.00 (Bad Request).  The RS MAY provide
+      additional information in the error response, in order to clarify what
+      went wrong.</t>
+    </list>
     </t>
+
+    <t>If the access token contains any other claims that the RS cannot process
+    the RS MUST respond with a response code equivalent to the CoAP code 4.00
+    (Bad Request). The RS MAY provide additional detail in the error response
+    to clarify which claim couldn't be processed.</t>
+
+    <t>Finally the RS MUST verify the cryptographic wrapper of the token (e.g.
+    a COSE message) based on shared cryptographic material with recognized
+    AS.  If this verification fails, the RS MUST respond with a response
+    code equivalent to the CoAP code 4.01 (Unauthorized).</t>
+
+    <t>Note that the Subject (sub) claim cannot always be verified when the
+    token is submitted to the RS, since the client may not have authenticated
+    yet. Also note that a counter for the expires_in (exi) claim MUST be
+    initialized when the RS first verifies this token.</t>
+
+    <t>When sending error responses, the RS MAY use the error codes from
+    section 3.1 of <xref target="RFC6750"/>, in order to provide additional
+    detail to the client.</t>
   </section>
   
 </section>
@@ -1713,9 +1746,9 @@ Payload:
   as specified by the underlying application.</t>
 </section>
 
-<section anchor="tokenValidity" title="Token Expiration">
+<section anchor="tokenExpiration" title="Token Expiration">
   <t>Depending on the capabilities of the RS, there are various ways in
-    which it can verify the validity of a received access token.  Here follows
+    which it can verify the expiration of a received access token.  Here follows
     a list of the possibilities including what functionality they require of the
     RS.</t>
 
@@ -2376,7 +2409,7 @@ Payload:
       token expiration for devices that cannot synchronize their internal
       clocks.</t>
       <t>Change Controller: IESG</t>
-      <t>Reference: <xref target="tokenValidity"/> of [this document]</t>
+      <t>Reference: <xref target="tokenExpiration"/> of [this document]</t>
     </list></t>
     
   </section>
@@ -3598,7 +3631,7 @@ F:  |<--------+ Header: 2.04 Changed
 	  <t>Added CBOR abbreviations for error and the error codes defined in
 	  OAuth2.</t>
 	  <t>Added clarification about token expiration and long-running
-	  requests in <xref target="tokenValidity"/></t>
+	  requests in <xref target="tokenExpiration"/></t>
 	  <t>Added security considerations about tokens with symmetric pop
 	  keys valid for more than one RS.</t>
 	  <t>Added privacy considerations section.</t>
