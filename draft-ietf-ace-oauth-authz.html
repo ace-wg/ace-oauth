@@ -469,7 +469,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-16" />
-  <meta name="dct.issued" scheme="ISO8601" content="2018-11-23" />
+  <meta name="dct.issued" scheme="ISO8601" content="2018-11-26" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -493,7 +493,7 @@
   <td class="right">G. Selander</td>
 </tr>
 <tr>
-  <td class="left">Expires: May 27, 2019</td>
+  <td class="left">Expires: May 30, 2019</td>
   <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -522,7 +522,7 @@
 </tr>
 <tr>
   <td class="left"></td>
-  <td class="right">November 23, 2018</td>
+  <td class="right">November 26, 2018</td>
 </tr>
 
     	
@@ -542,7 +542,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at http://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on May 27, 2019.</p>
+<p>This Internet-Draft will expire on May 30, 2019.</p>
 <h1 id="rfc.copyrightnotice">
   <a href="#rfc.copyrightnotice">Copyright Notice</a>
 </h1>
@@ -1187,11 +1187,12 @@ Payload:
 <p id="rfc.section.5.8.1.p.3">The method consists of an authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to the authz-info endpoint at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).  Section <a href="#verifyToken">Section 5.8.1.1</a> outlines how an RS MUST proceed to verify the validity of an access token.</p>
 <p id="rfc.section.5.8.1.p.4">If the access token is a CWT and is sent via CoAP, the content format "application/cwt" MUST be used. If a token is sent via HTTP the equivalent media type "application/cwt" MUST be used.</p>
 <p id="rfc.section.5.8.1.p.5">The RS MUST be prepared to store at least one access token for future use. This is a difference to how access tokens are handled in OAuth 2.0, where the access token is typically sent along with each request, and therefore not stored at the RS.</p>
-<p id="rfc.section.5.8.1.p.6">If the payload sent to the authz-info endpoint does not parse to a token, the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).</p>
-<p id="rfc.section.5.8.1.p.7">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint.  </p>
-<p id="rfc.section.5.8.1.p.8">Profiles MUST specify whether the authz-info endpoint is protected, including whether error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
-<p id="rfc.section.5.8.1.p.9">The default name of this endpoint in an url-path is '/authz-info', however implementations are not required to use this name and can define their own instead.</p>
-<p id="rfc.section.5.8.1.p.10">A RS MAY use introspection on a token received through the authz-info endpoint, e.g. if the token is an opaque reference.  Some transport protocols may provide a way to indicate that the RS is busy and the client should retry after an interval; this type of status update would be appropriate while the RS is waiting for an introspection response.</p>
+<p id="rfc.section.5.8.1.p.6">This specification RECOMMENDS that an RS stores only one token per proof-of-possession key, meaning that an additional token linked to the same key will overwrite any exiting token at the RS.</p>
+<p id="rfc.section.5.8.1.p.7">If the payload sent to the authz-info endpoint does not parse to a token, the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).</p>
+<p id="rfc.section.5.8.1.p.8">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint.  </p>
+<p id="rfc.section.5.8.1.p.9">Profiles MUST specify whether the authz-info endpoint is protected, including whether error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
+<p id="rfc.section.5.8.1.p.10">The default name of this endpoint in an url-path is '/authz-info', however implementations are not required to use this name and can define their own instead.</p>
+<p id="rfc.section.5.8.1.p.11">A RS MAY use introspection on a token received through the authz-info endpoint, e.g. if the token is an opaque reference.  Some transport protocols may provide a way to indicate that the RS is busy and the client should retry after an interval; this type of status update would be appropriate while the RS is waiting for an introspection response.</p>
 <h1 id="rfc.section.5.8.1.1"><a href="#rfc.section.5.8.1.1">5.8.1.1.</a> <a href="#verifyToken" id="verifyToken">Verifying an Access Token</a></h1>
 <p id="rfc.section.5.8.1.1.p.1">When an RS receives an access token, it MUST verify it before storing it. The verification is based on the claims of the token and its cryptographic wrapper (if any), so the RS needs to retrieve those claims.  If the claims cannot be retrieved the RS MUST discard the token and in case of an interaction via the authz-info endpoint, return an error message with a response code equivalent to the CoAP code 4.00 (Bad Request).</p>
 <p id="rfc.section.5.8.1.1.p.2">Since the cryptographic wrapper of the token (e.g. a COSE message) could include encryption, it needs to be verified first, based on shared cryptographic material with recognized AS.  If this verification fails, the RS MUST discard the token and if this was an interaction with authz-info it MUST respond with a response code equivalent to the CoAP code 4.01 (Unauthorized).</p>
@@ -1615,12 +1616,6 @@ Payload:
         <b id="RFC6838">[RFC6838]</b>
       </td>
       <td class="top"><a>Freed, N.</a>, <a>Klensin, J.</a> and <a>T. Hansen</a>, "<a href="http://tools.ietf.org/html/rfc6838">Media Type Specifications and Registration Procedures</a>", BCP 13, RFC 6838, DOI 10.17487/RFC6838, January 2013.</td>
-    </tr>
-    <tr>
-      <td class="reference">
-        <b id="RFC6920">[RFC6920]</b>
-      </td>
-      <td class="top"><a>Farrell, S.</a>, <a>Kutscher, D.</a>, <a>Dannewitz, C.</a>, <a>Ohlman, B.</a>, <a>Keranen, A.</a> and <a>P. Hallam-Baker</a>, "<a href="http://tools.ietf.org/html/rfc6920">Naming Things with Hashes</a>", RFC 6920, DOI 10.17487/RFC6920, April 2013.</td>
     </tr>
     <tr>
       <td class="reference">
