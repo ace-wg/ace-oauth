@@ -1057,6 +1057,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "token"
+OSCORE: 0x19, 0x05, 0x05, 0x44, 0x61, 0x6c, 0x65, 0x6b
 Content-Format: "application/oscore"
 Payload:
   0x44025d1 ... (full payload ommitted for brevity) ... 68b3825e
@@ -1447,6 +1448,7 @@ Payload:
 Header: POST (Code=0.02)
 Uri-Host: "as.example.com"
 Uri-Path: "introspect"
+OSCORE: 0x09, 0x05, 0x25
 Content-Format: "application/oscore"
 Payload:
 ... COSE content ...
@@ -1639,10 +1641,6 @@ Payload:
   MUST respond to the POST request with 2.01 (Created).  Section <xref
   target="verifyToken"/> outlines how an RS MUST proceed to verify the validity
   of an access token.</t>
-
-  <t>If the access token is a CWT and is sent via CoAP, the content format
-  "application/cwt" MUST be used. If a token is sent via HTTP the equivalent
-  media type "application/cwt" MUST be used.</t>
   
   <t>The RS MUST be prepared to store at least one access token for future
   use. This is a difference to how access tokens are handled in OAuth 2.0,
@@ -1651,7 +1649,7 @@ Payload:
 
   <t>This specification RECOMMENDS that an RS stores only one token per
   proof-of-possession key, meaning that an additional token linked to the same
-  key will overwrite any exiting token at the RS.</t>
+  key will overwrite any existing token at the RS.</t>
   
   <t>If the payload sent to the authz-info endpoint does not parse
   to a token, the RS MUST respond with a response code equivalent to the CoAP
@@ -1686,13 +1684,14 @@ Payload:
     message with a response code equivalent to the CoAP code 4.00 (Bad
     Request).</t>
 
-    <t>Since the cryptographic wrapper of the token (e.g. a COSE message)
-    could include encryption, it needs to be verified first, based on shared
-    cryptographic material with recognized AS.  If this verification fails, the
-    RS MUST discard the token and if this was an interaction with authz-info it
-    MUST respond with a response code equivalent to the CoAP code 4.01
-    (Unauthorized).</t>
-
+    <t>The cryptographic wrapper of the token (e.g. a COSE message)
+    MUST be verified by the RS, based on shared cryptographic material with an
+    AS that has the authority to issue tokens for the RS.  Since this wrapper
+    could include encryption, it needs to be verified first.  If this
+    verification fails, the RS MUST discard the token and if this was an
+    interaction with authz-info it MUST respond with a response code equivalent
+    to the CoAP code 4.01 (Unauthorized).</t>
+  
     <t>The following claims MUST be checked if present, and errors
     returned when a check fails, in the order of priority of this list:
 
@@ -3054,6 +3053,8 @@ Payload:
     (unless the RS accepts a default time chosen by the AS).</t>
     <t>The symmetric key shared between client or RS and AS (if any).</t>
     <t>The raw public key of the client or RS (if any).</t>
+    <t>Whether the RS has synchronized time (and thus is able to use the 'exp'
+    claim) or not.</t>
   </list>
  </t>
 </section>
@@ -3418,7 +3419,6 @@ Response-Payload:
     |         |
 C:  +-------->| Header: POST (T=CON, Code=0.02)
     |  POST   | Uri-Path:"authz-info"
-    |         | Content-Format: "application/cwt"
     |         | Payload: b64'VGVzdCB0b2tlbg=='
     |         |
     |         |     Authorization
