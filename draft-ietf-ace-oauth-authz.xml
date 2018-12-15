@@ -1606,9 +1606,9 @@ Payload:
   </t>
 
   <t>In order to facilitate offline processing of access tokens,
-  this draft uses the "cnf" claim from <xref
+  this doducment uses the "cnf" claim from <xref
   target="I-D.ietf-ace-cwt-proof-of-possession"/> and specifies the "scope"
-  claim for both JSON and CBOR web tokens.</t>
+  claim for JWT- and CWT-encoded tokens.</t>
 
   <t>The "scope" claim explicitly encodes the scope of a given access token.
   This claim follows the same encoding rules as defined in Section 3.3 of <xref
@@ -1677,40 +1677,62 @@ Payload:
 
   <section anchor="verifyToken" title="Verifying an Access Token">
     <t>When an RS receives an access token, it MUST verify it before storing
-    it. The verification is based on the claims of the token and its
-    cryptographic wrapper (if any), so the RS needs to retrieve those claims.
-    If the claims cannot be retrieved the RS MUST discard the token and
+    it. The details of token verification depends on various aspects, including 
+	the token encoding, the type of token, the security protection applied to the token, 
+	and the claims. The token encoding matters since the security wrapper differs between 
+	the token encodings. For example, a CWT token uses COSE while a JWT token uses JOSE. 
+	The type of token also has an influence on the verification procedure since tokens 
+	may be self-contained whereby token verification may happen locally at the RS while 
+	a token-by-reference requires further interaction with the authorization, for example 
+	using token introspection, to obtain the claims associated with the token reference. 
+	Self-contained token MUST, at a minimum, be integrity protected but they MAY also be 
+	encrypted.</t> 
+	
+	<t>For self-contained tokens the RS MUST process the security protection of the 
+	token first, as specified by the respective token format. For CWT the 
+	description can be found in <xref target="RFC8392"/> and for JWT the relevant 
+    specification is <xref target="RFC7519"/>.</t>
+	
+	<t>In case the token is communicated by reference the RS needs to obtain the 
+	claims first. When the RS uses token introspection the relevant specification is 
+	<xref target="RFC7662"/> with CoAP transport specified in <xref target="introspectionEndpoint"/>. 
+    </t> 
+ 	
+	<t>Errors may happen during this initial processing stage:
+	<list style="symbols">
+	
+	<t>If token or claim verification fails, the RS MUST discard the token and,
+    if this was an interaction with authz-info,  return an error
+    message with a response code equivalent to the CoAP code 4.01 (Unauthorized).
+	</t>
+	
+	<t>If the claims cannot be obtained the RS MUST discard the token and,
     in case of an interaction via the authz-info endpoint, return an error
     message with a response code equivalent to the CoAP code 4.00 (Bad
     Request).</t>
-
-    <t>The cryptographic wrapper of the token (e.g. a COSE message)
-    MUST be verified by the RS, based on shared cryptographic material with an
-    AS that has the authority to issue tokens for the RS.  Since this wrapper
-    could include encryption, it needs to be verified before the claims can be
-    processed.  If this verification fails, the RS MUST discard the token and
-    if this was an interaction with authz-info it MUST respond with a response
-    code equivalent to the CoAP code 4.01 (Unauthorized).</t>
-  
-    <t>The following claims MUST be checked if present, and errors
-    returned when a check fails, in the order of priority of this list:
+	</list> 
+	</t>
+	
+	<t>Next, the RS MUST verify claims, if present, contained in the access token.
+    Errors are returned when claim checks fail, in the order of priority of this list:
 
     <list style="hanging">
       <t hangText="iss">The issuer claim must identify an AS that
       has the authority to issue access tokens for the receiving RS.
       If that is not the case the RS MUST respond with a response code
       equivalent to the CoAP code 4.01 (Unauthorized).</t>
-      <t hangText="exp">The expiration date must be in the future. Note that
-      this has to be verified again at access time.  If that is not the case
+      <t hangText="exp">The expiration date must be in the future.  
+	  If that is not the case
       the RS MUST respond with a response code equivalent to the CoAP code 4.01
-      (Unauthorized).</t>
+      (Unauthorized). Note that
+      the RS has to terminate access rights to the protected resources at the time when the tokens expire. </t>
       <t hangText="aud">The audience claim must refer to an audience that
       the RS identifies with. If that is not the case the RS MUST respond with
       a response code equivalent to the CoAP code 4.03 (Forbidden).</t>
       <t hangText="scope">The RS must recognize value of the scope claim.
       If that is not the case the RS MUST respond with a response code
       equivalent to the CoAP code 4.00 (Bad Request).  The RS MAY provide
-      additional information in the error response, in order to clarify what
+      additional information in the error response, to clarify what
       went wrong.</t>
     </list>
     </t>
@@ -1721,13 +1743,13 @@ Payload:
     to clarify which claim couldn't be processed.</t>
 
     <t>Note that the Subject (sub) claim cannot always be verified when the
-    token is submitted to the RS, since the client may not have authenticated
+    token is submitted to the RS since the client may not have authenticated
     yet. Also note that a counter for the expires_in (exi) claim MUST be
     initialized when the RS first verifies this token.</t>
 
     <t>When sending error responses, the RS MAY use the error codes from
-    section 3.1 of <xref target="RFC6750"/>, in order to provide additional
-    detail to the client.</t>
+    Section 3.1 of <xref target="RFC6750"/>, to provide additional
+    details to the client.</t>
   </section>
 
   <section anchor="protAuthzInfo" title="Protecting the Authzorization
