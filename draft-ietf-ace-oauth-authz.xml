@@ -10,7 +10,6 @@
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC3986 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3986.xml">
 <!ENTITY RFC4949 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4949.xml">
-<!ENTITY RFC5246 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.5246.xml">
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6690 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6690.xml">
 <!ENTITY RFC6749 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6749.xml">
@@ -320,7 +319,7 @@ security protocols (e.g., CoAP over DTLS).
   <t>A fourth building block is the compact CBOR-based secure message format
   COSE <xref target="RFC8152"/>, which enables application layer
   security as an alternative or complement to transport layer security (DTLS
-    <xref target="RFC6347"/> or TLS <xref target="RFC5246"/>). COSE is used to
+    <xref target="RFC6347"/> or TLS <xref target="RFC8446"/>). COSE is used to
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
     which is an extension to the OAuth tokens. The default token format is
     defined in CBOR web token (CWT) <xref target="RFC8392"/>.
@@ -396,7 +395,7 @@ security protocols (e.g., CoAP over DTLS).
 	opaque to the client.  The token denotes an identifier used to retrieve
 	the authorization information.  Unlike access tokens, refresh
 	tokens are intended for use only with authorization servers and
-	are never sent to resource servers.</t>
+	are never sent to resource servers. <vspace blankLines="1"/></t>
 	
 	<t hangText="Proof of Possession Tokens:"><vspace blankLines="0"/>
         An access token may be bound to a
@@ -526,7 +525,7 @@ protected by a cryptographic wrapper (e.g., COSE <xref
  </t>
 
   <t>Transport layer security for CoAP can be provided by DTLS or TLS
-  <xref target="RFC6347"/><xref target="RFC5246"/><xref target="RFC8446"/>
+  <xref target="RFC6347"/><xref target="RFC8446"/>
   <xref target="I-D.ietf-tls-dtls13"/>.
     CoAP defines a number of proxy operations that require transport layer
     security to be terminated at the proxy. One approach for protecting CoAP communication
@@ -1874,6 +1873,13 @@ Payload:
       Note that using an AEAD algorithm is preferable over using a MAC unless
       the message needs to be publicly readable.</t>
 
+      <t>If the token is intended for multiple recipients (i.e. an audience
+      that is a group), integrity protection of the token with a symmetric key
+      is not sufficient, since any of the recipients could modify the token
+      undetected by the other recipients. Therefore a token with a
+      multi-recipient audience MUST be protected with an asymmetric signature.
+      </t>
+
       <t>It is important for the authorization server to include the identity
       of the intended recipient (the audience), typically a single resource
       server (or a list of resource servers), in the token.  Using a single
@@ -2032,14 +2038,14 @@ Payload:
 	the introspection endpoint at the AS in order to prevent validation of
 	access tokens.  To mitigate this attack, an RS that is configured to use
 	introspection MUST NOT allow access based on a token for which it
-	couln't reach the introspection endpoint.</t>
+	couldn't reach the introspection endpoint.</t>
 
 	<t>Second an attacker could use the fact that an RS performs
 	introspection to perform a denial of service attack against that RS by
 	repeatedly sending tokens to its authz-info endpoint that require an
 	introspection call. RS can mitigate such attacks by implementing a rate
 	limit on how many introspection requests they perform in a given time
-	intervall and rejecting incoming requests to authz-info for a certain
+	interval and rejecting incoming requests to authz-info for a certain
 	amount of time, when that rate limit has been reached.</t>
 	
       </section>
@@ -2223,8 +2229,9 @@ Payload:
    </section>
 
    <section anchor="IANATokenTypeMappings"
-	   title="OAuth Token Type CBOR Mappings">
-     <t>This specification established the IANA "Token Type CBOR Mappings"
+	   title="OAuth Access Token Type CBOR Mappings">
+     <t>This specification established the IANA "OAuth Access Token Type CBOR
+     Mappings"
      registry.  The registry has been created to use the "Expert Review
      Required" registration procedure <xref target="RFC8126"/>.  It should be
      noted that, in addition to the expert review, some portions of the
@@ -2301,7 +2308,10 @@ Payload:
       
       <t hangText='Reference'>This contains a pointer to the public
       specification of the profile abbreviation, if one exists.</t>
-    </list></t>
+   </list></t>
+
+   <t>This registry will be initially empty and will be populated by the
+   registrations from the ACE framework profiles.</t>
   </section>
   
   <section anchor="IANAOAuthParameter"
@@ -2318,13 +2328,13 @@ Payload:
   </section>
 
   <section anchor="IANAOAuthParameterMappingsRegistry"
-	   title="Token Endpoint CBOR Mappings Registry">
-    <t>This specification establishes the IANA "Token Endpoint CBOR Mappings"
-    registry.  The registry has been created to use the "Expert Review
-    Required" registration procedure <xref target="RFC8126"/>.  It should be
-    noted that, in addition to the expert review, some portions of the registry
-    require a specification, potentially a Standards Track RFC, be supplied as
-    well.</t>
+	   title="OAuth Parameters CBOR Mappings Registry">
+    <t>This specification establishes the IANA "OAuth Parameters CBOR Mappings"
+    registry.  The registry has been created to use the "Expert
+    Review Required" registration procedure <xref target="RFC8126"/>.  It
+    should be noted that, in addition to the expert review, some portions of
+    the registry require a specification, potentially a Standards Track RFC, be
+    supplied as well.</t>
     
     <t>The columns of this registry are:
     
@@ -2374,11 +2384,11 @@ Payload:
   </section>
   
   <section anchor="IANAIntrospectionEndpointCBORMappingsRegistry"
-	   title="Introspection Endpoint CBOR Mappings Registry">
-    <t>This specification establishes the IANA "Introspection Endpoint CBOR
-    Mappings" registry.  The registry has been created to use the "Expert
-    Review Required" registration procedure <xref target="RFC8126"/>.  It
-    should be noted that, in addition to the expert review, some portions of
+	   title="OAuth Token Introspection Response CBOR Mappings Registry">
+    <t>This specification establishes the IANA "OAuth Token Introspection
+    Response CBOR Mappings" registry.  The registry has been created to use the
+    "Expert Review Required" registration procedure <xref target="RFC8126"/>.
+    It should be noted that, in addition to the expert review, some portions of
     the registry require a specification, potentially a Standards Track RFC, be
     supplied as well.</t>
 
@@ -2456,7 +2466,7 @@ Payload:
       <t>Claim Name: <spanx style="verb">scope</spanx></t>
       <t>Claim Description: The scope of an access token as
       defined in <xref target="RFC6749"/>.</t>
-      <t>JWT Claim Name: N/A</t>
+      <t>JWT Claim Name: scope</t>
       <t>Claim Key: TBD (suggested: 9)</t>
       <t>Claim Value Type(s): byte string or text string</t>
       <t>Change Controller: IESG</t>
@@ -2468,7 +2478,7 @@ Payload:
       <t>Claim Name: <spanx style="verb">profile</spanx></t>
       <t>Claim Description: The profile a token is supposed to be used
       with.</t>
-      <t>JWT Claim Name: N/A</t>
+      <t>JWT Claim Name: profile</t>
       <t>Claim Key: TBD (suggested: 39)</t>
       <t>Claim Value Type(s): integer</t>
       <t>Change Controller: IESG</t>
@@ -2480,7 +2490,7 @@ Payload:
       <t>Claim Name: <spanx style="verb">exi</spanx></t>
       <t>Claim Description: The expiration time of a token measured from
       when it was received at the RS in seconds.</t>
-      <t>JWT Claim Name: N/A</t>
+      <t>JWT Claim Name: exi</t>
       <t>Claim Key: TBD (suggested: 41)</t>
       <t>Claim Value Type(s): integer</t>
       <t>Change Controller: IESG</t>
@@ -2660,7 +2670,6 @@ Payload:
 
     <references title="Informative References"> 
       &RFC4949;
-      &RFC5246;
       &RFC6690;
       &RFC6819;
       &RFC7049;
@@ -3529,7 +3538,13 @@ F:  |<--------+ Header: 2.04 Changed
 </section>
 <section anchor="app:changelog" title="Document Updates">
   <t>RFC EDITOR: PLEASE REMOVE THIS SECTION.</t>
-
+  <section anchor="app:f19t20" title="Version -18 to -19">
+    <t><list style="symbols">
+      <t>TBD</t>
+    </list>
+    </t>
+  </section>
+  
   <section anchor="app:f18t19" title="Version -17 to -18">
     <t><list style="symbols">
       <t>Added OSCORE options in examples involving OSCORE.</t>
