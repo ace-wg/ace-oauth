@@ -158,7 +158,7 @@ Internet-Draft                  ACE-OAuth                   January 2019
    Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  71
      F.1.  Version -18 to -19  . . . . . . . . . . . . . . . . . . .  71
      F.2.  Version -17 to -18  . . . . . . . . . . . . . . . . . . .  71
-     F.3.  Version -16 to -17  . . . . . . . . . . . . . . . . . . .  71
+     F.3.  Version -16 to -17  . . . . . . . . . . . . . . . . . . .  72
      F.4.  Version -15 to -16  . . . . . . . . . . . . . . . . . . .  72
      F.5.  Version -14 to -15  . . . . . . . . . . . . . . . . . . .  72
      F.6.  Version -13 to -14  . . . . . . . . . . . . . . . . . . .  72
@@ -170,12 +170,12 @@ Seitz, et al.            Expires August 4, 2019                 [Page 3]
 Internet-Draft                  ACE-OAuth                   January 2019
 
 
-     F.7.  Version -12 to -13  . . . . . . . . . . . . . . . . . . .  72
+     F.7.  Version -12 to -13  . . . . . . . . . . . . . . . . . . .  73
      F.8.  Version -11 to -12  . . . . . . . . . . . . . . . . . . .  73
      F.9.  Version -10 to -11  . . . . . . . . . . . . . . . . . . .  73
      F.10. Version -09 to -10  . . . . . . . . . . . . . . . . . . .  73
      F.11. Version -08 to -09  . . . . . . . . . . . . . . . . . . .  73
-     F.12. Version -07 to -08  . . . . . . . . . . . . . . . . . . .  73
+     F.12. Version -07 to -08  . . . . . . . . . . . . . . . . . . .  74
      F.13. Version -06 to -07  . . . . . . . . . . . . . . . . . . .  74
      F.14. Version -05 to -06  . . . . . . . . . . . . . . . . . . .  74
      F.15. Version -04 to -05  . . . . . . . . . . . . . . . . . . .  74
@@ -3951,13 +3951,33 @@ Appendix F.  Document Updates
 
 F.1.  Version -18 to -19
 
-   o  TBD
+   o  Added definition of "Authorization Information".
+   o  Explicitly state that ACE allows encoding refresh tokens in binary
+      format in addition to strings.
+   o  Renamed "AS Information" to "AS Request Creation Hints" and added
+      the possibilit to specify req_aud and scope as hints.
+   o  Added the "kid" parameter to AS Request Creation Hints.
+   o  Added security considerations about the integrity protection of
+      tokens with multi-RS audiences.
+   o  Renamed IANA registries mapping OAuth parameters to reflect the
+      mapped registry.
+   o  Added JWT claim names to CWT claim registrations.
+   o  Added expert review instructions.
+   o  Updated references to TLS from 1.2 to 1.3.
 
 F.2.  Version -17 to -18
 
    o  Added OSCORE options in examples involving OSCORE.
    o  Removed requirement for the client to send application/cwt, since
       the client has no way to know.
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 71]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    o  Clarified verification of tokens by the RS.
    o  Added exi claim CWT registration.
 
@@ -3970,14 +3990,6 @@ F.3.  Version -16 to -17
    o  Replaced examples with hypothetical COSE profile with OSCORE.
    o  Added requirement for content type application/ace+cbor in error
       responses for token and introspection requests and responses.
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 71]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
-
    o  Reworked abbreviation space for claims, request and response
       parameters.
    o  Added text that the RS may indicate that it is busy at the authz-
@@ -4015,24 +4027,19 @@ F.6.  Version -13 to -14
    o  Realigned the parameter abbreviations to push rarely used ones to
       the 2-byte encoding size of CBOR integers.
 
-F.7.  Version -12 to -13
-
-   o  Changed "Resource Information" to "Access Information" to avoid
-      confusion.
-   o  Clarified section about AS discovery.
-   o  Editorial changes
-
-
-
-
-
-
 
 
 Seitz, et al.            Expires August 4, 2019                [Page 72]
 
 Internet-Draft                  ACE-OAuth                   January 2019
 
+
+F.7.  Version -12 to -13
+
+   o  Changed "Resource Information" to "Access Information" to avoid
+      confusion.
+   o  Clarified section about AS discovery.
+   o  Editorial changes
 
 F.8.  Version -11 to -12
 
@@ -4072,15 +4079,8 @@ F.11.  Version -08 to -09
    o  Added references to other document sections defining IANA entries
       in the IANA section.
 
-F.12.  Version -07 to -08
 
-   o  Moved AS discovery from the DTLS profile to the framework, see
-      Section 5.1.
-   o  Made the use of CBOR mandatory.  If you use JSON you can use
-      vanilla OAuth.
-   o  Made it mandatory for profiles to specify C-AS security and RS-AS
-      security (the latter only if introspection is supported).
-   o  Made the use of CBOR abbreviations mandatory.
+
 
 
 
@@ -4090,6 +4090,15 @@ Seitz, et al.            Expires August 4, 2019                [Page 73]
 Internet-Draft                  ACE-OAuth                   January 2019
 
 
+F.12.  Version -07 to -08
+
+   o  Moved AS discovery from the DTLS profile to the framework, see
+      Section 5.1.
+   o  Made the use of CBOR mandatory.  If you use JSON you can use
+      vanilla OAuth.
+   o  Made it mandatory for profiles to specify C-AS security and RS-AS
+      security (the latter only if introspection is supported).
+   o  Made the use of CBOR abbreviations mandatory.
    o  Added text to clarify the use of token references as an
       alternative to CWTs.
    o  Added text to clarify that introspection must not be delayed, in
@@ -4128,15 +4137,6 @@ F.15.  Version -04 to -05
    o  Added RFC 2119 language to the specification of the required
       behavior of profile specifications.
    o  Added Section 5.3 on the relation to the OAuth2 grant types.
-   o  Added CBOR abbreviations for error and the error codes defined in
-      OAuth2.
-   o  Added clarification about token expiration and long-running
-      requests in Section 5.8.3
-   o  Added security considerations about tokens with symmetric pop keys
-      valid for more than one RS.
-   o  Added privacy considerations section.
-   o  Added IANA registry mapping the confirmation types from RFC 7800
-      to equivalent COSE types.
 
 
 
@@ -4146,6 +4146,15 @@ Seitz, et al.            Expires August 4, 2019                [Page 74]
 Internet-Draft                  ACE-OAuth                   January 2019
 
 
+   o  Added CBOR abbreviations for error and the error codes defined in
+      OAuth2.
+   o  Added clarification about token expiration and long-running
+      requests in Section 5.8.3
+   o  Added security considerations about tokens with symmetric pop keys
+      valid for more than one RS.
+   o  Added privacy considerations section.
+   o  Added IANA registry mapping the confirmation types from RFC 7800
+      to equivalent COSE types.
    o  Added appendix D, describing assumptions about what the AS knows
       about the client and the RS.
 
@@ -4185,15 +4194,6 @@ F.18.  Version -01 to -02
       order to define proof-of-possession key distribution.
    o  Introduced the "cnf" parameter as defined in RFC7800 to reference
       or transport keys used for proof of possession.
-   o  Introduced the "client-token" to transport client information from
-      the AS to the client via the RS in conjunction with introspection.
-   o  Expanded the IANA section to define parameters for token request,
-      introspection and CWT claims.
-   o  Moved deployment scenarios to the appendix as examples.
-
-
-
-
 
 
 
@@ -4201,6 +4201,12 @@ Seitz, et al.            Expires August 4, 2019                [Page 75]
 
 Internet-Draft                  ACE-OAuth                   January 2019
 
+
+   o  Introduced the "client-token" to transport client information from
+      the AS to the client via the RS in conjunction with introspection.
+   o  Expanded the IANA section to define parameters for token request,
+      introspection and CWT claims.
+   o  Moved deployment scenarios to the appendix as examples.
 
 F.19.  Version -00 to -01
 
@@ -4244,12 +4250,6 @@ Authors' Addresses
    Sweden
 
    Email: ludwig.seitz@ri.se
-
-
-
-
-
-
 
 
 
