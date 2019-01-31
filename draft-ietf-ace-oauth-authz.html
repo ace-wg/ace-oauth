@@ -383,7 +383,7 @@
 <link href="#rfc.section.5" rel="Chapter" title="5 Framework"/>
 <link href="#rfc.section.5.1" rel="Chapter" title="5.1 Discovering Authorization Servers"/>
 <link href="#rfc.section.5.1.1" rel="Chapter" title="5.1.1 Unauthorized Resource Request Message"/>
-<link href="#rfc.section.5.1.2" rel="Chapter" title="5.1.2 AS Information"/>
+<link href="#rfc.section.5.1.2" rel="Chapter" title="5.1.2 AS Request Creation Hints"/>
 <link href="#rfc.section.5.2" rel="Chapter" title="5.2 Authorization Grants"/>
 <link href="#rfc.section.5.3" rel="Chapter" title="5.3 Client Credentials"/>
 <link href="#rfc.section.5.4" rel="Chapter" title="5.4 AS Authentication"/>
@@ -409,7 +409,7 @@
 <link href="#rfc.section.5.8.2" rel="Chapter" title="5.8.2 Client Requests to the RS"/>
 <link href="#rfc.section.5.8.3" rel="Chapter" title="5.8.3 Token Expiration"/>
 <link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations"/>
-<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Unprotected AS Information"/>
+<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Unprotected AS Request Creation Hints"/>
 <link href="#rfc.section.6.2" rel="Chapter" title="6.2 Minimal security requirements        for communication"/>
 <link href="#rfc.section.6.3" rel="Chapter" title="6.3 Use of Nonces for Replay Protection"/>
 <link href="#rfc.section.6.4" rel="Chapter" title="6.4 Combining profiles"/>
@@ -417,7 +417,7 @@
 <link href="#rfc.section.6.6" rel="Chapter" title="6.6 Denial of service against or with      Introspection"/>
 <link href="#rfc.section.7" rel="Chapter" title="7 Privacy Considerations"/>
 <link href="#rfc.section.8" rel="Chapter" title="8 IANA Considerations"/>
-<link href="#rfc.section.8.1" rel="Chapter" title="8.1 Authorization Server Information"/>
+<link href="#rfc.section.8.1" rel="Chapter" title="8.1 ACE Authorization Server Request Creation Hints"/>
 <link href="#rfc.section.8.2" rel="Chapter" title="8.2 OAuth Extensions Error Registration"/>
 <link href="#rfc.section.8.3" rel="Chapter" title="8.3 OAuth Error Code CBOR Mappings Registry"/>
 <link href="#rfc.section.8.4" rel="Chapter" title="8.4 OAuth Grant Type CBOR Mappings"/>
@@ -567,7 +567,7 @@
 <li>5.   <a href="#rfc.section.5">Framework</a></li>
 <ul><li>5.1.   <a href="#rfc.section.5.1">Discovering Authorization Servers</a></li>
 <ul><li>5.1.1.   <a href="#rfc.section.5.1.1">Unauthorized Resource Request Message</a></li>
-<li>5.1.2.   <a href="#rfc.section.5.1.2">AS Information</a></li>
+<li>5.1.2.   <a href="#rfc.section.5.1.2">AS Request Creation Hints</a></li>
 </ul><li>5.2.   <a href="#rfc.section.5.2">Authorization Grants</a></li>
 <li>5.3.   <a href="#rfc.section.5.3">Client Credentials</a></li>
 <li>5.4.   <a href="#rfc.section.5.4">AS Authentication</a></li>
@@ -593,7 +593,7 @@
 </ul><li>5.8.2.   <a href="#rfc.section.5.8.2">Client Requests to the RS</a></li>
 <li>5.8.3.   <a href="#rfc.section.5.8.3">Token Expiration</a></li>
 </ul></ul><li>6.   <a href="#rfc.section.6">Security Considerations</a></li>
-<ul><li>6.1.   <a href="#rfc.section.6.1">Unprotected AS Information</a></li>
+<ul><li>6.1.   <a href="#rfc.section.6.1">Unprotected AS Request Creation Hints</a></li>
 <li>6.2.   <a href="#rfc.section.6.2">Minimal security requirements        for communication</a></li>
 <li>6.3.   <a href="#rfc.section.6.3">Use of Nonces for Replay Protection</a></li>
 <li>6.4.   <a href="#rfc.section.6.4">Combining profiles</a></li>
@@ -601,7 +601,7 @@
 <li>6.6.   <a href="#rfc.section.6.6">Denial of service against or with      Introspection</a></li>
 </ul><li>7.   <a href="#rfc.section.7">Privacy Considerations</a></li>
 <li>8.   <a href="#rfc.section.8">IANA Considerations</a></li>
-<ul><li>8.1.   <a href="#rfc.section.8.1">Authorization Server Information</a></li>
+<ul><li>8.1.   <a href="#rfc.section.8.1">ACE Authorization Server Request Creation Hints</a></li>
 <li>8.2.   <a href="#rfc.section.8.2">OAuth Extensions Error Registration</a></li>
 <li>8.3.   <a href="#rfc.section.8.3">OAuth Error Code CBOR Mappings Registry</a></li>
 <li>8.4.   <a href="#rfc.section.8.4">OAuth Grant Type CBOR Mappings</a></li>
@@ -788,35 +788,48 @@
 
 <p> </p>
 <p id="rfc.section.5.1.1.p.2">Note: These conditions ensure that RS can handle requests autonomously once access was granted and a secure channel has been established between C and RS. The authz-info endpoint MUST NOT be protected as specified above, in order to allow clients to upload access tokens to RS (cf.  <a href="#tokenAuthInfoEndpoint">Section 5.8.1</a>).</p>
-<p id="rfc.section.5.1.1.p.3">Unauthorized Resource Request messages MUST be denied with a client error response. In this response, the Resource Server SHOULD provide proper AS Information to enable the Client to request an access token from RS's AS as described in <a href="#asInfo">Section 5.1.2</a>.</p>
+<p id="rfc.section.5.1.1.p.3">Unauthorized Resource Request messages MUST be denied with a client error response. In this response, the Resource Server SHOULD provide proper AS Request Creation Hints to enable the Client to request an access token from RS's AS as described in <a href="#asInfo">Section 5.1.2</a>.</p>
 <p id="rfc.section.5.1.1.p.4">The handling of all client requests (including unauthorized ones) by the RS is described in <a href="#requestC2RS">Section 5.8.2</a>.</p>
-<h1 id="rfc.section.5.1.2"><a href="#rfc.section.5.1.2">5.1.2.</a> <a href="#asInfo" id="asInfo">AS Information</a></h1>
-<p id="rfc.section.5.1.2.p.1">The AS Information is sent by RS as a response to an Unauthorized Resource Request message (see <a href="#rreq">Section 5.1.1</a>) to point the sender of the Unauthorized Resource Request message to RS&#8217;s AS. The AS information is a set of attributes containing an absolute URI (see Section 4.3 of <a href="#RFC3986">[RFC3986]</a>) that specifies the AS in charge of RS.</p>
-<p id="rfc.section.5.1.2.p.2">The message MAY also contain a nonce generated by RS to ensure freshness in case that the RS and AS do not have synchronized clocks.</p>
+<h1 id="rfc.section.5.1.2"><a href="#rfc.section.5.1.2">5.1.2.</a> <a href="#asInfo" id="asInfo">AS Request Creation Hints</a></h1>
+<p id="rfc.section.5.1.2.p.1">The AS Request Creation Hints message is sent by RS as a response to an Unauthorized Resource Request message (see <a href="#rreq">Section 5.1.1</a>) to help the sender of the Unauthorized Resource Request message in acquiring a valid access token. The AS Request Creation Hints message is CBOR map, with a MANDATORY element "AS" specifying an absolute URI (see Section 4.3 of <a href="#RFC3986">[RFC3986]</a>) that identifies the AS in charge of RS.</p>
+<p id="rfc.section.5.1.2.p.2">The message can also contain the following OPTIONAL parameters: </p>
+
+<ul>
+  <li>A "req_aud" element containing a suggested audience that the client should request towards the AS.</li>
+  <li>A "kid" element containing the key identifier of a key used in an existing security association between the client and the RS.  The RS expects the client to request an access token bound to this key, in order to avoid having to re-establish the security association.</li>
+  <li>A "nonce" element containing a nonce generated by RS to ensure freshness in case that the RS and AS do not have synchronized clocks.</li>
+  <li>A "scope" element containing the suggested scope that the client should request towards the AS.</li>
+</ul>
 <div id="rfc.figure.2"/>
 <div id="fig:asinfo"/>
 <pre>
-        /-------+----------+-------------\
-        | Name  | CBOR Key | Value Type  |
-        |-------+----------+-------------|
-        | AS    |     0    | text string |
-        | nonce |     5    | byte string |
-        \-------+----------+-------------/
+        /-----------+----------+---------------------\
+        | Name      | CBOR Key | Value Type          |
+        |-----------+----------+---------------------|
+        | AS        |     0    | text string         |
+        | req_aud   |     3    | text string         |
+        | kid       |     4    | byte string         |
+        | nonce     |     5    | byte string         |
+        | scope     |     9    | text or byte string |
+        \-----------+----------+---------------------/
       </pre>
-<p class="figure">Figure 2: AS Information parameters</p>
-<p><a href="#fig:asinfo">Figure 2</a> summarizes the parameters that may be part of the AS Information.  </p>
+<p class="figure">Figure 2: AS Request Creation Hints</p>
+<p><a href="#fig:asinfo">Figure 2</a> summarizes the parameters that may be part of the AS Request Creation Hints.  </p>
 <p id="rfc.section.5.1.2.p.4">Note that the schema part of the AS parameter may need to be adapted to the security protocol that is used between the client and the AS. Thus the example AS value "coap://as.example.com/token" might need to be transformed to "coaps://as.example.com/token".  It is assumed that the client can determine the correct schema part on its own depending on the way it communicates with the AS.</p>
-<p><a href="#fig:as-info-payload">Figure 3</a> shows an example for an AS Information message payload using CBOR <a href="#RFC7049">[RFC7049]</a> diagnostic notation, using the parameter names instead of the CBOR keys for better human readability.</p>
+<p><a href="#fig:as-info-payload">Figure 3</a> shows an example for an AS Request Creation Hints message payload using CBOR <a href="#RFC7049">[RFC7049]</a> diagnostic notation, using the parameter names instead of the CBOR keys for better human readability.</p>
 <div id="rfc.figure.3"/>
 <div id="fig:as-info-payload"/>
 <pre>
     4.01 Unauthorized
     Content-Format: application/ace+cbor
     {AS: "coaps://as.example.com/token",
-     nonce: h'e0a156bb3f'}
+     req_aud: "coaps://rs.example.com",
+     nonce: h'e0a156bb3f',
+     scope: "rTempC"
+    }
 </pre>
-<p class="figure">Figure 3: AS Information payload example</p>
-<p id="rfc.section.5.1.2.p.6">In this example, the attribute AS points the receiver of this message to the URI "coaps://as.example.com/token" to request access permissions.  The originator of the AS Information payload (i.e., RS) uses a local clock that is loosely synchronized with a time scale common between RS and AS (e.g., wall clock time). Therefore, it has included a parameter <samp>nonce</samp> for replay attack prevention.</p>
+<p class="figure">Figure 3: AS Request Creation Hints payload example</p>
+<p id="rfc.section.5.1.2.p.6">In this example, the attribute AS points the receiver of this message to the URI "coaps://as.example.com/token" to request access permissions.  The originator of the AS Request Creation Hints payload (i.e., RS) uses a local clock that is loosely synchronized with a time scale common between RS and AS (e.g., wall clock time). Therefore, it has included a parameter <samp>nonce</samp> for replay attack prevention.</p>
 <p><a href="#fig:as-info-cbor">Figure 4</a> illustrates the mandatory to use binary encoding of the message payload shown in <a href="#fig:as-info-payload">Figure 3</a>.</p>
 <div id="rfc.figure.4"/>
 <div id="fig:as-info-cbor"/>
@@ -830,7 +843,7 @@ a2                                   # map(2)
     45                               # bytes(5)
        e0a156bb3f
 </pre>
-<p class="figure">Figure 4: AS Information example encoded in CBOR</p>
+<p class="figure">Figure 4: AS Request Creation Hintes example encoded in CBOR</p>
 <h1 id="rfc.section.5.2"><a href="#rfc.section.5.2">5.2.</a> <a href="#authorizationGrants" id="authorizationGrants">Authorization Grants</a></h1>
 <p id="rfc.section.5.2.p.1">To request an access token, the client obtains authorization from the resource owner or uses its client credentials as grant.  The authorization is expressed in the form of an authorization grant.</p>
 <p id="rfc.section.5.2.p.2">The OAuth framework <a href="#RFC6749">[RFC6749]</a> defines four grant types. The grant types can be split up into two groups, those granted on behalf of the resource owner (password, authorization code, implicit) and those for the client (client credentials). Further grant types have been added later, such as <a href="#RFC7521">[RFC7521]</a> defining an assertion-based authorization grant.</p>
@@ -1262,8 +1275,8 @@ Payload:
 <p id="rfc.section.6.p.6">Developers MUST ensure that the ephemeral credentials (i.e., the private key or the session key) are not leaked to third parties.  An adversary in possession of the ephemeral credentials bound to the access token will be able to impersonate the client.  Be aware that this is a real risk with many constrained environments, since adversaries can often easily get physical access to the devices.  This risk can also be mitigated to some extent by making sure that keys are refreshed more frequently.</p>
 <p id="rfc.section.6.p.7">If clients are capable of doing so, they should frequently request fresh access tokens, as this allows the AS to keep the lifetime of the tokens short. This allows the AS to use shorter proof-of-possession key sizes, which translate to a performance benefit for the client and for the resource server.  Shorter keys also lead to shorter messages (particularly with asymmetric keying material).</p>
 <p id="rfc.section.6.p.8">When authorization servers bind symmetric keys to access tokens, they SHOULD scope these access tokens to a specific permission.</p>
-<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#unprotected-as-information" id="unprotected-as-information">Unprotected AS Information</a></h1>
-<p id="rfc.section.6.1.p.1">Initially, no secure channel exists to protect the communication between C and RS. Thus, C cannot determine if the AS information contained in an unprotected response from RS to an unauthorized request (see <a href="#asInfo">Section 5.1.2</a>) is authentic. It is therefore advisable to provide C with a (possibly hard-coded) list of trustworthy authorization servers. AS information responses referring to a URI not listed there would be ignored.</p>
+<h1 id="rfc.section.6.1"><a href="#rfc.section.6.1">6.1.</a> <a href="#unprotected-as-information" id="unprotected-as-information">Unprotected AS Request Creation Hints</a></h1>
+<p id="rfc.section.6.1.p.1">Initially, no secure channel exists to protect the communication between C and RS. Thus, C cannot determine if the AS Request Creation Hints contained in an unprotected response from RS to an unauthorized request (see <a href="#asInfo">Section 5.1.2</a>) are authentic. It is therefore advisable to provide C with a (possibly hard-coded) list of trustworthy authorization servers. AS Request Creation Hints referring to a URI not listed there would be ignored.</p>
 <h1 id="rfc.section.6.2"><a href="#rfc.section.6.2">6.2.</a> <a href="#minimalCommSecReq" id="minimalCommSecReq">Minimal security requirements        for communication</a></h1>
 <p id="rfc.section.6.2.p.1">This section summarizes the minimal requirements for the communication security of the different protocol interactions.  </p>
 
@@ -1276,7 +1289,7 @@ Payload:
   <dd style="margin-left: 8">The initial communication between the client and the Resource Server can not be secured in general, since the RS is not in possession of on access token for that client, which would carry the necessary parameters.  Certain security mechanisms (e.g. DTLS with server-side authentication via a certificate or a raw public key) can be possible and are RECOMMEND if supported by both parties.  After the client has successfully transmitted the access token to the RS, a secure communication protocol MUST be established between client and RS for the actual resource request.  This protocol MUST provide encryption, integrity and replay protection as well as a binding between requests and responses.  This requires that the client learned either the RS's public key or received a symmetric proof-of-possession key bound to the access token from the AS.  The RS must have learned either the client's public key or a shared symmetric key from the claims in the token or an introspection request.  Since ACE does not provide profile negotiation between C and RS, the client MUST have learned what profile the RS supports (e.g. from the AS or pre-configured) and initiate the communication accordingly.</dd>
 </dl>
 <h1 id="rfc.section.6.3"><a href="#rfc.section.6.3">6.3.</a> <a href="#nonce" id="nonce">Use of Nonces for Replay Protection</a></h1>
-<p id="rfc.section.6.3.p.1">The RS may add a nonce to the AS Information message sent as a response to an unauthorized request to ensure freshness of an Access Token subsequently presented to RS. While a time-stamp of some granularity would be sufficient to protect against replay attacks, using randomized nonce is preferred to prevent disclosure of information about RS's internal clock characteristics.</p>
+<p id="rfc.section.6.3.p.1">The RS may add a nonce to the AS Request Creation Hints message sent as a response to an unauthorized request to ensure freshness of an Access Token subsequently presented to RS. While a time-stamp of some granularity would be sufficient to protect against replay attacks, using randomized nonce is preferred to prevent disclosure of information about RS's internal clock characteristics.</p>
 <h1 id="rfc.section.6.4"><a href="#rfc.section.6.4">6.4.</a> <a href="#mixnmatch" id="mixnmatch">Combining profiles</a></h1>
 <p id="rfc.section.6.4.p.1">There may be use cases were different profiles of this framework are combined.  For example, an MQTT-TLS profile is used between the client and the RS in combination with a CoAP-DTLS profile for interactions between the client and the AS. Ideally, profiles should be designed in a way that the security of system should not depend on the specific security mechanisms used in individual protocol interactions.</p>
 <h1 id="rfc.section.6.5"><a href="#rfc.section.6.5">6.5.</a> <a href="#infoLeak" id="infoLeak">Unprotected Information</a></h1>
@@ -1295,8 +1308,8 @@ Payload:
 <p id="rfc.section.7.p.4">Clients using asymmetric keys for proof-of-possession should be aware of the consequences of using the same key pair for proof-of-possession towards different RSs.  A set of colluding RSs or an attacker able to obtain the access tokens will be able to link the requests, or even to determine the client's identity.</p>
 <p id="rfc.section.7.p.5">An unprotected response to an unauthorized request (see <a href="#asInfo">Section 5.1.2</a>) may disclose information about RS and/or its existing relationship with C. It is advisable to include as little information as possible in an unencrypted response. Means of encrypting communication between C and RS already exist, more detailed information may be included with an error response to provide C with sufficient information to react on that particular error.</p>
 <h1 id="rfc.section.8"><a href="#rfc.section.8">8.</a> <a href="#iana" id="iana">IANA Considerations</a></h1>
-<h1 id="rfc.section.8.1"><a href="#rfc.section.8.1">8.1.</a> <a href="#IANAASInformation" id="IANAASInformation">Authorization Server Information</a></h1>
-<p id="rfc.section.8.1.p.1">This specification establishes the IANA "ACE Authorization Server Information" registry. The registry has been created to use the "Expert Review Required" registration procedure <a href="#RFC8126">[RFC8126]</a>.  It should be noted that, in addition to the expert review, some portions of the registry require a specification, potentially a Standards Track RFC, be supplied as well.</p>
+<h1 id="rfc.section.8.1"><a href="#rfc.section.8.1">8.1.</a> <a href="#IANAASInformation" id="IANAASInformation">ACE Authorization Server Request Creation Hints</a></h1>
+<p id="rfc.section.8.1.p.1">This specification establishes the IANA "ACE Authorization Server Request Creation Hints" registry. The registry has been created to use the "Expert Review Required" registration procedure <a href="#RFC8126">[RFC8126]</a>.  It should be noted that, in addition to the expert review, some portions of the registry require a specification, potentially a Standards Track RFC, be supplied as well.</p>
 <p id="rfc.section.8.1.p.2">The columns of the registry are: </p>
 
 <dl>
