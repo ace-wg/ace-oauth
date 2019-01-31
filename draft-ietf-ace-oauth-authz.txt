@@ -80,16 +80,16 @@ Table of Contents
    3.  Overview  . . . . . . . . . . . . . . . . . . . . . . . . . .   6
      3.1.  OAuth 2.0 . . . . . . . . . . . . . . . . . . . . . . . .   7
      3.2.  CoAP  . . . . . . . . . . . . . . . . . . . . . . . . . .  10
-   4.  Protocol Interactions . . . . . . . . . . . . . . . . . . . .  10
+   4.  Protocol Interactions . . . . . . . . . . . . . . . . . . . .  11
    5.  Framework . . . . . . . . . . . . . . . . . . . . . . . . . .  14
-     5.1.  Discovering Authorization Servers . . . . . . . . . . . .  15
+     5.1.  Discovering Authorization Servers . . . . . . . . . . . .  16
        5.1.1.  Unauthorized Resource Request Message . . . . . . . .  16
        5.1.2.  AS Request Creation Hints . . . . . . . . . . . . . .  16
      5.2.  Authorization Grants  . . . . . . . . . . . . . . . . . .  18
      5.3.  Client Credentials  . . . . . . . . . . . . . . . . . . .  19
      5.4.  AS Authentication . . . . . . . . . . . . . . . . . . . .  19
      5.5.  The Authorization Endpoint  . . . . . . . . . . . . . . .  19
-     5.6.  The Token Endpoint  . . . . . . . . . . . . . . . . . . .  19
+     5.6.  The Token Endpoint  . . . . . . . . . . . . . . . . . . .  20
        5.6.1.  Client-to-AS Request  . . . . . . . . . . . . . . . .  20
        5.6.2.  AS-to-Client Response . . . . . . . . . . . . . . . .  23
        5.6.3.  Error Response  . . . . . . . . . . . . . . . . . . .  25
@@ -282,6 +282,10 @@ Seitz, et al.            Expires August 4, 2019                 [Page 5]
 Internet-Draft                  ACE-OAuth                   January 2019
 
 
+   We use the term "Authorization Information" to denote all
+   information, including the claims of relevant access tokens, that an
+   RS uses to determine whether an access request should be granted.
+
 3.  Overview
 
    This specification defines the ACE framework for authorization in the
@@ -326,10 +330,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    framework nevertheless takes all these aspects into account and
    allows several different deployment variants to co-exist, rather than
    mandating a one-size-fits-all solution.  It is important to cover the
-   wide range of possible interworking use cases and the different
-   requirements from a security point of view.  Once IoT deployments
-   mature, popular deployment variants will be documented in the form of
-   ACE profiles.
 
 
 
@@ -337,6 +337,11 @@ Seitz, et al.            Expires August 4, 2019                 [Page 6]
 
 Internet-Draft                  ACE-OAuth                   January 2019
 
+
+   wide range of possible interworking use cases and the different
+   requirements from a security point of view.  Once IoT deployments
+   mature, popular deployment variants will be documented in the form of
+   ACE profiles.
 
 3.1.  OAuth 2.0
 
@@ -381,11 +386,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
       server and are used to obtain a new access token when the current
       access token becomes invalid or expires, or to obtain additional
       access tokens with identical or narrower scope (access tokens may
-      have a shorter lifetime and fewer permissions than authorized by
-      the resource owner).  Issuing a refresh token is optional at the
-      discretion of the authorization server.  If the authorization
-      server issues a refresh token, it is included when issuing an
-      access token (i.e., step (B) in Figure 1).
 
 
 
@@ -393,6 +393,12 @@ Seitz, et al.            Expires August 4, 2019                 [Page 7]
 
 Internet-Draft                  ACE-OAuth                   January 2019
 
+
+      have a shorter lifetime and fewer permissions than authorized by
+      the resource owner).  Issuing a refresh token is optional at the
+      discretion of the authorization server.  If the authorization
+      server issues a refresh token, it is included when issuing an
+      access token (i.e., step (B) in Figure 1).
 
       A refresh token in OAuth 2.0 is a string representing the
       authorization granted to the client by the resource owner.  The
@@ -435,13 +441,7 @@ Internet-Draft                  ACE-OAuth                   January 2019
 
 
       Asymmetric PoP key:
-         An asymmetric key pair is generated on the client and the
-         public key is sent to the AS (if it does not already have
-         knowledge of the client's public key).  Information about the
-         public key, which is the PoP key in this case, is either stored
-         to be returned on introspection calls or included inside the
-         access token and sent back to the requesting client.  The RS
-         can identify the client's public key from the information in
+
 
 
 
@@ -450,6 +450,13 @@ Seitz, et al.            Expires August 4, 2019                 [Page 8]
 Internet-Draft                  ACE-OAuth                   January 2019
 
 
+         An asymmetric key pair is generated on the client and the
+         public key is sent to the AS (if it does not already have
+         knowledge of the client's public key).  Information about the
+         public key, which is the PoP key in this case, is either stored
+         to be returned on introspection calls or included inside the
+         access token and sent back to the requesting client.  The RS
+         can identify the client's public key from the information in
          the token, which allows the client to use the corresponding
          private key for the proof of possession.
 
@@ -493,19 +500,17 @@ Internet-Draft                  ACE-OAuth                   January 2019
       encoding (CWT) has been defined.
 
 
-   Introspection:
-      Introspection is a method for a resource server to query the
-      authorization server for the active state and content of a
-      received access token.  This is particularly useful in those cases
-      where the authorization decisions are very dynamic and/or where
-
-
 
 Seitz, et al.            Expires August 4, 2019                 [Page 9]
 
 Internet-Draft                  ACE-OAuth                   January 2019
 
 
+   Introspection:
+      Introspection is a method for a resource server to query the
+      authorization server for the active state and content of a
+      received access token.  This is particularly useful in those cases
+      where the authorization decisions are very dynamic and/or where
       the received access token itself is an opaque reference rather
       than a self-contained token.  More information about introspection
       in OAuth 2.0 can be found in [RFC7662].
@@ -545,6 +550,18 @@ Internet-Draft                  ACE-OAuth                   January 2019
    This framework RECOMMENDS the use of CoAP as replacement for HTTP for
    use in constrained environments.
 
+
+
+
+
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 10]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
 4.  Protocol Interactions
 
    The ACE framework is based on the OAuth 2.0 protocol interactions
@@ -554,14 +571,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    access token to a RS to gain access to a protected resource.  In most
    deployments the RS can process the access token locally, however in
    some cases the RS may present it to the AS via the introspection
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 10]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
-
    endpoint to get fresh information.  These interactions are shown in
    Figure 1.  An overview of various OAuth concepts is provided in
    Section 3.1.
@@ -601,6 +610,14 @@ Internet-Draft                  ACE-OAuth                   January 2019
    commissioning tools.  Regardless of the onboarding technique, this
    provisioning procedure implies that the client and the AS exchange
    credentials and configuration parameters.  These credentials are used
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 11]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    to mutually authenticate each other and to protect messages exchanged
    between the client and the AS.
 
@@ -610,13 +627,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    the AS to apply cryptographic protection to the access token to
    ensure that its content cannot be modified, and if needed, that the
    content is confidentiality protected.
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 11]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
 
    The keying material necessary for establishing communication security
    between C and RS is dynamically established as part of the protocol
@@ -656,6 +666,14 @@ Internet-Draft                  ACE-OAuth                   January 2019
                       Figure 1: Basic Protocol Flow.
 
    Requesting an Access Token (A):
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 12]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
       The client makes an access token request to the token endpoint at
       the AS.  This framework assumes the use of PoP access tokens (see
       Section 3.1 for a short description) wherein the AS binds a key to
@@ -666,14 +684,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
 
 
    Access Token Response (B):
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 12]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
-
       If the AS successfully processes the request from the client, it
       returns an access token and optionally a refresh token (note that
       only certain grant types support refresh tokens).  It can also
@@ -712,6 +722,14 @@ Internet-Draft                  ACE-OAuth                   January 2019
       over HTTP or CoAP.
 
 
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 13]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    Token Introspection Request (D):
       A resource server may be configured to introspect the access token
       by including it in a request to the introspection endpoint at that
@@ -721,13 +739,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
       Note that token introspection is an optional step and can be
       omitted if the token is self-contained and the resource server is
       prepared to perform the token validation on its own.
-
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 13]
-
-Internet-Draft                  ACE-OAuth                   January 2019
 
 
    Token Introspection Response (E):
@@ -769,6 +780,12 @@ Internet-Draft                  ACE-OAuth                   January 2019
       key as the previous one.
 
 
+
+Seitz, et al.            Expires August 4, 2019                [Page 14]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    ACE Profiles
       The client or RS may be limited in the encodings or protocols it
       supports.  To support a variety of different deployment settings,
@@ -777,14 +794,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
       matching of compatible profile choices between a client and an RS.
       The AS informs the client of the selected profile using the
       "profile" parameter in the token response.
-
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 14]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
 
    OAuth 2.0 requires the use of TLS both to protect the communication
    between AS and client when requesting an access token; between client
@@ -821,16 +830,7 @@ Internet-Draft                  ACE-OAuth                   January 2019
    profile, the CBOR payload MAY be enclosed in a non-CBOR cryptographic
    wrapper.
 
-5.1.  Discovering Authorization Servers
 
-   In order to determine the AS in charge of a resource hosted at the
-   RS, C MAY send an initial Unauthorized Resource Request message to
-   RS.  RS then denies the request and sends the address of its AS back
-   to C.
-
-   Instead of the initial Unauthorized Resource Request message, other
-   discovery methods may be used, or the client may be pre-provisioned
-   with the address of the AS.
 
 
 
@@ -841,6 +841,17 @@ Seitz, et al.            Expires August 4, 2019                [Page 15]
 
 Internet-Draft                  ACE-OAuth                   January 2019
 
+
+5.1.  Discovering Authorization Servers
+
+   In order to determine the AS in charge of a resource hosted at the
+   RS, C MAY send an initial Unauthorized Resource Request message to
+   RS.  RS then denies the request and sends the address of its AS back
+   to C.
+
+   Instead of the initial Unauthorized Resource Request message, other
+   discovery methods may be used, or the client may be pre-provisioned
+   with the address of the AS.
 
 5.1.1.  Unauthorized Resource Request Message
 
@@ -879,6 +890,14 @@ Internet-Draft                  ACE-OAuth                   January 2019
    map, with a MANDATORY element "AS" specifying an absolute URI (see
    Section 4.3 of [RFC3986]) that identifies the AS in charge of RS.
 
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 16]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    The message can also contain the following OPTIONAL parameters:
 
    o  A "req_aud" element containing a suggested audience that the
@@ -888,16 +907,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
       RS expects the client to request an access token bound to this
       key, in order to avoid having to re-establish the security
       association.
-
-
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 16]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
-
    o  A "nonce" element containing a nonce generated by RS to ensure
       freshness in case that the RS and AS do not have synchronized
       clocks.
@@ -930,6 +939,21 @@ Internet-Draft                  ACE-OAuth                   January 2019
    payload using CBOR [RFC7049] diagnostic notation, using the parameter
    names instead of the CBOR keys for better human readability.
 
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 17]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
        4.01 Unauthorized
        Content-Format: application/ace+cbor
        {AS: "coaps://as.example.com/token",
@@ -945,15 +969,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    permissions.  The originator of the AS Request Creation Hints payload
    (i.e., RS) uses a local clock that is loosely synchronized with a
    time scale common between RS and AS (e.g., wall clock time).
-
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 17]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
-
    Therefore, it has included a parameter "nonce" for replay attack
    prevention.
 
@@ -987,6 +1002,14 @@ Internet-Draft                  ACE-OAuth                   January 2019
    The grant type is selected depending on the use case.  In cases where
    the client acts on behalf of the resource owner, authorization code
    grant is recommended.  If the client acts on behalf of the resource
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 18]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    owner, but does not have any display or very limited interaction
    possibilities it is recommended to use the device code grant defined
    in [I-D.ietf-oauth-device-flow].  In cases where the client does not
@@ -997,18 +1020,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    [RFC6749].  The OAuth 2.0 framework provides an extension mechanism
    for defining additional grant types so profiles of this framework MAY
    define additional grant types, if needed.
-
-
-
-
-
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 18]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
 
 5.3.  Client Credentials
 
@@ -1046,6 +1057,15 @@ Internet-Draft                  ACE-OAuth                   January 2019
    specification.  Implementations should use the definition and
    recommendations of [RFC6749] and [RFC6819].
 
+
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 19]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    If clients involved cannot support HTTP and TLS, profiles MAY define
    mappings for the authorization endpoint.
 
@@ -1057,14 +1077,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    help the client and RS to establish shared keys or to exchange their
    public keys.  Furthermore, this framework defines encodings using
    CBOR, as a substitute for JSON.
-
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 19]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
 
    The endpoint may, however, be exposed over HTTPS as in classical
    OAuth or even other transports.  A profile MUST define the details of
@@ -1102,6 +1114,14 @@ Internet-Draft                  ACE-OAuth                   January 2019
 
    In addition to these parameters, a client MUST be able to use the
    parameters from [I-D.ietf-ace-oauth-params] in an access token
+
+
+
+Seitz, et al.            Expires August 4, 2019                [Page 20]
+
+Internet-Draft                  ACE-OAuth                   January 2019
+
+
    request to the token endpoint and the AS MUST be able to process
    these additional parameters.
 
@@ -1114,13 +1134,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    the token endpoint by sending the parameters using the "application/
    x-www-form-urlencoded" format with a character encoding of UTF-8 in
    the HTTP request entity-body, as defined in RFC 6749.
-
-
-
-Seitz, et al.            Expires August 4, 2019                [Page 20]
-
-Internet-Draft                  ACE-OAuth                   January 2019
-
 
    The following examples illustrate different types of requests for
    proof-of-possession tokens.
@@ -1153,19 +1166,6 @@ Internet-Draft                  ACE-OAuth                   January 2019
    the audience is implicitly known by both client and AS.  Furthermore
    note that this example uses the "req_cnf" parameter from
    [I-D.ietf-ace-oauth-params].
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
