@@ -16,6 +16,7 @@
 <!ENTITY RFC6750 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6750.xml">
 <!ENTITY RFC6819 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6819.xml">
 <!ENTITY RFC6838 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6838.xml">
+<!ENTITY RFC6920 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6920.xml">
 <!ENTITY RFC7049 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7049.xml">
 <!ENTITY RFC7228 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7228.xml">
 <!ENTITY RFC7231 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.7231.xml">
@@ -43,6 +44,7 @@
 <!ENTITY I-D.ietf-ace-cwt-proof-of-possession SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cwt-proof-of-possession.xml">
 <!ENTITY I-D.erdtman-ace-rpcc SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.erdtman-ace-rpcc.xml">
 <!ENTITY I-D.ietf-tls-dtls13 SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-dtls13.xml">
+<!ENTITY I-D.ietf-oauth-token-exchange SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-token-exchange.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -70,7 +72,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-19" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-20" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -846,7 +848,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
     
     <t>The message can also contain the following OPTIONAL parameters:
     <list style="symbols">
-      <t>A "req_aud" element containing a suggested audience that the client
+      <t>A "audience" element containing a suggested audience that the client
       should request towards the AS.</t>
       <t>A "kid" element containing the key identifier of a key used in
       an existing security association between the client and the RS.
@@ -869,10 +871,10 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
         | Name      | CBOR Key | Value Type          |
         |-----------+----------+---------------------|
         | AS        |     0    | text string         |
-        | req_aud   |     3    | text string         |
         | kid       |     4    | byte string         |
         | nonce     |     5    | byte string         |
         | scope     |     9    | text or byte string |
+        | audience  |    18    | text string         |
         \-----------+----------+---------------------/
       ]]></artwork></figure></t>
 
@@ -893,7 +895,7 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
     4.01 Unauthorized
     Content-Format: application/ace+cbor
     {AS: "coaps://as.example.com/token",
-     req_aud: "coaps://rs.example.com",
+     audience: "coaps://rs.example.com",
      nonce: h'e0a156bb3f',
      scope: "rTempC"
     }
@@ -1023,6 +1025,10 @@ a2                                   # map(2)
     REQUIRED in RFC6749).  If that parameter is missing, the default value
     "client_credentials" is implied.</t>
 
+    <t>Furthermore the "audience" parameter from <xref
+    target="I-D.ietf-oauth-token-exchange"/> can be used to request
+    an access token bound to a specific audience.</t>
+    
     <t>In addition to these parameters, a client MUST be able to
     use the parameters from <xref target="I-D.ietf-ace-oauth-params"/>
     in an access token request to the token endpoint and the AS MUST
@@ -1045,8 +1051,6 @@ a2                                   # map(2)
     <t><xref target="fig:symmATreq"/> shows a request for a token
     with a symmetric proof-of-possession key.  The content is displayed in
     CBOR diagnostic notation, without abbreviations for better readability.
-    Note that this example uses the "req_aud" parameter from
-    <xref target="I-D.ietf-ace-oauth-params"/>.
     
     <figure align="center" anchor="fig:symmATreq"
             title="Example request for an access token bound to a
@@ -1058,9 +1062,8 @@ Uri-Path: "token"
 Content-Format: "application/ace+cbor"
 Payload:
 {
-  "grant_type" : "client_credentials",
   "client_id" : "myclient",
-  "req_aud" : "tempSensor4711"
+  "audience" : "tempSensor4711"
  }
         ]]></artwork>
     </figure></t>
@@ -1089,7 +1092,6 @@ Payload:
 
 Decrypted payload:
 {
-  "grant_type" : "client_credentials",
   "client_id" : "myclient",
   "req_cnf" : {
     "COSE_Key" : {
@@ -1109,7 +1111,7 @@ Decrypted payload:
     referenced.  Note that the client performs a password
     based authentication in this example by submitting its client_secret
     (see Section 2.3.1 of <xref target="RFC6749"/>). Note that this
-    example uses the "req_aud" and "req_cnf" parameters from
+    example uses the "req_cnf" parameter from
     <xref target="I-D.ietf-ace-oauth-params"/>.
 
     <figure align="center" anchor="fig:kidATreq"
@@ -1122,10 +1124,9 @@ Uri-Path: "token"
 Content-Format: "application/ace+cbor"
 Payload:
 {
-  "grant_type" : "client_credentials",
   "client_id" : "myclient",
   "client_secret" : "mysecret234",
-  "req_aud" : "valve424",
+  "audience" : "valve424",
   "scope" : "read",
   "req_cnf" : {
     "kid" : b64'6kg0dXJM13U'
@@ -1389,6 +1390,7 @@ Payload:
         |-------------------+----------+---------------------|
         | access_token      | 1        | byte string         |
         | scope             | 9        | text or byte string |
+        | audience          | 18       | text string         |
         | client_id         | 24       | text string         |
         | client_secret     | 25       | byte string         |
         | response_type     | 26       | text string         |
@@ -2050,6 +2052,44 @@ Payload:
 	requests only reveal the target URI of the resource, while POST and PUT
 	requests would reveal the whole payload of the intended operation.</t>
       </section>
+
+      <section anchor="audience" title="Identifying audiences">
+	<t>The audience claim as defined in <xref target="RFC7519"/>
+	and the equivalent "audience" parameter from
+	<xref target="I-D.ietf-oauth-token-exchange"/> are intentionally vague
+	on how to match the audience value to a specific RS.  This is intended
+	to allow application specific semantics to be used.  This section
+	attempts to give some general guidance for the use of audiences in
+	constrained environments.</t>
+
+	<t>URLs are not a good way of identifying mobile devices that can
+	switch networks and thus be associated with new URLs.  If the
+	audience represents a single RS, and asymmetric keys are used,
+	the RS can be uniquely identified by a hash of its public key.
+	If this approach is used this framework RECOMMENDS to apply the
+	procedure from section 3 of <xref target="RFC6920"/>.</t>
+
+	<t>If the audience addresses a group of resource servers, the mapping
+	of group identifier to individual RS has to be provisioned to each RS
+	before the group-audience is usable.  Managing dynamic groups could be
+	an issue, if the RS is not always reachable when the group memberships
+	change. Furthermore issuing access tokens bound to symmetric
+	proof-of-possession keys that apply to a group-audience is problematic,
+	as an RS that is in possession of the access token can impersonate the
+	client towards the other RSs that are part of the group.  It is
+	therefore NOT RECOMMENDED to issue access tokens bound to a group
+	audience and symmetric proof-of possession keys.</t>
+
+	<t>Even the client must be able to determine the correct values to put
+	into the "audience" parameter, in order to obtain a token for the
+	intended RS.  Errors in this process can lead to the client
+	inadvertantly communicating with the wrong RS.  The correct values for
+	"audience" can either be provisioned to the client as part of its
+	configuration, or provided by the RS as part of the "AS Request
+	Creation Hints" <xref target="asInfo"/> or dynamically looked up by the
+	client in some directory. In the latter case the integrity and
+	correctness of the directory data must be assured.</t>
+      </section>
      
       <section anchor="introDos" title="Denial of service against or with
 					Introspection">
@@ -2675,6 +2715,7 @@ Payload:
       &RFC6749;    
       &RFC6750;
       &RFC6838;
+      &RFC6920;
       &RFC7252;
       &RFC7662;
       &RFC8126;
@@ -2683,6 +2724,7 @@ Payload:
       &RFC8392;
       &I-D.ietf-ace-cwt-proof-of-possession;
       &I-D.ietf-ace-oauth-params;
+      &I-D.ietf-oauth-token-exchange;
 
       <reference anchor="IANA.OAuthAccessTokenTypes" target="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-types">
 	<front>
@@ -2770,7 +2812,7 @@ Payload:
 	    <author initials="T.C.M.B." surname="Carvalho"/>
 	    <author initials="M." surname="Naeslund"/>
 	    <author initials="R." surname="Gold"/>
-            <date month="2010" year="August" />
+            <date year="2010" month="August" />
         </front>
         <seriesInfo name="Proceedings of the" value="19th International Conference on Computer Communications and Networks (ICCCN)"/>
       </reference>
@@ -3263,8 +3305,7 @@ B:  |<--------+ Header: 2.05 Content
       <artwork align="left"><![CDATA[
 Request-Payload :
 {
-  "grant_type" : "client_credentials",
-  "req_aud" : "tempSensorInLivingRoom",
+  "audience" : "tempSensorInLivingRoom",
   "client_id" : "myclient",
   "client_secret" : "qwerty"
   "req_cnf" : {
@@ -3281,7 +3322,6 @@ Request-Payload :
 Response-Payload :
 {
   "access_token" : b64'SlAV32hkKG ...',
-  "token_type" : "pop",
   "rs_cnf" : {
     "COSE_Key" : {
       "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
@@ -3467,7 +3507,6 @@ B:  |<--------+ Header: 2.05 Content
       <artwork align="left"><![CDATA[
 Request-Payload:
 {
-  "grant_type" : "client_credentials",
   "client_id" : "keyfob",
   "client_secret" : "qwerty"
 }
@@ -3475,7 +3514,6 @@ Request-Payload:
 Response-Payload:
 {
   "access_token" : b64'VGVzdCB0b2tlbg==',
-  "token_type" : "pop",
   "cnf" : {
     "COSE_Key" : {
       "kid" : b64'c29tZSBwdWJsaWMga2V5IGlk',
@@ -3606,6 +3644,13 @@ F:  |<--------+ Header: 2.04 Changed
 </section>
 <section anchor="app:changelog" title="Document Updates">
   <t>RFC EDITOR: PLEASE REMOVE THIS SECTION.</t>
+  <section anchor="app:f20t21" title="Verion -19 to 20">
+    <t><list style="symbols">
+      <t>Replaced "req_aud" with "audience" from the OAuth token
+      exchange draft.</t>
+      <t>Updated examples to remove unnecessary elements.</t>
+    </list></t>
+  </section>
   <section anchor="app:f19t20" title="Version -18 to -19">
     <t><list style="symbols">
       <t>Added definition of "Authorization Information".</t>
