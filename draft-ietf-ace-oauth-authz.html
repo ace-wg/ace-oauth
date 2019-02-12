@@ -408,6 +408,7 @@
 <link href="#rfc.section.5.8.1.2" rel="Chapter" title="5.8.1.2 Protecting the Authorization       Information Endpoint">
 <link href="#rfc.section.5.8.2" rel="Chapter" title="5.8.2 Client Requests to the RS">
 <link href="#rfc.section.5.8.3" rel="Chapter" title="5.8.3 Token Expiration">
+<link href="#rfc.section.5.8.4" rel="Chapter" title="5.8.4 Key Expriation">
 <link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations">
 <link href="#rfc.section.6.1" rel="Chapter" title="6.1 Unprotected AS Request Creation Hints">
 <link href="#rfc.section.6.2" rel="Chapter" title="6.2 Minimal security requirements        for communication">
@@ -475,7 +476,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-20" />
-  <meta name="dct.issued" scheme="ISO8601" content="2019-11" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-12" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -499,7 +500,7 @@
 <td class="right">G. Selander</td>
 </tr>
 <tr>
-<td class="left">Expires: August 15, 2019</td>
+<td class="left">Expires: August 16, 2019</td>
 <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -528,7 +529,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">February 11, 2019</td>
+<td class="right">February 12, 2019</td>
 </tr>
 
     	
@@ -544,7 +545,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on August 15, 2019.</p>
+<p>This Internet-Draft will expire on August 16, 2019.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -621,6 +622,8 @@
 </ul><li>5.8.2.   <a href="#rfc.section.5.8.2">Client Requests to the RS</a>
 </li>
 <li>5.8.3.   <a href="#rfc.section.5.8.3">Token Expiration</a>
+</li>
+<li>5.8.4.   <a href="#rfc.section.5.8.4">Key Expriation</a>
 </li>
 </ul></ul><li>6.   <a href="#rfc.section.6">Security Considerations</a>
 </li>
@@ -1459,6 +1462,20 @@ Payload:
 <li>In order to support token expiration for devices that have no reliable way of synchronizing their internal clocks, this specification defines the following approach: The claim "exi" ("expires in") can be used, to provide the RS with the lifetime of the token in seconds from the time the RS first receives the token.  This approach is of course vulnerable to malicious clients holding back tokens they do not want to expire. Such an attack can only be prevented if the RS is able to communicate with the AS in some regular intervals, so that the can AS provide the RS with a list of expired tokens.  The drawback of this mitigation is that the RS might as well use the communication with the AS to synchronize its internal clock.  </li>
 </ul>
 <p id="rfc.section.5.8.3.p.3">If a token that authorizes a long running request such as a CoAP Observe <a href="#RFC7641" class="xref">[RFC7641]</a> expires, the RS MUST send an error response with the response code equivalent to the CoAP code 4.01 (Unauthorized) to the client and then terminate processing the long running request.</p>
+<h1 id="rfc.section.5.8.4">
+<a href="#rfc.section.5.8.4">5.8.4.</a> <a href="#keyExpiration" id="keyExpiration">Key Expriation</a>
+</h1>
+<p id="rfc.section.5.8.4.p.1">The AS provides the client with key material that the RS uses. This can either be a common symmetric pop-key, or an asymmetric key used by the RS to authenticate towards the client.  Since there is no metadata associated to those keys, the client has no way of knowing if these keys are still valid.  This may lead to situations where the client sends requests containing sensitive information to the RS using a key that is expired and possibly in the hands of an attacker, or accepts responses from the RS that are not properly protected and could possibly have been forged by an attacker.  </p>
+<p id="rfc.section.5.8.4.p.2">In order to prevent this, the client must assume that those keys are only valid as long as the related access token is.  Since the access token is opaque to the client, one of the following methods MUST be used to inform the client about the validity of an access token: </p>
+
+<ul>
+<li>The client knows a default validity period for all tokens it is using.  This information could be provisioned to the client when it is registered at the AS, or published by the AS in a way that the client can query.</li>
+<li>The AS informs the client about the token validity using the "expires_in" parameter in the Access Information.</li>
+<li>The client performs an introspection of the token.  Although this is not explicitly forbidden, how exactly this is done is not currently specified for OAuth.</li>
+</ul>
+
+<p> </p>
+<p id="rfc.section.5.8.4.p.3">A client that is not able to obtain information about the expiration of a token MUST NOT use this token.</p>
 <h1 id="rfc.section.6">
 <a href="#rfc.section.6">6.</a> <a href="#security" id="security">Security Considerations</a>
 </h1>
@@ -1508,7 +1525,7 @@ Payload:
 <p id="rfc.section.6.6.p.1">The audience claim as defined in <a href="#RFC7519" class="xref">[RFC7519]</a> and the equivalent "audience" parameter from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
 <p id="rfc.section.6.6.p.2">URLs are not a good way of identifying mobile devices that can switch networks and thus be associated with new URLs.  If the audience represents a single RS, and asymmetric keys are used, the RS can be uniquely identified by a hash of its public key.  If this approach is used this framework RECOMMENDS to apply the procedure from section 3 of <a href="#RFC6920" class="xref">[RFC6920]</a>.</p>
 <p id="rfc.section.6.6.p.3">If the audience addresses a group of resource servers, the mapping of group identifier to individual RS has to be provisioned to each RS before the group-audience is usable.  Managing dynamic groups could be an issue, if the RS is not always reachable when the group memberships change. Furthermore issuing access tokens bound to symmetric proof-of-possession keys that apply to a group-audience is problematic, as an RS that is in possession of the access token can impersonate the client towards the other RSs that are part of the group.  It is therefore NOT RECOMMENDED to issue access tokens bound to a group audience and symmetric proof-of possession keys.</p>
-<p id="rfc.section.6.6.p.4">Even the client must be able to determine the correct values to put into the "audience" parameter, in order to obtain a token for the intended RS.  Errors in this process can lead to the client inadvertantly communicating with the wrong RS.  The correct values for "audience" can either be provisioned to the client as part of its configuration, or provided by the RS as part of the "AS Request Creation Hints" <a href="#asInfo" class="xref">Section 5.1.2</a> or dynamically looked up by the client in some directory. In the latter case the integrity and correctness of the directory data must be assured.</p>
+<p id="rfc.section.6.6.p.4">Even the client must be able to determine the correct values to put into the "audience" parameter, in order to obtain a token for the intended RS.  Errors in this process can lead to the client inadvertently communicating with the wrong RS.  The correct values for "audience" can either be provisioned to the client as part of its configuration, or provided by the RS as part of the "AS Request Creation Hints" <a href="#asInfo" class="xref">Section 5.1.2</a> or dynamically looked up by the client in some directory. In the latter case the integrity and correctness of the directory data must be assured.</p>
 <h1 id="rfc.section.6.7">
 <a href="#rfc.section.6.7">6.7.</a> <a href="#introDos" id="introDos">Denial of service against or with      Introspection</a>
 </h1>

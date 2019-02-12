@@ -1875,6 +1875,39 @@ Payload:
   (Unauthorized) to the client and then terminate processing the long running
   request.</t>
 </section>
+
+<section anchor="keyExpiration" title="Key Expriation">
+  <t>The AS provides the client with key material that the RS uses. This can
+  either be a common symmetric pop-key, or an asymmetric key used by the RS to
+  authenticate towards the client.  Since there is no metadata associated to
+  those keys, the client has no way of knowing if these keys are still valid.
+  This may lead to situations where the client sends requests containing
+  sensitive information to the RS using a key that is expired and possibly in
+  the hands of an attacker, or accepts responses from the RS that are not
+  properly protected and could possibly have been forged by an attacker. 
+  </t>
+
+  <t>In order to prevent this, the client must assume that those keys are
+  only valid as long as the related access token is.  Since the access token
+  is opaque to the client, one of the following methods MUST be used to
+  inform the client about the validity of an access token:
+
+  <list style="symbols">
+    <t>The client knows a default validity period for all tokens it is using.
+    This information could be provisioned to the client when it is registered
+    at the AS, or published by the AS in a way that the client can query.</t>
+    <t>The AS informs the client about the token validity using the
+    "expires_in" parameter in the Access Information.</t>
+    <t>The client performs an introspection of the token.  Although this is
+    not explicitly forbidden, how exactly this is done is not currently
+    specified for OAuth.</t>
+  </list>
+  </t>
+
+  <t>A client that is not able to obtain information about the expiration of a
+  token MUST NOT use this token.</t>
+</section>
+
 </section><!-- access token -->
 
 </section> <!--Framework-->
@@ -2083,7 +2116,7 @@ Payload:
 	<t>Even the client must be able to determine the correct values to put
 	into the "audience" parameter, in order to obtain a token for the
 	intended RS.  Errors in this process can lead to the client
-	inadvertantly communicating with the wrong RS.  The correct values for
+	inadvertently communicating with the wrong RS.  The correct values for
 	"audience" can either be provisioned to the client as part of its
 	configuration, or provided by the RS as part of the "AS Request
 	Creation Hints" <xref target="asInfo"/> or dynamically looked up by the
