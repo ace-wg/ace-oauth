@@ -894,10 +894,10 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 	    anchor="fig:as-info-payload"><artwork><![CDATA[
     4.01 Unauthorized
     Content-Format: application/ace+cbor
-    {AS: "coaps://as.example.com/token",
-     audience: "coaps://rs.example.com",
-     nonce: h'e0a156bb3f',
-     scope: "rTempC"
+    {"AS" : "coaps://as.example.com/token",
+     "nonce" : h'e0a156bb3f',
+     "scope" : "rTempC",
+     "audience" : "coaps://rs.example.com"
     }
 ]]></artwork></figure>
 
@@ -914,14 +914,21 @@ What grant types works best depends on the usage scenario and RFC 7744 <xref tar
 
     <figure title="AS Request Creation Hints example encoded in CBOR"
 	    anchor="fig:as-info-cbor"><artwork><![CDATA[
-a2                                   # map(2)
-    00                               # unsigned(0) (=AS)
-    78 1c                            # text(28)
-       636f6170733a2f2f61732e657861
-       6d706c652e636f6d2f746f6b656e  # "coaps://as.example.com/token"
-    05                               # unsigned(5) (=nonce)
-    45                               # bytes(5)
-       e0a156bb3f
+a4                                      # map(4)
+   00                                   # unsigned(0) (=AS)
+   78 1c                                # text(28)
+      636f6170733a2f2f61732e657861
+      6d706c652e636f6d2f746f6b656e      # "coaps://as.example.com/token"
+   05                                   # unsigned(5) (=nonce)
+   45                                   # bytes(5)
+      e0a156bb3f                        # "\xE0\xA1V\xBB?"
+   09                                   # unsigned(9) (=scope)
+   66                                   # text(6)
+      7254656d7043                      # "rTempC"
+   12                                   # unsigned(18) (=audience)
+   76                                   # text(22)
+      636f6170733a2f2f72732e657861
+      6d706c652e636f6d                  # "coaps://rs.example.com"
 ]]></artwork></figure>
   </section><!--AS information-->
 
