@@ -132,7 +132,7 @@ Internet-Draft                  ACE-OAuth                  February 2019
      8.1.  ACE Authorization Server Request Creation Hints . . . . .  45
      8.2.  OAuth Extensions Error Registration . . . . . . . . . . .  46
      8.3.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  46
-     8.4.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  46
+     8.4.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  47
      8.5.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  47
      8.6.  OAuth Access Token Type CBOR Mappings . . . . . . . . . .  47
        8.6.1.  Initial Registry Contents . . . . . . . . . . . . . .  48
@@ -1980,36 +1980,36 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    iss  The issuer claim must identify an AS that has the authority to
       issue access tokens for the receiving RS.  If that is not the case
-      the RS MUST respond with a response code equivalent to the CoAP
-      code 4.01 (Unauthorized).
+      the RS MUST discard the token.  If this was an interaction with
+      authz-info, the RS MUST also respond with a response code
+      equivalent to the CoAP code 4.01 (Unauthorized).
 
    exp  The expiration date must be in the future.  If that is not the
-      case the RS MUST respond with a response code equivalent to the
-      CoAP code 4.01 (Unauthorized).  Note that the RS has to terminate
-      access rights to the protected resources at the time when the
-      tokens expire.
+      case the RS MUST discard the token.  If this was an interaction
+      with authz-info the RS MUST also respond with a response code
+      equivalent to the CoAP code 4.01 (Unauthorized).  Note that the RS
+      has to terminate access rights to the protected resources at the
+      time when the tokens expire.
 
    aud  The audience claim must refer to an audience that the RS
-      identifies with.  If that is not the case the RS MUST respond with
-      a response code equivalent to the CoAP code 4.03 (Forbidden).
+      identifies with.  If that is not the case the RS MUST discard the
+      token.  If this was an interaction with authz-info, the RS MUST
+      also respond with a response code equivalent to the CoAP code 4.03
+      (Forbidden).
 
    scope  The RS must recognize value of the scope claim.  If that is
-      not the case the RS MUST respond with a response code equivalent
-      to the CoAP code 4.00 (Bad Request).  The RS MAY provide
-      additional information in the error response, to clarify what went
-      wrong.
+      not the case the RS MUST discard the token.  If this was an
+      interaction with authz-info, the RS MUST also respond with a
+      response code equivalent to the CoAP code 4.00 (Bad Request).  The
+      RS MAY provide additional information in the error response, to
+      clarify what went wrong.
 
    If the access token contains any other claims that the RS cannot
-   process the RS MUST respond with a response code equivalent to the
-   CoAP code 4.00 (Bad Request).  The RS MAY provide additional detail
-   in the error response to clarify which claim couldn't be processed.
-
-   Note that the Subject (sub) claim cannot always be verified when the
-   token is submitted to the RS since the client may not have
-   authenticated yet.  Also note that a counter for the expires_in (exi)
-   claim MUST be initialized when the RS first verifies this token.
-
-
+   process the RS MUST discard the token.  If this was an interaction
+   with authz-info, the RS MUST also respond with a response code
+   equivalent to the CoAP code 4.00 (Bad Request).  The RS MAY provide
+   additional detail in the error response to clarify which claim
+   couldn't be processed.
 
 
 
@@ -2017,6 +2017,16 @@ Seitz, et al.            Expires August 29, 2019               [Page 36]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   Note that the Subject (sub) claim cannot always be verified when the
+   token is submitted to the RS since the client may not have
+   authenticated yet.  Also note that a counter for the expires_in (exi)
+   claim MUST be initialized when the RS first verifies this token.
+
+   Also note that profiles of this framework may define access token
+   transport mechanisms that do not allow for error responses.
+   Therefore the error messages specified here only apply if the token
+   was POSTed to the authz-info endpoint.
 
    When sending error responses, the RS MAY use the error codes from
    Section 3.1 of [RFC6750], to provide additional details to the
@@ -2055,6 +2065,15 @@ Internet-Draft                  ACE-OAuth                  February 2019
    but it does not cover the action that was requested on the resource,
    RS MUST reject the request with a 4.05 (Method Not Allowed).
 
+
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 37]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    Note: The use of the response codes 4.03 and 4.05 is intended to
    prevent infinite loops where a dumb Client optimistically tries to
    access a requested resource with any access token received from AS.
@@ -2065,14 +2084,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    Note: The RS MAY use introspection for timely validation of an access
    token, at the time when a request is presented.
-
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 37]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
 
    Note: Matching the claims of the access token (e.g., scope) to a
    specific request is application specific.
@@ -2111,6 +2122,14 @@ Internet-Draft                  ACE-OAuth                  February 2019
       holding back tokens they do not want to expire.  Such an attack
       can only be prevented if the RS is able to communicate with the AS
       in some regular intervals, so that the can AS provide the RS with
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 38]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
       a list of expired tokens.  The drawback of this mitigation is that
       the RS might as well use the communication with the AS to
       synchronize its internal clock.
@@ -2119,16 +2138,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    Observe [RFC7641] expires, the RS MUST send an error response with
    the response code equivalent to the CoAP code 4.01 (Unauthorized) to
    the client and then terminate processing the long running request.
-
-
-
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 38]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
 
 5.8.4.  Key Expriation
 
@@ -2168,6 +2177,15 @@ Internet-Draft                  ACE-OAuth                  February 2019
    authorization in RESTful environments provided in OAuth 2.0 [RFC6749]
    apply to this work.  Furthermore [RFC6819] provides additional
    security considerations for OAuth which apply to IoT deployments as
+
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 39]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    well.  If the introspection endpoint is used, the security
    considerations from [RFC7662] also apply.
 
@@ -2178,14 +2196,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    be applied to prevent the token from being modified, particularly
    since it contains a reference to the symmetric key or the asymmetric
    key.  If the access token contains the symmetric key, this symmetric
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 39]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
-
    key MUST be encrypted by the authorization server so that only the
    resource server can decrypt it.  Note that using an AEAD algorithm is
    preferable over using a MAC unless the message needs to be publicly
@@ -2225,6 +2235,13 @@ Internet-Draft                  ACE-OAuth                  February 2019
    This risk can also be mitigated to some extent by making sure that
    keys are refreshed more frequently.
 
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 40]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    If clients are capable of doing so, they should frequently request
    fresh access tokens, as this allows the AS to keep the lifetime of
    the tokens short.  This allows the AS to use shorter proof-of-
@@ -2234,13 +2251,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    When authorization servers bind symmetric keys to access tokens, they
    SHOULD scope these access tokens to a specific permission.
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 40]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
 
 6.1.  Unprotected AS Request Creation Hints
 
@@ -2279,6 +2289,15 @@ Internet-Draft                  ACE-OAuth                  February 2019
       in order to negotiate a secure communication.  Furthermore the RS
       MUST be able to determine whether an AS has the authority to issue
       access tokens itself.  This is usually configured out of band, but
+
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 41]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
       could also be performed through an online lookup mechanism
       provided that it is also secured in the same way.
 
@@ -2290,14 +2309,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
       key) can be possible and are RECOMMEND if supported by both
       parties.  After the client has successfully transmitted the access
       token to the RS, a secure communication protocol MUST be
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 41]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
-
       established between client and RS for the actual resource request.
       This protocol MUST provide encryption, integrity and replay
       protection as well as a binding between requests and responses.
@@ -2335,6 +2346,14 @@ Internet-Draft                  ACE-OAuth                  February 2019
    error responses defined in this framework all potentially include
    sending information over an unprotected channel.  These messages may
    leak information to an adversary.  For example errors responses for
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 42]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    requests to the Authorization Information endpoint can reveal
    information about an otherwise opaque access token to an adversary
    who has intercepted this token.
@@ -2344,15 +2363,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    messages outweigh the risk due to information leakage.  For
    particular use cases, where this assessment does not apply, detailed
    error messages can be replaced by more generic ones.
-
-
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 42]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
 
    In some scenarios it may be possible to protect the communication
    with the authz-info endpoint (e.g. through DTLS with only server-side
@@ -2391,6 +2401,15 @@ Internet-Draft                  ACE-OAuth                  February 2019
    symmetric proof-of-possession keys that apply to a group-audience is
    problematic, as an RS that is in possession of the access token can
    impersonate the client towards the other RSs that are part of the
+
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 43]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    group.  It is therefore NOT RECOMMENDED to issue access tokens bound
    to a group audience and symmetric proof-of possession keys.
 
@@ -2401,15 +2420,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    for "audience" can either be provisioned to the client as part of its
    configuration, or provided by the RS as part of the "AS Request
    Creation Hints" Section 5.1.2 or dynamically looked up by the client
-
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 43]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
-
    in some directory.  In the latter case the integrity and correctness
    of the directory data must be assured.
 
@@ -2447,6 +2457,15 @@ Internet-Draft                  ACE-OAuth                  February 2019
    do not allow the AS to link different grants and thus different
    access token requests by the same client.
 
+
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 44]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    If access tokens are only integrity protected and not encrypted, they
    may reveal information to attackers listening on the wire, or able to
    acquire the access tokens in some other way.  In the case of CWTs the
@@ -2458,14 +2477,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    Clients using asymmetric keys for proof-of-possession should be aware
    of the consequences of using the same key pair for proof-of-
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 44]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
-
    possession towards different RSs.  A set of colluding RSs or an
    attacker able to obtain the access tokens will be able to link the
    requests, or even to determine the client's identity.
@@ -2502,17 +2513,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
       designated as Expert Review.  Integer values less than -65536 are
       marked as Private Use.
 
-   Value Type  The CBOR data types allowable for the values of this
-      parameter.
-
-   Reference  This contains a pointer to the public specification of the
-      grant type abbreviation, if one exists.
-
-   This registry will be initially populated by the values in Figure 2.
-   The Reference column for all of these entries will be this document.
-
-
-
 
 
 
@@ -2521,6 +2521,15 @@ Seitz, et al.            Expires August 29, 2019               [Page 45]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   Value Type  The CBOR data types allowable for the values of this
+      parameter.
+
+   Reference  This contains a pointer to the public specification of the
+      grant type abbreviation, if one exists.
+
+   This registry will be initially populated by the values in Figure 2.
+   The Reference column for all of these entries will be this document.
 
 8.2.  OAuth Extensions Error Registration
 
@@ -2562,6 +2571,13 @@ Internet-Draft                  ACE-OAuth                  February 2019
    Reference  This contains a pointer to the public specification of the
       grant type abbreviation, if one exists.
 
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 46]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    This registry will be initially populated by the values in Figure 10.
    The Reference column for all of these entries will be this document.
 
@@ -2570,14 +2586,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    This specification establishes the IANA "OAuth Grant Type CBOR
    Mappings" registry.  The registry has been created to use the "Expert
    Review Required" registration procedure [RFC8126].  It should be
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 46]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
-
    noted that, in addition to the expert review, some portions of the
    registry require a specification, potentially a Standards Track RFC,
    be supplied as well.
@@ -2618,14 +2626,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    This specification established the IANA "OAuth Access Token Type CBOR
    Mappings" registry.  The registry has been created to use the "Expert
    Review Required" registration procedure [RFC8126].  It should be
-   noted that, in addition to the expert review, some portions of the
-   registry require a specification, potentially a Standards Track RFC,
-   be supplied as well.
-
-   The columns of this registry are:
-
-   Name  The name of token type as registered in the OAuth Access Token
-      Types registry, e.g., "Bearer".
 
 
 
@@ -2634,6 +2634,14 @@ Seitz, et al.            Expires August 29, 2019               [Page 47]
 Internet-Draft                  ACE-OAuth                  February 2019
 
 
+   noted that, in addition to the expert review, some portions of the
+   registry require a specification, potentially a Standards Track RFC,
+   be supplied as well.
+
+   The columns of this registry are:
+
+   Name  The name of token type as registered in the OAuth Access Token
+      Types registry, e.g., "Bearer".
    CBOR Value  CBOR abbreviation for this token type.  Different ranges
       of values use different registration policies [RFC8126].  Integer
       values from -256 to 255 are designated as Standards Action.
@@ -2673,6 +2681,15 @@ Internet-Draft                  ACE-OAuth                  February 2019
       attribute.
    Description  Text giving an overview of the profile and the context
       it is developed for.
+
+
+
+
+Seitz, et al.            Expires August 29, 2019               [Page 48]
+
+Internet-Draft                  ACE-OAuth                  February 2019
+
+
    CBOR Value  CBOR abbreviation for this profile name.  Different
       ranges of values use different registration policies [RFC8126].
       Integer values from -256 to 255 are designated as Standards
@@ -2682,13 +2699,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
       than -65536 are marked as Private Use.
    Reference  This contains a pointer to the public specification of the
       profile abbreviation, if one exists.
-
-
-
-Seitz, et al.            Expires August 29, 2019               [Page 48]
-
-Internet-Draft                  ACE-OAuth                  February 2019
-
 
    This registry will be initially empty and will be populated by the
    registrations from the ACE framework profiles.
@@ -2728,16 +2738,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    Reference  This contains a pointer to the public specification of the
       parameter abbreviation, if one exists.
 
-   This registry will be initially populated by the values in Figure 12.
-   The Reference column for all of these entries will be this document.
-
-   Note that the mappings of parameters corresponding to claim names
-   intentionally coincide with the CWT claim name mappings from
-   [RFC8392].
-
-
-
-
 
 
 
@@ -2745,6 +2745,13 @@ Seitz, et al.            Expires August 29, 2019               [Page 49]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   This registry will be initially populated by the values in Figure 12.
+   The Reference column for all of these entries will be this document.
+
+   Note that the mappings of parameters corresponding to claim names
+   intentionally coincide with the CWT claim name mappings from
+   [RFC8392].
 
 8.10.  OAuth Introspection Response Parameter Registration
 
@@ -2786,13 +2793,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    This registry will be initially populated by the values in Figure 16.
    The Reference column for all of these entries will be this document.
 
-   Note that the mappings of parameters corresponding to claim names
-   intentionally coincide with the CWT claim name mappings from
-   [RFC8392].
-
-
-
-
 
 
 
@@ -2801,6 +2801,10 @@ Seitz, et al.            Expires August 29, 2019               [Page 50]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   Note that the mappings of parameters corresponding to claim names
+   intentionally coincide with the CWT claim name mappings from
+   [RFC8392].
 
 8.12.  JSON Web Token Claims
 
@@ -2846,10 +2850,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    o  Claim Description: The profile a token is supposed to be used
       with.
    o  JWT Claim Name: profile
-   o  Claim Key: TBD (suggested: 39)
-   o  Claim Value Type(s): integer
-   o  Change Controller: IESG
-   o  Specification Document(s): Section 5.8 of [this document]
 
 
 
@@ -2857,6 +2857,11 @@ Seitz, et al.            Expires August 29, 2019               [Page 51]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   o  Claim Key: TBD (suggested: 39)
+   o  Claim Value Type(s): integer
+   o  Change Controller: IESG
+   o  Specification Document(s): Section 5.8 of [this document]
 
    o  Claim Name: "exi"
    o  Claim Description: The expiration time of a token measured from
@@ -2901,11 +2906,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    File extension(s): .ace
 
-   Macintosh file type code(s): n/a
-
-   Person & email address to contact for further information: Ludwig
-   Seitz <ludwig.seitz@ri.se>
-
 
 
 
@@ -2913,6 +2913,11 @@ Seitz, et al.            Expires August 29, 2019               [Page 52]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   Macintosh file type code(s): n/a
+
+   Person & email address to contact for further information: Ludwig
+   Seitz <ludwig.seitz@ri.se>
 
    Intended usage: COMMON
 
@@ -2957,11 +2962,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
       required ranges, but early assignment before a specification is
       available is considered to be permissible.  Specifications are
       needed for the first-come, first-serve range if they are expected
-      to be used outside of closed environments in an interoperable way.
-      When specifications are not provided, the description provided
-      needs to have sufficient information to identify what the point is
-      being used for.
-
 
 
 
@@ -2970,6 +2970,10 @@ Seitz, et al.            Expires August 29, 2019               [Page 53]
 Internet-Draft                  ACE-OAuth                  February 2019
 
 
+      to be used outside of closed environments in an interoperable way.
+      When specifications are not provided, the description provided
+      needs to have sufficient information to identify what the point is
+      being used for.
    o  Experts should take into account the expected usage of fields when
       approving point assignment.  The fact that there is a range for
       standards track documents does not mean that a standards track
@@ -3011,11 +3015,7 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
 10.1.  Normative References
 
-   [I-D.ietf-ace-cwt-proof-of-possession]
-              Jones, M., Seitz, L., Selander, G., Erdtman, S., and H.
-              Tschofenig, "Proof-of-Possession Key Semantics for CBOR
-              Web Tokens (CWTs)", draft-ietf-ace-cwt-proof-of-
-              possession-05 (work in progress), November 2018.
+
 
 
 
@@ -3025,6 +3025,12 @@ Seitz, et al.            Expires August 29, 2019               [Page 54]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   [I-D.ietf-ace-cwt-proof-of-possession]
+              Jones, M., Seitz, L., Selander, G., Erdtman, S., and H.
+              Tschofenig, "Proof-of-Possession Key Semantics for CBOR
+              Web Tokens (CWTs)", draft-ietf-ace-cwt-proof-of-
+              possession-05 (work in progress), November 2018.
 
    [I-D.ietf-ace-oauth-params]
               Seitz, L., "Additional OAuth Parameters for Authorization
@@ -3065,14 +3071,8 @@ Internet-Draft                  ACE-OAuth                  February 2019
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/info/rfc2119>.
 
-   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
-              Resource Identifier (URI): Generic Syntax", STD 66,
-              RFC 3986, DOI 10.17487/RFC3986, January 2005,
-              <https://www.rfc-editor.org/info/rfc3986>.
 
-   [RFC6347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
-              Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
-              January 2012, <https://www.rfc-editor.org/info/rfc6347>.
+
 
 
 
@@ -3081,6 +3081,15 @@ Seitz, et al.            Expires August 29, 2019               [Page 55]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   [RFC3986]  Berners-Lee, T., Fielding, R., and L. Masinter, "Uniform
+              Resource Identifier (URI): Generic Syntax", STD 66,
+              RFC 3986, DOI 10.17487/RFC3986, January 2005,
+              <https://www.rfc-editor.org/info/rfc3986>.
+
+   [RFC6347]  Rescorla, E. and N. Modadugu, "Datagram Transport Layer
+              Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
+              January 2012, <https://www.rfc-editor.org/info/rfc6347>.
 
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
@@ -3119,15 +3128,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
               RFC 8152, DOI 10.17487/RFC8152, July 2017,
               <https://www.rfc-editor.org/info/rfc8152>.
 
-   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
-              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
-              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
-
-   [RFC8392]  Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
-              "CBOR Web Token (CWT)", RFC 8392, DOI 10.17487/RFC8392,
-              May 2018, <https://www.rfc-editor.org/info/rfc8392>.
-
-
 
 
 
@@ -3137,6 +3137,14 @@ Seitz, et al.            Expires August 29, 2019               [Page 56]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   [RFC8174]  Leiba, B., "Ambiguity of Uppercase vs Lowercase in RFC
+              2119 Key Words", BCP 14, RFC 8174, DOI 10.17487/RFC8174,
+              May 2017, <https://www.rfc-editor.org/info/rfc8174>.
+
+   [RFC8392]  Jones, M., Wahlstroem, E., Erdtman, S., and H. Tschofenig,
+              "CBOR Web Token (CWT)", RFC 8392, DOI 10.17487/RFC8392,
+              May 2018, <https://www.rfc-editor.org/info/rfc8392>.
 
 10.2.  Informative References
 
@@ -3179,20 +3187,17 @@ Internet-Draft                  ACE-OAuth                  February 2019
               Format", RFC 6690, DOI 10.17487/RFC6690, August 2012,
               <https://www.rfc-editor.org/info/rfc6690>.
 
-   [RFC6819]  Lodderstedt, T., Ed., McGloin, M., and P. Hunt, "OAuth 2.0
-              Threat Model and Security Considerations", RFC 6819,
-              DOI 10.17487/RFC6819, January 2013,
-              <https://www.rfc-editor.org/info/rfc6819>.
-
-
-
-
 
 
 Seitz, et al.            Expires August 29, 2019               [Page 57]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   [RFC6819]  Lodderstedt, T., Ed., McGloin, M., and P. Hunt, "OAuth 2.0
+              Threat Model and Security Considerations", RFC 6819,
+              DOI 10.17487/RFC6819, January 2013,
+              <https://www.rfc-editor.org/info/rfc6819>.
 
    [RFC7049]  Bormann, C. and P. Hoffman, "Concise Binary Object
               Representation (CBOR)", RFC 7049, DOI 10.17487/RFC7049,
@@ -3238,17 +3243,16 @@ Internet-Draft                  ACE-OAuth                  February 2019
               DOI 10.17487/RFC7959, August 2016,
               <https://www.rfc-editor.org/info/rfc7959>.
 
-   [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
-              BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
-              <https://www.rfc-editor.org/info/rfc8252>.
-
-
 
 
 Seitz, et al.            Expires August 29, 2019               [Page 58]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+   [RFC8252]  Denniss, W. and J. Bradley, "OAuth 2.0 for Native Apps",
+              BCP 212, RFC 8252, DOI 10.17487/RFC8252, October 2017,
+              <https://www.rfc-editor.org/info/rfc8252>.
 
    [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON) Data
               Interchange Format", STD 90, RFC 8259,
@@ -3294,10 +3298,6 @@ Appendix A.  Design Justification
       can, in some cases, be optimized.  For example, authentication and
       key establishment may, in certain cases where security
       requirements allow, be replaced by provisioning of security
-      context by a trusted third party, using transport or application
-      layer security.
-
-   Low CPU Speed:
 
 
 
@@ -3305,6 +3305,11 @@ Seitz, et al.            Expires August 29, 2019               [Page 59]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
+
+      context by a trusted third party, using transport or application
+      layer security.
+
+   Low CPU Speed:
 
       Some IoT devices are equipped with processors that are
       significantly slower than those found in most current devices on
@@ -3350,11 +3355,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
       security reasons, e.g., to avoid an entry point for Denial-of-
       Service attacks.
 
-      The communication interactions this framework builds upon (as
-      shown graphically in Figure 1) may be accomplished using a variety
-      of different protocols, and not all parts of the message flow are
-      used in all applications due to the communication constraints.
-
 
 
 Seitz, et al.            Expires August 29, 2019               [Page 60]
@@ -3362,6 +3362,10 @@ Seitz, et al.            Expires August 29, 2019               [Page 60]
 Internet-Draft                  ACE-OAuth                  February 2019
 
 
+      The communication interactions this framework builds upon (as
+      shown graphically in Figure 1) may be accomplished using a variety
+      of different protocols, and not all parts of the message flow are
+      used in all applications due to the communication constraints.
       Deployments making use of CoAP are expected, but not limited to,
       other protocols such as HTTP, HTTP/2 or other specific protocols,
       such as Bluetooth Smart communication, that do not necessarily use
@@ -3406,10 +3410,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
       "cnf" claim [I-D.ietf-ace-cwt-proof-of-possession].  A
       semantically and syntactically identical request and response
       parameter is defined for the token endpoint, to allow requesting
-      and stating confirmation keys.  This aims at making token theft
-      harder.  Token theft is specifically relevant in constrained use
-      cases, as communication often passes through middle-boxes, which
-
 
 
 
@@ -3418,6 +3418,9 @@ Seitz, et al.            Expires August 29, 2019               [Page 61]
 Internet-Draft                  ACE-OAuth                  February 2019
 
 
+      and stating confirmation keys.  This aims at making token theft
+      harder.  Token theft is specifically relevant in constrained use
+      cases, as communication often passes through middle-boxes, which
       could be able to steal bearer tokens and use them to gain
       unauthorized access.
 
@@ -3460,9 +3463,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
       change the claims associated to the token reference without having
       to be in contact with the client, thus granting or revoking access
       rights.
-
-
-
 
 
 

@@ -1737,36 +1737,42 @@ Payload:
 	<t>Errors may happen during this initial processing stage:
 	<list style="symbols">
 	
-	<t>If token or claim verification fails, the RS MUST discard the token and,
-    if this was an interaction with authz-info,  return an error
-    message with a response code equivalent to the CoAP code 4.01 (Unauthorized).
-	</t>
+	  <t>If token or claim verification fails, the RS MUST discard the token
+	  and, if this was an interaction with authz-info, return an error
+	  message with a response code equivalent to the CoAP code 4.01
+	  (Unauthorized).</t>
 	
-	<t>If the claims cannot be obtained the RS MUST discard the token and,
-    in case of an interaction via the authz-info endpoint, return an error
-    message with a response code equivalent to the CoAP code 4.00 (Bad
-    Request).</t>
+	  <t>If the claims cannot be obtained the RS MUST discard the token and,
+	  in case of an interaction via the authz-info endpoint, return an error
+	  message with a response code equivalent to the CoAP code 4.00 (Bad
+	  Request).</t>
 	</list> 
 	</t>
 	
-	<t>Next, the RS MUST verify claims, if present, contained in the access token.
-    Errors are returned when claim checks fail, in the order of priority of this list:
+	<t>Next, the RS MUST verify claims, if present, contained in the access
+	token. Errors are returned when claim checks fail, in the order of
+	priority of this list:
 
     <list style="hanging">
       <t hangText="iss">The issuer claim must identify an AS that
       has the authority to issue access tokens for the receiving RS.
-      If that is not the case the RS MUST respond with a response code
+      If that is not the case the RS MUST discard the token.  If this was an
+      interaction with authz-info, the RS MUST also respond with a response code
       equivalent to the CoAP code 4.01 (Unauthorized).</t>
       <t hangText="exp">The expiration date must be in the future.  
-	  If that is not the case
-      the RS MUST respond with a response code equivalent to the CoAP code 4.01
-      (Unauthorized). Note that
-      the RS has to terminate access rights to the protected resources at the time when the tokens expire. </t>
+      If that is not the case the RS MUST discard the token.  If this was an
+      interaction with authz-info the RS MUST also respond with a response code
+      equivalent to the CoAP code 4.01 (Unauthorized). Note that the RS has to
+      terminate access rights to the protected resources at the time when the
+      tokens expire. </t>
       <t hangText="aud">The audience claim must refer to an audience that
-      the RS identifies with. If that is not the case the RS MUST respond with
-      a response code equivalent to the CoAP code 4.03 (Forbidden).</t>
+      the RS identifies with. If that is not the case the RS MUST discard the
+      token.  If this was an interaction with authz-info, the RS MUST also
+      respond with a response code equivalent to the CoAP code 4.03
+      (Forbidden).</t>
       <t hangText="scope">The RS must recognize value of the scope claim.
-      If that is not the case the RS MUST respond with a response code
+      If that is not the case the RS MUST discard the token.  If this was an
+      interaction with authz-info, the RS MUST also respond with a response code
       equivalent to the CoAP code 4.00 (Bad Request).  The RS MAY provide
       additional information in the error response, to clarify what
       went wrong.</t>
@@ -1774,7 +1780,8 @@ Payload:
     </t>
 
     <t>If the access token contains any other claims that the RS cannot process
-    the RS MUST respond with a response code equivalent to the CoAP code 4.00
+    the RS MUST discard the token.  If this was an interaction with authz-info,
+    the RS MUST also respond with a response code equivalent to the CoAP code 4.00
     (Bad Request). The RS MAY provide additional detail in the error response
     to clarify which claim couldn't be processed.</t>
 
@@ -1783,6 +1790,11 @@ Payload:
     yet. Also note that a counter for the expires_in (exi) claim MUST be
     initialized when the RS first verifies this token.</t>
 
+    <t>Also note that profiles of this framework may define access token transport
+    mechanisms that do not allow for error responses.  Therefore the error
+    messages specified here only apply if the token was POSTed to the authz-info
+    endpoint.</t>
+    
     <t>When sending error responses, the RS MAY use the error codes from
     Section 3.1 of <xref target="RFC6750"/>, to provide additional
     details to the client.</t>
@@ -1803,8 +1815,7 @@ Payload:
     <t>The RS SHOULD implement rate limiting measures to mitigate attacks aiming
     to overload the processing capacity of the RS by repeatedly submitting
     tokens. For CoAP-based communication the RS could use the mechanisms from
-    <xref target="RFC8516"/> to indicate that it is
-    overloaded.</t>
+    <xref target="RFC8516"/> to indicate that it is overloaded.</t>
   </section>
   
 </section>
