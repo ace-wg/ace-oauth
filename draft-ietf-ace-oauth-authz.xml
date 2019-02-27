@@ -334,7 +334,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 
   <t>With the building blocks listed above, solutions satisfying various
   IoT device and network constraints are possible.  A list of constraints is
-  described in detail in RFC 7228 <xref target="RFC7228"/> and a description
+  described in detail in <xref target="RFC7228"/> and a description
   of how the building blocks mentioned above relate to the various constraints
   can be found in <xref target="constraints"/>.</t>
 
@@ -573,8 +573,8 @@ protected by a cryptographic wrapper (e.g., COSE <xref
 </t>
 
 <t>The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended
-further with extensions to OAuth 2.0 (such as RFC 7521 <xref target="RFC7521"/> and <xref target="I-D.ietf-oauth-device-flow"/>).
-What grant types works best depends on the usage scenario and RFC 7744 <xref target="RFC7744"/> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="RFC8252"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
+further with extensions to OAuth 2.0 (such as <xref target="RFC7521"/> and <xref target="I-D.ietf-oauth-device-flow"/>).
+What grant types works best depends on the usage scenario and <xref target="RFC7744"/> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="RFC8252"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
 
 <t>
     The consent of the resource owner, for giving a client access to a protected
@@ -954,8 +954,8 @@ a4                                   # map(4)
   does not act on behalf of the resource owner, client credentials grant is
   recommended.</t>
 
-  <t>For details on the different grant types, see the OAuth 2.0 framework
-  <xref target="RFC6749"/>. The OAuth 2.0 framework provides an extension
+  <t>For details on the different grant types, see section 1.3 of <xref
+  target="RFC6749"/>. The OAuth 2.0 framework provides an extension
   mechanism for defining additional grant types so profiles of this framework
   MAY define additional grant types, if needed.</t>
 </section> <!--Grants-->
@@ -968,10 +968,11 @@ a4                                   # map(4)
   <t>Client registration and provisioning of client credentials to the client
   is out of scope for this specification.</t>
 
-  <t>The OAuth framework <xref target="RFC6749"/> defines one client
-  credential type, client id and client secret. <xref target="I-D.erdtman-ace-rpcc"/>
-  adds raw-public-key and pre-shared-key to the client credentials types.  Profiles of
-  this framework MAY extend with additional client credentials client certificates.</t>
+  <t>The OAuth framework defines one client credential type in section 2.3.1 of
+  <xref target="RFC6749"/>: client id and client secret. <xref
+  target="I-D.erdtman-ace-rpcc"/> adds raw-public-key and pre-shared-key to the
+  client credentials types.  Profiles of this framework MAY extend with
+  additional client credentials client certificates.</t>
 </section> <!--Client Credentials-->
 
 <section anchor="ASAuthentication" title="AS Authentication">
@@ -990,8 +991,8 @@ a4                                   # map(4)
   the use of a user agent (i.e., browser), it is not expected that these types
   of grant flow will be used by constrained clients.  This endpoint is
   therefore out of scope for this specification.  Implementations should use
-  the definition and recommendations of <xref target="RFC6749"/> and
-  <xref target="RFC6819"/>.</t>
+  the definition and recommendations of section 3.1 of <xref target="RFC6749"/>
+  and of section 4.2 of <xref target="RFC6819"/>.</t>
   <t>If clients involved cannot support HTTP and TLS, profiles MAY define
   mappings for the authorization endpoint.</t>
 </section> <!--The 'Authorize' Endpoint-->
@@ -1026,12 +1027,12 @@ a4                                   # map(4)
     <t>The client sends a POST request to the token endpoint
     at the AS. The profile MUST specify how the communication is protected.
     The content of the request consists of the parameters specified
-    in Section 4 of the OAuth 2.0 specification <xref
-    target="RFC6749"/> with the exception of the "grant_type" parameter,
-    which is OPTIONAL in the context of this framework (as opposed to
-    REQUIRED in RFC6749).  If that parameter is missing, the default value
-    "client_credentials" is implied.</t>
-
+    in the relevant subsection of section 4 of the OAuth 2.0 specification
+    <xref target="RFC6749"/>, depending on the grant type.  The parameter
+    "grant_type" is an exception, as it is OPTIONAL in the context of this
+    framework (as opposed to REQUIRED in RFC6749).  If that parameter is
+    missing, the default value "client_credentials" is implied.</t>
+    
     <t>Furthermore the "audience" parameter from <xref
     target="I-D.ietf-oauth-token-exchange"/> can be used to request
     an access token bound to a specific audience.</t>
@@ -1042,7 +1043,7 @@ a4                                   # map(4)
     be able to process these additional parameters.</t>
 
     <t>If CBOR is used then this parameter MUST be encoded as a CBOR map.
-    The "scope" parameter can be formatted as specified in
+    The "scope" parameter can be formatted as specified in section 3.3 of 
     <xref target="RFC6749"/> and additionally as a byte string, in order to
     allow compact encoding of complex scopes.</t>
 
@@ -1050,7 +1051,8 @@ a4                                   # map(4)
 	request to the token endpoint by sending the
    parameters using the "application/x-www-form-urlencoded"
    format with a character encoding of UTF-8 in the HTTP
-   request entity-body, as defined in RFC 6749.</t>
+   request entity-body, as defined in section 3.2 of <xref
+   target="RFC6749"/>.</t>
 
    <t>The following examples illustrate different types of requests
     for proof-of-possession tokens. </t>
@@ -1339,9 +1341,9 @@ Payload:
     </section>
 
     <section anchor="paramTokenType" title="Token Type">
-      <t>The "token_type" parameter, defined in <xref target="RFC6749"/>,
-      allows the AS to indicate to the client which type of access token it
-      is receiving (e.g., a bearer token). </t>
+      <t>The "token_type" parameter, defined in section 5.1 of <xref
+      target="RFC6749"/>, allows the AS to indicate to the client which type of
+      access token it is receiving (e.g., a bearer token). </t>
 
       <t>This document registers the new value "pop" for the OAuth Access
         Token Types registry,  specifying a proof-of-possession token.  How the
@@ -1425,7 +1427,7 @@ Payload:
   <t>Token introspection <xref target="RFC7662"/> can be OPTIONALLY provided by
   the AS, and is then used by the RS and potentially the client to query the AS
   for metadata about a given token, e.g., validity or scope. Analogous to the
-  protocol defined in RFC 7662 <xref target="RFC7662"/> for HTTP and JSON, this
+  protocol defined in <xref target="RFC7662"/> for HTTP and JSON, this
   section defines adaptations to more constrained  environments using CBOR and
   leaving the choice of the application protocol to the profile.</t>
 
@@ -1465,7 +1467,7 @@ Payload:
     media type "application/ace+cbor" MUST be used.</t>
     
     <t>The same parameters are required and optional as in Section 2.1
-    of RFC 7662 <xref target="RFC7662"/>.</t>
+    of <xref target="RFC7662"/>.</t>
 
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
     introspection endpoint at the AS to query about an OAuth 2.0
@@ -1507,7 +1509,7 @@ Payload:
 
     <t>In a successful response, the AS encodes the response parameters in
     a map including with the same required and optional parameters as in
-    Section 2.2 of RFC 7662 <xref target="RFC7662"/> with the following
+    Section 2.2 of <xref target="RFC7662"/> with the following
     addition:
 
     <list style="hanging">
@@ -1561,7 +1563,7 @@ Payload:
       <t>If the credentials used by the requesting entity (usually the RS)
       are invalid the AS MUST respond with the response code equivalent to the
       CoAP code 4.01 (Unauthorized) and use the required and optional
-      parameters from Section 5.2 in RFC 6749 <xref target="RFC6749"/>.</t>
+      parameters from Section 5.2 in <xref target="RFC6749"/>.</t>
 
       <t>If the requesting entity does not have the right to perform this
       introspection request, the AS MUST respond with a response code

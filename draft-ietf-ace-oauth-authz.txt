@@ -326,9 +326,9 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    With the building blocks listed above, solutions satisfying various
    IoT device and network constraints are possible.  A list of
-   constraints is described in detail in RFC 7228 [RFC7228] and a
-   description of how the building blocks mentioned above relate to the
-   various constraints can be found in Appendix A.
+   constraints is described in detail in [RFC7228] and a description of
+   how the building blocks mentioned above relate to the various
+   constraints can be found in Appendix A.
 
 
 
@@ -586,22 +586,22 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    The OAuth 2.0 framework defines a number of "protocol flows" via
    grant types, which have been extended further with extensions to
-   OAuth 2.0 (such as RFC 7521 [RFC7521] and
-   [I-D.ietf-oauth-device-flow]).  What grant types works best depends
-   on the usage scenario and RFC 7744 [RFC7744] describes many different
-   IoT use cases but there are two preferred grant types, namely the
-   Authorization Code Grant (described in Section 4.1 of [RFC7521]) and
-   the Client Credentials Grant (described in Section 4.4 of [RFC7521]).
-   The Authorization Code Grant is a good fit for use with apps running
-   on smart phones and tablets that request access to IoT devices, a
-   common scenario in the smart home environment, where users need to go
-   through an authentication and authorization phase (at least during
-   the initial setup phase).  The native apps guidelines described in
-   [RFC8252] are applicable to this use case.  The Client Credential
-   Grant is a good fit for use with IoT devices where the OAuth client
-   itself is constrained.  In such a case, the resource owner has pre-
-   arranged access rights for the client with the authorization server,
-   which is often accomplished using a commissioning tool.
+   OAuth 2.0 (such as [RFC7521] and [I-D.ietf-oauth-device-flow]).  What
+   grant types works best depends on the usage scenario and [RFC7744]
+   describes many different IoT use cases but there are two preferred
+   grant types, namely the Authorization Code Grant (described in
+   Section 4.1 of [RFC7521]) and the Client Credentials Grant (described
+   in Section 4.4 of [RFC7521]).  The Authorization Code Grant is a good
+   fit for use with apps running on smart phones and tablets that
+   request access to IoT devices, a common scenario in the smart home
+   environment, where users need to go through an authentication and
+   authorization phase (at least during the initial setup phase).  The
+   native apps guidelines described in [RFC8252] are applicable to this
+   use case.  The Client Credential Grant is a good fit for use with IoT
+   devices where the OAuth client itself is constrained.  In such a
+   case, the resource owner has pre-arranged access rights for the
+   client with the authorization server, which is often accomplished
+   using a commissioning tool.
 
    The consent of the resource owner, for giving a client access to a
    protected resource, can be provided dynamically as in the traditional
@@ -1050,7 +1050,7 @@ Internet-Draft                  ACE-OAuth                  February 2019
    act on behalf of the resource owner, client credentials grant is
    recommended.
 
-   For details on the different grant types, see the OAuth 2.0 framework
+   For details on the different grant types, see section 1.3 of
    [RFC6749].  The OAuth 2.0 framework provides an extension mechanism
    for defining additional grant types so profiles of this framework MAY
    define additional grant types, if needed.
@@ -1076,11 +1076,11 @@ Internet-Draft                  ACE-OAuth                  February 2019
    Client registration and provisioning of client credentials to the
    client is out of scope for this specification.
 
-   The OAuth framework [RFC6749] defines one client credential type,
-   client id and client secret.  [I-D.erdtman-ace-rpcc] adds raw-public-
-   key and pre-shared-key to the client credentials types.  Profiles of
-   this framework MAY extend with additional client credentials client
-   certificates.
+   The OAuth framework defines one client credential type in section
+   2.3.1 of [RFC6749]: client id and client secret.
+   [I-D.erdtman-ace-rpcc] adds raw-public-key and pre-shared-key to the
+   client credentials types.  Profiles of this framework MAY extend with
+   additional client credentials client certificates.
 
 5.4.  AS Authentication
 
@@ -1100,7 +1100,8 @@ Internet-Draft                  ACE-OAuth                  February 2019
    expected that these types of grant flow will be used by constrained
    clients.  This endpoint is therefore out of scope for this
    specification.  Implementations should use the definition and
-   recommendations of [RFC6749] and [RFC6819].
+   recommendations of section 3.1 of [RFC6749] and of section 4.2 of
+   [RFC6819].
 
    If clients involved cannot support HTTP and TLS, profiles MAY define
    mappings for the authorization endpoint.
@@ -1113,7 +1114,6 @@ Internet-Draft                  ACE-OAuth                  February 2019
    help the client and RS to establish shared keys or to exchange their
    public keys.  Furthermore, this framework defines encodings using
    CBOR, as a substitute for JSON.
-
 
 
 
@@ -1150,11 +1150,12 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    The client sends a POST request to the token endpoint at the AS.  The
    profile MUST specify how the communication is protected.  The content
-   of the request consists of the parameters specified in Section 4 of
-   the OAuth 2.0 specification [RFC6749] with the exception of the
-   "grant_type" parameter, which is OPTIONAL in the context of this
-   framework (as opposed to REQUIRED in RFC6749).  If that parameter is
-   missing, the default value "client_credentials" is implied.
+   of the request consists of the parameters specified in the relevant
+   subsection of section 4 of the OAuth 2.0 specification [RFC6749],
+   depending on the grant type.  The parameter "grant_type" is an
+   exception, as it is OPTIONAL in the context of this framework (as
+   opposed to REQUIRED in RFC6749).  If that parameter is missing, the
+   default value "client_credentials" is implied.
 
    Furthermore the "audience" parameter from
    [I-D.ietf-oauth-token-exchange] can be used to request an access
@@ -1166,10 +1167,9 @@ Internet-Draft                  ACE-OAuth                  February 2019
    these additional parameters.
 
    If CBOR is used then this parameter MUST be encoded as a CBOR map.
-   The "scope" parameter can be formatted as specified in [RFC6749] and
-   additionally as a byte string, in order to allow compact encoding of
-   complex scopes.
-
+   The "scope" parameter can be formatted as specified in section 3.3 of
+   [RFC6749] and additionally as a byte string, in order to allow
+   compact encoding of complex scopes.
 
 
 
@@ -1181,7 +1181,7 @@ Internet-Draft                  ACE-OAuth                  February 2019
    When HTTP is used as a transport then the client makes a request to
    the token endpoint by sending the parameters using the "application/
    x-www-form-urlencoded" format with a character encoding of UTF-8 in
-   the HTTP request entity-body, as defined in RFC 6749.
+   the HTTP request entity-body, as defined in section 3.2 of [RFC6749].
 
    The following examples illustrate different types of requests for
    proof-of-possession tokens.
@@ -1527,9 +1527,9 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
 5.6.4.2.  Token Type
 
-   The "token_type" parameter, defined in [RFC6749], allows the AS to
-   indicate to the client which type of access token it is receiving
-   (e.g., a bearer token).
+   The "token_type" parameter, defined in section 5.1 of [RFC6749],
+   allows the AS to indicate to the client which type of access token it
+   is receiving (e.g., a bearer token).
 
    This document registers the new value "pop" for the OAuth Access
    Token Types registry, specifying a proof-of-possession token.  How
@@ -1615,9 +1615,9 @@ Internet-Draft                  ACE-OAuth                  February 2019
    Token introspection [RFC7662] can be OPTIONALLY provided by the AS,
    and is then used by the RS and potentially the client to query the AS
    for metadata about a given token, e.g., validity or scope.  Analogous
-   to the protocol defined in RFC 7662 [RFC7662] for HTTP and JSON, this
-   section defines adaptations to more constrained environments using
-
+   to the protocol defined in [RFC7662] for HTTP and JSON, this section
+   defines adaptations to more constrained environments using CBOR and
+   leaving the choice of the application protocol to the profile.
 
 
 
@@ -1625,9 +1625,6 @@ Seitz, et al.            Expires August 31, 2019               [Page 29]
 
 Internet-Draft                  ACE-OAuth                  February 2019
 
-
-   CBOR and leaving the choice of the application protocol to the
-   profile.
 
    Communication between the requesting entity and the introspection
    endpoint at the AS MUST be integrity protected and encrypted.  The
@@ -1665,7 +1662,7 @@ Internet-Draft                  ACE-OAuth                  February 2019
    equivalent media type "application/ace+cbor" MUST be used.
 
    The same parameters are required and optional as in Section 2.1 of
-   RFC 7662 [RFC7662].
+   [RFC7662].
 
    For example, Figure 13 shows a RS calling the token introspection
    endpoint at the AS to query about an OAuth 2.0 proof-of-possession
@@ -1673,6 +1670,9 @@ Internet-Draft                  ACE-OAuth                  February 2019
    [I-D.ietf-core-object-security] is assumed in this example, therefore
    the Content-Format is "application/oscore".  Figure 14 shows the
    decoded payload.
+
+
+
 
 
 
@@ -1709,7 +1709,7 @@ Internet-Draft                  ACE-OAuth                  February 2019
 
    In a successful response, the AS encodes the response parameters in a
    map including with the same required and optional parameters as in
-   Section 2.2 of RFC 7662 [RFC7662] with the following addition:
+   Section 2.2 of [RFC7662] with the following addition:
 
    profile  OPTIONAL.  This indicates the profile that the RS MUST use
       with the client.  See Section 5.6.4.3 for more details on the
@@ -1769,7 +1769,7 @@ Internet-Draft                  ACE-OAuth                  February 2019
    o  If the credentials used by the requesting entity (usually the RS)
       are invalid the AS MUST respond with the response code equivalent
       to the CoAP code 4.01 (Unauthorized) and use the required and
-      optional parameters from Section 5.2 in RFC 6749 [RFC6749].
+      optional parameters from Section 5.2 in [RFC6749].
 
    o  If the requesting entity does not have the right to perform this
       introspection request, the AS MUST respond with a response code
