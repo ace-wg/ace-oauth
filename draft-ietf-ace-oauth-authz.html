@@ -1456,12 +1456,13 @@ Payload:
 <h1 id="rfc.section.5.8.2">
 <a href="#rfc.section.5.8.2">5.8.2.</a> <a href="#requestC2RS" id="requestC2RS">Client Requests to the RS</a>
 </h1>
-<p id="rfc.section.5.8.2.p.1">If an RS receives a request from a client, and the target resource requires authorization, the RS MUST first verify that it has an access token that authorizes this request, and that the client has performed the proof-of-possession for that token.</p>
-<p id="rfc.section.5.8.2.p.2">The response code MUST be 4.01 (Unauthorized) in case the client has not performed the proof-of-possession, or if RS has no valid access token for the client. If RS has an access token for the client but not for the resource that was requested, RS MUST reject the request with a 4.03 (Forbidden). If RS has an access token for the client but it does not cover the action that was requested on the resource, RS MUST reject the request with a 4.05 (Method Not Allowed).</p>
-<p id="rfc.section.5.8.2.p.3">Note: The use of the response codes 4.03 and 4.05 is intended to prevent infinite loops where a dumb Client optimistically tries to access a requested resource with any access token received from AS. As malicious clients could pretend to be C to determine C's privileges, these detailed response codes must be used only when a certain level of security is already available which can be achieved only when the Client is authenticated.</p>
-<p id="rfc.section.5.8.2.p.4">Note: The RS MAY use introspection for timely validation of an access token, at the time when a request is presented.</p>
-<p id="rfc.section.5.8.2.p.5">Note: Matching the claims of the access token (e.g., scope) to a specific request is application specific.</p>
-<p id="rfc.section.5.8.2.p.6">If the request matches a valid token and the client has performed the proof-of-possession for that token, the RS continues to process the request as specified by the underlying application.</p>
+<p id="rfc.section.5.8.2.p.1">Before sending a request to a RS, the client MUST verify that the keys used to protect this communication are still valid. See <a href="#keyExpiration" class="xref">Section 5.8.4</a> for details on how the client determines the validtiy of the keys used.</p>
+<p id="rfc.section.5.8.2.p.2">If an RS receives a request from a client, and the target resource requires authorization, the RS MUST first verify that it has an access token that authorizes this request, and that the client has performed the proof-of-possession for that token.</p>
+<p id="rfc.section.5.8.2.p.3">The response code MUST be 4.01 (Unauthorized) in case the client has not performed the proof-of-possession, or if RS has no valid access token for the client. If RS has an access token for the client but not for the resource that was requested, RS MUST reject the request with a 4.03 (Forbidden). If RS has an access token for the client but it does not cover the action that was requested on the resource, RS MUST reject the request with a 4.05 (Method Not Allowed).</p>
+<p id="rfc.section.5.8.2.p.4">Note: The use of the response codes 4.03 and 4.05 is intended to prevent infinite loops where a dumb Client optimistically tries to access a requested resource with any access token received from AS. As malicious clients could pretend to be C to determine C's privileges, these detailed response codes must be used only when a certain level of security is already available which can be achieved only when the Client is authenticated.</p>
+<p id="rfc.section.5.8.2.p.5">Note: The RS MAY use introspection for timely validation of an access token, at the time when a request is presented.</p>
+<p id="rfc.section.5.8.2.p.6">Note: Matching the claims of the access token (e.g., scope) to a specific request is application specific.</p>
+<p id="rfc.section.5.8.2.p.7">If the request matches a valid token and the client has performed the proof-of-possession for that token, the RS continues to process the request as specified by the underlying application.</p>
 <h1 id="rfc.section.5.8.3">
 <a href="#rfc.section.5.8.3">5.8.3.</a> <a href="#tokenExpiration" id="tokenExpiration">Token Expiration</a>
 </h1>
@@ -1483,7 +1484,7 @@ Payload:
 <ul>
 <li>The client knows a default validity period for all tokens it is using.  This information could be provisioned to the client when it is registered at the AS, or published by the AS in a way that the client can query.</li>
 <li>The AS informs the client about the token validity using the "expires_in" parameter in the Access Information.</li>
-<li>The client performs an introspection of the token.  Although this is not explicitly forbidden, how exactly this is done is not currently specified for OAuth.</li>
+<li>The client performs an introspection of the token.  Although this is not explicitly forbidden, how exactly a client does introspection is not currently specified for OAuth.</li>
 </ul>
 
 <p> </p>
