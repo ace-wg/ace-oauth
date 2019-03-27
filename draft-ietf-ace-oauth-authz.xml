@@ -72,7 +72,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-23" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-24" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -1081,6 +1081,9 @@ a4                                   # map(4)
       <t>The "scope" parameter MAY be encoded as a byte string instead of
       the string encoding specified in section 3.3 of <xref target="RFC6749"/>,
       in order allow compact encoding of complex scopes.</t>
+      <t>The client can send an empty (null value) "profile" parameter to
+      indicate that it wants the AS to include the "profile" parameter in the
+      response.  See <xref target="paramProfile"/>.</t>
       <t>A client MUST be able to use the parameters from <xref
       target="I-D.ietf-ace-oauth-params"/> in an access token request to the
       token endpoint and the AS MUST be able to process these additional
@@ -1215,10 +1218,12 @@ Payload:
 
     <list style="hanging">
 	<t hangText="profile:"><vspace blankLines="0"/>
-	OPTIONAL.  This indicates the profile that the client MUST use
-	towards the RS. See <xref target="paramProfile"/> for the formatting of
-	this parameter.  If this parameter is absent, the AS assumes that the
-	client implicitly knows which profile to use towards the RS.</t>
+	OPTIONAL unless the request included an empty profile parameter
+	in which case it is MANDATORY.  This indicates the profile that the
+	client MUST use	towards the RS. See <xref target="paramProfile"/> for
+	the formatting of this parameter.  If this parameter is absent, the AS
+	assumes that the client implicitly knows which profile to use towards
+	the RS.</t>
 
 	<t hangText="token_type:"><vspace blankLines="0"/>
 	This parameter is OPTIONAL, as opposed to 'required' in
@@ -1414,6 +1419,10 @@ Payload:
       and the Access Information in the access token response in order to
       support negotiation or signaling of profile specific parameters.
       </t>
+
+      <t>Clients that want the AS to provide them with the "profile" parameter
+      in the access token response can indicate that by sending a profile
+      parameter with a null value in the access token request.</t>
     </section>
 
     <section anchor="cnonceParamToken" title="Client-Nonce">

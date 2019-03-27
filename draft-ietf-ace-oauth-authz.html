@@ -479,8 +479,8 @@
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
-  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-23" />
-  <meta name="dct.issued" scheme="ISO8601" content="2019-25" />
+  <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-24" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-27" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  " />
 
@@ -504,7 +504,7 @@
 <td class="right">G. Selander</td>
 </tr>
 <tr>
-<td class="left">Expires: September 26, 2019</td>
+<td class="left">Expires: September 28, 2019</td>
 <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -533,7 +533,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">March 25, 2019</td>
+<td class="right">March 27, 2019</td>
 </tr>
 
     	
@@ -541,7 +541,7 @@
   </table>
 
   <p class="title">Authentication and Authorization for Constrained Environments (ACE) using the OAuth 2.0 Framework (ACE-OAuth)<br />
-  <span class="filename">draft-ietf-ace-oauth-authz-23</span></p>
+  <span class="filename">draft-ietf-ace-oauth-authz-24</span></p>
   
   <h1 id="rfc.abstract"><a href="#rfc.abstract">Abstract</a></h1>
 <p>This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus making a well-known and widely used authorization solution suitable for IoT devices.  Existing specifications are used where possible, but where the constraints of IoT devices require it, extensions are added and profiles are defined.  </p>
@@ -549,7 +549,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on September 26, 2019.</p>
+<p>This Internet-Draft will expire on September 28, 2019.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -1066,6 +1066,7 @@ a4                                   # map(4)
 <li>The "cnonce" parameter defined in <a href="#cnonceParamToken" class="xref">Section 5.6.4.4</a> is REQUIRED if the RS provided a client-nonce in the "AS Request Creation Hints" message <a href="#asInfo" class="xref">Section 5.1.2</a>
 </li>
 <li>The "scope" parameter MAY be encoded as a byte string instead of the string encoding specified in section 3.3 of <a href="#RFC6749" class="xref">[RFC6749]</a>, in order allow compact encoding of complex scopes.</li>
+<li>The client can send an empty (null value) "profile" parameter to indicate that it wants the AS to include the "profile" parameter in the response.  See <a href="#paramProfile" class="xref">Section 5.6.4.3</a>.</li>
 <li>A client MUST be able to use the parameters from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a> in an access token request to the token endpoint and the AS MUST be able to process these additional parameters.</li>
 </ul>
 <p id="rfc.section.5.6.1.p.2">If CBOR is used then these parameters MUST be encoded as a CBOR map.</p>
@@ -1144,7 +1145,7 @@ Payload:
 <dl>
 <dt>profile:</dt>
 <dd style="margin-left: 8">
-<br> OPTIONAL.  This indicates the profile that the client MUST use towards the RS. See <a href="#paramProfile" class="xref">Section 5.6.4.3</a> for the formatting of this parameter.  If this parameter is absent, the AS assumes that the client implicitly knows which profile to use towards the RS.</dd>
+<br> OPTIONAL unless the request included an empty profile parameter in which case it is MANDATORY.  This indicates the profile that the client MUST use	towards the RS. See <a href="#paramProfile" class="xref">Section 5.6.4.3</a> for the formatting of this parameter.  If this parameter is absent, the AS assumes that the client implicitly knows which profile to use towards the RS.</dd>
 <dt>token_type:</dt>
 <dd style="margin-left: 8">
 <br> This parameter is OPTIONAL, as opposed to 'required' in <a href="#RFC6749" class="xref">[RFC6749]</a>. By default implementations of this framework SHOULD assume that the token_type is "pop".  If a specific use case requires another token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.  </dd>
@@ -1266,6 +1267,7 @@ Payload:
 <p id="rfc.section.5.6.4.3.p.1">Profiles of this framework MUST define the communication protocol and the communication security protocol between the client and the RS.  The security protocol MUST provide encryption, integrity and replay protection. It MUST also provide a binding between requests and responses.  Furthermore profiles MUST define proof-of-possession methods, if they support proof-of-possession tokens.</p>
 <p id="rfc.section.5.6.4.3.p.2">A profile MUST specify an identifier that MUST be used to uniquely identify itself in the "profile" parameter. The textual representation of the profile identifier is just intended for human readability and MUST NOT be used in parameters and claims.</p>
 <p id="rfc.section.5.6.4.3.p.3">Profiles MAY define additional parameters for both the token request and the Access Information in the access token response in order to support negotiation or signaling of profile specific parameters.  </p>
+<p id="rfc.section.5.6.4.3.p.4">Clients that want the AS to provide them with the "profile" parameter in the access token response can indicate that by sending a profile parameter with a null value in the access token request.</p>
 <h1 id="rfc.section.5.6.4.4">
 <a href="#rfc.section.5.6.4.4">5.6.4.4.</a> <a href="#cnonceParamToken" id="cnonceParamToken">Client-Nonce</a>
 </h1>
