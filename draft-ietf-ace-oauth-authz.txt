@@ -852,22 +852,20 @@ Internet-Draft                  ACE-OAuth                 September 2019
 
    In OAuth 2.0 the communication with the Token and the Introspection
    endpoints at the AS is assumed to be via HTTP and may use Uri-query
-   parameters.  When profiles of this framework use CoAP instead, this
-   framework REQUIRES the use of the following alternative instead of
-   Uri-query parameters: The sender (client or RS) encodes the
-   parameters of its request as a CBOR map and submits that map as the
-   payload of the POST request.  Profiles that use CBOR encoding of
-   protocol message parameters MUST use the media format 'application/
-   ace+cbor', unless the protocol message is wrapped in another Content-
-   Format (e.g. object security).  If CoAP is used for communication,
-   the Content-Format MUST be abbreviated with the ID: 19 (see
-   Section 8.15).
+   parameters.  When profiles of this framework use CoAP instead, it is
+   REQUIRED to use of the following alternative instead of Uri-query
+   parameters: The sender (client or RS) encodes the parameters of its
+   request as a CBOR map and submits that map as the payload of the POST
+   request.  Profiles that use CBOR encoding of protocol message
+   parameters MUST use the media format 'application/ace+cbor', unless
+   the protocol message is wrapped in another Content-Format (e.g.
+   object security).  If CoAP is used for communication, the Content-
+   Format MUST be abbreviated with the ID: 19 (see Section 8.15).
 
    The OAuth 2.0 AS uses a JSON structure in the payload of its
-   responses both to client and RS.  If CoAP is used, this framework
-   REQUIRES the use of CBOR [RFC7049] instead of JSON.  Depending on the
-   profile, the CBOR payload MAY be enclosed in a non-CBOR cryptographic
-   wrapper.
+   responses both to client and RS.  If CoAP is used, it is REQUIRED to
+   use CBOR [RFC7049] instead of JSON.  Depending on the profile, the
+   CBOR payload MAY be enclosed in a non-CBOR cryptographic wrapper.
 
 5.1.  Discovering Authorization Servers
 
@@ -889,6 +887,8 @@ Internet-Draft                  ACE-OAuth                 September 2019
 
    o  The request has been received on an unprotected channel.
 
+   o  RS has no valid access token for the sender of the request
+      regarding the requested action on that resource.
 
 
 
@@ -897,9 +897,6 @@ Seitz, et al.            Expires March 30, 2020                [Page 16]
 
 Internet-Draft                  ACE-OAuth                 September 2019
 
-
-   o  RS has no valid access token for the sender of the request
-      regarding the requested action on that resource.
 
    o  RS has a valid access token for the sender of the request, but
       this does not allow the requested action on the requested
@@ -945,6 +942,9 @@ Internet-Draft                  ACE-OAuth                 September 2019
    o  A "scope" element containing the suggested scope that the client
       should request towards the AS.
 
+   Figure 2 summarizes the parameters that may be part of the AS Request
+   Creation Hints.
+
 
 
 
@@ -953,9 +953,6 @@ Seitz, et al.            Expires March 30, 2020                [Page 17]
 
 Internet-Draft                  ACE-OAuth                 September 2019
 
-
-   Figure 2 summarizes the parameters that may be part of the AS Request
-   Creation Hints.
 
            /-----------+----------+---------------------\
            | Name      | CBOR Key | Value Type          |
@@ -1001,6 +998,9 @@ Internet-Draft                  ACE-OAuth                 September 2019
 
    Figure 4 illustrates the mandatory to use binary encoding of the
    message payload shown in Figure 3.
+
+
+
 
 
 
