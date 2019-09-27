@@ -282,7 +282,7 @@ participating in the CoAP protocol" is not used in this specification.</t>
 
 <t>The specifications in this document is called the "framework" or "ACE framework".
 When referring to "profiles of this framework" it refers to additional specifications that
-define the use of this specification with concrete transport, and communication
+define the use of this specification with concrete transport and communication
 security protocols (e.g., CoAP over DTLS).
 </t>
 
@@ -318,7 +318,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
   <t>A third building block is CBOR <xref target="RFC7049"/>, for encodings
   where JSON <xref target="RFC8259"/> is not sufficiently compact.  CBOR is a
   binary encoding designed for small code and message size, which may be used
-  for encoding of self contained tokens, and also for encoding payload
+  for encoding of self contained tokens, and also for encoding payloads
   transferred in protocol messages.
   </t>
 
@@ -609,7 +609,7 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
     client discovers the resource server and the resources this server hosts.
     In this step, the client might also determine what permissions are needed to
     access the protected resource.  A generic procedure is described in <xref
-    target="asDiscovery"/>, profiles MAY define other procedures for
+    target="asDiscovery"/>; profiles MAY define other procedures for
     discovery.</t>
 
     <t>In Bluetooth Low Energy, for example, advertisements are broadcasted by
@@ -715,7 +715,7 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
       If the request from the client is authorized, the RS fulfills the request
       and returns a response with the appropriate response code.  The RS uses
       the dynamically established keys to protect the response, according to
-      used communication security protocol.
+      the communication security protocol used.
     </t>
   </list>
   </t>
@@ -808,28 +808,29 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
   address of the AS.</t>
 
   <section anchor="rreq" title="Unauthorized Resource Request Message">
-    <t>The optional Unauthorized Resource Request message is a request for a
-    resource hosted by RS for which no proper authorization is granted. RS MUST
-    treat any request for a protected resource as Unauthorized Resource
-    Request message when any of the following holds:
+    <t>An Unauthorized Resource Request message is a request for any
+    resource hosted by RS for which the client does not have authorization granted. RSes MUST
+    treat any request for a protected resource as an Unauthorized Resource
+    Request message when any of the following hold:
 
       <list style="symbols">
 	<t>The request has been received on an unprotected channel.</t>
-	<t>RS has no valid access token for the sender of the request
+	<t>The RS has no valid access token for the sender of the request
 	regarding the requested action on that resource.</t>
-	<t>RS has a valid access token for the sender of the request, but
-	this does not allow the requested action on the requested
+	<t>The RS has a valid access token for the sender of the request, but
+	that token does not authorize the requested action on the requested
 	resource.</t>
       </list>
     </t>
 
-    <t>Note: These conditions ensure that RS can handle requests autonomously
+    <t>Note: These conditions ensure that the RS can handle requests autonomously
     once access was granted and a secure channel has been established between C
-    and RS. The authz-info endpoint MUST NOT be protected as specified above,
-    in order to allow clients to upload access tokens to RS (cf.
-    <xref target="tokenAuthInfoEndpoint"/>).</t>
+    and RS. The authz-info endpoint, as part of the process for authorizing
+    to protected resources, is not itself a protected resource and MUST NOT be
+    protected as specified above (cf.  <xref
+    target="tokenAuthInfoEndpoint"/>).</t>
 
-    <t>Unauthorized Resource Request messages MUST be denied with a client
+    <t>Unauthorized Resource Request messages MUST be denied with an "unauthorized_client"
     error response. In this response, the Resource Server SHOULD provide proper
     AS Request Creation Hints to enable the Client to request an access token
     from RS's AS as described in <xref target="asInfo"/>.</t>
@@ -839,17 +840,17 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
   </section><!-- Unauthorized Request -->
 
   <section anchor="asInfo" title="AS Request Creation Hints">
-    <t>The AS Request Creation Hints message is sent by RS as a response to an
+    <t>The AS Request Creation Hints message is sent by an RS as a response to an
     Unauthorized Resource Request message (see <xref target="rreq"/>) to help
-    the sender of the Unauthorized Resource Request message in acquiring a valid
-    access token. The AS Request Creation Hints message is CBOR map, with a
+    the sender of the Unauthorized Resource Request message acquire a valid
+    access token. The AS Request Creation Hints message is a CBOR map, with a
     MANDATORY element "AS" specifying an absolute URI (see Section 4.3 of <xref
-    target="RFC3986"/>) that identifies the AS in charge of RS.</t>
+    target="RFC3986"/>) that identifies the appropriate AS for the RS.</t>
     
     <t>The message can also contain the following OPTIONAL parameters:
     <list style="symbols">
       <t>A "audience" element containing a suggested audience that the client
-      should request towards the AS.</t>
+      should request at the AS.</t>
       <t>A "kid" element containing the key identifier of a key used in
       an existing security association between the client and the RS.
       The RS expects the client to request an access token bound to this
@@ -960,7 +961,7 @@ a4                                   # map(4)
 	access token MUST verify that this token contains a cnonce claim, with
 	a client-nonce value that is fresh according to the information stored
 	at the first step above.  If the cnonce claim is not present or if the
-	cnonce claim value is not fresh, it MUST discard the access token. If
+	cnonce claim value is not fresh, the RS MUST discard the access token. If
 	this was an interaction with the authz-info endpoint the RS MUST also
 	respond with an error message using a response code equivalent to the
 	CoAP code 4.01 (Unauthorized).</t>	
@@ -975,7 +976,7 @@ a4                                   # map(4)
 
 <section anchor="authorizationGrants" title="Authorization Grants">
   <t>To request an access token, the client obtains authorization from the
-  resource owner or uses its client credentials as grant.  The authorization
+  resource owner or uses its client credentials as a grant.  The authorization
   is expressed in the form of an authorization grant.</t>
 
   <t>The OAuth framework <xref target="RFC6749"/> defines four grant types. The grant types can
@@ -984,23 +985,23 @@ a4                                   # map(4)
   (client credentials). Further grant types have been added later, such as <xref target="RFC7521"/> defining an assertion-based authorization grant.</t>
 
   <t>The grant type is selected depending on the use case.  In cases where
-  the client acts on behalf of the resource owner, authorization code
+  the client acts on behalf of the resource owner, the authorization code
   grant is recommended.  If the client acts on behalf of the resource owner,
-  but does not have any display or very limited interaction possibilities it is
+  but does not have any display or has very limited interaction possibilities, it is
   recommended to use the device code grant defined in
   <xref target="I-D.ietf-oauth-device-flow"/>.  In cases where the client
   does not acts autonomously the client credentials grant is recommended.</t>
 
   <t>For details on the different grant types, see section 1.3 of <xref
   target="RFC6749"/>. The OAuth 2.0 framework provides an extension
-  mechanism for defining additional grant types so profiles of this framework
+  mechanism for defining additional grant types, so profiles of this framework
   MAY define additional grant types, if needed.</t>
 </section> <!--Grants-->
 
 <section anchor="clientCredentials" title="Client Credentials">
   <t>Authentication of the client is mandatory independent of the grant type
-  when requesting the access token from the token endpoint. In the case of
-  client credentials grant type, the authentication and grant coincide.</t>
+  when requesting an access token from the token endpoint. In the case of
+  the client credentials grant type, the authentication and grant coincide.</t>
 
   <t>Client registration and provisioning of client credentials to the client
   is out of scope for this specification.</t>
@@ -1009,24 +1010,24 @@ a4                                   # map(4)
   <xref target="RFC6749"/>: client id and client secret. <xref
   target="I-D.erdtman-ace-rpcc"/> adds raw-public-key and pre-shared-key to the
   client credentials types.  Profiles of this framework MAY extend with
-  additional client credentials client certificates.</t>
+  an additional client credentials type using client certificates.</t>
 </section> <!--Client Credentials-->
 
 <section anchor="ASAuthentication" title="AS Authentication">
-  <t>Client credential does not, by default, authenticate the AS that the client
+  <t>The client credential grant does not, by default, authenticate the AS that the client
   connects to. In classic OAuth, the AS is authenticated with a TLS server
   certificate.</t>
 
   <t>Profiles of this framework MUST specify how clients authenticate the AS
-  and how communication security is implemented, otherwise server side TLS
+  and how communication security is implemented. By default, server side TLS
   certificates, as defined by OAuth 2.0, are required.</t>
 </section> <!--AS Authentication-->
 
 <section anchor="authorizeEndpoint" title="The Authorization Endpoint">
-  <t>The authorization endpoint is used to interact with the resource owner
-  and obtain an authorization grant in certain grant flows.  The primary use
-  case for this framework is machine-to-machine interactions, not involving
-  the resource owner in the authorization flow, therefore this endpoint is
+  <t>The OAuth 2.0 authorization endpoint is used to interact with the resource owner
+  and obtain an authorization grant, in certain grant flows.  The primary use
+  case for the ACE-OAuth framework is for machine-to-machine interactions that do not involve
+  the resource owner in the authorization flow; therefore, this endpoint is
   out of scope here.  Future profiles may define constrained adaptation
   mechanisms for this endpoint as well.  Non-constrained clients interacting
   with constrained resource servers can use the specifications in section 3.1
@@ -1065,7 +1066,7 @@ a4                                   # map(4)
     at the AS. The profile MUST specify how the communication is protected.
     The content of the request consists of the parameters specified
     in the relevant subsection of section 4 of the OAuth 2.0 specification
-    <xref target="RFC6749"/>, depending on the grant type with the following
+    <xref target="RFC6749"/>, depending on the grant type, with the following
     exceptions and additions:
 
     <list style="symbols">
@@ -1213,7 +1214,7 @@ Payload:
 
     <t>The content of the successful reply is the Access Information. 
 	When using CBOR payloads, the content MUST be
-    encoded as CBOR map, containing parameters as specified in Section 5.1 of
+    encoded as a CBOR map, containing parameters as specified in Section 5.1 of
     <xref target="RFC6749"/>, with the following additions and changes:
 
     <list style="hanging">
@@ -1309,7 +1310,7 @@ Payload:
 	used under the same conditions as specified in Section 5.2 of
 	<xref target="RFC6749"/>.</t>
 
-	<t>The content type (for CoAP-based interactions) or media type
+	<t>The Content-Format (for CoAP-based interactions) or media type
 	(for HTTP-based interactions) "application/ace+cbor" MUST be used
 	for the error response.</t>
 
@@ -1513,7 +1514,7 @@ Payload:
 
   <section anchor="introReq" title="Introspection Request">
     <t>The requesting entity sends a POST request to the introspection endpoint
-    at the AS, the profile MUST specify how the communication is protected.
+    at the AS.  The profile MUST specify how the communication is protected.
     If CBOR is used, the payload MUST be encoded as a CBOR map with a "token"
     entry containing either the access token or a reference to the token (e.g.,
     the cti).  Further optional parameters representing additional context
@@ -1793,7 +1794,7 @@ Payload:
     token verification may happen locally at the RS while a token-by-reference
     requires further interaction with the authorization server, for example
     using token introspection, to obtain the claims associated with the token
-    reference. 	Self-contained token MUST, at a minimum, be integrity protected
+    reference. 	Self-contained tokens MUST, at a minimum, be integrity protected
     but they MAY also be encrypted.</t> 
 	
     <t>For self-contained tokens the RS MUST process the security
@@ -2098,7 +2099,7 @@ Payload:
 	  bound to the client's request to avoid attacks where the attacker
 	  swaps the intended response for an older one valid for a previous
 	  request.  This requires that the client and the Authorization Server
-	  have previously exchanged either a shared secret, or their public
+	  have previously exchanged either a shared secret or their public
 	  keys in order to negotiate a secure communication. Furthermore the
 	  client MUST be able to determine whether an AS has the authority
 	  to issue access tokens for a certain RS.  This can be done through
@@ -2110,7 +2111,7 @@ Payload:
 	  Server and the Authorization Server via the introspection endpoint
 	  MUST be encrypted, integrity and replay protected. Furthermore
 	  responses from the AS to the RS MUST be bound to the RS's request.
-	  This requires that the client and the Authorization Server
+	  This requires that the RS and the Authorization Server
 	  have previously exchanged either a shared secret, or their public
 	  keys in order to negotiate a secure communication. Furthermore the
 	  RS MUST be able to determine whether an AS has the authority
@@ -2127,7 +2128,7 @@ Payload:
 	  if supported by both parties.  After the client has successfully
 	  transmitted the access token to the RS, a secure communication
 	  protocol MUST be established between client and RS for the
-	  actual resource request.  This protocol MUST provide encryption,
+	  actual resource request.  This protocol MUST provide confidentiality,
 	  integrity and replay protection as well as a binding between
 	  requests and responses.  This requires that the client learned
 	  either the RS's public key or received a symmetric
@@ -2156,10 +2157,10 @@ Payload:
       </section>
       <section anchor="infoLeak" title="Unprotected Information">
 	<t>Communication with the authz-info endpoint, as well as the
-	various error responses defined in this framework all potentially
+	various error responses defined in this framework, all potentially
 	include sending information over an unprotected channel.
 	These messages may leak information to an adversary.  For example
-	errors responses for requests to the Authorization Information endpoint
+	error responses for requests to the Authorization Information endpoint
 	can reveal information about an otherwise opaque access token to an
 	adversary who has intercepted this token.</t>
 
@@ -2173,13 +2174,13 @@ Payload:
 	communication with the authz-info endpoint (e.g. through
 	DTLS with only server-side authentication). In cases where
 	this is not possible this framework RECOMMENDS to use encrypted
-	CWTs or opaque references and need to be subjected to introspection
+	CWTs or tokens that are opaque references and need to be subjected to introspection
 	by the RS.</t>
 
 	<t>If the initial unauthorized resource request message (see <xref
 	target="rreq"/>) is used, the client MUST make sure that it is
 	not sending sensitive content in this request. While GET and DELETE
-	requests only reveal the target URI of the resource, while POST and PUT
+	requests only reveal the target URI of the resource, POST and PUT
 	requests would reveal the whole payload of the intended operation.</t>
       </section>
 
@@ -2202,8 +2203,8 @@ Payload:
 	<t>If the audience addresses a group of resource servers, the mapping
 	of group identifier to individual RS has to be provisioned to each RS
 	before the group-audience is usable.  Managing dynamic groups could be
-	an issue, if the RS is not always reachable when the group memberships
-	change. Furthermore issuing access tokens bound to symmetric
+	an issue, if any RS is not always reachable when the groups' memberships
+	change. Furthermore, issuing access tokens bound to symmetric
 	proof-of-possession keys that apply to a group-audience is problematic,
 	as an RS that is in possession of the access token can impersonate the
 	client towards the other RSs that are part of the group.  It is
@@ -2627,7 +2628,7 @@ Payload:
     <list style='symbols'>
       <t>Claim Name: <spanx style="verb">cnonce</spanx></t>
       <t>Claim Description: "client-nonce". A nonce previously provided
-      to the AS by the RS via the client.  Used verify token freshness
+      to the AS by the RS via the client.  Used to verify token freshness
       when the RS cannot synchronize its clock with the AS.</t>
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="accessToken"/> of [this document]</t>
@@ -2746,7 +2747,7 @@ Payload:
 
   <section anchor="IANAinstructions" title="Expert Review Instructions">
     <t>All of the IANA registries established in this document are defined
-   as expert review.  This section gives some general guidelines for
+   to use a registration policy of Expert Review.  This section gives some general guidelines for
    what the experts should be looking for, but they are being designated
    as experts for a reason, so they should be given substantial
     latitude.</t>
@@ -2990,22 +2991,22 @@ Payload:
           operations a device is capable of performing, which in turn impacts,
           e.g., protocol latency.  Symmetric key cryptography may be used
           instead of the computationally more expensive public key cryptography
-          where the security requirements so allows, but this may also require
-          support for trusted third party assisted secret key establishment
-          using transport or application layer security.
+          where the security requirements so allow, but this may also require
+          support for trusted-third-party-assisted secret key establishment
+          using transport- or application-layer security.
 	  <vspace blankLines="0"/></t>
 
           <t hangText="Small Amount of Memory:"> <vspace blankLines="1"/>
           Microcontrollers embedded in IoT devices are often equipped with
-          small amount of RAM and flash memory, which places limitations what
+          only a small amount of RAM and flash memory, which places limitations on what
           kind of processing can be performed and how much code can be put on
-          those devices.  To reduce code size fewer and smaller protocol
+          those devices.  To reduce code size, fewer and smaller protocol
           implementations can be put on the firmware of such a device.  In
-          this case, CoAP may be used instead of HTTP,  symmetric key
-          cryptography instead of public key cryptography, and CBOR instead of
-          JSON.  Authentication and key establishment protocol, e.g., the DTLS
-          handshake,  in comparison with assisted key establishment also has
-          an impact on memory and code.<vspace blankLines="0"/>
+          this case, CoAP may be used instead of HTTP,  symmetric-key
+          cryptography instead of public-key cryptography, and CBOR instead of
+          JSON.  An authentication and key establishment protocol, e.g., the DTLS
+          handshake,  in comparison with assisted key establishment, also has
+          an impact on memory and code footprints.<vspace blankLines="0"/>
           </t>
 
           <t hangText="User Interface Limitations:"> <vspace blankLines="1"/>
@@ -3031,10 +3032,10 @@ Payload:
           graphically in <xref target="fig:protocolFlow"/>) may be accomplished
           using a variety of different protocols, and not all parts of the
           message flow are used in all applications due to the communication
-          constraints.  Deployments making use of CoAP are expected, but not
-          limited to, other protocols such as HTTP, HTTP/2 or other specific
-          protocols, such as Bluetooth Smart communication, that do not
-          necessarily use IP could also be used.  The latter raises the need
+          constraints.  Deployments making use of CoAP are expected, but this framework is not
+          limited to them.  Other protocols such as HTTP, or even protocols
+          such as Bluetooth Smart communication that do not
+          necessarily use IP, could also be used.  The latter raises the need
           for application layer security over the various interfaces.</t>
         </list>
       </t>
@@ -3047,7 +3048,7 @@ Payload:
           <t hangText="CBOR, COSE, CWT:"><vspace blankLines="1"/>
 	  This framework RECOMMENDS the use of CBOR <xref target="RFC7049"/> as
 	  data format.  Where CBOR data needs to be protected, the use of COSE
-	  <xref target="RFC8152"/> is RECOMMENDED.  Furthermore where
+	  <xref target="RFC8152"/> is RECOMMENDED.  Furthermore, where
 	  self-contained tokens are needed, this framework RECOMMENDS the
 	  use of CWT <xref target="RFC8392"/>.  These measures aim at reducing
 	  the size of messages sent over the wire, the RAM size of data objects
@@ -3069,7 +3070,7 @@ Payload:
 	  This framework defines the name "Access Information" for data
 	  concerning the RS that the AS returns to the client in an access
 	  token response (see  <xref target="tokenResponse"/>).  This aims at
-	  enabling scenarios, where a powerful client, supporting multiple
+	  enabling scenarios where a powerful client, supporting multiple
 	  profiles, needs to interact with a RS for which it does not know the
 	  supported profiles and the raw public key.
 	  <vspace blankLines="1"/></t>	  
@@ -3087,7 +3088,7 @@ Payload:
 	  access.
 	  <vspace blankLines="1"/> </t>
 
-	  <t hangText="Auth-Info endpoint:"><vspace blankLines="1"/>
+	  <t hangText="Authz-Info endpoint:"><vspace blankLines="1"/>
 	  This framework introduces a new way of providing access tokens
 	  to a RS by exposing a authz-info endpoint, to which access tokens
 	  can be POSTed.  This aims at reducing the size of the request
@@ -3233,10 +3234,10 @@ Payload:
             <t>Process an access token.
 	      <list style="symbols">
 		<t>Verify the token is from a recognized AS.</t>
+		<t>Check the token's integrity.</t>
 		<t>Verify that the token applies to this RS.</t>
 		<t>Check that the token has not expired (if the token provides
 		expiration information).</t>
-		<t>Check the token's integrity.</t>
 		<t>Store the token so that it can be retrieved in the context
 		of a matching request.</t>
 	      </list>
@@ -3253,7 +3254,7 @@ Payload:
 	      </list>
 	    </t>
 	    <t>Send a response following the agreed upon communication
-	    security.</t>
+	    security mechanism(s).</t>
 	    <t>Safely store credentials such as raw public keys for
 	    authentication or proof-of-possession keys linked to access
 	    tokens.</t>
@@ -3350,7 +3351,7 @@ Payload:
         servers.  The main focus in the following subsections is on how
         authorization of a client request for a resource hosted by a RS is
         performed.  This requires the security of the requests and
-        responses between the clients and the RS to consider.
+        responses between the clients and the RS to be considered.
         </t>
 
         <t>Note: CBOR diagnostic notation is used for examples of requests
@@ -3671,7 +3672,7 @@ Response-Payload:
 
         <t>D: The RS forwards the token to the introspection
         endpoint on the AS.  Introspection assumes a secure connection
-        between the AS and the RS, e.g., using transport of application layer
+        between the RS and the AS, e.g., using transport or application layer
         security. In the example AS is identified using pre shared security
         context (psk, rpk or certificate) while RS is acting as client and
         is identified with client_id and client_secret.
