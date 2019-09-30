@@ -480,7 +480,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-24" />
-  <meta name="dct.issued" scheme="ISO8601" content="2019-27" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-30" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
 
@@ -504,7 +504,7 @@
 <td class="right">G. Selander</td>
 </tr>
 <tr>
-<td class="left">Expires: March 30, 2020</td>
+<td class="left">Expires: April 2, 2020</td>
 <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -533,7 +533,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">September 27, 2019</td>
+<td class="right">September 30, 2019</td>
 </tr>
 
     	
@@ -549,7 +549,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on March 30, 2020.</p>
+<p>This Internet-Draft will expire on April 2, 2020.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -1069,9 +1069,10 @@ a4                                   # map(4)
 <li>The client can send an empty (null value) "profile" parameter to indicate that it wants the AS to include the "profile" parameter in the response.  See <a href="#paramProfile" class="xref">Section 5.6.4.3</a>.</li>
 <li>A client MUST be able to use the parameters from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a> in an access token request to the token endpoint and the AS MUST be able to process these additional parameters.</li>
 </ul>
-<p id="rfc.section.5.6.1.p.2">If CBOR is used then these parameters MUST be encoded as a CBOR map.</p>
-<p id="rfc.section.5.6.1.p.3">When HTTP is used as a transport then the client makes a request to the token endpoint by sending the parameters using the "application/x-www-form-urlencoded" format with a character encoding of UTF-8 in the HTTP request entity-body, as defined in section 3.2 of <a href="#RFC6749" class="xref">[RFC6749]</a>.</p>
-<p id="rfc.section.5.6.1.p.4">The following examples illustrate different types of requests for proof-of-possession tokens. </p>
+<p id="rfc.section.5.6.1.p.2">The default behaviour, is that the AS generates a symmetric proof-of-possession key for the client. In order to use an asymmetric key pair or to re-use a key previously established with the RS, the client is supposed to use the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>.  </p>
+<p id="rfc.section.5.6.1.p.3">If CBOR is used then these parameters MUST be encoded as a CBOR map.</p>
+<p id="rfc.section.5.6.1.p.4">When HTTP is used as a transport then the client makes a request to the token endpoint by sending the parameters using the "application/x-www-form-urlencoded" format with a character encoding of UTF-8 in the HTTP request entity-body, as defined in section 3.2 of <a href="#RFC6749" class="xref">[RFC6749]</a>.</p>
+<p id="rfc.section.5.6.1.p.5">The following examples illustrate different types of requests for proof-of-possession tokens. </p>
 <div id="rfc.figure.5"></div>
 <div id="fig:symmATreq"></div>
 <pre>
@@ -1134,7 +1135,7 @@ Payload:
        </pre>
 <p class="figure">Figure 7: Example request for an access token bound to a      key reference.</p>
 <p><a href="#fig:kidATreq" class="xref">Figure 7</a> shows a request for a token where a previously communicated proof-of-possession key is only referenced.  Note that the client performs a password based authentication in this example by submitting its client_secret (see Section 2.3.1 of <a href="#RFC6749" class="xref">[RFC6749]</a>). Note that this example uses the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>.  </p>
-<p id="rfc.section.5.6.1.p.8">Refresh tokens are typically not stored as securely as proof-of-possession keys in requesting clients.  Proof-of-possession based refresh token requests MUST NOT request different proof-of-possession keys or different audiences in token requests.  Refresh token requests can only use to request access tokens bound to the same proof-of-possession key and the same audience as access tokens issued in the initial token request.</p>
+<p id="rfc.section.5.6.1.p.9">Refresh tokens are typically not stored as securely as proof-of-possession keys in requesting clients.  Proof-of-possession based refresh token requests MUST NOT request different proof-of-possession keys or different audiences in token requests.  Refresh token requests can only use to request access tokens bound to the same proof-of-possession key and the same audience as access tokens issued in the initial token request.</p>
 <h1 id="rfc.section.5.6.2">
 <a href="#rfc.section.5.6.2">5.6.2.</a> <a href="#tokenResponse" id="tokenResponse">AS-to-Client Response</a>
 </h1>
