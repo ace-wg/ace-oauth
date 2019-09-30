@@ -1169,10 +1169,7 @@ Decrypted payload:
 
     <t><xref target="fig:kidATreq"/> shows a request for a token
     where a previously communicated proof-of-possession key is only
-    referenced.  Note that the client performs a password
-    based authentication in this example by submitting its client_secret
-    (see Section 2.3.1 of <xref target="RFC6749"/>). Note that this
-    example uses the "req_cnf" parameter from
+    referenced.  Note that this example uses the "req_cnf" parameter from
     <xref target="I-D.ietf-ace-oauth-params"/>.
 
     <figure align="center" anchor="fig:kidATreq"
@@ -1186,13 +1183,12 @@ Content-Format: "application/ace+cbor"
 Payload:
 {
   "client_id" : "myclient",
-  "client_secret" : "mysecret234",
   "audience" : "valve424",
   "scope" : "read",
   "req_cnf" : {
     "kid" : b64'6kg0dXJM13U'
   }
-}
+}W
        ]]></artwork>
     </figure></t>
 
@@ -3411,13 +3407,12 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
 
       <t>The client sends the POST request to the token endpoint at the AS.  The security
         of this request can be transport or application layer. It is up the
-        the communication security profile to define. In the example transport
-        layer identification of the AS is done and the client identifies with
-        client_id and client_secret as in classic OAuth.  The request
-      contains the public key of the client and the Audience parameter set to
-      "tempSensorInLivingRoom", a value that the temperature sensor
-      identifies itself with.  The AS evaluates the request and authorizes the
-      client to access the resource.</t>
+        the communication security profile to define. In the example it is
+	assumed that both client and AS have performed mutual authentication
+	e.g. via TLS.  The request contains the public key of the client and
+	the Audience parameter set to "tempSensorInLivingRoom", a value that
+	the temperature sensor identifies itself with.  The AS evaluates the
+	request and authorizes the client to access the resource.</t>
 
       <t>B: The AS responds with a PoP access token and Access Information.
       The PoP access token contains the public key of the client, and the
@@ -3472,7 +3467,6 @@ Request-Payload :
 {
   "audience" : "tempSensorInLivingRoom",
   "client_id" : "myclient",
-  "client_secret" : "qwerty"
   "req_cnf" : {
     "COSE_Key" : {
       "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
@@ -3627,14 +3621,14 @@ F:  |<--------+ Header: 2.05 Content
         original once can be returned from introspection later on.</t>
             <t>
       <list style="hanging">
-        <t>A: The client sends the request using POST to the token endpoint at AS.  The
-        request contains the Audience parameter set to  "PACS1337" (PACS, Physical Access System), a
-        value the that the online door in question identifies itself with.  The
-        AS generates an access token as an opaque string, which it can match to
-        the specific client, a targeted audience and a symmetric key. The
-        security is provided by identifying the AS on transport layer using
-        a pre shared security context (psk, rpk or certificate) and then the
-        client is identified using client_id and client_secret as in classic OAuth.</t>
+        <t>A: The client sends the request using POST to the token endpoint at
+	AS.  The request contains the Audience parameter set to  "PACS1337"
+	(PACS, Physical Access System), a value the that the online door in
+	question identifies itself with.  The AS generates an access token as
+	an opaque string, which it can match to the specific client, a targeted
+	audience and a symmetric key. The security is assumed to have been
+	provided at transport layer (e.g. via DTLS) using a pre-shared security
+	context (psk, rpk or certificate).</t>
 
         <t>B: The AS responds with the an access token and Access Information,
         the latter containing a symmetric key.
@@ -3673,7 +3667,6 @@ B:  |<--------+ Header: 2.05 Content
 Request-Payload:
 {
   "client_id" : "keyfob",
-  "client_secret" : "qwerty"
 }
 
 Response-Payload:
@@ -3704,9 +3697,9 @@ Response-Payload:
         <t>D: The RS forwards the token to the introspection
         endpoint on the AS.  Introspection assumes a secure connection
         between the AS and the RS, e.g., using transport of application layer
-        security. In the example AS is identified using pre shared security
-        context (psk, rpk or certificate) while RS is acting as client and
-        is identified with client_id and client_secret.
+        security. In the example RS and AS are assumed to have performed
+	mutual authentication using a pre shared security context (psk, rpk or
+	certificate) with the RS acting as client.
         </t>
 
         <t>E: The AS provides the introspection response containing parameters
@@ -3756,7 +3749,6 @@ Request-Payload:
 {
   "token" : b64'VGVzdCB0b2tlbg==',
   "client_id" : "FrontDoor",
-  "client_secret" : "ytrewq"
 }
 
 Response-Payload:

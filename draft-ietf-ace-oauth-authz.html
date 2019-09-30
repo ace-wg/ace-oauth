@@ -1125,16 +1125,15 @@ Content-Format: "application/ace+cbor"
 Payload:
 {
   "client_id" : "myclient",
-  "client_secret" : "mysecret234",
   "audience" : "valve424",
   "scope" : "read",
   "req_cnf" : {
     "kid" : b64'6kg0dXJM13U'
   }
-}
+}W
        </pre>
 <p class="figure">Figure 7: Example request for an access token bound to a      key reference.</p>
-<p><a href="#fig:kidATreq" class="xref">Figure 7</a> shows a request for a token where a previously communicated proof-of-possession key is only referenced.  Note that the client performs a password based authentication in this example by submitting its client_secret (see Section 2.3.1 of <a href="#RFC6749" class="xref">[RFC6749]</a>). Note that this example uses the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>.  </p>
+<p><a href="#fig:kidATreq" class="xref">Figure 7</a> shows a request for a token where a previously communicated proof-of-possession key is only referenced.  Note that this example uses the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>.  </p>
 <p id="rfc.section.5.6.1.p.9">Refresh tokens are typically not stored as securely as proof-of-possession keys in requesting clients.  Proof-of-possession based refresh token requests MUST NOT request different proof-of-possession keys or different audiences in token requests.  Refresh token requests can only use to request access tokens bound to the same proof-of-possession key and the same audience as access tokens issued in the initial token request.</p>
 <h1 id="rfc.section.5.6.2">
 <a href="#rfc.section.5.6.2">5.6.2.</a> <a href="#tokenResponse" id="tokenResponse">AS-to-Client Response</a>
@@ -2421,7 +2420,7 @@ Payload:
 <dt></dt>
 <dd style="margin-left: 8">A: The client first generates a public-private key pair used for communication security with the RS.</dd>
 <dt></dt>
-<dd style="margin-left: 8">The client sends the POST request to the token endpoint at the AS.  The security of this request can be transport or application layer. It is up the the communication security profile to define. In the example transport layer identification of the AS is done and the client identifies with client_id and client_secret as in classic OAuth.  The request contains the public key of the client and the Audience parameter set to "tempSensorInLivingRoom", a value that the temperature sensor identifies itself with.  The AS evaluates the request and authorizes the client to access the resource.</dd>
+<dd style="margin-left: 8">The client sends the POST request to the token endpoint at the AS.  The security of this request can be transport or application layer. It is up the the communication security profile to define. In the example it is assumed that both client and AS have performed mutual authentication e.g. via TLS.  The request contains the public key of the client and the Audience parameter set to "tempSensorInLivingRoom", a value that the temperature sensor identifies itself with.  The AS evaluates the request and authorizes the client to access the resource.</dd>
 <dt></dt>
 <dd style="margin-left: 8">B: The AS responds with a PoP access token and Access Information.  The PoP access token contains the public key of the client, and the Access Information  contains the public key of the RS.  For communication security this example uses DTLS RawPublicKey between the client and the RS. The issued token will have a short validity time, i.e., "exp" close to "iat", to protect the RS from replay attacks. The token includes the claim such as "scope" with the authorized access that an owner of the temperature device can enjoy.  In this example, the "scope" claim, issued by the AS, informs the RS that the owner of the token, that can prove the possession of a key is authorized to make a GET request against the /temperature resource and a POST request on the /firmware resource.  Note that the syntax and semantics of the scope claim are application specific.</dd>
 <dt></dt>
@@ -2455,7 +2454,6 @@ Request-Payload :
 {
   "audience" : "tempSensorInLivingRoom",
   "client_id" : "myclient",
-  "client_secret" : "qwerty"
   "req_cnf" : {
     "COSE_Key" : {
       "kid" : b64'1Bg8vub9tLe1gHMzV76e8',
@@ -2566,7 +2564,7 @@ F:  |&lt;--------+ Header: 2.05 Content
 
 <dl>
 <dt></dt>
-<dd style="margin-left: 8">A: The client sends the request using POST to the token endpoint at AS.  The request contains the Audience parameter set to  "PACS1337" (PACS, Physical Access System), a value the that the online door in question identifies itself with.  The AS generates an access token as an opaque string, which it can match to the specific client, a targeted audience and a symmetric key. The security is provided by identifying the AS on transport layer using a pre shared security context (psk, rpk or certificate) and then the client is identified using client_id and client_secret as in classic OAuth.</dd>
+<dd style="margin-left: 8">A: The client sends the request using POST to the token endpoint at AS.  The request contains the Audience parameter set to  "PACS1337" (PACS, Physical Access System), a value the that the online door in question identifies itself with.  The AS generates an access token as an opaque string, which it can match to the specific client, a targeted audience and a symmetric key. The security is assumed to have been provided at transport layer (e.g. via DTLS) using a pre-shared security context (psk, rpk or certificate).</dd>
 <dt></dt>
 <dd style="margin-left: 8">B: The AS responds with the an access token and Access Information, the latter containing a symmetric key.  Communication security between C and RS will be DTLS and PreSharedKey.  The PoP key is used as the PreSharedKey.  </dd>
 </dl>
@@ -2598,7 +2596,6 @@ B:  |&lt;--------+ Header: 2.05 Content
 Request-Payload:
 {
   "client_id" : "keyfob",
-  "client_secret" : "qwerty"
 }
 
 Response-Payload:
@@ -2652,7 +2649,6 @@ Request-Payload:
 {
   "token" : b64'VGVzdCB0b2tlbg==',
   "client_id" : "FrontDoor",
-  "client_secret" : "ytrewq"
 }
 
 Response-Payload:
@@ -2673,7 +2669,7 @@ Response-Payload:
 <dt></dt>
 <dd style="margin-left: 8">C: Next, the client POSTs the access token to the authz-info endpoint in the RS.  This is a plain CoAP request, i.e., no DTLS between client and RS.  Since the token is an opaque string, the RS cannot verify it on its own, and thus defers to respond the client with a status code until after step E.</dd>
 <dt></dt>
-<dd style="margin-left: 8">D: The RS forwards the token to the introspection endpoint on the AS.  Introspection assumes a secure connection between the AS and the RS, e.g., using transport of application layer security. In the example AS is identified using pre shared security context (psk, rpk or certificate) while RS is acting as client and is identified with client_id and client_secret.  </dd>
+<dd style="margin-left: 8">D: The RS forwards the token to the introspection endpoint on the AS.  Introspection assumes a secure connection between the AS and the RS, e.g., using transport of application layer security. In the example RS and AS are assumed to have performed mutual authentication using a pre shared security context (psk, rpk or certificate) with the RS acting as client.  </dd>
 <dt></dt>
 <dd style="margin-left: 8">E: The AS provides the introspection response containing parameters about the token.  This includes the confirmation key (cnf) parameter that allows the RS to verify the client's proof of possession in step F.</dd>
 <dt></dt>
