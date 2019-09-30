@@ -93,7 +93,7 @@ Table of Contents
      5.6.  The Token Endpoint  . . . . . . . . . . . . . . . . . . .  21
        5.6.1.  Client-to-AS Request  . . . . . . . . . . . . . . . .  22
        5.6.2.  AS-to-Client Response . . . . . . . . . . . . . . . .  25
-       5.6.3.  Error Response  . . . . . . . . . . . . . . . . . . .  26
+       5.6.3.  Error Response  . . . . . . . . . . . . . . . . . . .  27
        5.6.4.  Request and Response Parameters . . . . . . . . . . .  28
          5.6.4.1.  Grant Type  . . . . . . . . . . . . . . . . . . .  28
          5.6.4.2.  Token Type  . . . . . . . . . . . . . . . . . . .  28
@@ -1217,7 +1217,7 @@ Internet-Draft                  ACE-OAuth                 September 2019
       token endpoint and the AS MUST be able to process these additional
       parameters.
 
-   The default behaviour, is that the AS generates a symmetric proof-of-
+   The default behavior, is that the AS generates a symmetric proof-of-
    possession key for the client.  In order to use an asymmetric key
    pair or to re-use a key previously established with the RS, the
    client is supposed to use the "req_cnf" parameter from
@@ -1264,7 +1264,7 @@ Internet-Draft                  ACE-OAuth                 September 2019
    [I-D.ietf-core-object-security] is used to provide object-security,
    therefore the Content-Format is "application/oscore" wrapping the
    "application/ace+cbor" type content.  The OSCORE option has a decoded
-   interpretation appended in parantheses for the reader's convenience.
+   interpretation appended in parentheses for the reader's convenience.
    Also note that in this example the audience is implicitly known by
    both client and AS.  Furthermore note that this example uses the
    "req_cnf" parameter from [I-D.ietf-ace-oauth-params].
@@ -1391,9 +1391,9 @@ Internet-Draft                  ACE-OAuth                 September 2019
    that the AS MUST be able to use when responding to a request to the
    token endpoint.
 
-   Figure 8 summarizes the parameters that may be part of the Access
-   Information.  This does not include the additional parameters
-   specified in [I-D.ietf-ace-oauth-params].
+   Figure 8 summarizes the parameters that can currently be part of the
+   Access Information.  Future extensions may define additional
+   parameters.
 
 
 
@@ -1415,6 +1415,8 @@ Internet-Draft                  ACE-OAuth                 September 2019
            | error_description |  RFC 6749                     |
            | error_uri         |  RFC 6749                     |
            | profile           | [this document]               |
+           | cnf               | [ID-ietf-ace-oauth-params]    |
+           | rs_cnf            | [ID-ietf-ace-oauth-params]    |
            \-------------------+-------------------------------/
 
                   Figure 8: Access Information parameters
@@ -1444,11 +1446,9 @@ Internet-Draft                  ACE-OAuth                 September 2019
        Figure 9: Example AS response with an access token bound to a
                               symmetric key.
 
-5.6.3.  Error Response
 
-   The error responses for CoAP-based interactions with the AS are
-   equivalent to the ones for HTTP-based interactions as defined in
-   Section 5.2 of [RFC6749], with the following differences:
+
+
 
 
 
@@ -1457,6 +1457,12 @@ Seitz, et al.             Expires April 2, 2020                [Page 26]
 
 Internet-Draft                  ACE-OAuth                 September 2019
 
+
+5.6.3.  Error Response
+
+   The error responses for CoAP-based interactions with the AS are
+   equivalent to the ones for HTTP-based interactions as defined in
+   Section 5.2 of [RFC6749], with the following differences:
 
    o  When using CBOR the raw payload before being processed by the
       communication security protocol MUST be encoded as a CBOR map.
@@ -1500,12 +1506,6 @@ Internet-Draft                  ACE-OAuth                 September 2019
    o  If the client submits an asymmetric key in the token request that
       the RS cannot process, the AS MUST reject that request with a
       response code equivalent to the CoAP code 4.00 (Bad Request)
-      including the error code "unsupported_pop_key" defined in
-      Figure 10.
-
-   o  If the client and the RS it has requested an access token for do
-      not share a common profile, the AS MUST reject that request with a
-      response code equivalent to the CoAP code 4.00 (Bad Request)
 
 
 
@@ -1514,6 +1514,12 @@ Seitz, et al.             Expires April 2, 2020                [Page 27]
 Internet-Draft                  ACE-OAuth                 September 2019
 
 
+      including the error code "unsupported_pop_key" defined in
+      Figure 10.
+
+   o  If the client and the RS it has requested an access token for do
+      not share a common profile, the AS MUST reject that request with a
+      response code equivalent to the CoAP code 4.00 (Bad Request)
       including the error code "incompatible_profiles" defined in
       Figure 10.
 
@@ -1556,12 +1562,6 @@ Internet-Draft                  ACE-OAuth                 September 2019
    abbreviations defined in the registry specified by Section 8.6, if a
    CBOR encoding is used.
 
-   In this framework the "pop" value for the "token_type" parameter is
-   the default.  The AS may, however, provide a different value.
-
-
-
-
 
 
 
@@ -1569,6 +1569,9 @@ Seitz, et al.             Expires April 2, 2020                [Page 28]
 
 Internet-Draft                  ACE-OAuth                 September 2019
 
+
+   In this framework the "pop" value for the "token_type" parameter is
+   the default.  The AS may, however, provide a different value.
 
 5.6.4.3.  Profile
 
@@ -1614,9 +1617,6 @@ Internet-Draft                  ACE-OAuth                 September 2019
    size in CBOR.  We have thus chosen to assign abbreviations in that
    range to parameters we expect to be used most frequently in
    constrained scenarios.
-
-
-
 
 
 
