@@ -154,9 +154,9 @@ Internet-Draft                  ACE-OAuth                   October 2019
      10.2.  Informative References . . . . . . . . . . . . . . . . .  58
    Appendix A.  Design Justification . . . . . . . . . . . . . . . .  61
    Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  64
-   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  66
+   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  67
    Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  67
-   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  67
+   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  68
      E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  68
      E.2.  Introspection Aided Token Validation  . . . . . . . . . .  72
    Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  76
@@ -3665,6 +3665,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
             expiration information).
          +  Store the token so that it can be retrieved in the context
             of a matching request.
+
+         Note: The order proposed here is not normative, any process
+         that arrives at an equivalent result can be used.  A noteworthy
+         consideration is whether one can use cheap operations early on
+         to quickly discard non-applicable or invalid tokens, before
+         performing expensive cryptographic operations (e.g. doing an
+         expiration check before verifying a signature).
+
       *  Process a request.
 
          +  Set up communication security with the client.
@@ -3680,15 +3688,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
          authentication or proof-of-possession keys linked to access
          tokens.
 
-Appendix C.  Requirements on Profiles
 
-   This section lists the requirements on profiles of this framework,
-   for the convenience of profile designers.
-
-   o  Specify the communication protocol the client and RS the must use
-      (e.g., CoAP).  Section 5 and Section 5.6.4.3
-   o  Specify the security protocol the client and RS must use to
-      protect their communication (e.g., OSCORE or DTLS over CoAP).
 
 
 
@@ -3698,6 +3698,15 @@ Seitz, et al.             Expires April 3, 2020                [Page 66]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+Appendix C.  Requirements on Profiles
+
+   This section lists the requirements on profiles of this framework,
+   for the convenience of profile designers.
+
+   o  Specify the communication protocol the client and RS the must use
+      (e.g., CoAP).  Section 5 and Section 5.6.4.3
+   o  Specify the security protocol the client and RS must use to
+      protect their communication (e.g., OSCORE or DTLS over CoAP).
       This must provide encryption, integrity and replay protection.
       Section 5.6.4.3
    o  Specify how the client and the RS mutually authenticate.
@@ -3733,9 +3742,18 @@ Appendix D.  Assumptions on AS knowledge about C and RS
       length, other key parameters) that the client or RS supports.
    o  The types of access tokens the RS supports (e.g., CWT).
    o  If the RS supports CWTs, the COSE parameters for the crypto
-      wrapper (e.g., algorithm, key-wrap algorithm, key-length).
+      wrapper (e.g., algorithm, key-wrap algorithm, key-length) that the
+      RS supports.
    o  The expiration time for access tokens issued to this RS (unless
       the RS accepts a default time chosen by the AS).
+
+
+
+Seitz, et al.             Expires April 3, 2020                [Page 67]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
+
    o  The symmetric key shared between client or RS and AS (if any).
    o  The raw public key of the client or RS (if any).
    o  Whether the RS has synchronized time (and thus is able to use the
@@ -3745,15 +3763,6 @@ Appendix E.  Deployment Examples
 
    There is a large variety of IoT deployments, as is indicated in
    Appendix A, and this section highlights a few common variants.  This
-
-
-
-
-Seitz, et al.             Expires April 3, 2020                [Page 67]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
    section is not normative but illustrates how the framework can be
    applied.
 
@@ -3792,6 +3801,15 @@ E.1.  Local Token Validation
       set to "tempSensorInLivingRoom", a value that the temperature
       sensor identifies itself with.  The AS evaluates the request and
       authorizes the client to access the resource.
+
+
+
+
+Seitz, et al.             Expires April 3, 2020                [Page 68]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
+
       B: The AS responds with a PoP access token and Access Information.
       The PoP access token contains the public key of the client, and
       the Access Information contains the public key of the RS.  For
@@ -3802,14 +3820,6 @@ E.1.  Local Token Validation
       the authorized access that an owner of the temperature device can
       enjoy.  In this example, the "scope" claim, issued by the AS,
       informs the RS that the owner of the token, that can prove the
-
-
-
-Seitz, et al.             Expires April 3, 2020                [Page 68]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
       possession of a key is authorized to make a GET request against
       the /temperature resource and a POST request on the /firmware
       resource.  Note that the syntax and semantics of the scope claim
@@ -3840,16 +3850,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    Payload is shown in Figure 18 Note that the parameter "rs_cnf" from
    [I-D.ietf-ace-oauth-params] is used to inform the client about the
    resource server's public key.
-
-
-
-
-
-
-
-
-
-
 
 
 
