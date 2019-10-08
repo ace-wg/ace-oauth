@@ -3425,16 +3425,17 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
       <t>A: The client first generates a public-private key pair used for
       communication security with the RS.</t>
 
-      <t>The client sends the POST request to the token endpoint at the AS.  The security
+      <t>The client sends a CoAP POST request to the token endpoint at the AS.  The security
         of this request can be transport or application layer. It is up the
         the communication security profile to define. In the example it is
 	assumed that both client and AS have performed mutual authentication
-	e.g. via TLS.  The request contains the public key of the client and
+	e.g. via DTLS.  The request contains the public key of the client and
 	the Audience parameter set to "tempSensorInLivingRoom", a value that
 	the temperature sensor identifies itself with.  The AS evaluates the
 	request and authorizes the client to access the resource.</t>
 
-      <t>B: The AS responds with a PoP access token and Access Information.
+	<t>B: The AS responds with a 2.05 Content response containing the
+	Access Information, including the access token.
       The PoP access token contains the public key of the client, and the
       Access Information  contains the public key of the RS.  For communication
       security this example uses DTLS RawPublicKey between the client and the
@@ -3545,7 +3546,7 @@ Response-Payload :
 
     <list style="hanging">
       <t>C: The client then sends the PoP access token to the authz-info endpoint at
-      the RS.  This is a plain CoAP request, i.e., no transport or application
+      the RS.  This is a plain CoAP POST request, i.e., no transport or application
       layer security is used between client and RS since the token is integrity protected
       between the AS and RS.  The RS verifies that the PoP access token was created by a
       known and trusted AS, is valid, and has been issued to the client.  The RS caches
@@ -3571,11 +3572,11 @@ C:  +-------->| Header: POST (Code=0.02)
       <t>The client and the RS runs the DTLS handshake using the raw
       public keys established in step B and C.</t>
 
-      <t>The client sends the CoAP request GET to /temperature on RS over
+      <t>The client sends a CoAP GET request to /temperature on RS over
       DTLS.  The RS verifies that the request is authorized, based on
       previously established security context.</t>
 
-      <t>F: The RS responds with a resource representation over DTLS.</t>
+      <t>F: The RS responds over the same DTLS channel with a CoAP 2.05 Content response, containing a resource representation as payload.</t>
     </list></t>
 
     <t><figure align="center" anchor="fig:RSOfflineDTLSRequestAndResponse"
@@ -3634,30 +3635,40 @@ F:  |<--------+ Header: 2.05 Content
     that OAuth 2.0 implicit flow can used to authorize the key for
     his car at the the car manufacturers AS.</t>
 
-      <t>Note: In this example the client does not know the exact door it
-        will be used to access since the token request is not send at the
-        time of access. So the scope and audience parameters are set quite
-        wide to start with and new values different form the
-        original once can be returned from introspection later on.</t>
-            <t>
-      <list style="hanging">
-        <t>A: The client sends the request using POST to the token endpoint at
-	AS.  The request contains the Audience parameter set to  "PACS1337"
-	(PACS, Physical Access System), a value the that the online door in
-	question identifies itself with.  The AS generates an access token as
-	an opaque string, which it can match to the specific client, a targeted
-	audience and a symmetric key. The security is assumed to have been
-	provided at transport layer (e.g. via DTLS) using a pre-shared security
-	context (psk, rpk or certificate).</t>
+    <t>Note: In this example the client does not know the exact door it
+    will be used to access since the token request is not send at the
+    time of access. So the scope and audience parameters are set quite
+    wide to start with, while tailored values narrowing down the claims to
+    the specific RS being accessed can be provided to that RS during
+    an introspection step.</t>
 
-        <t>B: The AS responds with the an access token and Access Information,
-        the latter containing a symmetric key.
+    <t>
+      <list style="hanging">
+        <t>A: The client sends a CoAP POST request to the token endpoint at
+	AS.  The request contains the Audience parameter set to  "PACS1337"
+	(PACS, Physical Access System), a value the that identifies the
+	physical access control system to which the individual doors are
+	connected.  The AS generates an access token as	an opaque string, which
+	it can match to the specific client and the targeted audience. It
+	furthermore generates a symmetric proof-of-possession key. The
+	communication security and authentication between client and AS
+	is assumed to have been	provided at transport layer (e.g. via DTLS)
+	using a pre-shared security context (psk, rpk or certificate).</t>
+
+        <t>B: The AS responds with a CoAP 2.05 Content response, containing as playload the Access Information, including the access token and the symmetric proof-of-possession key.
         Communication security between C and RS will be DTLS and PreSharedKey.
         The PoP key is used as the PreSharedKey.
         </t>
       </list>
     </t>
-
+	    
+    <t>Note: In this example we are using a symmetric key for a multi-RS
+    audience, which is not recommended normally (see <xref target="audience"/>).
+    However in this case the risk is deemed to be acceptable, since
+    all the doors are part of the same physical access control system,
+    and therefore the risk of a malicious RS impersonating the client towards
+    another RS is low.</t>
+    
     <t><figure align="center" anchor="fig:cOffline"
                title="Token Request and Response using Client Credentials.">
       <artwork align="left"><![CDATA[
@@ -3689,6 +3700,7 @@ B:  |<--------+ Header: 2.05 Content
 Request-Payload:
 {
   "client_id" : "keyfob",
+  "audience" : "PACS1337"
 }
 
 Response-Payload:
@@ -3716,21 +3728,20 @@ Response-Payload:
         the RS cannot verify it on its own, and thus defers to respond the
         client with a status code until after step E.</t>
 
-        <t>D: The RS forwards the token to the introspection
-        endpoint on the AS.  Introspection assumes a secure connection
-        between the AS and the RS, e.g., using transport or application layer
-        security. In the example RS and AS are assumed to have performed
-       	mutual authentication using a pre shared security context (psk, rpk or
-        certificate) with the RS acting as client.
+        <t>D: The RS sends the token to the introspection
+        endpoint on the AS using a CoAP POST request.  In this example RS and
+	AS are assumed to have performed mutual authentication using a pre
+	shared security context (psk, rpk or certificate) with the RS acting as
+	DTLS client.
         </t>
 
-        <t>E: The AS provides the introspection response containing parameters
-	about the token.  This includes the confirmation key (cnf) parameter
-	that allows the RS to verify the client's proof of possession in
-	step F. Note that our example in <xref target="fig:cOfflineIntroReq"/>
-	assumes a pre-established key (e.g. one used by the client and the
-	RS for a previous token) that is now only referenced by its
-	key-identifier 'kid'.
+        <t>E: The AS provides the introspection response (2.05 Conent)
+	containing parameters about the token.  This includes the confirmation
+	key (cnf) parameter that allows the RS to verify the client's proof of
+	possession in step F. Note that our example in <xref
+	target="fig:cOfflineIntroReq"/>	assumes a pre-established key (e.g. one
+	used by the client and the RS for a previous token) that is now only
+	referenced by its key-identifier 'kid'.
 	</t>
 
         <t>After receiving message E, the RS responds to the client's POST in
