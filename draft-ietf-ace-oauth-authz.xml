@@ -39,9 +39,10 @@
 <!ENTITY RFC8446 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8446.xml">
 <!ENTITY RFC8516 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.8516.xml">
+<!ENTITY RFC8613 SYSTEM
+"http://xml.resource.org/public/rfc/bibxml/reference.RFC.8613.xml">
 <!ENTITY I-D.ietf-oauth-device-flow SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-oauth-device-flow.xml">
 <!ENTITY I-D.ietf-ace-oauth-params SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-oauth-params.xml">
-<!ENTITY I-D.ietf-core-object-security SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-core-object-security.xml">
 <!ENTITY I-D.ietf-ace-cwt-proof-of-possession SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-cwt-proof-of-possession.xml">
 <!ENTITY I-D.erdtman-ace-rpcc SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.erdtman-ace-rpcc.xml">
 <!ENTITY I-D.ietf-tls-dtls13 SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-dtls13.xml">
@@ -332,7 +333,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
     which are an extension to the OAuth bearer tokens. The default token format
     is defined in CBOR web token (CWT) <xref target="RFC8392"/>.
     Application layer security for CoAP using COSE can be provided with OSCORE
-    <xref target="I-D.ietf-core-object-security"/>.</t>
+    <xref target="RFC8613"/>.</t>
 
   <t>With the building blocks listed above, solutions satisfying various
   IoT device and network constraints are possible.  A list of constraints is
@@ -545,10 +546,10 @@ protected by a cryptographic wrapper (e.g., COSE <xref
 
   <t>
     One application of COSE is OSCORE
-    <xref target="I-D.ietf-core-object-security"/>, which
-    provides end-to-end confidentiality, integrity and replay protection, and a
-    secure binding between CoAP request and response messages. In OSCORE, the
-    CoAP messages are wrapped in COSE objects and sent using CoAP.
+    <xref target="RFC8613"/>, which provides end-to-end confidentiality,
+    integrity and replay protection, and a secure binding between CoAP request
+    and response messages. In OSCORE, the CoAP messages are wrapped in COSE
+    objects and sent using CoAP.
   </t>
 
   <t>This framework RECOMMENDS the use of CoAP as replacement for HTTP for use in constrained environments.</t>
@@ -1134,7 +1135,7 @@ Payload:
 
     <t><xref target="fig:asymmATreq"/> shows a request for a token with an
     asymmetric proof-of-possession key.  Note that in this example OSCORE
-    <xref target="I-D.ietf-core-object-security"/> is used
+    <xref target="RFC8613"/> is used
     to provide object-security, therefore the Content-Format is
     "application/oscore" wrapping the "application/ace+cbor" type content.
     The OSCORE option has a decoded interpretation appended in parentheses
@@ -1218,7 +1219,11 @@ Payload:
    knowledge of the capabilities of the client and the RS (see <xref
    target="app:registration"/>).  This prior knowledge may, for example, be set
    by the use of a dynamic client registration protocol exchange
-   <xref target="RFC7591"/>.</t>
+   <xref target="RFC7591"/>.  If the client has requested a specific
+   proof-of-possession key using the "req_cnf" parameter from
+   <xref target="I-D.ietf-ace-oauth-params"/>, this may also influence which
+   profile the AS selects, as it needs to support the use of the key type
+   requestedbo by the client.</t>
 
     <t>The content of the successful reply is the Access Information. 
 	When using CBOR payloads, the content MUST be
@@ -1545,7 +1550,7 @@ Payload:
     <t>For example, <xref target="fig:introReq"/> shows a RS calling the token
     introspection endpoint at the AS to query about an OAuth 2.0
     proof-of-possession token.  Note that object security based on OSCORE
-    <xref target="I-D.ietf-core-object-security"/> is assumed in this example,
+    <xref target="RFC8613"/> is assumed in this example,
     therefore the Content-Format is "application/oscore". <xref
     target="fig:introReq-payl"/> shows the decoded payload.
 
@@ -2945,9 +2950,9 @@ Payload:
       &RFC8414;
       &RFC8446;
       &RFC8516;
+      &RFC8613;
       &I-D.ietf-tls-dtls13;
       &I-D.ietf-oauth-device-flow;
-      &I-D.ietf-core-object-security;
       &I-D.erdtman-ace-rpcc;
       &I-D.ietf-quic-transport;
       <reference anchor="Margi10impact">

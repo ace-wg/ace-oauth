@@ -5,14 +5,14 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                      RISE
 Intended status: Standards Track                             G. Selander
-Expires: April 9, 2020                                          Ericsson
+Expires: April 10, 2020                                         Ericsson
                                                            E. Wahlstroem
 
                                                               S. Erdtman
                                                               Spotify AB
                                                            H. Tschofenig
                                                                 Arm Ltd.
-                                                         October 7, 2019
+                                                         October 8, 2019
 
 
   Authentication and Authorization for Constrained Environments (ACE)
@@ -44,7 +44,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on April 9, 2020.
+   This Internet-Draft will expire on April 10, 2020.
 
 
 
@@ -53,7 +53,7 @@ Status of This Memo
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 1]
+Seitz, et al.            Expires April 10, 2020                 [Page 1]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -96,101 +96,101 @@ Table of Contents
        5.6.3.  Error Response  . . . . . . . . . . . . . . . . . . .  27
        5.6.4.  Request and Response Parameters . . . . . . . . . . .  28
          5.6.4.1.  Grant Type  . . . . . . . . . . . . . . . . . . .  28
-         5.6.4.2.  Token Type  . . . . . . . . . . . . . . . . . . .  28
+         5.6.4.2.  Token Type  . . . . . . . . . . . . . . . . . . .  29
          5.6.4.3.  Profile . . . . . . . . . . . . . . . . . . . . .  29
-         5.6.4.4.  Client-Nonce  . . . . . . . . . . . . . . . . . .  29
-       5.6.5.  Mapping Parameters to CBOR  . . . . . . . . . . . . .  29
-     5.7.  The Introspection Endpoint  . . . . . . . . . . . . . . .  30
-       5.7.1.  Introspection Request . . . . . . . . . . . . . . . .  31
-       5.7.2.  Introspection Response  . . . . . . . . . . . . . . .  32
-       5.7.3.  Error Response  . . . . . . . . . . . . . . . . . . .  33
-       5.7.4.  Mapping Introspection parameters to CBOR  . . . . . .  34
-     5.8.  The Access Token  . . . . . . . . . . . . . . . . . . . .  34
+         5.6.4.4.  Client-Nonce  . . . . . . . . . . . . . . . . . .  30
+       5.6.5.  Mapping Parameters to CBOR  . . . . . . . . . . . . .  30
+     5.7.  The Introspection Endpoint  . . . . . . . . . . . . . . .  31
+       5.7.1.  Introspection Request . . . . . . . . . . . . . . . .  32
+       5.7.2.  Introspection Response  . . . . . . . . . . . . . . .  33
+       5.7.3.  Error Response  . . . . . . . . . . . . . . . . . . .  34
+       5.7.4.  Mapping Introspection parameters to CBOR  . . . . . .  35
+     5.8.  The Access Token  . . . . . . . . . . . . . . . . . . . .  35
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 2]
+Seitz, et al.            Expires April 10, 2020                 [Page 2]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-       5.8.1.  The Authorization Information Endpoint  . . . . . . .  35
-         5.8.1.1.  Verifying an Access Token . . . . . . . . . . . .  36
+       5.8.1.  The Authorization Information Endpoint  . . . . . . .  36
+         5.8.1.1.  Verifying an Access Token . . . . . . . . . . . .  37
          5.8.1.2.  Protecting the Authorization       Information
-                   Endpoint  . . . . . . . . . . . . . . . . . . . .  38
-       5.8.2.  Client Requests to the RS . . . . . . . . . . . . . .  38
-       5.8.3.  Token Expiration  . . . . . . . . . . . . . . . . . .  39
-       5.8.4.  Key Expiration  . . . . . . . . . . . . . . . . . . .  40
-   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  41
-     6.1.  Unprotected AS Request Creation Hints . . . . . . . . . .  42
-     6.2.  Minimal security requirements        for communication  .  42
-     6.3.  Use of Nonces for Token Freshness . . . . . . . . . . . .  43
-     6.4.  Combining profiles  . . . . . . . . . . . . . . . . . . .  44
-     6.5.  Unprotected Information . . . . . . . . . . . . . . . . .  44
-     6.6.  Identifying audiences . . . . . . . . . . . . . . . . . .  44
-     6.7.  Denial of service against or with      Introspection  . .  45
-   7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  46
-   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  46
-     8.1.  ACE Authorization Server Request Creation Hints . . . . .  46
-     8.2.  OAuth Extensions Error Registration . . . . . . . . . . .  47
-     8.3.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  47
-     8.4.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  48
-     8.5.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  48
-     8.6.  OAuth Access Token Type CBOR Mappings . . . . . . . . . .  49
-       8.6.1.  Initial Registry Contents . . . . . . . . . . . . . .  49
-     8.7.  ACE Profile Registry  . . . . . . . . . . . . . . . . . .  49
-     8.8.  OAuth Parameter Registration  . . . . . . . . . . . . . .  50
-     8.9.  OAuth Parameters CBOR Mappings Registry . . . . . . . . .  50
-     8.10. OAuth Introspection Response Parameter Registration . . .  51
-     8.11. OAuth Token Introspection Response CBOR Mappings Registry  51
-     8.12. JSON Web Token Claims . . . . . . . . . . . . . . . . . .  51
-     8.13. CBOR Web Token Claims . . . . . . . . . . . . . . . . . .  52
-     8.14. Media Type Registrations  . . . . . . . . . . . . . . . .  53
-     8.15. CoAP Content-Format Registry  . . . . . . . . . . . . . .  54
-     8.16. Expert Review Instructions  . . . . . . . . . . . . . . .  54
-   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  55
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  56
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  56
-     10.2.  Informative References . . . . . . . . . . . . . . . . .  58
-   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  61
-   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  64
-   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  67
-   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  67
-   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  68
-     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  68
-     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  72
-   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  76
-     F.1.  Version -21 to 22 . . . . . . . . . . . . . . . . . . . .  76
-     F.2.  Version -20 to 21 . . . . . . . . . . . . . . . . . . . .  76
+                   Endpoint  . . . . . . . . . . . . . . . . . . . .  39
+       5.8.2.  Client Requests to the RS . . . . . . . . . . . . . .  39
+       5.8.3.  Token Expiration  . . . . . . . . . . . . . . . . . .  40
+       5.8.4.  Key Expiration  . . . . . . . . . . . . . . . . . . .  41
+   6.  Security Considerations . . . . . . . . . . . . . . . . . . .  42
+     6.1.  Unprotected AS Request Creation Hints . . . . . . . . . .  43
+     6.2.  Minimal security requirements        for communication  .  43
+     6.3.  Use of Nonces for Token Freshness . . . . . . . . . . . .  44
+     6.4.  Combining profiles  . . . . . . . . . . . . . . . . . . .  45
+     6.5.  Unprotected Information . . . . . . . . . . . . . . . . .  45
+     6.6.  Identifying audiences . . . . . . . . . . . . . . . . . .  45
+     6.7.  Denial of service against or with      Introspection  . .  46
+   7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  47
+   8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  47
+     8.1.  ACE Authorization Server Request Creation Hints . . . . .  47
+     8.2.  OAuth Extensions Error Registration . . . . . . . . . . .  48
+     8.3.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  48
+     8.4.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  49
+     8.5.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  49
+     8.6.  OAuth Access Token Type CBOR Mappings . . . . . . . . . .  50
+       8.6.1.  Initial Registry Contents . . . . . . . . . . . . . .  50
+     8.7.  ACE Profile Registry  . . . . . . . . . . . . . . . . . .  50
+     8.8.  OAuth Parameter Registration  . . . . . . . . . . . . . .  51
+     8.9.  OAuth Parameters CBOR Mappings Registry . . . . . . . . .  51
+     8.10. OAuth Introspection Response Parameter Registration . . .  52
+     8.11. OAuth Token Introspection Response CBOR Mappings Registry  52
+     8.12. JSON Web Token Claims . . . . . . . . . . . . . . . . . .  52
+     8.13. CBOR Web Token Claims . . . . . . . . . . . . . . . . . .  53
+     8.14. Media Type Registrations  . . . . . . . . . . . . . . . .  54
+     8.15. CoAP Content-Format Registry  . . . . . . . . . . . . . .  55
+     8.16. Expert Review Instructions  . . . . . . . . . . . . . . .  55
+   9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  56
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  57
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  57
+     10.2.  Informative References . . . . . . . . . . . . . . . . .  59
+   Appendix A.  Design Justification . . . . . . . . . . . . . . . .  62
+   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  65
+   Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  68
+   Appendix D.  Assumptions on AS knowledge about C and RS . . . . .  68
+   Appendix E.  Deployment Examples  . . . . . . . . . . . . . . . .  69
+     E.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  69
+     E.2.  Introspection Aided Token Validation  . . . . . . . . . .  73
+   Appendix F.  Document Updates . . . . . . . . . . . . . . . . . .  77
+     F.1.  Version -21 to 22 . . . . . . . . . . . . . . . . . . . .  77
+     F.2.  Version -20 to 21 . . . . . . . . . . . . . . . . . . . .  77
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 3]
+Seitz, et al.            Expires April 10, 2020                 [Page 3]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-     F.3.  Version -19 to 20 . . . . . . . . . . . . . . . . . . . .  76
-     F.4.  Version -18 to -19  . . . . . . . . . . . . . . . . . . .  77
-     F.5.  Version -17 to -18  . . . . . . . . . . . . . . . . . . .  77
-     F.6.  Version -16 to -17  . . . . . . . . . . . . . . . . . . .  77
-     F.7.  Version -15 to -16  . . . . . . . . . . . . . . . . . . .  78
-     F.8.  Version -14 to -15  . . . . . . . . . . . . . . . . . . .  78
-     F.9.  Version -13 to -14  . . . . . . . . . . . . . . . . . . .  78
-     F.10. Version -12 to -13  . . . . . . . . . . . . . . . . . . .  78
-     F.11. Version -11 to -12  . . . . . . . . . . . . . . . . . . .  78
-     F.12. Version -10 to -11  . . . . . . . . . . . . . . . . . . .  79
-     F.13. Version -09 to -10  . . . . . . . . . . . . . . . . . . .  79
-     F.14. Version -08 to -09  . . . . . . . . . . . . . . . . . . .  79
-     F.15. Version -07 to -08  . . . . . . . . . . . . . . . . . . .  79
-     F.16. Version -06 to -07  . . . . . . . . . . . . . . . . . . .  80
-     F.17. Version -05 to -06  . . . . . . . . . . . . . . . . . . .  80
-     F.18. Version -04 to -05  . . . . . . . . . . . . . . . . . . .  80
-     F.19. Version -03 to -04  . . . . . . . . . . . . . . . . . . .  80
-     F.20. Version -02 to -03  . . . . . . . . . . . . . . . . . . .  80
-     F.21. Version -01 to -02  . . . . . . . . . . . . . . . . . . .  81
-     F.22. Version -00 to -01  . . . . . . . . . . . . . . . . . . .  81
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  82
+     F.3.  Version -19 to 20 . . . . . . . . . . . . . . . . . . . .  77
+     F.4.  Version -18 to -19  . . . . . . . . . . . . . . . . . . .  78
+     F.5.  Version -17 to -18  . . . . . . . . . . . . . . . . . . .  78
+     F.6.  Version -16 to -17  . . . . . . . . . . . . . . . . . . .  78
+     F.7.  Version -15 to -16  . . . . . . . . . . . . . . . . . . .  79
+     F.8.  Version -14 to -15  . . . . . . . . . . . . . . . . . . .  79
+     F.9.  Version -13 to -14  . . . . . . . . . . . . . . . . . . .  79
+     F.10. Version -12 to -13  . . . . . . . . . . . . . . . . . . .  79
+     F.11. Version -11 to -12  . . . . . . . . . . . . . . . . . . .  79
+     F.12. Version -10 to -11  . . . . . . . . . . . . . . . . . . .  80
+     F.13. Version -09 to -10  . . . . . . . . . . . . . . . . . . .  80
+     F.14. Version -08 to -09  . . . . . . . . . . . . . . . . . . .  80
+     F.15. Version -07 to -08  . . . . . . . . . . . . . . . . . . .  80
+     F.16. Version -06 to -07  . . . . . . . . . . . . . . . . . . .  81
+     F.17. Version -05 to -06  . . . . . . . . . . . . . . . . . . .  81
+     F.18. Version -04 to -05  . . . . . . . . . . . . . . . . . . .  81
+     F.19. Version -03 to -04  . . . . . . . . . . . . . . . . . . .  81
+     F.20. Version -02 to -03  . . . . . . . . . . . . . . . . . . .  81
+     F.21. Version -01 to -02  . . . . . . . . . . . . . . . . . . .  82
+     F.22. Version -00 to -01  . . . . . . . . . . . . . . . . . . .  82
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  83
 
 1.  Introduction
 
@@ -221,7 +221,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 4]
+Seitz, et al.            Expires April 10, 2020                 [Page 4]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -277,7 +277,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 5]
+Seitz, et al.            Expires April 10, 2020                 [Page 5]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -327,13 +327,13 @@ Internet-Draft                  ACE-OAuth                   October 2019
    proof-of-possession (PoP) tokens, which are an extension to the OAuth
    bearer tokens.  The default token format is defined in CBOR web token
    (CWT) [RFC8392].  Application layer security for CoAP using COSE can
-   be provided with OSCORE [I-D.ietf-core-object-security].
+   be provided with OSCORE [RFC8613].
 
 
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 6]
+Seitz, et al.            Expires April 10, 2020                 [Page 6]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -389,7 +389,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 7]
+Seitz, et al.            Expires April 10, 2020                 [Page 7]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -445,7 +445,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 8]
+Seitz, et al.            Expires April 10, 2020                 [Page 8]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -501,7 +501,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                 [Page 9]
+Seitz, et al.            Expires April 10, 2020                 [Page 9]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -557,16 +557,15 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 10]
+Seitz, et al.            Expires April 10, 2020                [Page 10]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-   One application of COSE is OSCORE [I-D.ietf-core-object-security],
-   which provides end-to-end confidentiality, integrity and replay
-   protection, and a secure binding between CoAP request and response
-   messages.  In OSCORE, the CoAP messages are wrapped in COSE objects
-   and sent using CoAP.
+   One application of COSE is OSCORE [RFC8613], which provides end-to-
+   end confidentiality, integrity and replay protection, and a secure
+   binding between CoAP request and response messages.  In OSCORE, the
+   CoAP messages are wrapped in COSE objects and sent using CoAP.
 
    This framework RECOMMENDS the use of CoAP as replacement for HTTP for
    use in constrained environments.
@@ -613,7 +612,8 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 11]
+
+Seitz, et al.            Expires April 10, 2020                [Page 11]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -669,7 +669,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 12]
+Seitz, et al.            Expires April 10, 2020                [Page 12]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -725,7 +725,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 13]
+Seitz, et al.            Expires April 10, 2020                [Page 13]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -781,7 +781,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 14]
+Seitz, et al.            Expires April 10, 2020                [Page 14]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -837,7 +837,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 15]
+Seitz, et al.            Expires April 10, 2020                [Page 15]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -893,7 +893,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 16]
+Seitz, et al.            Expires April 10, 2020                [Page 16]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -949,7 +949,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 17]
+Seitz, et al.            Expires April 10, 2020                [Page 17]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1005,7 +1005,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 18]
+Seitz, et al.            Expires April 10, 2020                [Page 18]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1061,7 +1061,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 19]
+Seitz, et al.            Expires April 10, 2020                [Page 19]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1117,7 +1117,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 20]
+Seitz, et al.            Expires April 10, 2020                [Page 20]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1173,7 +1173,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 21]
+Seitz, et al.            Expires April 10, 2020                [Page 21]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1229,7 +1229,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 22]
+Seitz, et al.            Expires April 10, 2020                [Page 22]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1262,14 +1262,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
                                    key.
 
    Figure 6 shows a request for a token with an asymmetric proof-of-
-   possession key.  Note that in this example OSCORE
-   [I-D.ietf-core-object-security] is used to provide object-security,
-   therefore the Content-Format is "application/oscore" wrapping the
-   "application/ace+cbor" type content.  The OSCORE option has a decoded
-   interpretation appended in parentheses for the reader's convenience.
-   Also note that in this example the audience is implicitly known by
-   both client and AS.  Furthermore note that this example uses the
-   "req_cnf" parameter from [I-D.ietf-ace-oauth-params].
+   possession key.  Note that in this example OSCORE [RFC8613] is used
+   to provide object-security, therefore the Content-Format is
+   "application/oscore" wrapping the "application/ace+cbor" type
+   content.  The OSCORE option has a decoded interpretation appended in
+   parentheses for the reader's convenience.  Also note that in this
+   example the audience is implicitly known by both client and AS.
+   Furthermore note that this example uses the "req_cnf" parameter from
+   [I-D.ietf-ace-oauth-params].
 
 
 
@@ -1285,7 +1285,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 23]
+Seitz, et al.            Expires April 10, 2020                [Page 23]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1341,7 +1341,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 24]
+Seitz, et al.            Expires April 10, 2020                [Page 24]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1365,7 +1365,11 @@ Internet-Draft                  ACE-OAuth                   October 2019
    issuing a successful response.  It is assumed that the AS has prior
    knowledge of the capabilities of the client and the RS (see
    Appendix D).  This prior knowledge may, for example, be set by the
-   use of a dynamic client registration protocol exchange [RFC7591].
+   use of a dynamic client registration protocol exchange [RFC7591].  If
+   the client has requested a specific proof-of-possession key using the
+   "req_cnf" parameter from [I-D.ietf-ace-oauth-params], this may also
+   influence which profile the AS selects, as it needs to support the
+   use of the key type requestedbo by the client.
 
    The content of the successful reply is the Access Information.  When
    using CBOR payloads, the content MUST be encoded as a CBOR map,
@@ -1391,16 +1395,16 @@ Internet-Draft                  ACE-OAuth                   October 2019
    that the AS MUST be able to use when responding to a request to the
    token endpoint.
 
-   Figure 8 summarizes the parameters that can currently be part of the
-   Access Information.  Future extensions may define additional
-   parameters.
 
 
-
-Seitz, et al.             Expires April 9, 2020                [Page 25]
+Seitz, et al.            Expires April 10, 2020                [Page 25]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   Figure 8 summarizes the parameters that can currently be part of the
+   Access Information.  Future extensions may define additional
+   parameters.
 
            /-------------------+-------------------------------\
            | Parameter name    | Specified in                  |
@@ -1428,6 +1432,32 @@ Internet-Draft                  ACE-OAuth                   October 2019
    assumptions should be made that it is unique in the domains of either
    the client or the RS.
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.            Expires April 10, 2020                [Page 26]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
+
    Header: Created (Code=2.01)
    Content-Format: "application/ace+cbor"
    Payload:
@@ -1448,15 +1478,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
        Figure 9: Example AS response with an access token bound to a
                               symmetric key.
-
-
-
-
-
-Seitz, et al.             Expires April 9, 2020                [Page 26]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
 
 5.6.3.  Error Response
 
@@ -1485,6 +1506,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
       abbreviated as specified in Figure 10, when a CBOR encoding is
       used.
 
+
+
+
+Seitz, et al.            Expires April 10, 2020                [Page 27]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
+
            /------------------------+-------------\
            | Name                   | CBOR Values |
            |------------------------+-------------|
@@ -1506,14 +1535,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    o  If the client submits an asymmetric key in the token request that
       the RS cannot process, the AS MUST reject that request with a
       response code equivalent to the CoAP code 4.00 (Bad Request)
-
-
-
-Seitz, et al.             Expires April 9, 2020                [Page 27]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
       including the error code "unsupported_pop_key" defined in
       Figure 10.
 
@@ -1535,6 +1556,19 @@ Internet-Draft                  ACE-OAuth                   October 2019
    The abbreviations specified in the registry defined in Section 8.4
    MUST be used in CBOR encodings instead of the string values defined
    in [RFC6749], if CBOR payloads are used.
+
+
+
+
+
+
+
+
+
+Seitz, et al.            Expires April 10, 2020                [Page 28]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
 
            /--------------------+------------+------------------------\
            | Name               | CBOR Value | Original Specification |
@@ -1562,14 +1596,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    abbreviations defined in the registry specified by Section 8.6, if a
    CBOR encoding is used.
 
-
-
-
-Seitz, et al.             Expires April 9, 2020                [Page 28]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
    In this framework the "pop" value for the "token_type" parameter is
    the default.  The AS may, however, provide a different value.
 
@@ -1590,6 +1616,15 @@ Internet-Draft                  ACE-OAuth                   October 2019
    Profiles MAY define additional parameters for both the token request
    and the Access Information in the access token response in order to
    support negotiation or signaling of profile specific parameters.
+
+
+
+
+
+Seitz, et al.            Expires April 10, 2020                [Page 29]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
 
    Clients that want the AS to provide them with the "profile" parameter
    in the access token response can indicate that by sending a profile
@@ -1621,7 +1656,28 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 29]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.            Expires April 10, 2020                [Page 30]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1677,7 +1733,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 30]
+Seitz, et al.            Expires April 10, 2020                [Page 31]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1712,10 +1768,9 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    For example, Figure 13 shows a RS calling the token introspection
    endpoint at the AS to query about an OAuth 2.0 proof-of-possession
-   token.  Note that object security based on OSCORE
-   [I-D.ietf-core-object-security] is assumed in this example, therefore
-   the Content-Format is "application/oscore".  Figure 14 shows the
-   decoded payload.
+   token.  Note that object security based on OSCORE [RFC8613] is
+   assumed in this example, therefore the Content-Format is
+   "application/oscore".  Figure 14 shows the decoded payload.
 
    Header: POST (Code=0.02)
    Uri-Host: "as.example.com"
@@ -1733,7 +1788,8 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 31]
+
+Seitz, et al.            Expires April 10, 2020                [Page 32]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1789,7 +1845,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 32]
+Seitz, et al.            Expires April 10, 2020                [Page 33]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1845,7 +1901,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 33]
+Seitz, et al.            Expires April 10, 2020                [Page 34]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1901,7 +1957,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 34]
+Seitz, et al.            Expires April 10, 2020                [Page 35]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -1957,7 +2013,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 35]
+Seitz, et al.            Expires April 10, 2020                [Page 36]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2013,7 +2069,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 36]
+Seitz, et al.            Expires April 10, 2020                [Page 37]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2069,7 +2125,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 37]
+Seitz, et al.            Expires April 10, 2020                [Page 38]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2125,7 +2181,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 38]
+Seitz, et al.            Expires April 10, 2020                [Page 39]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2181,7 +2237,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 39]
+Seitz, et al.            Expires April 10, 2020                [Page 40]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2237,7 +2293,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 40]
+Seitz, et al.            Expires April 10, 2020                [Page 41]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2293,7 +2349,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 41]
+Seitz, et al.            Expires April 10, 2020                [Page 42]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2349,7 +2405,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 42]
+Seitz, et al.            Expires April 10, 2020                [Page 43]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2405,7 +2461,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 43]
+Seitz, et al.            Expires April 10, 2020                [Page 44]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2461,7 +2517,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 44]
+Seitz, et al.            Expires April 10, 2020                [Page 45]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2517,7 +2573,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 45]
+Seitz, et al.            Expires April 10, 2020                [Page 46]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2573,7 +2629,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 46]
+Seitz, et al.            Expires April 10, 2020                [Page 47]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2629,7 +2685,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 47]
+Seitz, et al.            Expires April 10, 2020                [Page 48]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2685,7 +2741,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 48]
+Seitz, et al.            Expires April 10, 2020                [Page 49]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2741,7 +2797,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 49]
+Seitz, et al.            Expires April 10, 2020                [Page 50]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2797,7 +2853,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 50]
+Seitz, et al.            Expires April 10, 2020                [Page 51]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2853,7 +2909,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 51]
+Seitz, et al.            Expires April 10, 2020                [Page 52]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2909,7 +2965,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 52]
+Seitz, et al.            Expires April 10, 2020                [Page 53]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -2965,7 +3021,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 53]
+Seitz, et al.            Expires April 10, 2020                [Page 54]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3021,7 +3077,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 54]
+Seitz, et al.            Expires April 10, 2020                [Page 55]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3077,7 +3133,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 55]
+Seitz, et al.            Expires April 10, 2020                [Page 56]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3133,7 +3189,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 56]
+Seitz, et al.            Expires April 10, 2020                [Page 57]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3189,7 +3245,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 57]
+Seitz, et al.            Expires April 10, 2020                [Page 58]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3218,12 +3274,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
               Key as OAuth client credentials", draft-erdtman-ace-
               rpcc-02 (work in progress), October 2017.
 
-   [I-D.ietf-core-object-security]
-              Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
-              "Object Security for Constrained RESTful Environments
-              (OSCORE)", draft-ietf-core-object-security-16 (work in
-              progress), March 2019.
-
    [I-D.ietf-oauth-device-flow]
               Denniss, W., Bradley, J., Jones, M., and H. Tschofenig,
               "OAuth 2.0 Device Authorization Grant", draft-ietf-oauth-
@@ -3240,16 +3290,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
               1.3", draft-ietf-tls-dtls13-32 (work in progress), July
               2019.
 
-
-
-
-
-
-Seitz, et al.             Expires April 9, 2020                [Page 58]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
    [Margi10impact]
               Margi, C., de Oliveira, B., de Sousa, G., Simplicio Jr,
               M., Barreto, P., Carvalho, T., Naeslund, M., and R. Gold,
@@ -3257,6 +3297,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
               (Security) Applications and Testbeds", Proceedings of
               the 19th International Conference on Computer
               Communications and Networks (ICCCN), August 2010.
+
+
+
+
+Seitz, et al.            Expires April 10, 2020                [Page 59]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
 
    [MQTT5.0]  Banks, A., Briggs, E., Borgendale, K., and R. Gupta, "MQTT
               Version 5.0", OASIS Standard, March 2019,
@@ -3299,17 +3347,20 @@ Internet-Draft                  ACE-OAuth                   October 2019
               and Authorization Grants", RFC 7521, DOI 10.17487/RFC7521,
               May 2015, <https://www.rfc-editor.org/info/rfc7521>.
 
-
-
-Seitz, et al.             Expires April 9, 2020                [Page 59]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
    [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
               Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
               DOI 10.17487/RFC7540, May 2015,
               <https://www.rfc-editor.org/info/rfc7540>.
+
+
+
+
+
+
+Seitz, et al.            Expires April 10, 2020                [Page 60]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
 
    [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
@@ -3355,9 +3406,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
               DOI 10.17487/RFC8516, January 2019,
               <https://www.rfc-editor.org/info/rfc8516>.
 
+   [RFC8613]  Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
+              "Object Security for Constrained RESTful Environments
+              (OSCORE)", RFC 8613, DOI 10.17487/RFC8613, July 2019,
+              <https://www.rfc-editor.org/info/rfc8613>.
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 60]
+
+Seitz, et al.            Expires April 10, 2020                [Page 61]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3413,7 +3469,7 @@ Appendix A.  Design Justification
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 61]
+Seitz, et al.            Expires April 10, 2020                [Page 62]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3469,7 +3525,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 62]
+Seitz, et al.            Expires April 10, 2020                [Page 63]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3525,7 +3581,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 63]
+Seitz, et al.            Expires April 10, 2020                [Page 64]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3581,7 +3637,7 @@ Appendix B.  Roles and Responsibilities
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 64]
+Seitz, et al.            Expires April 10, 2020                [Page 65]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3637,7 +3693,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 65]
+Seitz, et al.            Expires April 10, 2020                [Page 66]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3693,7 +3749,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 66]
+Seitz, et al.            Expires April 10, 2020                [Page 67]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3749,7 +3805,7 @@ Appendix D.  Assumptions on AS knowledge about C and RS
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 67]
+Seitz, et al.            Expires April 10, 2020                [Page 68]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3805,7 +3861,7 @@ E.1.  Local Token Validation
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 68]
+Seitz, et al.            Expires April 10, 2020                [Page 69]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3861,7 +3917,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 69]
+Seitz, et al.            Expires April 10, 2020                [Page 70]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3917,7 +3973,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 70]
+Seitz, et al.            Expires April 10, 2020                [Page 71]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -3973,7 +4029,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 71]
+Seitz, et al.            Expires April 10, 2020                [Page 72]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4029,7 +4085,7 @@ E.2.  Introspection Aided Token Validation
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 72]
+Seitz, et al.            Expires April 10, 2020                [Page 73]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4085,7 +4141,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 73]
+Seitz, et al.            Expires April 10, 2020                [Page 74]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4141,7 +4197,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 74]
+Seitz, et al.            Expires April 10, 2020                [Page 75]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4197,7 +4253,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 75]
+Seitz, et al.            Expires April 10, 2020                [Page 76]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4253,7 +4309,7 @@ F.3.  Version -19 to 20
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 76]
+Seitz, et al.            Expires April 10, 2020                [Page 77]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4309,7 +4365,7 @@ F.6.  Version -16 to -17
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 77]
+Seitz, et al.            Expires April 10, 2020                [Page 78]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4365,7 +4421,7 @@ F.11.  Version -11 to -12
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 78]
+Seitz, et al.            Expires April 10, 2020                [Page 79]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4421,7 +4477,7 @@ F.15.  Version -07 to -08
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 79]
+Seitz, et al.            Expires April 10, 2020                [Page 80]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4477,7 +4533,7 @@ F.20.  Version -02 to -03
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 80]
+Seitz, et al.            Expires April 10, 2020                [Page 81]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4533,7 +4589,7 @@ F.22.  Version -00 to -01
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 81]
+Seitz, et al.            Expires April 10, 2020                [Page 82]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4589,7 +4645,7 @@ Authors' Addresses
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 82]
+Seitz, et al.            Expires April 10, 2020                [Page 83]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
@@ -4645,4 +4701,4 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
 
 
-Seitz, et al.             Expires April 9, 2020                [Page 83]
+Seitz, et al.            Expires April 10, 2020                [Page 84]
