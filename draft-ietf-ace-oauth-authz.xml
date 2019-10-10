@@ -1223,7 +1223,7 @@ Payload:
    proof-of-possession key using the "req_cnf" parameter from
    <xref target="I-D.ietf-ace-oauth-params"/>, this may also influence which
    profile the AS selects, as it needs to support the use of the key type
-   requestedbo by the client.</t>
+   requested the client.</t>
 
     <t>The content of the successful reply is the Access Information. 
 	When using CBOR payloads, the content MUST be
@@ -1897,7 +1897,7 @@ Payload:
 					 Information Endpoint">
     <t>As this framework can be used in RESTful environments, it is important
     to make sure that attackers cannot perform unauthorized requests on the
-    auth-info endpoints, other than submitting access tokens.</t>
+    authz-info endpoints, other than submitting access tokens.</t>
 
     <t>Specifically it SHOULD NOT be possible to perform GET, DELETE or
     PUT on the authz-info endpoint and on it's children (if any).</t>
@@ -2259,10 +2259,13 @@ Payload:
 	<t>Second, an attacker could use the fact that an RS performs
 	introspection to perform a denial of service attack against that RS by
 	repeatedly sending tokens to its authz-info endpoint that require an
-	introspection call. RS can mitigate such attacks by implementing a rate
-	limit on how many introspection requests they perform in a given time
-	interval and rejecting incoming requests to authz-info for a certain
-	amount of time, when that rate limit has been reached.</t>
+	introspection call. RS can mitigate such attacks by implementing rate
+	limits on how many introspection requests they perform in a given time
+	interval for a certain client IP address submitting tokens to
+	/authz-info.  When that limit has been reached, incoming requests from
+	that address are rejected for a certain	amount of time.  A general rate
+	limit on the introspection requests should also be considered, to
+	mitigate distributed attacks.</t>
 	
       </section>
 </section>
@@ -3455,7 +3458,7 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
   Client    Server
     |         |
     |<=======>| DTLS Connection Establishment
-    |         |   and mutual autentication
+    |         |   and mutual authentication
     |         |
 A:  +-------->| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
@@ -3729,7 +3732,7 @@ Response-Payload:
 	DTLS client.
         </t>
 
-        <t>E: The AS provides the introspection response (2.05 Conent)
+        <t>E: The AS provides the introspection response (2.05 Content)
 	containing parameters about the token.  This includes the confirmation
 	key (cnf) parameter that allows the RS to verify the client's proof of
 	possession in step F. Note that our example in <xref

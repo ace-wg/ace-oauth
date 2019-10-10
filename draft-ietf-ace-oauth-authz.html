@@ -1140,7 +1140,7 @@ Payload:
 <a href="#rfc.section.5.6.2">5.6.2.</a> <a href="#tokenResponse" id="tokenResponse">AS-to-Client Response</a>
 </h1>
 <p id="rfc.section.5.6.2.p.1">If the access token request has been successfully verified by the AS and the client is authorized to obtain an access token corresponding to its access token request, the AS sends a response with the response code equivalent to the CoAP response code 2.01 (Created).  If client request was invalid, or not authorized, the AS returns an error response as described in <a href="#errorsToken" class="xref">Section 5.6.3</a>.</p>
-<p id="rfc.section.5.6.2.p.2">Note that the AS decides which token type and profile to use when issuing a successful response.  It is assumed that the AS has prior knowledge of the capabilities of the client and the RS (see <a href="#app:registration" class="xref">Appendix D</a>).  This prior knowledge may, for example, be set by the use of a dynamic client registration protocol exchange <a href="#RFC7591" class="xref">[RFC7591]</a>.  If the client has requested a specific proof-of-possession key using the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>, this may also influence which profile the AS selects, as it needs to support the use of the key type requestedbo by the client.</p>
+<p id="rfc.section.5.6.2.p.2">Note that the AS decides which token type and profile to use when issuing a successful response.  It is assumed that the AS has prior knowledge of the capabilities of the client and the RS (see <a href="#app:registration" class="xref">Appendix D</a>).  This prior knowledge may, for example, be set by the use of a dynamic client registration protocol exchange <a href="#RFC7591" class="xref">[RFC7591]</a>.  If the client has requested a specific proof-of-possession key using the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>, this may also influence which profile the AS selects, as it needs to support the use of the key type requested the client.</p>
 <p id="rfc.section.5.6.2.p.3">The content of the successful reply is the Access Information.  When using CBOR payloads, the content MUST be encoded as a CBOR map, containing parameters as specified in Section 5.1 of <a href="#RFC6749" class="xref">[RFC6749]</a>, with the following additions and changes: </p>
 
 <dl>
@@ -1491,7 +1491,7 @@ Payload:
 <h1 id="rfc.section.5.8.1.2">
 <a href="#rfc.section.5.8.1.2">5.8.1.2.</a> <a href="#protAuthzInfo" id="protAuthzInfo">Protecting the Authorization       Information Endpoint</a>
 </h1>
-<p id="rfc.section.5.8.1.2.p.1">As this framework can be used in RESTful environments, it is important to make sure that attackers cannot perform unauthorized requests on the auth-info endpoints, other than submitting access tokens.</p>
+<p id="rfc.section.5.8.1.2.p.1">As this framework can be used in RESTful environments, it is important to make sure that attackers cannot perform unauthorized requests on the authz-info endpoints, other than submitting access tokens.</p>
 <p id="rfc.section.5.8.1.2.p.2">Specifically it SHOULD NOT be possible to perform GET, DELETE or PUT on the authz-info endpoint and on it's children (if any).</p>
 <p id="rfc.section.5.8.1.2.p.3">The POST method SHOULD NOT be allowed on children of the authz-info endpoint.</p>
 <p id="rfc.section.5.8.1.2.p.4">The RS SHOULD implement rate limiting measures to mitigate attacks aiming to overload the processing capacity of the RS by repeatedly submitting tokens. For CoAP-based communication the RS could use the mechanisms from <a href="#RFC8516" class="xref">[RFC8516]</a> to indicate that it is overloaded.</p>
@@ -1586,7 +1586,7 @@ Payload:
 </h1>
 <p id="rfc.section.6.7.p.1">The optional introspection mechanism provided by OAuth and supported in the ACE framework allows for two types of attacks that need to be considered by implementers.</p>
 <p id="rfc.section.6.7.p.2">First, an attacker could perform a denial of service attack against the introspection endpoint at the AS in order to prevent validation of access tokens.  To maintain the security of the system, an RS that is configured to use introspection MUST NOT allow access based on a token for which it couldn't reach the introspection endpoint.</p>
-<p id="rfc.section.6.7.p.3">Second, an attacker could use the fact that an RS performs introspection to perform a denial of service attack against that RS by repeatedly sending tokens to its authz-info endpoint that require an introspection call. RS can mitigate such attacks by implementing a rate limit on how many introspection requests they perform in a given time interval and rejecting incoming requests to authz-info for a certain amount of time, when that rate limit has been reached.</p>
+<p id="rfc.section.6.7.p.3">Second, an attacker could use the fact that an RS performs introspection to perform a denial of service attack against that RS by repeatedly sending tokens to its authz-info endpoint that require an introspection call. RS can mitigate such attacks by implementing rate limits on how many introspection requests they perform in a given time interval for a certain client IP address submitting tokens to /authz-info.  When that limit has been reached, incoming requests from that address are rejected for a certain	amount of time.  A general rate limit on the introspection requests should also be considered, to mitigate distributed attacks.</p>
 <h1 id="rfc.section.7">
 <a href="#rfc.section.7">7.</a> <a href="#privacy" id="privacy">Privacy Considerations</a>
 </h1>
@@ -2426,7 +2426,7 @@ Payload:
   Client    Server
     |         |
     |&lt;=======&gt;| DTLS Connection Establishment
-    |         |   and mutual autentication
+    |         |   and mutual authentication
     |         |
 A:  +--------&gt;| Header: POST (Code=0.02)
     |  POST   | Uri-Path:"token"
@@ -2668,7 +2668,7 @@ Response-Payload:
 <dt></dt>
 <dd style="margin-left: 8">D: The RS sends the token to the introspection endpoint on the AS using a CoAP POST request.  In this example RS and AS are assumed to have performed mutual authentication using a pre shared security context (psk, rpk or certificate) with the RS acting as DTLS client.  </dd>
 <dt></dt>
-<dd style="margin-left: 8">E: The AS provides the introspection response (2.05 Conent) containing parameters about the token.  This includes the confirmation key (cnf) parameter that allows the RS to verify the client's proof of possession in step F. Note that our example in <a href="#fig:cOfflineIntroReq" class="xref">Figure 25</a>	assumes a pre-established key (e.g. one used by the client and the RS for a previous token) that is now only referenced by its key-identifier 'kid'.  </dd>
+<dd style="margin-left: 8">E: The AS provides the introspection response (2.05 Content) containing parameters about the token.  This includes the confirmation key (cnf) parameter that allows the RS to verify the client's proof of possession in step F. Note that our example in <a href="#fig:cOfflineIntroReq" class="xref">Figure 25</a>	assumes a pre-established key (e.g. one used by the client and the RS for a previous token) that is now only referenced by its key-identifier 'kid'.  </dd>
 <dt></dt>
 <dd style="margin-left: 8">After receiving message E, the RS responds to the client's POST in step C with the CoAP response code 2.01 (Created).</dd>
 <dt></dt>

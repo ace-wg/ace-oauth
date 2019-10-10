@@ -1369,7 +1369,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
    the client has requested a specific proof-of-possession key using the
    "req_cnf" parameter from [I-D.ietf-ace-oauth-params], this may also
    influence which profile the AS selects, as it needs to support the
-   use of the key type requestedbo by the client.
+   use of the key type requested the client.
 
    The content of the successful reply is the Access Information.  When
    using CBOR payloads, the content MUST be encoded as a CBOR map,
@@ -2152,7 +2152,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    As this framework can be used in RESTful environments, it is
    important to make sure that attackers cannot perform unauthorized
-   requests on the auth-info endpoints, other than submitting access
+   requests on the authz-info endpoints, other than submitting access
    tokens.
 
    Specifically it SHOULD NOT be possible to perform GET, DELETE or PUT
@@ -2557,19 +2557,19 @@ Internet-Draft                  ACE-OAuth                   October 2019
    introspection to perform a denial of service attack against that RS
    by repeatedly sending tokens to its authz-info endpoint that require
    an introspection call.  RS can mitigate such attacks by implementing
-   a rate limit on how many introspection requests they perform in a
-   given time interval and rejecting incoming requests to authz-info for
-   a certain amount of time, when that rate limit has been reached.
+   rate limits on how many introspection requests they perform in a
+   given time interval for a certain client IP address submitting tokens
+   to /authz-info.  When that limit has been reached, incoming requests
+   from that address are rejected for a certain amount of time.  A
+   general rate limit on the introspection requests should also be
+   considered, to mitigate distributed attacks.
 
 7.  Privacy Considerations
 
    Implementers and users should be aware of the privacy implications of
    the different possible deployments of this framework.
 
-   The AS is in a very central position and can potentially learn
-   sensitive information about the clients requesting access tokens.  If
-   the client credentials grant is used, the AS can track what kind of
-   access the client intends to perform.  With other grants this can be
+
 
 
 
@@ -2578,6 +2578,10 @@ Seitz, et al.            Expires April 12, 2020                [Page 46]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   The AS is in a very central position and can potentially learn
+   sensitive information about the clients requesting access tokens.  If
+   the client credentials grant is used, the AS can track what kind of
+   access the client intends to perform.  With other grants this can be
    prevented by the Resource Owner.  To do so, the resource owner needs
    to bind the grants it issues to anonymous, ephemeral credentials that
    do not allow the AS to link different grants and thus different
@@ -2622,10 +2626,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    Name  The name of the parameter
 
-   CBOR Key  CBOR map key for the parameter.  Different ranges of values
-      use different registration policies [RFC8126].  Integer values
-      from -256 to 255 are designated as Standards Action.  Integer
-      values from -65536 to -257 and from 256 to 65535 are designated as
 
 
 
@@ -2634,6 +2634,10 @@ Seitz, et al.            Expires April 12, 2020                [Page 47]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   CBOR Key  CBOR map key for the parameter.  Different ranges of values
+      use different registration policies [RFC8126].  Integer values
+      from -256 to 255 are designated as Standards Action.  Integer
+      values from -65536 to -257 and from 256 to 65535 are designated as
       Specification Required.  Integer values greater than 65535 are
       designated as Expert Review.  Integer values less than -65536 are
       marked as Private Use.
@@ -2678,10 +2682,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    CBOR Value  CBOR abbreviation for this error code.  Integer values
       less than -65536 are marked as "Private Use", all other values use
       the registration policy "Expert Review" [RFC8126].
-   Reference  This contains a pointer to the public specification of the
-      grant type abbreviation, if one exists.
-
-
 
 
 
@@ -2689,6 +2689,9 @@ Seitz, et al.            Expires April 12, 2020                [Page 48]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   Reference  This contains a pointer to the public specification of the
+      grant type abbreviation, if one exists.
 
    This registry will be initially populated by the values in Figure 10.
    The Reference column for all of these entries will be this document.
@@ -2736,9 +2739,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    The columns of this registry are:
 
-   Name  The name of token type as registered in the OAuth Access Token
-      Types registry, e.g., "Bearer".
-
 
 
 Seitz, et al.            Expires April 12, 2020                [Page 49]
@@ -2746,6 +2746,8 @@ Seitz, et al.            Expires April 12, 2020                [Page 49]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   Name  The name of token type as registered in the OAuth Access Token
+      Types registry, e.g., "Bearer".
    CBOR Value  CBOR abbreviation for this token type.  Integer values
       less than -65536 are marked as "Private Use", all other values use
       the registration policy "Expert Review" [RFC8126].
@@ -2792,8 +2794,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    This registry will be initially empty and will be populated by the
    registrations from the ACE framework profiles.
-
-
 
 
 
@@ -3874,7 +3874,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
      Client    Server
        |         |
        |<=======>| DTLS Connection Establishment
-       |         |   and mutual autentication
+       |         |   and mutual authentication
        |         |
    A:  +-------->| Header: POST (Code=0.02)
        |  POST   | Uri-Path:"token"
@@ -4209,7 +4209,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
       to have performed mutual authentication using a pre shared
       security context (psk, rpk or certificate) with the RS acting as
       DTLS client.
-      E: The AS provides the introspection response (2.05 Conent)
+      E: The AS provides the introspection response (2.05 Content)
       containing parameters about the token.  This includes the
       confirmation key (cnf) parameter that allows the RS to verify the
       client's proof of possession in step F.  Note that our example in
