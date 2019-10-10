@@ -2532,12 +2532,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
    Even the client must be able to determine the correct values to put
    into the "audience" parameter, in order to obtain a token for the
    intended RS.  Errors in this process can lead to the client
-   inadvertently communicating with the wrong RS.  The correct values
+   inadvertently obtaining a token for the wrong RS.  The correct values
    for "audience" can either be provisioned to the client as part of its
-   configuration, or provided by the RS as part of the "AS Request
-   Creation Hints" Section 5.1.2 or dynamically looked up by the client
-   in some directory.  In the latter case the integrity and correctness
-   of the directory data must be assured.
+   configuration, or dynamically looked up by the client in some
+   directory.  In the latter case the integrity and correctness of the
+   directory data must be assured.  Note that the "audience" hint
+   provided by the RS as part of the "AS Request Creation Hints"
+   Section 5.1.2 is not typically source authenticated and integrity
+   protected, and should therefore not be treated a trusted value.
 
 6.7.  Denial of service against or with Introspection
 
@@ -2568,8 +2570,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    sensitive information about the clients requesting access tokens.  If
    the client credentials grant is used, the AS can track what kind of
    access the client intends to perform.  With other grants this can be
-   prevented by the Resource Owner.  To do so, the resource owner needs
-   to bind the grants it issues to anonymous, ephemeral credentials that
 
 
 
@@ -2578,6 +2578,8 @@ Seitz, et al.            Expires April 12, 2020                [Page 46]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   prevented by the Resource Owner.  To do so, the resource owner needs
+   to bind the grants it issues to anonymous, ephemeral credentials that
    do not allow the AS to link different grants and thus different
    access token requests by the same client.
 
@@ -2624,8 +2626,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
       use different registration policies [RFC8126].  Integer values
       from -256 to 255 are designated as Standards Action.  Integer
       values from -65536 to -257 and from 256 to 65535 are designated as
-      Specification Required.  Integer values greater than 65535 are
-
 
 
 
@@ -2634,6 +2634,7 @@ Seitz, et al.            Expires April 12, 2020                [Page 47]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+      Specification Required.  Integer values greater than 65535 are
       designated as Expert Review.  Integer values less than -65536 are
       marked as Private Use.
 
@@ -2680,8 +2681,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
    Reference  This contains a pointer to the public specification of the
       grant type abbreviation, if one exists.
 
-   This registry will be initially populated by the values in Figure 10.
-   The Reference column for all of these entries will be this document.
+
 
 
 
@@ -2689,6 +2689,9 @@ Seitz, et al.            Expires April 12, 2020                [Page 48]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   This registry will be initially populated by the values in Figure 10.
+   The Reference column for all of these entries will be this document.
 
 8.4.  OAuth Grant Type CBOR Mappings
 
@@ -2735,9 +2738,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    Name  The name of token type as registered in the OAuth Access Token
       Types registry, e.g., "Bearer".
-   CBOR Value  CBOR abbreviation for this token type.  Integer values
-      less than -65536 are marked as "Private Use", all other values use
-      the registration policy "Expert Review" [RFC8126].
 
 
 
@@ -2746,6 +2746,9 @@ Seitz, et al.            Expires April 12, 2020                [Page 49]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   CBOR Value  CBOR abbreviation for this token type.  Integer values
+      less than -65536 are marked as "Private Use", all other values use
+      the registration policy "Expert Review" [RFC8126].
    Reference  This contains a pointer to the public specification of the
       OAuth token type abbreviation, if one exists.
    Original Specification  This contains a pointer to the public
@@ -2789,9 +2792,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    This registry will be initially empty and will be populated by the
    registrations from the ACE framework profiles.
-
-
-
 
 
 
