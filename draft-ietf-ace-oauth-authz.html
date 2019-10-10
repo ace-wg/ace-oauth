@@ -1149,7 +1149,7 @@ Payload:
 <br> OPTIONAL unless the request included an empty profile parameter in which case it is MANDATORY.  This indicates the profile that the client MUST use	towards the RS. See <a href="#paramProfile" class="xref">Section 5.6.4.3</a> for the formatting of this parameter.  If this parameter is absent, the AS assumes that the client implicitly knows which profile to use towards the RS.</dd>
 <dt>token_type:</dt>
 <dd style="margin-left: 8">
-<br> This parameter is OPTIONAL, as opposed to 'required' in <a href="#RFC6749" class="xref">[RFC6749]</a>. By default implementations of this framework SHOULD assume that the token_type is "pop".  If a specific use case requires another token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.  </dd>
+<br> This parameter is OPTIONAL, as opposed to 'required' in <a href="#RFC6749" class="xref">[RFC6749]</a>. By default implementations of this framework SHOULD assume that the token_type is "PoP".  If a specific use case requires another token_type (e.g., "Bearer") to be used then this parameter is REQUIRED.  </dd>
 </dl>
 
 <p> </p>
@@ -1261,7 +1261,7 @@ Payload:
 <a href="#rfc.section.5.6.4.2">5.6.4.2.</a> <a href="#paramTokenType" id="paramTokenType">Token Type</a>
 </h1>
 <p id="rfc.section.5.6.4.2.p.1">The "token_type" parameter, defined in section 5.1 of <a href="#RFC6749" class="xref">[RFC6749]</a>, allows the AS to indicate to the client which type of access token it is receiving (e.g., a bearer token). </p>
-<p id="rfc.section.5.6.4.2.p.2">This document registers the new value "pop" for the OAuth Access Token Types registry,  specifying a proof-of-possession token.  How the proof-of-possession by the client to the RS is performed MUST be specified by the profiles.</p>
+<p id="rfc.section.5.6.4.2.p.2">This document registers the new value "PoP" for the OAuth Access Token Types registry,  specifying a proof-of-possession token.  How the proof-of-possession by the client to the RS is performed MUST be specified by the profiles.</p>
 <p id="rfc.section.5.6.4.2.p.3">The values in the "token_type" parameter MUST use the CBOR abbreviations defined in the registry specified by <a href="#IANATokenTypeMappings" class="xref">Section 8.6</a>, if a CBOR encoding is used. </p>
 <p id="rfc.section.5.6.4.2.p.4">In this framework the "pop" value for the "token_type" parameter is the default. The AS may, however, provide a different value.</p>
 <h1 id="rfc.section.5.6.4.3">
@@ -1342,7 +1342,7 @@ Payload:
 <pre>
 {
   "token" : b64'7gj0dXJQ43U',
-  "token_type_hint" : "pop"
+  "token_type_hint" : "PoP"
 }
        </pre>
 <p class="figure">Figure 14: Decoded payload.</p>
@@ -1520,7 +1520,7 @@ Payload:
 <h1 id="rfc.section.5.8.4">
 <a href="#rfc.section.5.8.4">5.8.4.</a> <a href="#keyExpiration" id="keyExpiration">Key Expiration</a>
 </h1>
-<p id="rfc.section.5.8.4.p.1">The AS provides the client with key material that the RS uses. This can either be a common symmetric pop-key, or an asymmetric key used by the RS to authenticate towards the client.  Since there is no metadata associated to those keys, the client has no way of knowing if these keys are still valid.  This may lead to situations where the client sends requests containing sensitive information to the RS using a key that is expired and possibly in the hands of an attacker, or accepts responses from the RS that are not properly protected and could possibly have been forged by an attacker.  </p>
+<p id="rfc.section.5.8.4.p.1">The AS provides the client with key material that the RS uses. This can either be a common symmetric PoP-key, or an asymmetric key used by the RS to authenticate towards the client.  Since there is no metadata associated to those keys, the client has no way of knowing if these keys are still valid.  This may lead to situations where the client sends requests containing sensitive information to the RS using a key that is expired and possibly in the hands of an attacker, or accepts responses from the RS that are not properly protected and could possibly have been forged by an attacker.  </p>
 <p id="rfc.section.5.8.4.p.2">In order to prevent this, the client must assume that those keys are only valid as long as the related access token is.  Since the access token is opaque to the client, one of the following methods MUST be used to inform the client about the validity of an access token: </p>
 
 <ul>
@@ -1620,7 +1620,7 @@ Payload:
 <h1 id="rfc.section.8.2">
 <a href="#rfc.section.8.2">8.2.</a> <a href="#IANAOAuthErrorCodes" id="IANAOAuthErrorCodes">OAuth Extensions Error Registration</a>
 </h1>
-<p id="rfc.section.8.2.p.1">This specification registers the following error values in the OAuth Extensions Error registry defined in <a href="#RFC6749" class="xref">[RFC6749]</a>.</p>
+<p id="rfc.section.8.2.p.1">This specification registers the following error values in the OAuth Extensions Error registry <a href="#IANA.OAuthExtensionsErrorRegistry" class="xref">[IANA.OAuthExtensionsErrorRegistry]</a>.</p>
 <p></p>
 
 <ul>
@@ -1721,7 +1721,7 @@ Payload:
 <p></p>
 
 <ul>
-<li>Name: <samp>pop</samp>
+<li>Name: <samp>PoP</samp>
 </li>
 <li>Value: 2</li>
 <li>Reference: [this document]</li>
@@ -1981,6 +1981,11 @@ Payload:
 <td class="reference"><b id="IANA.OAuthAccessTokenTypes">[IANA.OAuthAccessTokenTypes]</b></td>
 <td class="top">
 <a>IANA</a>, "<a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#token-types">OAuth Access Token Types</a>"</td>
+</tr>
+<tr>
+<td class="reference"><b id="IANA.OAuthExtensionsErrorRegistry">[IANA.OAuthExtensionsErrorRegistry]</b></td>
+<td class="top">
+<a>IANA</a>, "<a href="https://www.iana.org/assignments/oauth-parameters/oauth-parameters.xhtml#extensions-error">OAuth Extensions Error Registry</a>"</td>
 </tr>
 <tr>
 <td class="reference"><b id="IANA.OAuthParameters">[IANA.OAuthParameters]</b></td>
@@ -2934,7 +2939,7 @@ F:  |&lt;--------+ Header: 2.04 Changed
 <li>Added CBOR abbreviations for error and the error codes defined in OAuth2.</li>
 <li>Added clarification about token expiration and long-running requests in <a href="#tokenExpiration" class="xref">Section 5.8.3</a>
 </li>
-<li>Added security considerations about tokens with symmetric pop keys valid for more than one RS.</li>
+<li>Added security considerations about tokens with symmetric PoP keys valid for more than one RS.</li>
 <li>Added privacy considerations section.</li>
 <li>Added IANA registry mapping the confirmation types from RFC 7800 to equivalent COSE types.</li>
 <li>Added appendix D, describing assumptions about what the AS knows about the client and the RS.</li>
