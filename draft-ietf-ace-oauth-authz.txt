@@ -2455,9 +2455,9 @@ Internet-Draft                  ACE-OAuth                   October 2019
    There may be use cases were different profiles of this framework are
    combined.  For example, an MQTT-TLS profile is used between the
    client and the RS in combination with a CoAP-DTLS profile for
-   interactions between the client and the AS.  Ideally, profiles should
-   be designed in a way that the security of system should not depend on
-
+   interactions between the client and the AS.  The security of a
+   profile MUST NOT depend on the assumption that the profile is used
+   for all the different types of interactions in this framework.
 
 
 
@@ -2465,9 +2465,6 @@ Seitz, et al.            Expires April 12, 2020                [Page 44]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
-
-   the specific security mechanisms used in individual protocol
-   interactions.
 
 6.5.  Unprotected Information
 
@@ -2513,7 +2510,10 @@ Internet-Draft                  ACE-OAuth                   October 2019
    used this framework RECOMMENDS to apply the procedure from section 3
    of [RFC6920].
 
-
+   If the audience addresses a group of resource servers, the mapping of
+   group identifier to individual RS has to be provisioned to each RS
+   before the group-audience is usable.  Managing dynamic groups could
+   be an issue, if any RS is not always reachable when the groups'
 
 
 
@@ -2522,10 +2522,6 @@ Seitz, et al.            Expires April 12, 2020                [Page 45]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-   If the audience addresses a group of resource servers, the mapping of
-   group identifier to individual RS has to be provisioned to each RS
-   before the group-audience is usable.  Managing dynamic groups could
-   be an issue, if any RS is not always reachable when the groups'
    memberships change.  Furthermore, issuing access tokens bound to
    symmetric proof-of-possession keys that apply to a group-audience is
    problematic, as an RS that is in possession of the access token can
@@ -2570,6 +2566,10 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    The AS is in a very central position and can potentially learn
    sensitive information about the clients requesting access tokens.  If
+   the client credentials grant is used, the AS can track what kind of
+   access the client intends to perform.  With other grants this can be
+   prevented by the Resource Owner.  To do so, the resource owner needs
+   to bind the grants it issues to anonymous, ephemeral credentials that
 
 
 
@@ -2578,10 +2578,6 @@ Seitz, et al.            Expires April 12, 2020                [Page 46]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-   the client credentials grant is used, the AS can track what kind of
-   access the client intends to perform.  With other grants this can be
-   prevented by the Resource Owner.  To do so, the resource owner needs
-   to bind the grants it issues to anonymous, ephemeral credentials that
    do not allow the AS to link different grants and thus different
    access token requests by the same client.
 
@@ -2626,6 +2622,10 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    CBOR Key  CBOR map key for the parameter.  Different ranges of values
       use different registration policies [RFC8126].  Integer values
+      from -256 to 255 are designated as Standards Action.  Integer
+      values from -65536 to -257 and from 256 to 65535 are designated as
+      Specification Required.  Integer values greater than 65535 are
+
 
 
 
@@ -2634,9 +2634,6 @@ Seitz, et al.            Expires April 12, 2020                [Page 47]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-      from -256 to 255 are designated as Standards Action.  Integer
-      values from -65536 to -257 and from 256 to 65535 are designated as
-      Specification Required.  Integer values greater than 65535 are
       designated as Expert Review.  Integer values less than -65536 are
       marked as Private Use.
 
@@ -2683,15 +2680,15 @@ Internet-Draft                  ACE-OAuth                   October 2019
    Reference  This contains a pointer to the public specification of the
       grant type abbreviation, if one exists.
 
+   This registry will be initially populated by the values in Figure 10.
+   The Reference column for all of these entries will be this document.
+
 
 
 Seitz, et al.            Expires April 12, 2020                [Page 48]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
-
-   This registry will be initially populated by the values in Figure 10.
-   The Reference column for all of these entries will be this document.
 
 8.4.  OAuth Grant Type CBOR Mappings
 
@@ -2738,6 +2735,9 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    Name  The name of token type as registered in the OAuth Access Token
       Types registry, e.g., "Bearer".
+   CBOR Value  CBOR abbreviation for this token type.  Integer values
+      less than -65536 are marked as "Private Use", all other values use
+      the registration policy "Expert Review" [RFC8126].
 
 
 
@@ -2746,9 +2746,6 @@ Seitz, et al.            Expires April 12, 2020                [Page 49]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-   CBOR Value  CBOR abbreviation for this token type.  Integer values
-      less than -65536 are marked as "Private Use", all other values use
-      the registration policy "Expert Review" [RFC8126].
    Reference  This contains a pointer to the public specification of the
       OAuth token type abbreviation, if one exists.
    Original Specification  This contains a pointer to the public
@@ -2792,6 +2789,9 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    This registry will be initially empty and will be populated by the
    registrations from the ACE framework profiles.
+
+
+
 
 
 
