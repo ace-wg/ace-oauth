@@ -830,10 +830,10 @@ Internet-Draft                  ACE-OAuth                   October 2019
    between AS and client when requesting an access token; between client
    and RS when accessing a resource and between AS and RS if
    introspection is used.  In constrained settings TLS is not always
-   feasible, or desirable.  Nevertheless it is REQUIRED that the data
-   exchanged with the AS is encrypted, integrity protected and protected
-   against message replay.  It is also REQUIRED that the AS and the
-   endpoint communicating with it (client or RS) perform mutual
+   feasible, or desirable.  Nevertheless it is REQUIRED that the
+   communications named above are encrypted, integrity protected and
+   protected against message replay.  It is also REQUIRED that the
+   communicating endpoints perform mutual authentication.  Furthermore
 
 
 
@@ -842,10 +842,12 @@ Seitz, et al.            Expires April 16, 2020                [Page 15]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
-   authentication.  Furthermore it MUST be assured that responses are
-   bound to the requests in the sense that the receiver of a response
-   can be certain that the response actually belongs to a certain
-   request.
+   it MUST be assured that responses are bound to the requests in the
+   sense that the receiver of a response can be certain that the
+   response actually belongs to a certain request.  Note that setting up
+   such a secure communication may require some unprotected messages to
+   be exchanged first (e.g. sending the token from the client to the
+   RS).
 
    Profiles MUST specify a communication security protocol that provides
    the features required above.
@@ -856,11 +858,12 @@ Internet-Draft                  ACE-OAuth                   October 2019
    REQUIRED to use of the following alternative instead of Uri-query
    parameters: The sender (client or RS) encodes the parameters of its
    request as a CBOR map and submits that map as the payload of the POST
-   request.  Profiles that use CBOR encoding of protocol message
-   parameters at the outermost encoding layer MUST use the media format
-   'application/ace+cbor'.  If CoAP is used for communication, the
-   Content-Format MUST be abbreviated with the ID: 19 (see
-   Section 8.15).
+   request.
+
+   Profiles that use CBOR encoding of protocol message parameters at the
+   outermost encoding layer MUST use the media format 'application/
+   ace+cbor'.  If CoAP is used for communication, the Content-Format
+   MUST be abbreviated with the ID: 19 (see Section 8.15).
 
    The OAuth 2.0 AS uses a JSON structure in the payload of its
    responses both to client and RS.  If CoAP is used, it is REQUIRED to
@@ -888,15 +891,15 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    o  The request has been received on an unprotected channel.
 
-   o  The RS has no valid access token for the sender of the request
-      regarding the requested action on that resource.
-
 
 
 Seitz, et al.            Expires April 16, 2020                [Page 16]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   o  The RS has no valid access token for the sender of the request
+      regarding the requested action on that resource.
 
    o  The RS has a valid access token for the sender of the request, but
       that token does not authorize the requested action on the
@@ -942,9 +945,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    o  A "cnonce" element containing a client-nonce.  See
       Section 5.1.2.1.
 
-   o  A "scope" element containing the suggested scope that the client
-      should request towards the AS.
-
 
 
 
@@ -953,6 +953,9 @@ Seitz, et al.            Expires April 16, 2020                [Page 17]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   o  A "scope" element containing the suggested scope that the client
+      should request towards the AS.
 
    Figure 2 summarizes the parameters that may be part of the AS Request
    Creation Hints.
@@ -999,9 +1002,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    time scale common between RS and AS (e.g., wall clock time).
    Therefore, it has included a parameter "nonce" (see Section 5.1.2.1).
 
-   Figure 4 illustrates the mandatory to use binary encoding of the
-   message payload shown in Figure 3.
-
 
 
 
@@ -1009,6 +1009,9 @@ Seitz, et al.            Expires April 16, 2020                [Page 18]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   Figure 4 illustrates the mandatory to use binary encoding of the
+   message payload shown in Figure 3.
 
    a4                                   # map(4)
       01                                # unsigned(1) (=AS)
@@ -1054,10 +1057,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
       parameter, it MUST include this value in the access token, using
       the "cnonce" claim specified in Section 5.8.
 
-   o  A RS that is using the client-nonce mechanism and that receives an
-      access token MUST verify that this token contains a cnonce claim,
-      with a client-nonce value that is fresh according to the
-      information stored at the first step above.  If the cnonce claim
+
 
 
 
@@ -1066,6 +1066,10 @@ Seitz, et al.            Expires April 16, 2020                [Page 19]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   o  A RS that is using the client-nonce mechanism and that receives an
+      access token MUST verify that this token contains a cnonce claim,
+      with a client-nonce value that is fresh according to the
+      information stored at the first step above.  If the cnonce claim
       is not present or if the cnonce claim value is not fresh, the RS
       MUST discard the access token.  If this was an interaction with
       the authz-info endpoint the RS MUST also respond with an error
@@ -1091,8 +1095,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
    resource owner, but does not have any display or has very limited
    interaction possibilities, it is recommended to use the device code
    grant defined in [I-D.ietf-oauth-device-flow].  In cases where the
-   client does not acts autonomously the client credentials grant is
-   recommended.
+   client acts autonomously the client credentials grant is recommended.
 
    For details on the different grant types, see section 1.3 of
    [RFC6749].  The OAuth 2.0 framework provides an extension mechanism
@@ -1111,9 +1114,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    The OAuth framework defines one client credential type in section
    2.3.1 of [RFC6749]: client id and client secret.
-   [I-D.erdtman-ace-rpcc] adds raw-public-key and pre-shared-key to the
-   client credentials types.  Profiles of this framework MAY extend with
-   an additional client credentials type using client certificates.
 
 
 
@@ -1121,6 +1121,10 @@ Seitz, et al.            Expires April 16, 2020                [Page 20]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   [I-D.erdtman-ace-rpcc] adds raw-public-key and pre-shared-key to the
+   client credentials types.  Profiles of this framework MAY extend with
+   an additional client credentials type using client certificates.
 
 5.4.  AS Authentication
 
@@ -1165,10 +1169,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    For the AS to be able to issue a token, the client MUST be
    authenticated and present a valid grant for the scopes requested.
-   Profiles of this framework MUST specify how the AS authenticates the
-   client and how the communication between client and AS is protected.
-
-
 
 
 
@@ -1177,6 +1177,9 @@ Seitz, et al.            Expires April 16, 2020                [Page 21]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   Profiles of this framework MUST specify how the AS authenticates the
+   client and how the communication between client and AS is protected.
 
    The default name of this endpoint in an url-path is '/token', however
    implementations are not required to use this name and can define
@@ -1223,9 +1226,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    The default behavior, is that the AS generates a symmetric proof-of-
    possession key for the client.  In order to use an asymmetric key
-   pair or to re-use a key previously established with the RS, the
-   client is supposed to use the "req_cnf" parameter from
-   [I-D.ietf-ace-oauth-params].
 
 
 
@@ -1233,6 +1233,10 @@ Seitz, et al.            Expires April 16, 2020                [Page 22]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   pair or to re-use a key previously established with the RS, the
+   client is supposed to use the "req_cnf" parameter from
+   [I-D.ietf-ace-oauth-params].
 
    If CBOR is used then these parameters MUST be encoded as a CBOR map.
 
@@ -1270,10 +1274,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    example the audience is implicitly known by both client and AS.
    Furthermore note that this example uses the "req_cnf" parameter from
    [I-D.ietf-ace-oauth-params].
-
-
-
-
 
 
 

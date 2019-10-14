@@ -771,15 +771,16 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
 
   <t>OAuth 2.0 requires the use of TLS both to protect the communication
   between AS and client when requesting an access token; between client and RS
-  when accessing a resource and between AS and RS
-  if introspection is used.  In constrained settings TLS is not always feasible,
-  or desirable.  Nevertheless it is REQUIRED that the
-  data exchanged with the AS is encrypted, integrity protected and protected
-  against message replay.  It is also REQUIRED that the AS and the
-  endpoint communicating with it (client or RS) perform mutual authentication.
+  when accessing a resource and between AS and RS if introspection is used.
+  In constrained settings TLS is not always feasible, or desirable.
+  Nevertheless it is REQUIRED that the communications named above are
+  encrypted, integrity protected and protected against message replay.  It is
+  also REQUIRED that the communicating endpoints perform mutual authentication.
   Furthermore it MUST be assured that responses are bound to the requests in
   the sense that the receiver of a response can be certain that the response
-  actually belongs to a certain request.</t>
+  actually belongs to a certain request.  Note that setting up such a secure
+  communication may require some unprotected messages to be exchanged first
+  (e.g. sending the token from the client to the RS).</t>
 
   <t>Profiles MUST specify a communication security protocol that provides
   the features required above.</t>
@@ -789,8 +790,9 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
   parameters.  When profiles of this framework use CoAP instead, it is 
   REQUIRED to use of the following alternative instead of Uri-query
   parameters: The sender (client or RS) encodes the parameters of its request
-  as a CBOR map and submits that map as the payload  of the POST request.
-  Profiles that use CBOR encoding of protocol message parameters at the
+  as a CBOR map and submits that map as the payload  of the POST request.</t>
+
+  <t>Profiles that use CBOR encoding of protocol message parameters at the
   outermost encoding layer MUST use the media format 'application/ace+cbor'.
   If CoAP is used for communication, the Content-Format MUST be abbreviated
   with the ID: 19 (see <xref target="IANAcoapContentFormat"/>).</t>
@@ -993,7 +995,7 @@ a4                                   # map(4)
   but does not have any display or has very limited interaction possibilities, it is
   recommended to use the device code grant defined in
   <xref target="I-D.ietf-oauth-device-flow"/>.  In cases where the client
-  does not acts autonomously the client credentials grant is recommended.</t>
+  acts autonomously the client credentials grant is recommended.</t>
 
   <t>For details on the different grant types, see section 1.3 of <xref
   target="RFC6749"/>. The OAuth 2.0 framework provides an extension
