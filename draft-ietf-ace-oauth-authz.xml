@@ -326,7 +326,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
   </t>
 
   <t>A fourth building block is the CBOR-based secure message format
-  COSE <xref target="RFC8152"/>, which enables application layer
+  COSE <xref target="RFC8152"/>, which enables object-level layer
   security as an alternative or complement to transport layer security (DTLS
     <xref target="RFC6347"/> or TLS <xref target="RFC8446"/>). COSE is used to
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
@@ -763,7 +763,7 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
         specific interactions between client and RS are defined in an ACE
         profile.  In ACE framework the AS is expected to manage the matching
 	of compatible profile choices between a client and an RS.  The AS
-	informs the client of the selected profile using the "profile"
+	informs the client of the selected profile using the "ace_profile"
 	parameter in the token response.
       </t>
     </list>
@@ -1085,9 +1085,9 @@ a4                                   # map(4)
       <t>The "scope" parameter MAY be encoded as a byte string instead of
       the string encoding specified in section 3.3 of <xref target="RFC6749"/>,
       in order allow compact encoding of complex scopes.</t>
-      <t>The client can send an empty (null value) "profile" parameter to
-      indicate that it wants the AS to include the "profile" parameter in the
-      response.  See <xref target="paramProfile"/>.</t>
+      <t>The client can send an empty (null value) "ace_profile" parameter to
+      indicate that it wants the AS to include the "ace_profile" parameter in
+      the response.  See <xref target="paramProfile"/>.</t>
       <t>A client MUST be able to use the parameters from <xref
       target="I-D.ietf-ace-oauth-params"/> in an access token request to the
       token endpoint and the AS MUST be able to process these additional
@@ -1231,8 +1231,8 @@ Payload:
     <xref target="RFC6749"/>, with the following additions and changes:
 
     <list style="hanging">
-	<t hangText="profile:"><vspace blankLines="0"/>
-	OPTIONAL unless the request included an empty profile parameter
+	<t hangText="ace_profile:"><vspace blankLines="0"/>
+	OPTIONAL unless the request included an empty ace_profile parameter
 	in which case it is MANDATORY.  This indicates the profile that the
 	client MUST use	towards the RS. See <xref target="paramProfile"/> for
 	the formatting of this parameter.  If this parameter is absent, the AS
@@ -1272,7 +1272,7 @@ Payload:
         | error             |  RFC 6749                     |
         | error_description |  RFC 6749                     |
         | error_uri         |  RFC 6749                     |
-        | profile           | [this document]               |
+        | ace_profile       | [this document]               |
         | cnf               | [ID-ietf-ace-oauth-params]    |
         | rs_cnf            | [ID-ietf-ace-oauth-params]    |
         \-------------------+-------------------------------/
@@ -1298,7 +1298,7 @@ Payload:
   "access_token" : b64'SlAV32hkKG ...
    (remainder of CWT omitted for brevity;
    CWT contains COSE_Key in the "cnf" claim)',
-  "profile" : "coap_dtls",
+  "ace_profile" : "coap_dtls",
   "expires_in" : "3600",
   "cnf" : {
     "COSE_Key" : {
@@ -1431,18 +1431,18 @@ Payload:
       methods, if they support proof-of-possession tokens.</t>
 
       <t>A profile MUST specify an identifier that MUST be used to uniquely
-      identify itself in the "profile" parameter. The textual representation
-      of the profile identifier is just intended for human readability and MUST
-      NOT be used in parameters and claims.</t>
+      identify itself in the "ace_profile" parameter. The textual
+      representation of the profile identifier is just intended for human
+      readability and MUST NOT be used in parameters and claims.</t>
 
       <t>Profiles MAY define additional parameters for both the token request
       and the Access Information in the access token response in order to
       support negotiation or signaling of profile specific parameters.
       </t>
 
-      <t>Clients that want the AS to provide them with the "profile" parameter
-      in the access token response can indicate that by sending a profile
-      parameter with a null value in the access token request.</t>
+      <t>Clients that want the AS to provide them with the "ace_profile"
+      parameter in the access token response can indicate that by sending a
+      ace_profile parameter with a null value in the access token request.</t>
     </section>
 
     <section anchor="cnonceParamToken" title="Client-Nonce">
@@ -1492,7 +1492,7 @@ Payload:
         | username          | 35       | text string         |
         | password          | 36       | text string         |
         | refresh_token     | 37       | byte string         | 
-        | profile           | 38       | unsigned integer    |
+        | ace_profile       | 38       | unsigned integer    |
         | cnonce            | 39       | byte string         |
         \-------------------+----------+---------------------/
       ]]></artwork>
@@ -1591,7 +1591,7 @@ Payload:
     addition:
 
     <list style="hanging">
-        <t hangText="profile">
+        <t hangText="ace_profile">
 	OPTIONAL.  This indicates the profile that the RS MUST use with the
 	client.  See <xref target="paramProfile"/> for more details on the
 	formatting of this parameter.</t>
@@ -1627,7 +1627,7 @@ Payload:
 {
   "active" : true,
   "scope" : "read",
-  "profile" : "coap_dtls",
+  "ace_profile" : "coap_dtls",
   "cnf" : {
     "COSE_Key" : {
       "kty" : "Symmetric",
@@ -1714,7 +1714,7 @@ Payload:
     | token_type_hint   | 33       | text string             |
     | token_type        | 34       | text string             |
     | username          | 35       | text string             |    
-    | profile           | 38       | unsigned integer        |
+    | ace_profile       | 38       | unsigned integer        |
     | cnonce            | 39       | byte string             |
     | exi               | 40       | unsigned integer        |
     \-------------------+----------+-------------------------/
@@ -1737,9 +1737,9 @@ Payload:
   CWT-encoded tokens.</t>
 
   <t>If the AS needs to convey a hint to the RS about which profile it
-  should use to communicate with the client, the AS MAY include a "profile"
-  claim in the access token, with the same syntax and semantics as defined in
-  <xref target="paramProfile"/>.</t>
+  should use to communicate with the client, the AS MAY include an
+  "ace_profile" claim in the access token, with the same syntax and semantics
+  as defined in <xref target="paramProfile"/>.</t>
 
   <t>If the client submitted a client-nonce parameter in the access token
   request <xref target="cnonceParamToken"/>, the AS MUST include the value of
@@ -2552,7 +2552,7 @@ Payload:
     Parameters" registry <xref target="IANA.OAuthParameters"/>:</t>
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
-      <t>Name: <spanx style="verb">profile</spanx></t>
+      <t>Name: <spanx style="verb">ace_profile</spanx></t>
       <t>Parameter Usage Location: token response</t>
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="paramProfile"/> of [this document]</t>
@@ -2596,7 +2596,7 @@ Payload:
     <t>
       <?rfc subcompact="yes"?>
       <list style='symbols'>
-        <t>Name: <spanx style="verb">profile</spanx></t>
+        <t>Name: <spanx style="verb">ace_profile</spanx></t>
         <t>Description: The communication and communication security
 	profile used between client and RS, as defined in ACE profiles.</t>
         <t>Change Controller: IESG</t>
@@ -2646,7 +2646,7 @@ Payload:
    
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
-      <t>Claim Name: <spanx style="verb">profile</spanx></t>
+      <t>Claim Name: <spanx style="verb">ace_profile</spanx></t>
       <t>Claim Description: The profile a token is supposed to be used
       with.</t>
       <t>Change Controller: IESG</t>
@@ -2695,10 +2695,10 @@ Payload:
     
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
-      <t>Claim Name: <spanx style="verb">profile</spanx></t>
+      <t>Claim Name: <spanx style="verb">ace_profile</spanx></t>
       <t>Claim Description: The profile a token is supposed to be used
       with.</t>
-      <t>JWT Claim Name: profile</t>
+      <t>JWT Claim Name: ace_profile</t>
       <t>Claim Key: TBD (suggested: 38)</t>
       <t>Claim Value Type(s): integer</t>
       <t>Change Controller: IESG</t>
@@ -3365,7 +3365,8 @@ Payload:
     (e.g., symmetric/asymmetric) are supported by a specific proof-of-possession
     protocol. <xref target="paramTokenType"/></t>
 
-    <t>Specify a unique profile identifier. <xref target="paramProfile"/></t>
+    <t>Specify a unique ace_profile identifier. <xref
+    target="paramProfile"/></t>
 
     <t>If introspection is supported: Specify the communication and security
     protocol for introspection. <xref target="introspectionEndpoint"/></t>
