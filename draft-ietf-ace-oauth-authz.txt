@@ -128,7 +128,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
      6.4.  Unprotected AS Request Creation Hints . . . . . . . . . .  44
      6.5.  Minimal security requirements        for communication  .  44
      6.6.  Token Freshness and Expiration  . . . . . . . . . . . . .  45
-     6.7.  Combining profiles  . . . . . . . . . . . . . . . . . . .  45
+     6.7.  Combining profiles  . . . . . . . . . . . . . . . . . . .  46
      6.8.  Unprotected Information . . . . . . . . . . . . . . . . .  46
      6.9.  Identifying audiences . . . . . . . . . . . . . . . . . .  46
      6.10. Denial of service against or with      Introspection  . .  47
@@ -2360,6 +2360,15 @@ Internet-Draft                  ACE-OAuth                   October 2019
    When authorization servers bind symmetric keys to access tokens, they
    SHOULD scope these access tokens to a specific permission.
 
+   In certain situations it may be necessary to revoke an access token
+   that is still valid.  Client-initiated revocation is specified in
+   [RFC7009] for OAuth 2.0.  Other revocation mechanisms are currently
+   not specified, as the underlying assumption in OAuth is that access
+   tokens are issued with a relatively short lifetime.  This may not
+   hold true for disconnected constrained devices, needing access tokens
+   with relatively long lifetimes, and would therefore necessitate
+   further standardization work that is out of scope for this document.
+
 6.2.  Communication Security
 
    The authorization server MUST offer confidentiality protection for
@@ -2385,7 +2394,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
 6.3.  Long-Term Credentials
 
    Both clients and RSs have long-term credentials that are used to
-   secure comunications, and authenticate to the AS.  These credentials
+   secure communications, and authenticate to the AS.  These credentials
    need to be protected against unauthorized access.  In constrained
    devices, deployed in publicly accessible places, such protection can
    be difficult to achieve without specialized hardware (e.g. secure key
@@ -2393,6 +2402,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    If credentials are lost or compromised, the operator of the affected
    devices needs to have procedures to invalidate any access these
+
+
+
+Seitz, et al.            Expires April 17, 2020                [Page 43]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
+
    credentials give and to revoke tokens linked to such credentials.
    The loss of a credential linked to a specific device MUST NOT lead to
    a compromise of other credentials not linked to that device,
@@ -2402,13 +2419,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    Operators of clients or RS should have procedures in place to replace
    credentials that are suspected to have been compromised or that have
    been lost.
-
-
-
-Seitz, et al.            Expires April 17, 2020                [Page 43]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
 
    Operators also need to have procedures for decommissioning devices,
    that include securely erasing credentials and other security critical
@@ -2448,6 +2458,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
       from the AS to the RS MUST be bound to the RS's request.  This
       requires that the RS and the Authorization Server have previously
       exchanged either a shared secret, or their public keys in order to
+
+
+
+Seitz, et al.            Expires April 17, 2020                [Page 44]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
+
       negotiate a secure communication.  Furthermore the RS MUST be able
       to determine whether an AS has the authority to issue access
       tokens itself.  This is usually configured out of band, but could
@@ -2458,14 +2476,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
       Server can not be secured in general, since the RS is not in
       possession of on access token for that client, which would carry
       the necessary parameters.  Certain security mechanisms (e.g.  DTLS
-
-
-
-Seitz, et al.            Expires April 17, 2020                [Page 44]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
       with server-side authentication via a certificate or a raw public
       key) can be possible and are RECOMMEND if supported by both
       parties.  After the client has successfully transmitted the access
@@ -2504,6 +2514,14 @@ Internet-Draft                  ACE-OAuth                   October 2019
    is storing.  The first drawback is inherent to the deployment
    scenario and the "exi" solution.  It can therefore not be mitigated
    without requiring the the RS be online at times.  The second drawback
+
+
+
+Seitz, et al.            Expires April 17, 2020                [Page 45]
+
+Internet-Draft                  ACE-OAuth                   October 2019
+
+
    can be mitigated by regularly storing the value of "exi" Counters to
    persistent memory.
 
@@ -2513,15 +2531,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    combined.  For example, an MQTT-TLS profile is used between the
    client and the RS in combination with a CoAP-DTLS profile for
    interactions between the client and the AS.  The security of a
-
-
-
-
-Seitz, et al.            Expires April 17, 2020                [Page 45]
-
-Internet-Draft                  ACE-OAuth                   October 2019
-
-
    profile MUST NOT depend on the assumption that the profile is used
    for all the different types of interactions in this framework.
 
@@ -2562,21 +2571,19 @@ Internet-Draft                  ACE-OAuth                   October 2019
    used.  This section attempts to give some general guidance for the
    use of audiences in constrained environments.
 
-   URLs are not a good way of identifying mobile devices that can switch
-   networks and thus be associated with new URLs.  If the audience
-   represents a single RS, and asymmetric keys are used, the RS can be
-   uniquely identified by a hash of its public key.  If this approach is
-   used this framework RECOMMENDS to apply the procedure from section 3
-   of [RFC6920].
-
-
-
 
 
 Seitz, et al.            Expires April 17, 2020                [Page 46]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   URLs are not a good way of identifying mobile devices that can switch
+   networks and thus be associated with new URLs.  If the audience
+   represents a single RS, and asymmetric keys are used, the RS can be
+   uniquely identified by a hash of its public key.  If this approach is
+   used this framework RECOMMENDS to apply the procedure from section 3
+   of [RFC6920].
 
    If the audience addresses a group of resource servers, the mapping of
    group identifier to individual RS has to be provisioned to each RS
@@ -2619,13 +2626,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    an introspection call.  RS can mitigate such attacks by implementing
    rate limits on how many introspection requests they perform in a
    given time interval for a certain client IP address submitting tokens
-   to /authz-info.  When that limit has been reached, incoming requests
-   from that address are rejected for a certain amount of time.  A
-   general rate limit on the introspection requests should also be
-   considered, to mitigate distributed attacks.
-
-
-
 
 
 
@@ -2633,6 +2633,11 @@ Seitz, et al.            Expires April 17, 2020                [Page 47]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   to /authz-info.  When that limit has been reached, incoming requests
+   from that address are rejected for a certain amount of time.  A
+   general rate limit on the introspection requests should also be
+   considered, to mitigate distributed attacks.
 
 7.  Privacy Considerations
 
@@ -2677,11 +2682,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
    detailed information may be included with an error response to
    provide C with sufficient information to react on that particular
    error.
-
-
-
-
-
 
 
 
@@ -3388,6 +3388,10 @@ Internet-Draft                  ACE-OAuth                   October 2019
               DOI 10.17487/RFC6819, January 2013,
               <https://www.rfc-editor.org/info/rfc6819>.
 
+   [RFC7009]  Lodderstedt, T., Ed., Dronia, S., and M. Scurtescu, "OAuth
+              2.0 Token Revocation", RFC 7009, DOI 10.17487/RFC7009,
+              August 2013, <https://www.rfc-editor.org/info/rfc7009>.
+
    [RFC7228]  Bormann, C., Ersue, M., and A. Keranen, "Terminology for
               Constrained-Node Networks", RFC 7228,
               DOI 10.17487/RFC7228, May 2014,
@@ -3403,10 +3407,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
               and Authorization Grants", RFC 7521, DOI 10.17487/RFC7521,
               May 2015, <https://www.rfc-editor.org/info/rfc7521>.
 
-   [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
-              Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
-              DOI 10.17487/RFC7540, May 2015,
-              <https://www.rfc-editor.org/info/rfc7540>.
 
 
 
@@ -3417,6 +3417,11 @@ Seitz, et al.            Expires April 17, 2020                [Page 61]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   [RFC7540]  Belshe, M., Peon, R., and M. Thomson, Ed., "Hypertext
+              Transfer Protocol Version 2 (HTTP/2)", RFC 7540,
+              DOI 10.17487/RFC7540, May 2015,
+              <https://www.rfc-editor.org/info/rfc7540>.
 
    [RFC7591]  Richer, J., Ed., Jones, M., Bradley, J., Machulak, M., and
               P. Hunt, "OAuth 2.0 Dynamic Client Registration Protocol",
@@ -3462,17 +3467,17 @@ Internet-Draft                  ACE-OAuth                   October 2019
               DOI 10.17487/RFC8516, January 2019,
               <https://www.rfc-editor.org/info/rfc8516>.
 
-   [RFC8613]  Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
-              "Object Security for Constrained RESTful Environments
-              (OSCORE)", RFC 8613, DOI 10.17487/RFC8613, July 2019,
-              <https://www.rfc-editor.org/info/rfc8613>.
-
 
 
 Seitz, et al.            Expires April 17, 2020                [Page 62]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   [RFC8613]  Selander, G., Mattsson, J., Palombini, F., and L. Seitz,
+              "Object Security for Constrained RESTful Environments
+              (OSCORE)", RFC 8613, DOI 10.17487/RFC8613, July 2019,
+              <https://www.rfc-editor.org/info/rfc8613>.
 
 Appendix A.  Design Justification
 
@@ -3516,12 +3521,7 @@ Appendix A.  Design Justification
       application-layer security.
    Small Amount of Memory:
 
-      Microcontrollers embedded in IoT devices are often equipped with
-      only a small amount of RAM and flash memory, which places
-      limitations on what kind of processing can be performed and how
-      much code can be put on those devices.  To reduce code size, fewer
-      and smaller protocol implementations can be put on the firmware of
-      such a device.  In this case, CoAP may be used instead of HTTP,
+
 
 
 
@@ -3530,6 +3530,12 @@ Seitz, et al.            Expires April 17, 2020                [Page 63]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+      Microcontrollers embedded in IoT devices are often equipped with
+      only a small amount of RAM and flash memory, which places
+      limitations on what kind of processing can be performed and how
+      much code can be put on those devices.  To reduce code size, fewer
+      and smaller protocol implementations can be put on the firmware of
+      such a device.  In this case, CoAP may be used instead of HTTP,
       symmetric-key cryptography instead of public-key cryptography, and
       CBOR instead of JSON.  An authentication and key establishment
       protocol, e.g., the DTLS handshake, in comparison with assisted
@@ -3572,12 +3578,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
    CBOR, COSE, CWT:
 
-      This framework RECOMMENDS the use of CBOR [RFC7049] as data
-      format.  Where CBOR data needs to be protected, the use of COSE
-      [RFC8152] is RECOMMENDED.  Furthermore, where self-contained
-      tokens are needed, this framework RECOMMENDS the use of CWT
-      [RFC8392].  These measures aim at reducing the size of messages
-      sent over the wire, the RAM size of data objects that need to be
 
 
 
@@ -3586,6 +3586,12 @@ Seitz, et al.            Expires April 17, 2020                [Page 64]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+      This framework RECOMMENDS the use of CBOR [RFC7049] as data
+      format.  Where CBOR data needs to be protected, the use of COSE
+      [RFC8152] is RECOMMENDED.  Furthermore, where self-contained
+      tokens are needed, this framework RECOMMENDS the use of CWT
+      [RFC8392].  These measures aim at reducing the size of messages
+      sent over the wire, the RAM size of data objects that need to be
       kept in memory and the size of libraries that devices need to
       support.
 
@@ -3628,12 +3634,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
       a RS by exposing a authz-info endpoint, to which access tokens can
       be POSTed.  This aims at reducing the size of the request message
       and the code complexity at the RS.  The size of the request
-      message is problematic, since many constrained protocols have
-      severe message size limitations at the physical layer (e.g., in
-      the order of 100 bytes).  This means that larger packets get
-      fragmented, which in turn combines badly with the high rate of
-      packet loss, and the need to retransmit the whole message if one
-
 
 
 
@@ -3642,6 +3642,11 @@ Seitz, et al.            Expires April 17, 2020                [Page 65]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+      message is problematic, since many constrained protocols have
+      severe message size limitations at the physical layer (e.g., in
+      the order of 100 bytes).  This means that larger packets get
+      fragmented, which in turn combines badly with the high rate of
+      packet loss, and the need to retransmit the whole message if one
       packet gets lost.  Thus separating sending of the request and
       sending of the access tokens helps to reduce fragmentation.
 
@@ -3686,11 +3691,6 @@ Appendix B.  Roles and Responsibilities
          has the necessary, up-to-date, access control policies for the
          RS.
 
-   Requesting Party
-
-      *  Make sure that the client is provisioned the necessary
-         credentials to authenticate to the AS.
-
 
 
 Seitz, et al.            Expires April 17, 2020                [Page 66]
@@ -3698,6 +3698,10 @@ Seitz, et al.            Expires April 17, 2020                [Page 66]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   Requesting Party
+
+      *  Make sure that the client is provisioned the necessary
+         credentials to authenticate to the AS.
       *  Make sure that the client is configured to follow the security
          requirements of the Requesting Party when issuing requests
          (e.g., minimum communication security requirements, trust
@@ -3740,11 +3744,7 @@ Internet-Draft                  ACE-OAuth                   October 2019
       *  Process the access token and Access Information (see step (B)
          of Figure 1).
 
-         +  Check that the Access Information provides the necessary
-            security parameters (e.g., PoP key, information on
-            communication security protocols supported by the RS).
-         +  Safely store the proof-of-possession key.
-         +  If provided by the AS: Safely store the refresh token.
+
 
 
 
@@ -3754,6 +3754,11 @@ Seitz, et al.            Expires April 17, 2020                [Page 67]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+         +  Check that the Access Information provides the necessary
+            security parameters (e.g., PoP key, information on
+            communication security protocols supported by the RS).
+         +  Safely store the proof-of-possession key.
+         +  If provided by the AS: Safely store the refresh token.
       *  Send the token and request to the RS (see step (C) of
          Figure 1).
 
@@ -3797,11 +3802,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
             the requested action.
          +  Optionally: Check that the matching tokens are still valid,
             using introspection (if this is possible.)
-      *  Send a response following the agreed upon communication
-         security mechanism(s).
-      *  Safely store credentials such as raw public keys for
-         authentication or proof-of-possession keys linked to access
-         tokens.
 
 
 
@@ -3809,6 +3809,12 @@ Seitz, et al.            Expires April 17, 2020                [Page 68]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+      *  Send a response following the agreed upon communication
+         security mechanism(s).
+      *  Safely store credentials such as raw public keys for
+         authentication or proof-of-possession keys linked to access
+         tokens.
 
 Appendix C.  Requirements on Profiles
 
@@ -3852,12 +3858,6 @@ Appendix D.  Assumptions on AS knowledge about C and RS
    token and introspection endpoints.  How this information is
    established is out of scope for this document.
 
-   o  The identifier of the client or RS.
-   o  The profiles that the client or RS supports.
-   o  The scopes that the RS supports.
-   o  The audiences that the RS identifies with.
-   o  The key types (e.g., pre-shared symmetric key, raw public key, key
-      length, other key parameters) that the client or RS supports.
 
 
 
@@ -3866,6 +3866,12 @@ Seitz, et al.            Expires April 17, 2020                [Page 69]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+   o  The identifier of the client or RS.
+   o  The profiles that the client or RS supports.
+   o  The scopes that the RS supports.
+   o  The audiences that the RS identifies with.
+   o  The key types (e.g., pre-shared symmetric key, raw public key, key
+      length, other key parameters) that the client or RS supports.
    o  The types of access tokens the RS supports (e.g., CWT).
    o  If the RS supports CWTs, the COSE parameters for the crypto
       wrapper (e.g., algorithm, key-wrap algorithm, key-length) that the
@@ -3909,12 +3915,6 @@ E.1.  Local Token Validation
    authorization server and a temperature sensor acting as a resource
    server.  Message exchanges A and B are shown in Figure 17.
 
-      A: The client first generates a public-private key pair used for
-      communication security with the RS.
-      The client sends a CoAP POST request to the token endpoint at the
-      AS.  The security of this request can be transport or application
-      layer.  It is up the the communication security profile to define.
-
 
 
 Seitz, et al.            Expires April 17, 2020                [Page 70]
@@ -3922,6 +3922,11 @@ Seitz, et al.            Expires April 17, 2020                [Page 70]
 Internet-Draft                  ACE-OAuth                   October 2019
 
 
+      A: The client first generates a public-private key pair used for
+      communication security with the RS.
+      The client sends a CoAP POST request to the token endpoint at the
+      AS.  The security of this request can be transport or application
+      layer.  It is up the the communication security profile to define.
       In the example it is assumed that both client and AS have
       performed mutual authentication e.g. via DTLS.  The request
       contains the public key of the client and the Audience parameter
@@ -3965,11 +3970,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
 
       Figure 17: Token Request and Response Using Client Credentials.
 
-   The information contained in the Request-Payload and the Response-
-   Payload is shown in Figure 18 Note that the parameter "rs_cnf" from
-   [I-D.ietf-ace-oauth-params] is used to inform the client about the
-   resource server's public key.
-
 
 
 
@@ -3977,6 +3977,11 @@ Seitz, et al.            Expires April 17, 2020                [Page 71]
 
 Internet-Draft                  ACE-OAuth                   October 2019
 
+
+   The information contained in the Request-Payload and the Response-
+   Payload is shown in Figure 18 Note that the parameter "rs_cnf" from
+   [I-D.ietf-ace-oauth-params] is used to inform the client about the
+   resource server's public key.
 
    Request-Payload :
    {
@@ -4010,11 +4015,6 @@ Internet-Draft                  ACE-OAuth                   October 2019
              Figure 18: Request and Response Payload Details.
 
    The content of the access token is shown in Figure 19.
-
-
-
-
-
 
 
 
