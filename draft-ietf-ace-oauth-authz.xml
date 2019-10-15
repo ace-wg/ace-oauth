@@ -2047,6 +2047,11 @@ Payload:
   deployments as well.  If the introspection endpoint is used,
   the security considerations from <xref target="RFC7662"/> also apply.</t>
 
+  <t>The following subsections address issues specific to this document and
+  it's use in constrained environments.</t>
+  
+      <section anchor="tokenProtection"
+	       title="Protecting Tokens">
       <t>A large range of threats can be mitigated by protecting the contents
       of the access token by using a digital signature or a keyed message
       digest (MAC) or an Authenticated Encryption with Associated Data (AEAD)
@@ -2074,6 +2079,20 @@ Payload:
       is NOT RECOMMENDED since the benefit from using the proof-of-possession
       concept is then significantly reduced.</t>
 
+     <t>If clients are capable of doing so, they should frequently request
+      fresh access tokens, as this allows the AS to keep the lifetime of the
+      tokens short. This allows the AS to use shorter proof-of-possession key
+      sizes, which translate to a performance benefit for the client and for
+      the resource server.  Shorter keys also lead to shorter messages
+      (particularly with asymmetric keying material).</t>
+
+      <t>When authorization servers bind symmetric keys to access tokens,
+      they SHOULD scope these access tokens to a specific permission.</t>
+      
+    </section><!--token protection-->
+
+    <section anchor="commSec" title="Communication Security">
+      
       <t>The authorization server MUST offer confidentiality protection for
       any interactions with the client.  This step is extremely important
       since the client may obtain the proof-of-possession key from the
@@ -2094,15 +2113,32 @@ Payload:
       be mitigated to some extent by making sure that keys are refreshed
       more frequently.</t>
 
-      <t>If clients are capable of doing so, they should frequently request
-      fresh access tokens, as this allows the AS to keep the lifetime of the
-      tokens short. This allows the AS to use shorter proof-of-possession key
-      sizes, which translate to a performance benefit for the client and for
-      the resource server.  Shorter keys also lead to shorter messages
-      (particularly with asymmetric keying material).</t>
+    </section>
 
-      <t>When authorization servers bind symmetric keys to access tokens,
-      they SHOULD scope these access tokens to a specific permission.</t>
+    <section anchor="keys" title="Long-Term Credentials">
+      <t>Both clients and RSs have long-term credentials that are used to
+      secure comunications, and authenticate to the AS.  These credentials
+      need to be protected against unauthorized access.  In constrained
+      devices, deployed in publicly accessible places, such protection can
+      be difficult to achieve without specialized hardware (e.g. secure
+      key storage memory).</t>
+
+      <t>If credentials are lost or compromised, the operator of the affected
+      devices needs to have procedures to invalidate any access these
+      credentials give and to revoke tokens linked to such credentials.  The
+      loss of a credential linked to a specific device MUST NOT lead to a
+      compromise of other credentials not linked to that device, therefore
+      sharing secret keys between more than two parties is NOT RECOMMENDED.</t>
+
+      <t>Operators of clients or RS should have procedures in place to
+      replace credentials that are suspected to have been compromised or that
+      have been lost.</t>
+
+      <t>Operators also need to have procedures for decommissioning devices,
+      that include securely erasing credentials and other security critical
+      material in the devices being decommissioned.</t>
+    </section>
+ 
 
       <section anchor="unprotected-as-information"
 	       title="Unprotected AS Request Creation Hints">

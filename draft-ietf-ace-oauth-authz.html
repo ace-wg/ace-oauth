@@ -412,13 +412,16 @@
 <link href="#rfc.section.5.8.3" rel="Chapter" title="5.8.3 Token Expiration">
 <link href="#rfc.section.5.8.4" rel="Chapter" title="5.8.4 Key Expiration">
 <link href="#rfc.section.6" rel="Chapter" title="6 Security Considerations">
-<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Unprotected AS Request Creation Hints">
-<link href="#rfc.section.6.2" rel="Chapter" title="6.2 Minimal security requirements        for communication">
-<link href="#rfc.section.6.3" rel="Chapter" title="6.3 Token Freshness and Expiration">
-<link href="#rfc.section.6.4" rel="Chapter" title="6.4 Combining profiles">
-<link href="#rfc.section.6.5" rel="Chapter" title="6.5 Unprotected Information">
-<link href="#rfc.section.6.6" rel="Chapter" title="6.6 Identifying audiences">
-<link href="#rfc.section.6.7" rel="Chapter" title="6.7 Denial of service against or with      Introspection">
+<link href="#rfc.section.6.1" rel="Chapter" title="6.1 Protecting Tokens">
+<link href="#rfc.section.6.2" rel="Chapter" title="6.2 Communication Security">
+<link href="#rfc.section.6.3" rel="Chapter" title="6.3 Long-Term Credentials">
+<link href="#rfc.section.6.4" rel="Chapter" title="6.4 Unprotected AS Request Creation Hints">
+<link href="#rfc.section.6.5" rel="Chapter" title="6.5 Minimal security requirements        for communication">
+<link href="#rfc.section.6.6" rel="Chapter" title="6.6 Token Freshness and Expiration">
+<link href="#rfc.section.6.7" rel="Chapter" title="6.7 Combining profiles">
+<link href="#rfc.section.6.8" rel="Chapter" title="6.8 Unprotected Information">
+<link href="#rfc.section.6.9" rel="Chapter" title="6.9 Identifying audiences">
+<link href="#rfc.section.6.10" rel="Chapter" title="6.10 Denial of service against or with      Introspection">
 <link href="#rfc.section.7" rel="Chapter" title="7 Privacy Considerations">
 <link href="#rfc.section.8" rel="Chapter" title="8 IANA Considerations">
 <link href="#rfc.section.8.1" rel="Chapter" title="8.1 ACE Authorization Server Request Creation Hints">
@@ -480,7 +483,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-24" />
-  <meta name="dct.issued" scheme="ISO8601" content="2019-14" />
+  <meta name="dct.issued" scheme="ISO8601" content="2019-15" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on a set of building blocks including OAuth 2.0 and CoAP, thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
 
@@ -504,7 +507,7 @@
 <td class="right">G. Selander</td>
 </tr>
 <tr>
-<td class="left">Expires: April 16, 2020</td>
+<td class="left">Expires: April 17, 2020</td>
 <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -533,7 +536,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">October 14, 2019</td>
+<td class="right">October 15, 2019</td>
 </tr>
 
     	
@@ -549,7 +552,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on April 16, 2020.</p>
+<p>This Internet-Draft will expire on April 17, 2020.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2019 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -635,19 +638,25 @@
 </li>
 </ul></ul><li>6.   <a href="#rfc.section.6">Security Considerations</a>
 </li>
-<ul><li>6.1.   <a href="#rfc.section.6.1">Unprotected AS Request Creation Hints</a>
+<ul><li>6.1.   <a href="#rfc.section.6.1">Protecting Tokens</a>
 </li>
-<li>6.2.   <a href="#rfc.section.6.2">Minimal security requirements        for communication</a>
+<li>6.2.   <a href="#rfc.section.6.2">Communication Security</a>
 </li>
-<li>6.3.   <a href="#rfc.section.6.3">Token Freshness and Expiration</a>
+<li>6.3.   <a href="#rfc.section.6.3">Long-Term Credentials</a>
 </li>
-<li>6.4.   <a href="#rfc.section.6.4">Combining profiles</a>
+<li>6.4.   <a href="#rfc.section.6.4">Unprotected AS Request Creation Hints</a>
 </li>
-<li>6.5.   <a href="#rfc.section.6.5">Unprotected Information</a>
+<li>6.5.   <a href="#rfc.section.6.5">Minimal security requirements        for communication</a>
 </li>
-<li>6.6.   <a href="#rfc.section.6.6">Identifying audiences</a>
+<li>6.6.   <a href="#rfc.section.6.6">Token Freshness and Expiration</a>
 </li>
-<li>6.7.   <a href="#rfc.section.6.7">Denial of service against or with      Introspection</a>
+<li>6.7.   <a href="#rfc.section.6.7">Combining profiles</a>
+</li>
+<li>6.8.   <a href="#rfc.section.6.8">Unprotected Information</a>
+</li>
+<li>6.9.   <a href="#rfc.section.6.9">Identifying audiences</a>
+</li>
+<li>6.10.   <a href="#rfc.section.6.10">Denial of service against or with      Introspection</a>
 </li>
 </ul><li>7.   <a href="#rfc.section.7">Privacy Considerations</a>
 </li>
@@ -1053,7 +1062,7 @@ a4                                   # map(4)
 </h1>
 <p id="rfc.section.5.6.p.1">In standard OAuth 2.0, the AS provides the token endpoint for submitting access token requests.  This framework extends the functionality of the token endpoint, giving the AS the possibility to help the client and RS to establish shared keys or to exchange their public keys.  Furthermore, this framework defines encodings using CBOR, as a substitute for JSON.</p>
 <p id="rfc.section.5.6.p.2">The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports.  A profile MUST define the details of the mapping between the fields described below, and these transports.  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Section 4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described below MUST be followed.</p>
-<p id="rfc.section.5.6.p.3">For the AS to be able to issue a token, the client MUST be authenticated and present a valid grant for the scopes requested.  Profiles of this framework MUST specify how the AS authenticates the client and how the communication between client and AS is protected, fulfilling the requirements specified in <a href="#oauthProfile" class="xref">Section 5</a> .</p>
+<p id="rfc.section.5.6.p.3">For the AS to be able to issue a token, the client MUST be authenticated and present a valid grant for the scopes requested.  Profiles of this framework MUST specify how the AS authenticates the client and how the communication between client and AS is protected, fulfilling the requirements specified in <a href="#oauthProfile" class="xref">Section 5</a>.</p>
 <p id="rfc.section.5.6.p.4">The default name of this endpoint in an url-path is '/token', however implementations are not required to use this name and can define their own instead.</p>
 <p id="rfc.section.5.6.p.5">The figures of this section use CBOR diagnostic notation without the integer abbreviations for the parameters or their values for illustrative purposes. Note that implementations MUST use the integer abbreviations and the binary CBOR encoding, if the CBOR encoding is used.</p>
 <h1 id="rfc.section.5.6.1">
@@ -1066,7 +1075,7 @@ a4                                   # map(4)
 <li>The "audience" parameter from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> is OPTIONAL to request an access token bound to a specific audience.</li>
 <li>The "cnonce" parameter defined in <a href="#cnonceParamToken" class="xref">Section 5.6.4.4</a> is REQUIRED if the RS provided a client-nonce in the "AS Request Creation Hints" message <a href="#asInfo" class="xref">Section 5.1.2</a>
 </li>
-<li>The "scope" parameter MAY be encoded as a byte string instead of the string encoding specified in section 3.3 of <a href="#RFC6749" class="xref">[RFC6749]</a>, in order allow compact encoding of complex scopes.</li>
+<li>The "scope" parameter MAY be encoded as a byte string instead of the string encoding specified in section 3.3 of <a href="#RFC6749" class="xref">[RFC6749]</a>, in order allow compact encoding of complex scopes.  The syntax of such a binary encoding is explicitly not specified here and left to profiles or applications, specifically note that a binary encoded scope does not necessarily use the space character '0x20' to delimit scope-tokens.</li>
 <li>The client can send an empty (null value) "ace_profile" parameter to indicate that it wants the AS to include the "ace_profile" parameter in the response.  See <a href="#paramProfile" class="xref">Section 5.6.4.3</a>.</li>
 <li>A client MUST be able to use the parameters from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a> in an access token request to the token endpoint and the AS MUST be able to process these additional parameters.</li>
 </ul>
@@ -1268,8 +1277,8 @@ Payload:
 <h1 id="rfc.section.5.6.4.3">
 <a href="#rfc.section.5.6.4.3">5.6.4.3.</a> <a href="#paramProfile" id="paramProfile">Profile</a>
 </h1>
-<p id="rfc.section.5.6.4.3.p.1">Profiles of this framework MUST define the communication protocol and the communication security protocol between the client and the RS.  The security protocol MUST provide encryption, integrity and replay protection. It MUST also provide a binding between requests and responses.  Furthermore profiles MUST define proof-of-possession methods, if they support proof-of-possession tokens.</p>
-<p id="rfc.section.5.6.4.3.p.2">A profile MUST specify an identifier that MUST be used to uniquely identify itself in the "ace_profile" parameter. The textual representation of the profile identifier is just intended for human readability and MUST NOT be used in parameters and claims.</p>
+<p id="rfc.section.5.6.4.3.p.1">Profiles of this framework MUST define the communication protocol and the communication security protocol between the client and the RS.  The security protocol MUST provide encryption, integrity and replay protection. It MUST also provide a binding between requests and responses.  Furthermore profiles MUST define a list of allowed proof-of-possession methods, if they support proof-of-possession tokens.</p>
+<p id="rfc.section.5.6.4.3.p.2">A profile MUST specify an identifier that MUST be used to uniquely identify itself in the "ace_profile" parameter. The textual representation of the profile identifier is just intended for human readability and MUST NOT be used in parameters and claims.  Profiles MUST register their identifier in the registry defined in <a href="#IANAProfile" class="xref">Section 8.7</a>.  </p>
 <p id="rfc.section.5.6.4.3.p.3">Profiles MAY define additional parameters for both the token request and the Access Information in the access token response in order to support negotiation or signaling of profile specific parameters.  </p>
 <p id="rfc.section.5.6.4.3.p.4">Clients that want the AS to provide them with the "ace_profile" parameter in the access token response can indicate that by sending a ace_profile parameter with a null value in the access token request.</p>
 <h1 id="rfc.section.5.6.4.4">
@@ -1310,7 +1319,7 @@ Payload:
         | cnonce            | 39       | byte string         |
         \-------------------+----------+---------------------/
       </pre>
-<p class="figure">Figure 12: CBOR mappings used in token requests</p>
+<p class="figure">Figure 12: CBOR mappings used in token requests and responses</p>
 <p></p>
 <h1 id="rfc.section.5.7">
 <a href="#rfc.section.5.7">5.7.</a> <a href="#introspectionEndpoint" id="introspectionEndpoint">The Introspection Endpoint</a>
@@ -1323,7 +1332,7 @@ Payload:
 <h1 id="rfc.section.5.7.1">
 <a href="#rfc.section.5.7.1">5.7.1.</a> <a href="#introReq" id="introReq">Introspection Request</a>
 </h1>
-<p id="rfc.section.5.7.1.p.1">The requesting entity sends a POST request to the introspection endpoint at the AS.  The profile MUST specify how the communication is protected.  If CBOR is used, the payload MUST be encoded as a CBOR map with a "token" entry containing either the access token or a reference to the token (e.g., the cti).  Further optional parameters representing additional context that is known by the requesting entity to aid the AS in its response MAY be included.</p>
+<p id="rfc.section.5.7.1.p.1">The requesting entity sends a POST request to the introspection endpoint at the AS.  The profile MUST specify how the communication is protected.  If CBOR is used, the payload MUST be encoded as a CBOR map with a "token" entry containing the access token.  Further optional parameters representing additional context that is known by the requesting entity to aid the AS in its response MAY be included.</p>
 <p id="rfc.section.5.7.1.p.2">For CoAP-based interaction, all messages MUST use the content type "application/ace+cbor", while for HTTP-based interactions the equivalent media type "application/ace+cbor" MUST be used.</p>
 <p id="rfc.section.5.7.1.p.3">The same parameters are required and optional as in Section 2.1 of <a href="#RFC7662" class="xref">[RFC7662]</a>.</p>
 <div id="rfc.figure.13"></div>
@@ -1442,7 +1451,7 @@ Payload:
 <a href="#rfc.section.5.8">5.8.</a> <a href="#accessToken" id="accessToken">The Access Token</a>
 </h1>
 <p id="rfc.section.5.8.p.1">This framework RECOMMENDS the use of CBOR web token (CWT) as specified in <a href="#RFC8392" class="xref">[RFC8392]</a>.  </p>
-<p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this document uses the "cnf" claim from <a href="#I-D.ietf-ace-cwt-proof-of-possession" class="xref">[I-D.ietf-ace-cwt-proof-of-possession]</a> and the "scope" claim from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> for JWT- and CWT-encoded tokens.</p>
+<p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this document uses the "cnf" claim from <a href="#I-D.ietf-ace-cwt-proof-of-possession" class="xref">[I-D.ietf-ace-cwt-proof-of-possession]</a> and the "scope" claim from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> for JWT- and CWT-encoded tokens.  In addition to string encoding specified for the "scope" claim, a binary encoding MAY be used.  The syntax of such an encoding is explicitly not specified here and left to profiles or applications, specifically note that a binary encoded scope does not necessarily use the space character '0x20' to delimit scope-tokens.</p>
 <p id="rfc.section.5.8.p.3">If the AS needs to convey a hint to the RS about which profile it should use to communicate with the client, the AS MAY include an "ace_profile" claim in the access token, with the same syntax and semantics as defined in <a href="#paramProfile" class="xref">Section 5.6.4.3</a>.</p>
 <p id="rfc.section.5.8.p.4">If the client submitted a client-nonce parameter in the access token request <a href="#cnonceParamToken" class="xref">Section 5.6.4.4</a>, the AS MUST include the value of this parameter in the "cnonce" claim specified here.  The "cnonce" claim uses binary encoding.</p>
 <h1 id="rfc.section.5.8.1">
@@ -1534,21 +1543,35 @@ Payload:
 <a href="#rfc.section.6">6.</a> <a href="#security" id="security">Security Considerations</a>
 </h1>
 <p id="rfc.section.6.p.1">Security considerations applicable to authentication and authorization in RESTful environments provided in OAuth 2.0 <a href="#RFC6749" class="xref">[RFC6749]</a> apply to this work.  Furthermore <a href="#RFC6819" class="xref">[RFC6819]</a> provides additional security considerations for OAuth which apply to IoT deployments as well.  If the introspection endpoint is used, the security considerations from <a href="#RFC7662" class="xref">[RFC7662]</a> also apply.</p>
-<p id="rfc.section.6.p.2">A large range of threats can be mitigated by protecting the contents of the access token by using a digital signature or a keyed message digest (MAC) or an Authenticated Encryption with Associated Data (AEAD) algorithm.  Consequently, the token integrity protection MUST be applied to prevent the token from being modified, particularly since it contains a reference to the symmetric key or the asymmetric key used for proof-of-possession.  If the access token contains the symmetric key, this symmetric key MUST be encrypted by the authorization server so that only the resource server can decrypt it.  Note that using an AEAD algorithm is preferable over using a MAC unless the token needs to be publicly readable.</p>
-<p id="rfc.section.6.p.3">If the token is intended for multiple recipients (i.e. an audience that is a group), integrity protection of the token with a symmetric key, shared between the AS and the recipients, is not sufficient, since any of the recipients could modify the token undetected by the other recipients.  Therefore a token with a multi-recipient audience MUST be protected with an asymmetric signature.  </p>
-<p id="rfc.section.6.p.4">It is important for the authorization server to include the identity of the intended recipient (the audience), typically a single resource server (or a list of resource servers), in the token.  Using a single shared secret as proof-of-possession key with multiple resource servers is NOT RECOMMENDED since the benefit from using the proof-of-possession concept is then significantly reduced.</p>
-<p id="rfc.section.6.p.5">The authorization server MUST offer confidentiality protection for any interactions with the client.  This step is extremely important since the client may obtain the proof-of-possession key from the authorization server for use with a specific access token.  Not using confidentiality protection exposes this secret (and the access token) to an eavesdropper thereby completely negating proof-of-possession security.  Profiles MUST specify how confidentiality protection is provided, and additional protection can be applied by encrypting the token, for example encryption of CWTs is specified in Section 5.1 of <a href="#RFC8392" class="xref">[RFC8392]</a>.</p>
-<p id="rfc.section.6.p.6">Developers MUST ensure that the ephemeral credentials (i.e., the private key or the session key) are not leaked to third parties.  An adversary in possession of the ephemeral credentials bound to the access token will be able to impersonate the client.  Be aware that this is a real risk with many constrained environments, since adversaries can often easily get physical access to the devices.  This risk can also be mitigated to some extent by making sure that keys are refreshed more frequently.</p>
-<p id="rfc.section.6.p.7">If clients are capable of doing so, they should frequently request fresh access tokens, as this allows the AS to keep the lifetime of the tokens short. This allows the AS to use shorter proof-of-possession key sizes, which translate to a performance benefit for the client and for the resource server.  Shorter keys also lead to shorter messages (particularly with asymmetric keying material).</p>
-<p id="rfc.section.6.p.8">When authorization servers bind symmetric keys to access tokens, they SHOULD scope these access tokens to a specific permission.</p>
+<p id="rfc.section.6.p.2">The following subsections address issues specific to this document and it's use in constrained environments.</p>
 <h1 id="rfc.section.6.1">
-<a href="#rfc.section.6.1">6.1.</a> <a href="#unprotected-as-information" id="unprotected-as-information">Unprotected AS Request Creation Hints</a>
+<a href="#rfc.section.6.1">6.1.</a> <a href="#tokenProtection" id="tokenProtection">Protecting Tokens</a>
 </h1>
-<p id="rfc.section.6.1.p.1">Initially, no secure channel exists to protect the communication between C and RS. Thus, C cannot determine if the AS Request Creation Hints contained in an unprotected response from RS to an unauthorized request (see <a href="#asInfo" class="xref">Section 5.1.2</a>) are authentic. It is therefore advisable to provide C with a (possibly hard-coded) list of trustworthy authorization servers. AS Request Creation Hints referring to a URI not listed there would be ignored.</p>
+<p id="rfc.section.6.1.p.1">A large range of threats can be mitigated by protecting the contents of the access token by using a digital signature or a keyed message digest (MAC) or an Authenticated Encryption with Associated Data (AEAD) algorithm.  Consequently, the token integrity protection MUST be applied to prevent the token from being modified, particularly since it contains a reference to the symmetric key or the asymmetric key used for proof-of-possession.  If the access token contains the symmetric key, this symmetric key MUST be encrypted by the authorization server so that only the resource server can decrypt it.  Note that using an AEAD algorithm is preferable over using a MAC unless the token needs to be publicly readable.</p>
+<p id="rfc.section.6.1.p.2">If the token is intended for multiple recipients (i.e. an audience that is a group), integrity protection of the token with a symmetric key, shared between the AS and the recipients, is not sufficient, since any of the recipients could modify the token undetected by the other recipients.  Therefore a token with a multi-recipient audience MUST be protected with an asymmetric signature.  </p>
+<p id="rfc.section.6.1.p.3">It is important for the authorization server to include the identity of the intended recipient (the audience), typically a single resource server (or a list of resource servers), in the token.  Using a single shared secret as proof-of-possession key with multiple resource servers is NOT RECOMMENDED since the benefit from using the proof-of-possession concept is then significantly reduced.</p>
+<p id="rfc.section.6.1.p.4">If clients are capable of doing so, they should frequently request fresh access tokens, as this allows the AS to keep the lifetime of the tokens short. This allows the AS to use shorter proof-of-possession key sizes, which translate to a performance benefit for the client and for the resource server.  Shorter keys also lead to shorter messages (particularly with asymmetric keying material).</p>
+<p id="rfc.section.6.1.p.5">When authorization servers bind symmetric keys to access tokens, they SHOULD scope these access tokens to a specific permission.</p>
 <h1 id="rfc.section.6.2">
-<a href="#rfc.section.6.2">6.2.</a> <a href="#minimalCommSecReq" id="minimalCommSecReq">Minimal security requirements        for communication</a>
+<a href="#rfc.section.6.2">6.2.</a> <a href="#commSec" id="commSec">Communication Security</a>
 </h1>
-<p id="rfc.section.6.2.p.1">This section summarizes the minimal requirements for the communication security of the different protocol interactions.  </p>
+<p id="rfc.section.6.2.p.1">The authorization server MUST offer confidentiality protection for any interactions with the client.  This step is extremely important since the client may obtain the proof-of-possession key from the authorization server for use with a specific access token.  Not using confidentiality protection exposes this secret (and the access token) to an eavesdropper thereby completely negating proof-of-possession security.  Profiles MUST specify how confidentiality protection is provided, and additional protection can be applied by encrypting the token, for example encryption of CWTs is specified in Section 5.1 of <a href="#RFC8392" class="xref">[RFC8392]</a>.</p>
+<p id="rfc.section.6.2.p.2">Developers MUST ensure that the ephemeral credentials (i.e., the private key or the session key) are not leaked to third parties.  An adversary in possession of the ephemeral credentials bound to the access token will be able to impersonate the client.  Be aware that this is a real risk with many constrained environments, since adversaries can often easily get physical access to the devices.  This risk can also be mitigated to some extent by making sure that keys are refreshed more frequently.</p>
+<h1 id="rfc.section.6.3">
+<a href="#rfc.section.6.3">6.3.</a> <a href="#keys" id="keys">Long-Term Credentials</a>
+</h1>
+<p id="rfc.section.6.3.p.1">Both clients and RSs have long-term credentials that are used to secure comunications, and authenticate to the AS.  These credentials need to be protected against unauthorized access.  In constrained devices, deployed in publicly accessible places, such protection can be difficult to achieve without specialized hardware (e.g. secure key storage memory).</p>
+<p id="rfc.section.6.3.p.2">If credentials are lost or compromised, the operator of the affected devices needs to have procedures to invalidate any access these credentials give and to revoke tokens linked to such credentials.  The loss of a credential linked to a specific device MUST NOT lead to a compromise of other credentials not linked to that device, therefore sharing secret keys between more than two parties is NOT RECOMMENDED.</p>
+<p id="rfc.section.6.3.p.3">Operators of clients or RS should have procedures in place to replace credentials that are suspected to have been compromised or that have been lost.</p>
+<p id="rfc.section.6.3.p.4">Operators also need to have procedures for decommissioning devices, that include securely erasing credentials and other security critical material in the devices being decommissioned.</p>
+<h1 id="rfc.section.6.4">
+<a href="#rfc.section.6.4">6.4.</a> <a href="#unprotected-as-information" id="unprotected-as-information">Unprotected AS Request Creation Hints</a>
+</h1>
+<p id="rfc.section.6.4.p.1">Initially, no secure channel exists to protect the communication between C and RS. Thus, C cannot determine if the AS Request Creation Hints contained in an unprotected response from RS to an unauthorized request (see <a href="#asInfo" class="xref">Section 5.1.2</a>) are authentic. It is therefore advisable to provide C with a (possibly hard-coded) list of trustworthy authorization servers. AS Request Creation Hints referring to a URI not listed there would be ignored.</p>
+<h1 id="rfc.section.6.5">
+<a href="#rfc.section.6.5">6.5.</a> <a href="#minimalCommSecReq" id="minimalCommSecReq">Minimal security requirements        for communication</a>
+</h1>
+<p id="rfc.section.6.5.p.1">This section summarizes the minimal requirements for the communication security of the different protocol interactions.  </p>
 
 <dl>
 <dt>C-AS</dt>
@@ -1558,36 +1581,36 @@ Payload:
 <dt>C-RS</dt>
 <dd style="margin-left: 8">The initial communication between the client and the Resource Server can not be secured in general, since the RS is not in possession of on access token for that client, which would carry the necessary parameters.  Certain security mechanisms (e.g. DTLS with server-side authentication via a certificate or a raw public key) can be possible and are RECOMMEND if supported by both parties.  After the client has successfully transmitted the access token to the RS, a secure communication protocol MUST be established between client and RS for the actual resource request.  This protocol MUST provide confidentiality, integrity and replay protection as well as a binding between requests and responses.  This requires that the client learned either the RS's public key or received a symmetric proof-of-possession key bound to the access token from the AS.  The RS must have learned either the client's public key or a shared symmetric key from the claims in the token or an introspection request.  Since ACE does not provide profile negotiation between C and RS, the client MUST have learned what profile the RS supports (e.g. from the AS or pre-configured) and initiate the communication accordingly.</dd>
 </dl>
-<h1 id="rfc.section.6.3">
-<a href="#rfc.section.6.3">6.3.</a> <a href="#nonce" id="nonce">Token Freshness and Expiration</a>
-</h1>
-<p id="rfc.section.6.3.p.1">An RS that is offline faces the problem of clock drift. Since it cannot synchronize its clock with the AS, it may be tricked into accepting old access tokens that are no longer valid or have been compromised.  In order to prevent this, an RS may use the nonce-based mechanism defined in <a href="#asInfo" class="xref">Section 5.1.2</a> to ensure freshness of an Access Token subsequently presented to this RS.</p>
-<p id="rfc.section.6.3.p.2">Another problem with clock drift is that evaluating the standard token expiration claim "exp" can give unpredictable results.  </p>
-<p id="rfc.section.6.3.p.3">The expiration mechanism implemented by the "exi" claim, based on the first time the RS sees the token was defined to provide a more predictable alternative.  The "exi" approach has some drawbacks that need to be considered: First a malicious client may hold back tokens with the "exi" claim in order to prolong their lifespan, and second if an RS loses state (e.g. due to an unscheduled reboot), it looses the current values of counters tracking the "exi" claims of tokens it is storing.  The first drawback is inherent to the deployment scenario and the "exi" solution.  It can therefore not be mitigated without requiring the the RS be online at times.  The second drawback can be mitigated by regularly storing the value of "exi" Counters to persistent memory.</p>
-<h1 id="rfc.section.6.4">
-<a href="#rfc.section.6.4">6.4.</a> <a href="#mixnmatch" id="mixnmatch">Combining profiles</a>
-</h1>
-<p id="rfc.section.6.4.p.1">There may be use cases were different profiles of this framework are combined.  For example, an MQTT-TLS profile is used between the client and the RS in combination with a CoAP-DTLS profile for interactions between the client and the AS.  The security of a profile MUST NOT depend on the assumption that the profile is used for all the different types of interactions in this framework.</p>
-<h1 id="rfc.section.6.5">
-<a href="#rfc.section.6.5">6.5.</a> <a href="#infoLeak" id="infoLeak">Unprotected Information</a>
-</h1>
-<p id="rfc.section.6.5.p.1">Communication with the authz-info endpoint, as well as the various error responses defined in this framework, all potentially include sending information over an unprotected channel.  These messages may leak information to an adversary.  For example error responses for requests to the Authorization Information endpoint can reveal information about an otherwise opaque access token to an adversary who has intercepted this token.</p>
-<p id="rfc.section.6.5.p.2">As far as error messages are concerned, this framework is written under the assumption that, in general, the benefits of detailed error messages outweigh the risk due to information leakage. For particular use cases, where this assessment does not apply, detailed error messages can be replaced by more generic ones.</p>
-<p id="rfc.section.6.5.p.3">In some scenarios it may be possible to protect the communication with the authz-info endpoint (e.g. through DTLS with only server-side authentication). In cases where this is not possible this framework RECOMMENDS to use encrypted CWTs or tokens that are opaque references and need to be subjected to introspection by the RS.</p>
-<p id="rfc.section.6.5.p.4">If the initial unauthorized resource request message (see <a href="#rreq" class="xref">Section 5.1.1</a>) is used, the client MUST make sure that it is not sending sensitive content in this request. While GET and DELETE requests only reveal the target URI of the resource, POST and PUT requests would reveal the whole payload of the intended operation.</p>
 <h1 id="rfc.section.6.6">
-<a href="#rfc.section.6.6">6.6.</a> <a href="#audience" id="audience">Identifying audiences</a>
+<a href="#rfc.section.6.6">6.6.</a> <a href="#nonce" id="nonce">Token Freshness and Expiration</a>
 </h1>
-<p id="rfc.section.6.6.p.1">The audience claim as defined in <a href="#RFC7519" class="xref">[RFC7519]</a> and the equivalent "audience" parameter from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
-<p id="rfc.section.6.6.p.2">URLs are not a good way of identifying mobile devices that can switch networks and thus be associated with new URLs.  If the audience represents a single RS, and asymmetric keys are used, the RS can be uniquely identified by a hash of its public key.  If this approach is used this framework RECOMMENDS to apply the procedure from section 3 of <a href="#RFC6920" class="xref">[RFC6920]</a>.</p>
-<p id="rfc.section.6.6.p.3">If the audience addresses a group of resource servers, the mapping of group identifier to individual RS has to be provisioned to each RS before the group-audience is usable.  Managing dynamic groups could be an issue, if any RS is not always reachable when the groups' memberships change. Furthermore, issuing access tokens bound to symmetric proof-of-possession keys that apply to a group-audience is problematic, as an RS that is in possession of the access token can impersonate the client towards the other RSs that are part of the group.  It is therefore NOT RECOMMENDED to issue access tokens bound to a group audience and symmetric proof-of possession keys.</p>
-<p id="rfc.section.6.6.p.4">Even the client must be able to determine the correct values to put into the "audience" parameter, in order to obtain a token for the intended RS.  Errors in this process can lead to the client inadvertently obtaining a token for the wrong RS.  The correct values for "audience" can either be provisioned to the client as part of its configuration, or dynamically looked up by the client in some directory. In the latter case the integrity and	correctness of the directory data must be assured.  Note that the "audience" hint provided by the RS as part of the "AS Request Creation Hints" <a href="#asInfo" class="xref">Section 5.1.2</a> is not typically source authenticated and integrity protected, and should therefore not be treated a trusted value.</p>
+<p id="rfc.section.6.6.p.1">An RS that is offline faces the problem of clock drift. Since it cannot synchronize its clock with the AS, it may be tricked into accepting old access tokens that are no longer valid or have been compromised.  In order to prevent this, an RS may use the nonce-based mechanism defined in <a href="#asInfo" class="xref">Section 5.1.2</a> to ensure freshness of an Access Token subsequently presented to this RS.</p>
+<p id="rfc.section.6.6.p.2">Another problem with clock drift is that evaluating the standard token expiration claim "exp" can give unpredictable results.  </p>
+<p id="rfc.section.6.6.p.3">The expiration mechanism implemented by the "exi" claim, based on the first time the RS sees the token was defined to provide a more predictable alternative.  The "exi" approach has some drawbacks that need to be considered: First a malicious client may hold back tokens with the "exi" claim in order to prolong their lifespan, and second if an RS loses state (e.g. due to an unscheduled reboot), it looses the current values of counters tracking the "exi" claims of tokens it is storing.  The first drawback is inherent to the deployment scenario and the "exi" solution.  It can therefore not be mitigated without requiring the the RS be online at times.  The second drawback can be mitigated by regularly storing the value of "exi" Counters to persistent memory.</p>
 <h1 id="rfc.section.6.7">
-<a href="#rfc.section.6.7">6.7.</a> <a href="#introDos" id="introDos">Denial of service against or with      Introspection</a>
+<a href="#rfc.section.6.7">6.7.</a> <a href="#mixnmatch" id="mixnmatch">Combining profiles</a>
 </h1>
-<p id="rfc.section.6.7.p.1">The optional introspection mechanism provided by OAuth and supported in the ACE framework allows for two types of attacks that need to be considered by implementers.</p>
-<p id="rfc.section.6.7.p.2">First, an attacker could perform a denial of service attack against the introspection endpoint at the AS in order to prevent validation of access tokens.  To maintain the security of the system, an RS that is configured to use introspection MUST NOT allow access based on a token for which it couldn't reach the introspection endpoint.</p>
-<p id="rfc.section.6.7.p.3">Second, an attacker could use the fact that an RS performs introspection to perform a denial of service attack against that RS by repeatedly sending tokens to its authz-info endpoint that require an introspection call. RS can mitigate such attacks by implementing rate limits on how many introspection requests they perform in a given time interval for a certain client IP address submitting tokens to /authz-info.  When that limit has been reached, incoming requests from that address are rejected for a certain	amount of time.  A general rate limit on the introspection requests should also be considered, to mitigate distributed attacks.</p>
+<p id="rfc.section.6.7.p.1">There may be use cases were different profiles of this framework are combined.  For example, an MQTT-TLS profile is used between the client and the RS in combination with a CoAP-DTLS profile for interactions between the client and the AS.  The security of a profile MUST NOT depend on the assumption that the profile is used for all the different types of interactions in this framework.</p>
+<h1 id="rfc.section.6.8">
+<a href="#rfc.section.6.8">6.8.</a> <a href="#infoLeak" id="infoLeak">Unprotected Information</a>
+</h1>
+<p id="rfc.section.6.8.p.1">Communication with the authz-info endpoint, as well as the various error responses defined in this framework, all potentially include sending information over an unprotected channel.  These messages may leak information to an adversary.  For example error responses for requests to the Authorization Information endpoint can reveal information about an otherwise opaque access token to an adversary who has intercepted this token.</p>
+<p id="rfc.section.6.8.p.2">As far as error messages are concerned, this framework is written under the assumption that, in general, the benefits of detailed error messages outweigh the risk due to information leakage. For particular use cases, where this assessment does not apply, detailed error messages can be replaced by more generic ones.</p>
+<p id="rfc.section.6.8.p.3">In some scenarios it may be possible to protect the communication with the authz-info endpoint (e.g. through DTLS with only server-side authentication). In cases where this is not possible this framework RECOMMENDS to use encrypted CWTs or tokens that are opaque references and need to be subjected to introspection by the RS.</p>
+<p id="rfc.section.6.8.p.4">If the initial unauthorized resource request message (see <a href="#rreq" class="xref">Section 5.1.1</a>) is used, the client MUST make sure that it is not sending sensitive content in this request. While GET and DELETE requests only reveal the target URI of the resource, POST and PUT requests would reveal the whole payload of the intended operation.</p>
+<h1 id="rfc.section.6.9">
+<a href="#rfc.section.6.9">6.9.</a> <a href="#audience" id="audience">Identifying audiences</a>
+</h1>
+<p id="rfc.section.6.9.p.1">The audience claim as defined in <a href="#RFC7519" class="xref">[RFC7519]</a> and the equivalent "audience" parameter from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
+<p id="rfc.section.6.9.p.2">URLs are not a good way of identifying mobile devices that can switch networks and thus be associated with new URLs.  If the audience represents a single RS, and asymmetric keys are used, the RS can be uniquely identified by a hash of its public key.  If this approach is used this framework RECOMMENDS to apply the procedure from section 3 of <a href="#RFC6920" class="xref">[RFC6920]</a>.</p>
+<p id="rfc.section.6.9.p.3">If the audience addresses a group of resource servers, the mapping of group identifier to individual RS has to be provisioned to each RS before the group-audience is usable.  Managing dynamic groups could be an issue, if any RS is not always reachable when the groups' memberships change. Furthermore, issuing access tokens bound to symmetric proof-of-possession keys that apply to a group-audience is problematic, as an RS that is in possession of the access token can impersonate the client towards the other RSs that are part of the group.  It is therefore NOT RECOMMENDED to issue access tokens bound to a group audience and symmetric proof-of possession keys.</p>
+<p id="rfc.section.6.9.p.4">Even the client must be able to determine the correct values to put into the "audience" parameter, in order to obtain a token for the intended RS.  Errors in this process can lead to the client inadvertently obtaining a token for the wrong RS.  The correct values for "audience" can either be provisioned to the client as part of its configuration, or dynamically looked up by the client in some directory. In the latter case the integrity and	correctness of the directory data must be assured.  Note that the "audience" hint provided by the RS as part of the "AS Request Creation Hints" <a href="#asInfo" class="xref">Section 5.1.2</a> is not typically source authenticated and integrity protected, and should therefore not be treated a trusted value.</p>
+<h1 id="rfc.section.6.10">
+<a href="#rfc.section.6.10">6.10.</a> <a href="#introDos" id="introDos">Denial of service against or with      Introspection</a>
+</h1>
+<p id="rfc.section.6.10.p.1">The optional introspection mechanism provided by OAuth and supported in the ACE framework allows for two types of attacks that need to be considered by implementers.</p>
+<p id="rfc.section.6.10.p.2">First, an attacker could perform a denial of service attack against the introspection endpoint at the AS in order to prevent validation of access tokens.  To maintain the security of the system, an RS that is configured to use introspection MUST NOT allow access based on a token for which it couldn't reach the introspection endpoint.</p>
+<p id="rfc.section.6.10.p.3">Second, an attacker could use the fact that an RS performs introspection to perform a denial of service attack against that RS by repeatedly sending tokens to its authz-info endpoint that require an introspection call. RS can mitigate such attacks by implementing rate limits on how many introspection requests they perform in a given time interval for a certain client IP address submitting tokens to /authz-info.  When that limit has been reached, incoming requests from that address are rejected for a certain	amount of time.  A general rate limit on the introspection requests should also be considered, to mitigate distributed attacks.</p>
 <h1 id="rfc.section.7">
 <a href="#rfc.section.7">7.</a> <a href="#privacy" id="privacy">Privacy Considerations</a>
 </h1>
@@ -2575,7 +2598,7 @@ F:  |&lt;--------+ Header: 2.05 Content
 </dl>
 
 <p> </p>
-<p id="rfc.section.E.2.p.7">Note: In this example we are using a symmetric key for a multi-RS audience, which is not recommended normally (see <a href="#audience" class="xref">Section 6.6</a>).  However in this case the risk is deemed to be acceptable, since all the doors are part of the same physical access control system, and therefore the risk of a malicious RS impersonating the client towards another RS is low.</p>
+<p id="rfc.section.E.2.p.7">Note: In this example we are using a symmetric key for a multi-RS audience, which is not recommended normally (see <a href="#audience" class="xref">Section 6.9</a>).  However in this case the risk is deemed to be acceptable, since all the doors are part of the same physical access control system, and therefore the risk of a malicious RS impersonating the client towards another RS is low.</p>
 <div id="rfc.figure.22"></div>
 <div id="fig:cOffline"></div>
 <pre>
