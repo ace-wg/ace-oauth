@@ -2099,7 +2099,6 @@ Payload:
       access tokens with relatively long lifetimes, and would therefore
       necessitate further standardization work that is out of scope for
       this document.</t>
-      
     </section><!--token protection-->
 
     <section anchor="commSec" title="Communication Security">
@@ -2110,10 +2109,14 @@ Payload:
       authorization server for use with a specific access token.  Not using
       confidentiality protection exposes this secret (and the access token) to
       an eavesdropper thereby completely negating proof-of-possession security.
-      Profiles MUST specify how confidentiality protection is provided,
-      and additional protection can be applied by encrypting the token, for
-      example encryption of CWTs is specified in Section 5.1 of
-      <xref target="RFC8392"/>.</t>
+      Profiles MUST specify how communication security according to the
+      requirements in <xref target="oauthProfile"/> is provided.</t>
+
+      <t>Additional protection for the access token can be applied by
+      encrypting it, for example encryption of CWTs is specified in Section 5.1
+      of <xref target="RFC8392"/>.  Such additional protection can be necessary
+      if the token is later transferred over an insecure connection
+      (e.g. when it is sent to the authz-info endpoint).</t>
 
       <t>Developers MUST ensure that the ephemeral credentials (i.e., the
       private key or the session key) are not leaked to third parties.  An
@@ -2123,8 +2126,7 @@ Payload:
       often easily get physical access to the devices.  This risk can also
       be mitigated to some extent by making sure that keys are refreshed
       more frequently.</t>
-
-    </section>
+    </section><!--communication security-->
 
     <section anchor="keys" title="Long-Term Credentials">
       <t>Both clients and RSs have long-term credentials that are used to
@@ -2148,10 +2150,9 @@ Payload:
       <t>Operators also need to have procedures for decommissioning devices,
       that include securely erasing credentials and other security critical
       material in the devices being decommissioned.</t>
-    </section>
+    </section><!--credential livecycle-->
  
-
-      <section anchor="unprotected-as-information"
+    <section anchor="unprotected-as-information"
 	       title="Unprotected AS Request Creation Hints">
 
 	<t>Initially, no secure channel exists to protect the communication
@@ -2161,6 +2162,20 @@ Payload:
 	therefore advisable to provide C with a (possibly hard-coded) list of
 	trustworthy authorization servers. AS Request Creation Hints referring
 	to a URI not listed there would be ignored.</t>
+
+	<t>A compromised RS may use the hints to trick a client into
+	contacting an AS that is not supposed to be in charge of that
+	RS.  Since this AS must be in the hard-coded list of trusted AS
+	no violation of privileges and or exposure of redentials should
+	happen.  However a compromised RS may use this to perform a denial of
+	service against a specific AS, by redirecting a large number of client
+	requests to that AS.</t>
+
+	<t>A compromised client can be made to contact any AS, including
+	compromised ones.  This should not affect the RS, since it is supposed
+	to keep track of which AS are trusted and have corresponding
+	credentials to verify the source of access tokens it receives.</t>
+	
       </section>
 
       <section anchor="minimalCommSecReq" title="Minimal security requirements
