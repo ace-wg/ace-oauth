@@ -854,7 +854,7 @@
 <a href="#rfc.section.4">4.</a> <a href="#specs" id="specs">Protocol Interactions</a>
 </h1>
 <p id="rfc.section.4.p.1">The ACE framework is based on the OAuth 2.0 protocol interactions using the token endpoint and optionally the introspection endpoint.  A client obtains an access token, and optionally a refresh token, from an AS using the token endpoint and subsequently presents the access token to a RS to gain access to a protected resource. In most deployments the RS can process the access token locally, however in some cases the RS may present it to the AS via the introspection endpoint to get fresh information.  These interactions are shown in <a href="#fig:protocolFlow" class="xref">Figure 1</a>.  An overview of various OAuth concepts is provided in <a href="#oauth2Overview" class="xref">Section 3.1</a>.  </p>
-<p id="rfc.section.4.p.2">The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended further with extensions to OAuth 2.0 (such as <a href="#RFC7521" class="xref">[RFC7521]</a> and <a href="#I-D.ietf-oauth-device-flow" class="xref">[I-D.ietf-oauth-device-flow]</a>).  What grant types works best depends on the usage scenario and <a href="#RFC7744" class="xref">[RFC7744]</a> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <a href="#RFC7521" class="xref">[RFC7521]</a>) and the Client Credentials Grant (described in Section 4.4 of <a href="#RFC7521" class="xref">[RFC7521]</a>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <a href="#RFC8252" class="xref">[RFC8252]</a> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</p>
+<p id="rfc.section.4.p.2">The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended further with extensions to OAuth 2.0 (such as <a href="#RFC7521" class="xref">[RFC7521]</a> and <a href="#RFC8628" class="xref">[RFC8628]</a>).  What grant types works best depends on the usage scenario and <a href="#RFC7744" class="xref">[RFC7744]</a> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <a href="#RFC7521" class="xref">[RFC7521]</a>) and the Client Credentials Grant (described in Section 4.4 of <a href="#RFC7521" class="xref">[RFC7521]</a>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <a href="#RFC8252" class="xref">[RFC8252]</a> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</p>
 <p id="rfc.section.4.p.3">The consent of the resource owner, for giving a client access to a protected resource, can be provided dynamically as in the traditional OAuth flows, or it could be pre-configured by the resource owner as authorization policies at the AS, which the AS evaluates when a token request arrives.  The resource owner and the requesting party (i.e., client owner) are not shown in <a href="#fig:protocolFlow" class="xref">Figure 1</a>.  </p>
 <p id="rfc.section.4.p.4">This framework supports a wide variety of communication security mechanisms between the ACE entities, such as client, AS, and RS. It is assumed that the client has been registered (also called enrolled or onboarded) to an AS using a mechanism defined outside the scope of this document.  In practice, various techniques for onboarding have been used, such as factory-based provisioning or the use of commissioning tools. Regardless of the onboarding technique, this provisioning procedure implies that the client and the AS exchange credentials and configuration parameters.  These credentials are used to mutually authenticate each other and to protect messages exchanged between the client and the AS.</p>
 <p id="rfc.section.4.p.5">It is also assumed that the RS has been registered with the AS, potentially in a similar way as the client has been registered with the AS.  Established keying material between the AS and the RS allows the AS to apply cryptographic protection to the access token to ensure that its content cannot be modified, and if needed, that the content is confidentiality protected.</p>
@@ -1040,7 +1040,7 @@ a4                                   # map(4)
 </h1>
 <p id="rfc.section.5.2.p.1">To request an access token, the client obtains authorization from the resource owner or uses its client credentials as a grant.  The authorization is expressed in the form of an authorization grant.</p>
 <p id="rfc.section.5.2.p.2">The OAuth framework <a href="#RFC6749" class="xref">[RFC6749]</a> defines four grant types. The grant types can be split up into two groups, those granted on behalf of the resource owner (password, authorization code, implicit) and those for the client (client credentials). Further grant types have been added later, such as <a href="#RFC7521" class="xref">[RFC7521]</a> defining an assertion-based authorization grant.</p>
-<p id="rfc.section.5.2.p.3">The grant type is selected depending on the use case.  In cases where the client acts on behalf of the resource owner, the authorization code grant is recommended.  If the client acts on behalf of the resource owner, but does not have any display or has very limited interaction possibilities, it is recommended to use the device code grant defined in <a href="#I-D.ietf-oauth-device-flow" class="xref">[I-D.ietf-oauth-device-flow]</a>.  In cases where the client acts autonomously the client credentials grant is recommended.</p>
+<p id="rfc.section.5.2.p.3">The grant type is selected depending on the use case.  In cases where the client acts on behalf of the resource owner, the authorization code grant is recommended.  If the client acts on behalf of the resource owner, but does not have any display or has very limited interaction possibilities, it is recommended to use the device code grant defined in <a href="#RFC8628" class="xref">[RFC8628]</a>.  In cases where the client acts autonomously the client credentials grant is recommended.</p>
 <p id="rfc.section.5.2.p.4">For details on the different grant types, see section 1.3 of <a href="#RFC6749" class="xref">[RFC6749]</a>. The OAuth 2.0 framework provides an extension mechanism for defining additional grant types, so profiles of this framework MAY define additional grant types, if needed.</p>
 <h1 id="rfc.section.5.3">
 <a href="#rfc.section.5.3">5.3.</a> <a href="#clientCredentials" id="clientCredentials">Client Credentials</a>
@@ -1180,8 +1180,8 @@ Payload:
         | error_description |  RFC 6749                     |
         | error_uri         |  RFC 6749                     |
         | ace_profile       | [this document]               |
-        | cnf               | [ID-ietf-ace-oauth-params]    |
-        | rs_cnf            | [ID-ietf-ace-oauth-params]    |
+        | cnf               | [I-D.ietf-ace-oauth-params]   |
+        | rs_cnf            | [I-D.ietf-ace-oauth-params]   |
         \-------------------+-------------------------------/
       </pre>
 <p class="figure">Figure 8: Access Information parameters</p>
@@ -2113,11 +2113,6 @@ Payload:
 <a>Seitz, L.</a> and <a>S. Erdtman</a>, "<a href="https://tools.ietf.org/html/draft-erdtman-ace-rpcc-02">Raw-Public-Key and Pre-Shared-Key as OAuth client credentials</a>", Internet-Draft draft-erdtman-ace-rpcc-02, October 2017.</td>
 </tr>
 <tr>
-<td class="reference"><b id="I-D.ietf-oauth-device-flow">[I-D.ietf-oauth-device-flow]</b></td>
-<td class="top">
-<a>Denniss, W.</a>, <a>Bradley, J.</a>, <a>Jones, M.</a> and <a>H. Tschofenig</a>, "<a href="https://tools.ietf.org/html/draft-ietf-oauth-device-flow-15">OAuth 2.0 Device Authorization Grant</a>", Internet-Draft draft-ietf-oauth-device-flow-15, March 2019.</td>
-</tr>
-<tr>
 <td class="reference"><b id="I-D.ietf-quic-transport">[I-D.ietf-quic-transport]</b></td>
 <td class="top">
 <a>Iyengar, J.</a> and <a>M. Thomson</a>, "<a href="https://tools.ietf.org/html/draft-ietf-quic-transport-23">QUIC: A UDP-Based Multiplexed and Secure Transport</a>", Internet-Draft draft-ietf-quic-transport-23, September 2019.</td>
@@ -2226,6 +2221,11 @@ Payload:
 <td class="reference"><b id="RFC8613">[RFC8613]</b></td>
 <td class="top">
 <a>Selander, G.</a>, <a>Mattsson, J.</a>, <a>Palombini, F.</a> and <a>L. Seitz</a>, "<a href="https://tools.ietf.org/html/rfc8613">Object Security for Constrained RESTful Environments (OSCORE)</a>", RFC 8613, DOI 10.17487/RFC8613, July 2019.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC8628">[RFC8628]</b></td>
+<td class="top">
+<a>Denniss, W.</a>, <a>Bradley, J.</a>, <a>Jones, M.</a> and <a>H. Tschofenig</a>, "<a href="https://tools.ietf.org/html/rfc8628">OAuth 2.0 Device Authorization Grant</a>", RFC 8628, DOI 10.17487/RFC8628, August 2019.</td>
 </tr>
 </tbody></table>
 <h1 id="rfc.appendix.A">
