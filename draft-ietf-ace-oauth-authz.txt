@@ -126,7 +126,7 @@ Internet-Draft                  ACE-OAuth                  November 2019
      6.2.  Communication Security  . . . . . . . . . . . . . . . . .  43
      6.3.  Long-Term Credentials . . . . . . . . . . . . . . . . . .  43
      6.4.  Unprotected AS Request Creation Hints . . . . . . . . . .  44
-     6.5.  Minimal security requirements        for communication  .  44
+     6.5.  Minimal security requirements        for communication  .  45
      6.6.  Token Freshness and Expiration  . . . . . . . . . . . . .  46
      6.7.  Combining profiles  . . . . . . . . . . . . . . . . . . .  46
      6.8.  Unprotected Information . . . . . . . . . . . . . . . . .  46
@@ -2436,13 +2436,17 @@ Internet-Draft                  ACE-OAuth                  November 2019
    Creation Hints contained in an unprotected response from RS to an
    unauthorized request (see Section 5.1.2) are authentic.  It is
    therefore advisable to provide C with a (possibly hard-coded) list of
-   trustworthy authorization servers.  AS Request Creation Hints
-   referring to a URI not listed there would be ignored.
+   trustworthy authorization servers, possibly including information
+   used to authenticate the AS, such as a public key or certificate
+   fingerprint.  AS Request Creation Hints referring to a URI not listed
+   there would be ignored.
 
    A compromised RS may use the hints to trick a client into contacting
    an AS that is not supposed to be in charge of that RS.  Since this AS
    must be in the hard-coded list of trusted AS no violation of
-   privileges and or exposure of redentials should happen.  However a
+   privileges and or exposure of credentials should happen, since a
+   trusted AS is expected to refuse requestes for which it is not
+   applicable and render a corresponding error response.  However a
    compromised RS may use this to perform a denial of service against a
    specific AS, by redirecting a large number of client requests to that
    AS.
@@ -2452,10 +2456,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
    supposed to keep track of which AS are trusted and have corresponding
    credentials to verify the source of access tokens it receives.
 
-6.5.  Minimal security requirements for communication
-
-   This section summarizes the minimal requirements for the
-   communication security of the different protocol interactions.
 
 
 
@@ -2465,6 +2465,11 @@ Seitz, et al.             Expires May 16, 2020                 [Page 44]
 
 Internet-Draft                  ACE-OAuth                  November 2019
 
+
+6.5.  Minimal security requirements for communication
+
+   This section summarizes the minimal requirements for the
+   communication security of the different protocol interactions.
 
    C-AS  All communication between the client and the Authorization
       Server MUST be encrypted, integrity and replay protected.
@@ -2508,11 +2513,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
       client's public key or a shared symmetric key from the claims in
       the token or an introspection request.  Since ACE does not provide
       profile negotiation between C and RS, the client MUST have learned
-      what profile the RS supports (e.g. from the AS or pre-configured)
-      and initiate the communication accordingly.
-
-
-
 
 
 
@@ -2521,6 +2521,9 @@ Seitz, et al.             Expires May 16, 2020                 [Page 45]
 
 Internet-Draft                  ACE-OAuth                  November 2019
 
+
+      what profile the RS supports (e.g. from the AS or pre-configured)
+      and initiate the communication accordingly.
 
 6.6.  Token Freshness and Expiration
 
@@ -2566,9 +2569,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
    information about an otherwise opaque access token to an adversary
    who has intercepted this token.
 
-   As far as error messages are concerned, this framework is written
-   under the assumption that, in general, the benefits of detailed error
-   messages outweigh the risk due to information leakage.  For
 
 
 
@@ -2578,6 +2578,9 @@ Seitz, et al.             Expires May 16, 2020                 [Page 46]
 Internet-Draft                  ACE-OAuth                  November 2019
 
 
+   As far as error messages are concerned, this framework is written
+   under the assumption that, in general, the benefits of detailed error
+   messages outweigh the risk due to information leakage.  For
    particular use cases, where this assessment does not apply, detailed
    error messages can be replaced by more generic ones.
 
@@ -2623,9 +2626,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
    Even the client must be able to determine the correct values to put
    into the "audience" parameter, in order to obtain a token for the
    intended RS.  Errors in this process can lead to the client
-   inadvertently obtaining a token for the wrong RS.  The correct values
-   for "audience" can either be provisioned to the client as part of its
-   configuration, or dynamically looked up by the client in some
 
 
 
@@ -2634,6 +2634,9 @@ Seitz, et al.             Expires May 16, 2020                 [Page 47]
 Internet-Draft                  ACE-OAuth                  November 2019
 
 
+   inadvertently obtaining a token for the wrong RS.  The correct values
+   for "audience" can either be provisioned to the client as part of its
+   configuration, or dynamically looked up by the client in some
    directory.  In the latter case the integrity and correctness of the
    directory data must be assured.  Note that the "audience" hint
    provided by the RS as part of the "AS Request Creation Hints"
@@ -2679,9 +2682,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
 
    The claims contained in a token can reveal privacy sensitive
    information about the client and the RS to any party having access to
-   them (whether by processing the content of a self-contained token or
-   by introspection).  The AS SHOULD be configured to minimize the
-   information about clients and RSs disclosed in the tokens it issues.
 
 
 
@@ -2689,6 +2689,10 @@ Seitz, et al.             Expires May 16, 2020                 [Page 48]
 
 Internet-Draft                  ACE-OAuth                  November 2019
 
+
+   them (whether by processing the content of a self-contained token or
+   by introspection).  The AS SHOULD be configured to minimize the
+   information about clients and RSs disclosed in the tokens it issues.
 
    If tokens are only integrity protected and not encrypted, they may
    reveal information to attackers listening on the wire, or able to
@@ -2733,11 +2737,7 @@ Internet-Draft                  ACE-OAuth                  November 2019
 
    Name  The name of the parameter
 
-   CBOR Key  CBOR map key for the parameter.  Different ranges of values
-      use different registration policies [RFC8126].  Integer values
-      from -256 to 255 are designated as Standards Action.  Integer
-      values from -65536 to -257 and from 256 to 65535 are designated as
-      Specification Required.  Integer values greater than 65535 are
+
 
 
 
@@ -2746,6 +2746,11 @@ Seitz, et al.             Expires May 16, 2020                 [Page 49]
 Internet-Draft                  ACE-OAuth                  November 2019
 
 
+   CBOR Key  CBOR map key for the parameter.  Different ranges of values
+      use different registration policies [RFC8126].  Integer values
+      from -256 to 255 are designated as Standards Action.  Integer
+      values from -65536 to -257 and from 256 to 65535 are designated as
+      Specification Required.  Integer values greater than 65535 are
       designated as Expert Review.  Integer values less than -65536 are
       marked as Private Use.
 
@@ -2789,11 +2794,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
    CBOR Value  CBOR abbreviation for this error code.  Integer values
       less than -65536 are marked as "Private Use", all other values use
       the registration policy "Expert Review" [RFC8126].
-   Reference  This contains a pointer to the public specification of the
-      error code abbreviation, if one exists.
-
-   This registry will be initially populated by the values in Figure 10.
-   The Reference column for all of these entries will be this document.
 
 
 
@@ -2801,6 +2801,12 @@ Seitz, et al.             Expires May 16, 2020                 [Page 50]
 
 Internet-Draft                  ACE-OAuth                  November 2019
 
+
+   Reference  This contains a pointer to the public specification of the
+      error code abbreviation, if one exists.
+
+   This registry will be initially populated by the values in Figure 10.
+   The Reference column for all of these entries will be this document.
 
 8.4.  OAuth Grant Type CBOR Mappings
 
@@ -2845,12 +2851,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
 
    The columns of this registry are:
 
-   Name  The name of token type as registered in the OAuth Access Token
-      Types registry, e.g., "Bearer".
-   CBOR Value  CBOR abbreviation for this token type.  Integer values
-      less than -65536 are marked as "Private Use", all other values use
-      the registration policy "Expert Review" [RFC8126].
-
 
 
 Seitz, et al.             Expires May 16, 2020                 [Page 51]
@@ -2858,6 +2858,11 @@ Seitz, et al.             Expires May 16, 2020                 [Page 51]
 Internet-Draft                  ACE-OAuth                  November 2019
 
 
+   Name  The name of token type as registered in the OAuth Access Token
+      Types registry, e.g., "Bearer".
+   CBOR Value  CBOR abbreviation for this token type.  Integer values
+      less than -65536 are marked as "Private Use", all other values use
+      the registration policy "Expert Review" [RFC8126].
    Reference  This contains a pointer to the public specification of the
       OAuth token type abbreviation, if one exists.
    Original Specification  This contains a pointer to the public
@@ -2901,11 +2906,6 @@ Internet-Draft                  ACE-OAuth                  November 2019
 
    This registry will be initially empty and will be populated by the
    registrations from the ACE framework profiles.
-
-
-
-
-
 
 
 
