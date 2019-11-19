@@ -1996,14 +1996,15 @@ Payload:
     way of synchronizing their internal clocks, this specification defines the
     following approach: The claim "exi" ("expires in") can be used, to provide
     the RS with the lifetime of the token in seconds from the time the RS first
-    receives the token.  This approach is of course vulnerable to malicious
-    clients holding back tokens they do not want to expire. Such an attack can
-    only be prevented if the RS is able to communicate with the AS in some
-    regular intervals, so that the can AS provide the RS with a list of expired
-    tokens.  The drawback of this mitigation is that the RS might as well
-    use the communication with the AS to synchronize its internal clock.
+    receives the token.  Processing this claim requires that the RS does the
+    following:
+    <list style="symbols">
+      <t>Keep track of the time it received a token that contains an
+      "exi" claim.</t>
+      <t>Keep track of the identifiers of tokens containing the "exi"
+      claim that have expired (in order to avoid accepting them again).</t>
+    </list>
     </t>
-
   </list></t>
 
   <t>If a token that authorizes a long running request such as a CoAP
@@ -2262,15 +2263,26 @@ Payload:
 	<t>The expiration mechanism implemented by the "exi" claim, based on
 	the first time the RS sees the token was defined to provide a more
 	predictable alternative.  The "exi" approach has some drawbacks that
-	need to be considered: First a malicious client may hold back tokens
-	with the "exi" claim in order to prolong their lifespan,
-	and second if an RS loses state (e.g. due to an unscheduled reboot),
-	it looses the current values of counters tracking the "exi" claims
-	of tokens it is storing.  The first drawback is inherent to the
-	deployment scenario and the "exi" solution.  It can therefore not be
-	mitigated without requiring the the RS be online at times.  The second
-	drawback can be mitigated by regularly storing the value of "exi"
-	Counters to persistent memory.</t>
+	need to be considered:
+	<list>
+	  <t>A malicious client may hold back tokens with the "exi" claim in
+	  order to prolong their lifespan.</t>
+	  <t>If an RS loses state (e.g. due to an unscheduled reboot), it
+	  may loose the current values of counters tracking the "exi" claims of
+	  tokens it is storing.</t>
+	  <t>The RS needs to keep state	about expired tokens that used "exi"
+	  in order to be sure not to accept it again.  Attacker may use
+	  this to deplete the RS's storage resources.</t>
+	</list>
+	The first drawback is inherent to the deployment scenario and the "exi"
+	solution.  It can therefore not be mitigated without requiring the the
+	RS be online at times.  The second drawback can be mitigated by
+	regularly storing the value of "exi" counters to persistent memory.
+	The third problem can be mitigated by the AS, by assigning identifiers
+	(e.g. 'cti') to the tokens, that include a RS identifier and a sequence
+	number.  The RS would then just have to store the highest sequence
+	number of an expired token it has seen, thus limiting the necessary
+	state.</t>
       </section>
 
       <section anchor="mixnmatch" title="Combining profiles">

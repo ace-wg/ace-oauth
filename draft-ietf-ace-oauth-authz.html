@@ -1522,7 +1522,12 @@ Payload:
 <ul>
 <li>The token is a CWT and includes an "exp" claim and possibly the "nbf" claim.  The RS verifies these by comparing them to values from its internal clock as defined in <a href="#RFC7519" class="xref">[RFC7519]</a>.  In this case the RS's internal clock must reflect the current date and time, or at least be synchronized with the AS's clock.  How this clock synchronization would be performed is out of scope for this specification.</li>
 <li>The RS verifies the validity of the token by performing an introspection request as specified in <a href="#introspectionEndpoint" class="xref">Section 5.7</a>.  This requires the RS to have a reliable network connection to the AS and to be able to handle two secure sessions in parallel (C to RS and RS to AS).</li>
-<li>In order to support token expiration for devices that have no reliable way of synchronizing their internal clocks, this specification defines the following approach: The claim "exi" ("expires in") can be used, to provide the RS with the lifetime of the token in seconds from the time the RS first receives the token.  This approach is of course vulnerable to malicious clients holding back tokens they do not want to expire. Such an attack can only be prevented if the RS is able to communicate with the AS in some regular intervals, so that the can AS provide the RS with a list of expired tokens.  The drawback of this mitigation is that the RS might as well use the communication with the AS to synchronize its internal clock.  </li>
+<li>In order to support token expiration for devices that have no reliable way of synchronizing their internal clocks, this specification defines the following approach: The claim "exi" ("expires in") can be used, to provide the RS with the lifetime of the token in seconds from the time the RS first receives the token.  Processing this claim requires that the RS does the following: <ul>
+<li>Keep track of the time it received a token that contains an "exi" claim.</li>
+<li>Keep track of the identifiers of tokens containing the "exi" claim that have expired (in order to avoid accepting them again).</li>
+</ul>
+<p> </p>
+</li>
 </ul>
 <p id="rfc.section.5.8.3.p.3">If a token that authorizes a long running request such as a CoAP Observe <a href="#RFC7641" class="xref">[RFC7641]</a> expires, the RS MUST send an error response with the response code equivalent to the CoAP code 4.01 (Unauthorized) to the client and then terminate processing the long running request.</p>
 <h1 id="rfc.section.5.8.4">
@@ -1590,7 +1595,15 @@ Payload:
 </h1>
 <p id="rfc.section.6.6.p.1">An RS that is offline faces the problem of clock drift. Since it cannot synchronize its clock with the AS, it may be tricked into accepting old access tokens that are no longer valid or have been compromised.  In order to prevent this, an RS may use the nonce-based mechanism defined in <a href="#asInfo" class="xref">Section 5.1.2</a> to ensure freshness of an Access Token subsequently presented to this RS.</p>
 <p id="rfc.section.6.6.p.2">Another problem with clock drift is that evaluating the standard token expiration claim "exp" can give unpredictable results.  </p>
-<p id="rfc.section.6.6.p.3">The expiration mechanism implemented by the "exi" claim, based on the first time the RS sees the token was defined to provide a more predictable alternative.  The "exi" approach has some drawbacks that need to be considered: First a malicious client may hold back tokens with the "exi" claim in order to prolong their lifespan, and second if an RS loses state (e.g. due to an unscheduled reboot), it looses the current values of counters tracking the "exi" claims of tokens it is storing.  The first drawback is inherent to the deployment scenario and the "exi" solution.  It can therefore not be mitigated without requiring the the RS be online at times.  The second drawback can be mitigated by regularly storing the value of "exi" Counters to persistent memory.</p>
+<p id="rfc.section.6.6.p.3">The expiration mechanism implemented by the "exi" claim, based on the first time the RS sees the token was defined to provide a more predictable alternative.  The "exi" approach has some drawbacks that need to be considered: </p>
+
+<ul class="empty">
+<li>A malicious client may hold back tokens with the "exi" claim in order to prolong their lifespan.</li>
+<li>If an RS loses state (e.g. due to an unscheduled reboot), it may loose the current values of counters tracking the "exi" claims of tokens it is storing.</li>
+<li>The RS needs to keep state	about expired tokens that used "exi" in order to be sure not to accept it again.  Attacker may use this to deplete the RS's storage resources.</li>
+</ul>
+
+<p> The first drawback is inherent to the deployment scenario and the "exi" solution.  It can therefore not be mitigated without requiring the the RS be online at times.  The second drawback can be mitigated by regularly storing the value of "exi" counters to persistent memory.  The third problem can be mitigated by the AS, by assigning identifiers (e.g. 'cti') to the tokens, that include a RS identifier and a sequence number.  The RS would then just have to store the highest sequence number of an expired token it has seen, thus limiting the necessary state.</p>
 <h1 id="rfc.section.6.7">
 <a href="#rfc.section.6.7">6.7.</a> <a href="#mixnmatch" id="mixnmatch">Combining profiles</a>
 </h1>
