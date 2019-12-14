@@ -76,7 +76,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-28" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-29" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -193,11 +193,14 @@
          keywords will be used for the search engine. -->
 
     <abstract>
-      <t>This specification defines a framework for authentication and authorization
-        in Internet of Things (IoT) environments called ACE-OAuth. The framework is based on
-        a set of building blocks including OAuth 2.0 and CoAP, thus transforming a well-known and
-      widely used authorization solution into a form suitable for IoT devices.  Existing specifications
-      are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.
+      <t>This specification defines a framework for authentication and
+      authorization in Internet of Things (IoT) environments called ACE-OAuth.
+      The framework is based on a set of building blocks including OAuth 2.0
+      <xref target="RFC6749"/> and the Constrained Application Protocol (CoAP)
+      <xref target="RFC7252"/>, thus transforming a well-known and widely used
+      authorization solution into a form suitable for IoT devices.  Existing
+      specifications are used where possible, but extensions are added and
+      profiles are defined to better serve the IoT use cases.
       </t>
     </abstract>
   </front>
@@ -220,15 +223,17 @@
    environment also applies to the Internet of Things (IoT) environment, many
    IoT devices are constrained, for example, in terms of processing
    capabilities, available memory, etc. For web applications on constrained
-   nodes, this specification RECOMMENDS the use of CoAP
-   <xref target="RFC7252"/> as replacement for HTTP.</t>
+   nodes, this specification RECOMMENDS the use of the Constrained Application
+   Protocol (CoAP) <xref target="RFC7252"/> as replacement for HTTP.</t>
 
-   <t>A detailed treatment of constraints can be found in <xref target="RFC7228"/>, and the
-   different IoT deployments present a
-   continuous range of device and network capabilities.  Taking energy
-   consumption as an example: At one end there are energy-harvesting or
-   battery powered devices which have a tight power budget, on the other
-   end there are mains-powered devices, and all levels in between.</t>
+   <t><xref target="constraints"/> gives an overview of the constraints
+   considered in this design, and a more detailed treatment of constraints can
+   be found in <xref target="RFC7228"/>.  This design aims to accommodate
+   different IoT deployments and thus a continuous range of device and network
+   capabilities.  Taking energy consumption as an example: At one end there are
+   energy-harvesting or  battery powered devices which have a tight power
+   budget, on the other end there are mains-powered devices, and all levels in
+   between.</t>
 
    <t>Hence, IoT devices may be very different in terms of available processing
    and message exchange capabilities and there is a need to support many
@@ -240,15 +245,15 @@
    devices.  This specification contains the necessary building blocks
    for adjusting OAuth 2.0 to IoT environments.</t>
 
-   <t>More detailed, interoperable specifications can be found in profiles.
-   Implementations may claim conformance with a specific profile,
-   whereby implementations utilizing the same profile interoperate while
-   implementations of different profiles are not expected to be interoperable.
-   Some devices, such as mobile phones and tablets, may implement multiple
-   profiles and will therefore be able to interact with a wider range of low end devices.
-   Requirements on profiles are described at contextually appropriate places
-   throughout this specification, and also summarized in
-   <xref target="app:profileRequirements"/>.
+   <t>More detailed, interoperable specifications can be found in separate
+   profile specifications.  Implementations may claim conformance with a
+   specific profile, whereby implementations utilizing the same profile
+   interoperate while implementations of different profiles are not expected to
+   be interoperable.  Some devices, such as mobile phones and tablets, may
+   implement multiple profiles and will therefore be able to interact with a
+   wider range of low end devices.  Requirements on profiles are described at
+   contextually appropriate places throughout this specification, and also
+   summarized in <xref target="app:profileRequirements"/>.
    </t>
 
 
@@ -317,23 +322,25 @@ including the claims of relevant access tokens, that an RS uses to determine whe
   overhead and message exchanges. While this specification defines extensions
   for the use of OAuth over CoAP, other underlying protocols are not prohibited
   from being supported in the future, such as HTTP/2 <xref target="RFC7540"/>,
-  MQTT <xref target="MQTT5.0"/>, BLE <xref target="BLE"/> and QUIC <xref
+  Message Queuing Telemetry Transport (MQTT) <xref target="MQTT5.0"/>,
+  Bluetooth Low Energy (BLE) <xref target="BLE"/> and QUIC <xref
   target="I-D.ietf-quic-transport"/>.  Note that this document specifies
   protocol exchanges in terms of RESTful verbs such as GET and POST.
   Future profiles using protocols that do not support these verbs MUST
   specify how the corresponding protocol messages are transmitted instead.</t>
 
   
-  <t>A third building block is CBOR <xref target="RFC7049"/>, for encodings
-  where JSON <xref target="RFC8259"/> is not sufficiently compact.  CBOR is a
-  binary encoding designed for small code and message size, which may be used
+  <t>A third building block is the Concise Binary Object Representation
+  (CBOR) <xref target="RFC7049"/>, for encodings where JSON
+  <xref target="RFC8259"/> is not sufficiently compact.  CBOR is a binary
+  encoding designed for small code and message size, which may be used
   for encoding of self contained tokens, and also for encoding payloads
   transferred in protocol messages.
   </t>
 
-  <t>A fourth building block is the CBOR-based secure message format
-  COSE <xref target="RFC8152"/>, which enables object-level layer
-  security as an alternative or complement to transport layer security (DTLS
+  <t>A fourth building block is CBOR Object Signing and Encryption (COSE)
+  <xref target="RFC8152"/>, which enables object-level layer security as an
+  alternative or complement to transport layer security (DTLS
     <xref target="RFC6347"/> or TLS <xref target="RFC8446"/>). COSE is used to
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
     which are an extension to the OAuth bearer tokens. The default token format
@@ -920,12 +927,14 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
     }
 ]]></artwork></figure>
 
-    <t>In this example, the attribute AS points the receiver of this message
-    to the URI "coaps://as.example.com/token" to request access permissions.
-    The originator of the AS Request Creation Hints payload (i.e., RS) uses a
-    local clock that is loosely synchronized with a time scale common between
-    RS and AS (e.g., wall clock time). Therefore, it has included a parameter
-    <spanx style="verb">nonce</spanx> (see <xref target="cnonceParam"/>).</t>
+    <t>In the example above, the response parameter "AS" points the receiver of
+    this message to the URI "coaps://as.example.com/token" to request access
+    tokens.  The RS sending this response (i.e., RS) uses an internal clock
+    that is only loosely synchronized with the clock of the AS.  Therefore it
+    can not reliably verify the expiration time of access tokens it receives.
+    To ensure a certain level of access token freshness nevetheless, the RS has
+    included a <spanx style="verb">cnonce</spanx> parameter (see <xref
+    target="cnonceParam"/>) in the response.</t>
 
     <t><xref target="fig:as-info-cbor"/> illustrates the mandatory to use
     binary encoding of the message payload shown in
@@ -957,7 +966,7 @@ a4                                   # map(4)
       in that case, the RS can use the "cnonce" (client-nonce) parameter.
       The processing requirements for this parameter are as follows:
       <list style="symbols">
-	<t>A RS sending a "cnonce" parameter in an an AS Request Creation
+	<t>A RS sending a "cnonce" parameter in an AS Request Creation
 	Hints message MUST store information to validate that a given
 	cnonce is fresh.  How this is implemented internally is out of scope
 	for this specification.  Expiration of client-nonces should be based
