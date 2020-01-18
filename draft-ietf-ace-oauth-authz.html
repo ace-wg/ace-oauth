@@ -1072,7 +1072,7 @@ a4                                   # map(4)
 
 <ul>
 <li>The parameter "grant_type" is OPTIONAL in the context of this framework (as opposed to REQUIRED in RFC6749).  If that parameter is missing, the default value "client_credentials" is implied.</li>
-<li>The "audience" parameter from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> is OPTIONAL to request an access token bound to a specific audience.</li>
+<li>The "audience" parameter from <a href="#RFC8693" class="xref">[RFC8693]</a> is OPTIONAL to request an access token bound to a specific audience.</li>
 <li>The "cnonce" parameter defined in <a href="#cnonceParamToken" class="xref">Section 5.6.4.4</a> is REQUIRED if the RS provided a client-nonce in the "AS Request Creation Hints" message <a href="#asInfo" class="xref">Section 5.1.2</a>
 </li>
 <li>The "scope" parameter MAY be encoded as a byte string instead of the string encoding specified in section 3.3 of <a href="#RFC6749" class="xref">[RFC6749]</a>, in order allow compact encoding of complex scopes.  The syntax of such a binary encoding is explicitly not specified here and left to profiles or applications, specifically note that a binary encoded scope does not necessarily use the space character '0x20' to delimit scope-tokens.</li>
@@ -1451,7 +1451,7 @@ Payload:
 <a href="#rfc.section.5.8">5.8.</a> <a href="#accessToken" id="accessToken">The Access Token</a>
 </h1>
 <p id="rfc.section.5.8.p.1">This framework RECOMMENDS the use of CBOR web token (CWT) as specified in <a href="#RFC8392" class="xref">[RFC8392]</a>.  </p>
-<p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this document uses the "cnf" claim from <a href="#I-D.ietf-ace-cwt-proof-of-possession" class="xref">[I-D.ietf-ace-cwt-proof-of-possession]</a> and the "scope" claim from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> for JWT- and CWT-encoded tokens.  In addition to string encoding specified for the "scope" claim, a binary encoding MAY be used.  The syntax of such an encoding is explicitly not specified here and left to profiles or applications, specifically note that a binary encoded scope does not necessarily use the space character '0x20' to delimit scope-tokens.</p>
+<p id="rfc.section.5.8.p.2">In order to facilitate offline processing of access tokens, this document uses the "cnf" claim from <a href="#I-D.ietf-ace-cwt-proof-of-possession" class="xref">[I-D.ietf-ace-cwt-proof-of-possession]</a> and the "scope" claim from <a href="#RFC8693" class="xref">[RFC8693]</a> for JWT- and CWT-encoded tokens.  In addition to string encoding specified for the "scope" claim, a binary encoding MAY be used.  The syntax of such an encoding is explicitly not specified here and left to profiles or applications, specifically note that a binary encoded scope does not necessarily use the space character '0x20' to delimit scope-tokens.</p>
 <p id="rfc.section.5.8.p.3">If the AS needs to convey a hint to the RS about which profile it should use to communicate with the client, the AS MAY include an "ace_profile" claim in the access token, with the same syntax and semantics as defined in <a href="#paramProfile" class="xref">Section 5.6.4.3</a>.</p>
 <p id="rfc.section.5.8.p.4">If the client submitted a client-nonce parameter in the access token request <a href="#cnonceParamToken" class="xref">Section 5.6.4.4</a>, the AS MUST include the value of this parameter in the "cnonce" claim specified here.  The "cnonce" claim uses binary encoding.</p>
 <h1 id="rfc.section.5.8.1">
@@ -1622,7 +1622,7 @@ Payload:
 <h1 id="rfc.section.6.9">
 <a href="#rfc.section.6.9">6.9.</a> <a href="#audience" id="audience">Identifying audiences</a>
 </h1>
-<p id="rfc.section.6.9.p.1">The audience claim as defined in <a href="#RFC7519" class="xref">[RFC7519]</a> and the equivalent "audience" parameter from <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
+<p id="rfc.section.6.9.p.1">The audience claim as defined in <a href="#RFC7519" class="xref">[RFC7519]</a> and the equivalent "audience" parameter from <a href="#RFC8693" class="xref">[RFC8693]</a> are intentionally vague on how to match the audience value to a specific RS.  This is intended to allow application specific semantics to be used.  This section attempts to give some general guidance for the use of audiences in constrained environments.</p>
 <p id="rfc.section.6.9.p.2">URLs are not a good way of identifying mobile devices that can switch networks and thus be associated with new URLs.  If the audience represents a single RS, and asymmetric keys are used, the RS can be uniquely identified by a hash of its public key.  If this approach is used this framework RECOMMENDS to apply the procedure from section 3 of <a href="#RFC6920" class="xref">[RFC6920]</a>.</p>
 <p id="rfc.section.6.9.p.3">If the audience addresses a group of resource servers, the mapping of group identifier to individual RS has to be provisioned to each RS before the group-audience is usable.  Managing dynamic groups could be an issue, if any RS is not always reachable when the groups' memberships change. Furthermore, issuing access tokens bound to symmetric proof-of-possession keys that apply to a group-audience is problematic, as an RS that is in possession of the access token can impersonate the client towards the other RSs that are part of the group.  It is therefore NOT RECOMMENDED to issue access tokens bound to a group audience and symmetric proof-of possession keys.</p>
 <p id="rfc.section.6.9.p.4">Even the client must be able to determine the correct values to put into the "audience" parameter, in order to obtain a token for the intended RS.  Errors in this process can lead to the client inadvertently obtaining a token for the wrong RS.  The correct values for "audience" can either be provisioned to the client as part of its configuration, or dynamically looked up by the client in some directory. In the latter case the integrity and	correctness of the directory data must be assured.  Note that the "audience" hint provided by the RS as part of the "AS Request Creation Hints" <a href="#asInfo" class="xref">Section 5.1.2</a> is not typically source authenticated and integrity protected, and should therefore not be treated a trusted value.</p>
@@ -1899,7 +1899,7 @@ Payload:
 <li>Claim Key: TBD (suggested: 9)</li>
 <li>Claim Value Type(s): byte string or text string</li>
 <li>Change Controller: IESG</li>
-<li>Specification Document(s): Section 4.2 of <a href="#I-D.ietf-oauth-token-exchange" class="xref">[I-D.ietf-oauth-token-exchange]</a>
+<li>Specification Document(s): Section 4.2 of <a href="#RFC8693" class="xref">[RFC8693]</a>
 </li>
 </ul>
 <p></p>
@@ -2005,11 +2005,6 @@ Payload:
 <td class="reference"><b id="I-D.ietf-ace-oauth-params">[I-D.ietf-ace-oauth-params]</b></td>
 <td class="top">
 <a>Seitz, L.</a>, "<a href="https://tools.ietf.org/html/draft-ietf-ace-oauth-params-10">Additional OAuth Parameters for Authorization in Constrained Environments (ACE)</a>", Internet-Draft draft-ietf-ace-oauth-params-10, January 2020.</td>
-</tr>
-<tr>
-<td class="reference"><b id="I-D.ietf-oauth-token-exchange">[I-D.ietf-oauth-token-exchange]</b></td>
-<td class="top">
-<a>Jones, M.</a>, <a>Nadalin, A.</a>, <a>Campbell, B.</a>, <a>Bradley, J.</a> and <a>C. Mortimore</a>, "<a href="https://tools.ietf.org/html/draft-ietf-oauth-token-exchange-19">OAuth 2.0 Token Exchange</a>", Internet-Draft draft-ietf-oauth-token-exchange-19, July 2019.</td>
 </tr>
 <tr>
 <td class="reference"><b id="IANA.CborWebTokenClaims">[IANA.CborWebTokenClaims]</b></td>
@@ -2120,6 +2115,11 @@ Payload:
 <td class="reference"><b id="RFC8392">[RFC8392]</b></td>
 <td class="top">
 <a>Jones, M.</a>, <a>Wahlstroem, E.</a>, <a>Erdtman, S.</a> and <a>H. Tschofenig</a>, "<a href="https://tools.ietf.org/html/rfc8392">CBOR Web Token (CWT)</a>", RFC 8392, DOI 10.17487/RFC8392, May 2018.</td>
+</tr>
+<tr>
+<td class="reference"><b id="RFC8693">[RFC8693]</b></td>
+<td class="top">
+<a>Jones, M.</a>, <a>Nadalin, A.</a>, <a>Campbell, B.</a>, <a>Bradley, J.</a> and <a>C. Mortimore</a>, "<a href="https://tools.ietf.org/html/rfc8693">OAuth 2.0 Token Exchange</a>", RFC 8693, DOI 10.17487/RFC8693, January 2020.</td>
 </tr>
 </tbody></table>
 <h1 id="rfc.references.2">
