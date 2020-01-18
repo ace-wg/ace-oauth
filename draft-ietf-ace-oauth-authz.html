@@ -483,7 +483,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-30" />
-  <meta name="dct.issued" scheme="ISO8601" content="2020-11" />
+  <meta name="dct.issued" scheme="ISO8601" content="2020-18" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth.  The framework is based on a set of building blocks including OAuth 2.0 and the Constrained Application Protocol (CoAP), thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth.  The framework is based on a set of building blocks including OAuth 2.0 and the Constrained Application Protocol (CoAP), thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
 
@@ -507,7 +507,7 @@
 <td class="right">G. Selander</td>
 </tr>
 <tr>
-<td class="left">Expires: July 14, 2020</td>
+<td class="left">Expires: July 21, 2020</td>
 <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -536,7 +536,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">January 11, 2020</td>
+<td class="right">January 18, 2020</td>
 </tr>
 
     	
@@ -552,7 +552,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on July 14, 2020.</p>
+<p>This Internet-Draft will expire on July 21, 2020.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2020 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -1525,9 +1525,12 @@ Payload:
 <li>In order to support token expiration for devices that have no reliable way of synchronizing their internal clocks, this specification defines the following approach: The claim "exi" ("expires in") can be used, to provide the RS with the lifetime of the token in seconds from the time the RS first receives the token.  For CBOR-based interaction this parameter is encoded as unsigned integer, while JSON-based interactions encode this as JSON number.</li>
 <li>Processing this claim requires that the RS does the  following: <ul>
 <li>For each token the RS receives, that contains an "exi" claim: Keep track of the time it received that token and revisit that list regularly to expunge expired tokens.</li>
-<li>Keep track of the identifiers of tokens containing the "exi" claim that have expired (in order to avoid accepting them again).</li>
+<li>Keep track of the identifiers of tokens containing the "exi" claim that have expired (in order to avoid accepting them again).  In order to avoid an unbounded memory usage growth, this MUST be implemented in the following way when the "exi" claim is used: <ul>
+<li>When creating the token, the AS MUST add a 'cti' claim ( or 'jti' for JWTs) to the access token.  The value of this claim MUST be created as the binary representation of the concatenation of the identifier of the RS with a sequence number counting the tokens containing an 'exi' claim, issued by this AS for the RS.</li>
+<li>The RS MUST store the highest sequence number of an expired token containing the "exi" claim that it has seen, and treat tokens with lower sequence numbers as expired.</li>
 </ul>
-<p> </p>
+</li>
+</ul>
 </li>
 </ul>
 <p id="rfc.section.5.8.3.p.3">If a token that authorizes a long running request such as a CoAP Observe <a href="#RFC7641" class="xref">[RFC7641]</a> expires, the RS MUST send an error response with the response code equivalent to the CoAP code 4.01 (Unauthorized) to the client and then terminate processing the long running request.</p>
@@ -1601,10 +1604,9 @@ Payload:
 <ul class="empty">
 <li>A malicious client may hold back tokens with the "exi" claim in order to prolong their lifespan.</li>
 <li>If an RS loses state (e.g. due to an unscheduled reboot), it may loose the current values of counters tracking the "exi" claims of tokens it is storing.</li>
-<li>The RS needs to keep state	about expired tokens that used "exi" in order to be sure not to accept it again.  Attacker may use this to deplete the RS's storage resources.</li>
 </ul>
 
-<p> The first drawback is inherent to the deployment scenario and the "exi" solution.  It can therefore not be mitigated without requiring the the RS be online at times.  The second drawback can be mitigated by regularly storing the value of "exi" counters to persistent memory.  The third problem can be mitigated by the AS, by assigning identifiers (e.g. 'cti') to the tokens, that include an RS identifier and a sequence number.  The RS would then just have to store the highest sequence number of an expired token it has seen, thus limiting the necessary state.</p>
+<p> The first drawback is inherent to the deployment scenario and the "exi" solution.  It can therefore not be mitigated without requiring the the RS be online at times.  The second drawback can be mitigated by regularly storing the value of "exi" counters to persistent memory.</p>
 <h1 id="rfc.section.6.7">
 <a href="#rfc.section.6.7">6.7.</a> <a href="#mixnmatch" id="mixnmatch">Combining profiles</a>
 </h1>

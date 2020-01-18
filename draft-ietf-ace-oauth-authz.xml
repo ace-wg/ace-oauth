@@ -2020,9 +2020,21 @@ Payload:
       Keep track of the time it received that token and revisit that list
       regularly to expunge expired tokens.</t>
       <t>Keep track of the identifiers of tokens containing the "exi"
-      claim that have expired (in order to avoid accepting them again).</t>
-    </list>
-    </t>
+      claim that have expired (in order to avoid accepting them again).
+      In order to avoid an unbounded memory usage growth, this MUST be
+      implemented in the following way when the "exi" claim is used:
+      <list style="symbols">
+	<t>When creating the token, the AS MUST add a 'cti' claim (
+	or 'jti' for JWTs) to the access token.  The value of this claim
+	MUST be created as the binary representation of the concatenation
+	of the identifier of the RS with a sequence number counting the
+	tokens containing an 'exi' claim, issued by this AS for the
+	RS.</t>
+	<t>The RS MUST store the highest sequence number of an expired
+	token containing the "exi" claim that it has seen, and treat
+	tokens with lower sequence numbers as expired.</t>
+      </list></t>
+    </list></t>
   </list></t>
 
   <t>If a token that authorizes a long running request such as a CoAP
@@ -2290,19 +2302,11 @@ Payload:
 	  <t>If an RS loses state (e.g. due to an unscheduled reboot), it
 	  may loose the current values of counters tracking the "exi" claims of
 	  tokens it is storing.</t>
-	  <t>The RS needs to keep state	about expired tokens that used "exi"
-	  in order to be sure not to accept it again.  Attacker may use
-	  this to deplete the RS's storage resources.</t>
 	</list>
 	The first drawback is inherent to the deployment scenario and the "exi"
 	solution.  It can therefore not be mitigated without requiring the the
 	RS be online at times.  The second drawback can be mitigated by
-	regularly storing the value of "exi" counters to persistent memory.
-	The third problem can be mitigated by the AS, by assigning identifiers
-	(e.g. 'cti') to the tokens, that include an RS identifier and a sequence
-	number.  The RS would then just have to store the highest sequence
-	number of an expired token it has seen, thus limiting the necessary
-	state.</t>
+	regularly storing the value of "exi" counters to persistent memory.</t>
       </section>
 
       <section anchor="mixnmatch" title="Combining profiles">
