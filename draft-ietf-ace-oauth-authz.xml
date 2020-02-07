@@ -76,7 +76,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-32" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-33" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -2727,7 +2727,7 @@ Payload:
   
   <section anchor="IANAOAuthIntrospectionResponseParameterRegistration"
 	   title="OAuth Introspection Response Parameter Registration">
-    <t>This specification registers the following parameter in the OAuth
+    <t>This specification registers the following parameters in the OAuth
     Token Introspection Response registry <xref
     target="IANA.TokenIntrospectionResponse"/>.</t>
     <t>
@@ -2735,6 +2735,29 @@ Payload:
       <list style='symbols'>
         <t>Name: <spanx style="verb">ace_profile</spanx></t>
         <t>Description: The ACE profile used between client and RS.</t>
+        <t>Change Controller: IESG</t>
+        <t>Reference: <xref target="introRes"/> of [this document]</t>
+      </list>
+    </t>
+    <t>
+      <?rfc subcompact="yes"?>
+      <list style='symbols'>
+        <t>Name: <spanx style="verb">cnonce</spanx></t>
+        <t>Description: "client-nonce". A nonce previously provided
+	to the AS by the RS via the client.  Used to verify token freshness
+	when the RS cannot synchronize its clock with the AS.</t>
+        <t>Change Controller: IESG</t>
+        <t>Reference: <xref target="introRes"/> of [this document]</t>
+      </list>
+    </t>
+    <t>
+      <?rfc subcompact="yes"?>
+      <list style='symbols'>
+        <t>Name: <spanx style="verb">exi</spanx></t>
+        <t>Description: "Expires in". Lifetime of the token in seconds
+	from the time the RS first sees it.  Used to implement a weaker from of
+	token expiration for devices that cannot synchronize their internal
+	clocks.</t>
         <t>Change Controller: IESG</t>
         <t>Reference: <xref target="introRes"/> of [this document]</t>
       </list>
@@ -2788,6 +2811,16 @@ Payload:
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="accessToken"/> of [this document]</t>
     </list></t>
+
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Claim Name: <spanx style="verb">cnonce</spanx></t>
+      <t>Claim Description: "client-nonce". A nonce previously provided
+      to the AS by the RS via the client.  Used to verify token freshness
+      when the RS cannot synchronize its clock with the AS.</t>
+      <t>Change Controller: IESG</t>
+      <t>Reference: <xref target="accessToken"/> of [this document]</t>
+    </list></t>
     
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
@@ -2799,36 +2832,14 @@ Payload:
       <t>Change Controller: IESG</t>
       <t>Reference: <xref target="tokenExpiration"/> of [this document]</t>
     </list></t>
-    
-    <t><?rfc subcompact="yes"?>
-    <list style='symbols'>
-      <t>Claim Name: <spanx style="verb">cnonce</spanx></t>
-      <t>Claim Description: "client-nonce". A nonce previously provided
-      to the AS by the RS via the client.  Used to verify token freshness
-      when the RS cannot synchronize its clock with the AS.</t>
-      <t>Change Controller: IESG</t>
-      <t>Reference: <xref target="accessToken"/> of [this document]</t>
-    </list></t>
-
+ 
  </section>
   
   <section anchor="IANACWTClaims" title="CBOR Web Token Claims">
     <t>This specification registers the following new claims in the "CBOR
     Web Token (CWT) Claims" registry <xref
     target="IANA.CborWebTokenClaims"/>.</t>
-    <t><?rfc subcompact="yes"?>
-    <list style='symbols'>
-      <t>Claim Name: <spanx style="verb">scope</spanx></t>
-      <t>Claim Description: The scope of an access token as
-      defined in <xref target="RFC6749"/>.</t>
-      <t>JWT Claim Name: scope</t>
-      <t>Claim Key: TBD (suggested: 9)</t>
-      <t>Claim Value Type(s): byte string or text string</t>
-      <t>Change Controller: IESG</t>
-      <t>Specification Document(s): Section 4.2 of
-      <xref target="RFC8693"/></t>
-    </list></t>
-    
+       
     <t><?rfc subcompact="yes"?>
     <list style='symbols'>
       <t>Claim Name: <spanx style="verb">ace_profile</spanx></t>
@@ -2838,19 +2849,8 @@ Payload:
       <t>Claim Key: TBD (suggested: 38)</t>
       <t>Claim Value Type(s): integer</t>
       <t>Change Controller: IESG</t>
-      <t>Specification Document(s): <xref target="accessToken"/> of [this document]</t>
-    </list></t>
-     
-    <t><?rfc subcompact="yes"?>
-    <list style='symbols'>
-      <t>Claim Name: <spanx style="verb">exi</spanx></t>
-      <t>Claim Description: The expiration time of a token measured from
-      when it was received at the RS in seconds.</t>
-      <t>JWT Claim Name: exi</t>
-      <t>Claim Key: TBD (suggested: 40)</t>
-      <t>Claim Value Type(s): integer</t>
-      <t>Change Controller: IESG</t>
-      <t>Specification Document(s): <xref target="tokenExpiration"/> of [this document]</t>
+      <t>Specification Document(s): <xref target="accessToken"/> of [this
+      document]</t>
     </list></t>
 
     <t><?rfc subcompact="yes"?>
@@ -2862,9 +2862,36 @@ Payload:
       <t>Claim Key: TBD (suggested: 39)</t>
       <t>Claim Value Type(s): byte string</t>
       <t>Change Controller: IESG</t>
-      <t>Specification Document(s): <xref target="accessToken"/> of [this document]</t>
+      <t>Specification Document(s): <xref target="accessToken"/> of [this
+      document]</t>
     </list></t>
     
+    <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Claim Name: <spanx style="verb">exi</spanx></t>
+      <t>Claim Description: The expiration time of a token measured from
+      when it was received at the RS in seconds.</t>
+      <t>JWT Claim Name: exi</t>
+      <t>Claim Key: TBD (suggested: 40)</t>
+      <t>Claim Value Type(s): integer</t>
+      <t>Change Controller: IESG</t>
+      <t>Specification Document(s): <xref target="tokenExpiration"/> of [this
+      document]</t>
+    </list></t>
+
+     <t><?rfc subcompact="yes"?>
+    <list style='symbols'>
+      <t>Claim Name: <spanx style="verb">scope</spanx></t>
+      <t>Claim Description: The scope of an access token as
+      defined in <xref target="RFC6749"/>.</t>
+      <t>JWT Claim Name: scope</t>
+      <t>Claim Key: TBD (suggested: 9)</t>
+      <t>Claim Value Type(s): byte string or text string</t>
+      <t>Change Controller: IESG</t>
+      <t>Specification Document(s): Section 4.2 of
+      <xref target="RFC8693"/></t>
+     </list></t>
+     
   </section>
 
   <section anchor="IANAmediaType" title="Media Type Registrations">
