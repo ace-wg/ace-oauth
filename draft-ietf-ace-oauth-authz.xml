@@ -823,13 +823,20 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
   the CBOR payload MAY be enclosed in a non-CBOR cryptographic wrapper.</t>
 
 <section anchor="asDiscovery" title="Discovering Authorization Servers">
-  <t>In order to determine the AS in charge of a resource hosted at the RS, C
-  MAY send an initial Unauthorized Resource Request message to RS.  RS then
-  denies the request and sends the address of its AS back to C.</t>
+  <t>C must discover the AS in charge of RS to determine where to request the
+access token. To do so, C must 1. find out the AS URI to which the token
+request message must be sent and 2. MUST validate that the AS with this
+URI is authorized to provide access tokens for this RS.
+  </t>
+  
+  <t> In order to determine the AS URI, C MAY send an initial Unauthorized
+Resource Request message to RS.  RS then denies the request and sends
+the address of its AS back to C (see <xref target="rreq"/>). How C validates the
+AS authorization is not in scope for this document. C may, e.g., ask
+it's owner if this AS is authorized for this RS. C may also use a
+mechanism that addresses both problems at once.</t>
 
-  <t>Instead of the initial Unauthorized Resource Request message, other
-  discovery methods may be used, or the client may be pre-provisioned with
-  an RS-to-AS mapping.</t>
+</section><!--AS Discovery -->
 
   <section anchor="rreq" title="Unauthorized Resource Request Message">
     <t>An Unauthorized Resource Request message is a request for any
@@ -867,8 +874,8 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
     <t>The AS Request Creation Hints message is sent by an RS as a response to an
     Unauthorized Resource Request message (see <xref target="rreq"/>) to help
     the sender of the Unauthorized Resource Request message acquire a valid
-    access token. The AS Request Creation Hints message is a CBOR map, with a
-    MANDATORY element "AS" specifying an absolute URI (see Section 4.3 of <xref
+    access token. The AS Request Creation Hints message is a CBOR map, with an
+    OPTIONAL element "AS" specifying an absolute URI (see Section 4.3 of <xref
     target="RFC3986"/>) that identifies the appropriate AS for the RS.</t>
     
     <t>The message can also contain the following OPTIONAL parameters:
@@ -996,10 +1003,6 @@ a4                                   # map(4)
       </t>
     </section>
   </section><!--AS information-->
-  
-
-</section><!-- AS discovery -->
-
 
 <section anchor="authorizationGrants" title="Authorization Grants">
   <t>To request an access token, the client obtains authorization from the
@@ -2198,27 +2201,9 @@ Payload:
 	<t>Initially, no secure channel exists to protect the communication
 	between C and RS. Thus, C cannot determine if the AS Request
 	Creation Hints contained in an unprotected response from RS to an
-	unauthorized request (see <xref target="asInfo"/>) are authentic. It is
-	therefore advisable to provide C with a (possibly hard-coded) list of
-	trustworthy authorization servers, possibly including information
-	used to authenticate the AS, such as a public key or certificate
-	fingerprint.  AS Request Creation Hints referring to a URI not listed
-	there would be ignored.</t>
+	unauthorized request (see <xref target="asInfo"/>) are authentic. C therefore MUST determine if an AS is authorized to provide access tokens for a certain RS.</t>
 
-	<t>A compromised RS may use the hints to trick a client into
-	contacting an AS that is not supposed to be in charge of that
-	RS.  Since this AS must be in the hard-coded list of trusted AS
-	no violation of privileges and or exposure of credentials should
-	happen, since a trusted AS is expected to refuse requestes for which
-	it is not applicable and render a corresponding error response.
-	However a compromised RS may use this to perform a denial of
-	service against a specific AS, by redirecting a large number of client
-	requests to that AS.</t>
-
-	<t>A compromised client can be made to contact any AS, including
-	compromised ones.  This should not affect the RS, since it is supposed
-	to keep track of which AS are trusted and have corresponding
-	credentials to verify the source of access tokens it receives.</t>
+	<t>A compromised RS may use the hints for attempting to trick a client into contacting an AS that is not supposed to be in charge of that RS. Therefore, C must not communicate with an AS if it cannot determine that this AS has the authority to issue access tokens for this RS. Otherwise, a compromised RS may use this to perform a denial of service attack against a specific AS, by redirecting a large number of client requests to that AS.</t>
 	
       </section>
 
@@ -2460,7 +2445,7 @@ Payload:
       <t>An unprotected response to an unauthorized request (see 
       <xref target="asInfo"/>) may disclose information about RS and/or its
       existing relationship with C. It is advisable to include as little
-      information as possible in an unencrypted response. If means of encrypting
+      information as possible in an unencrypted response. Even the absolute URI of the AS may reveal sensitive information about the service that RS provides. Developers must ensure that the RS does not disclose information that has an impact on the privacy of the stakeholders in the AS Request Creation Hints. They may choose to use a different mechanism for the discovery of the AS if necessary. If means of encrypting
       communication between C and RS already exist, more detailed information
       may be included with an error response to provide C with sufficient
       information to react on that particular error.</t>
