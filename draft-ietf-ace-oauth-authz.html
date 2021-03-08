@@ -479,12 +479,12 @@
 <link href="#rfc.authors" rel="Chapter">
 
 
-  <meta name="generator" content="xml2rfc version 2.37.1 - https://tools.ietf.org/tools/xml2rfc" />
+  <meta name="generator" content="xml2rfc version 2.22.3 - https://tools.ietf.org/tools/xml2rfc" />
   <link rel="schema.dct" href="http://purl.org/dc/terms/" />
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-36" />
-  <meta name="dct.issued" scheme="ISO8601" content="2020-17" />
+  <meta name="dct.issued" scheme="ISO8601" content="2020-08" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth.  The framework is based on a set of building blocks including OAuth 2.0 and the Constrained Application Protocol (CoAP), thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth.  The framework is based on a set of building blocks including OAuth 2.0 and the Constrained Application Protocol (CoAP), thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
 
@@ -508,7 +508,7 @@
 <td class="right">G. Selander</td>
 </tr>
 <tr>
-<td class="left">Expires: May 21, 2021</td>
+<td class="left">Expires: September 9, 2021</td>
 <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -537,7 +537,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">November 17, 2020</td>
+<td class="right">March 8, 2020</td>
 </tr>
 
     	
@@ -553,7 +553,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on May 21, 2021.</p>
+<p>This Internet-Draft will expire on September 9, 2021.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2020 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -936,7 +936,7 @@
 
 <p> </p>
 <p id="rfc.section.5.p.3">OAuth 2.0 requires the use of TLS both to protect the communication between AS and client when requesting an access token; between client and RS when accessing a resource and between AS and RS if introspection is used.  In constrained settings TLS is not always feasible, or desirable.  Nevertheless it is REQUIRED that the communications named above are encrypted, integrity protected and protected against message replay.  It is also REQUIRED that the communicating endpoints perform mutual authentication.  Furthermore it MUST be assured that responses are bound to the requests in the sense that the receiver of a response can be certain that the response actually belongs to a certain request.  Note that setting up such a secure communication may require some unprotected messages to be exchanged first (e.g. sending the token from the client to the RS).</p>
-<p id="rfc.section.5.p.4">Profiles MUST specify a communication security protocol that provides the features required above.</p>
+<p id="rfc.section.5.p.4">Profiles MUST specify a communication security protocol between client and RS that provides the features required above.  Profiles MUST specify a communication security protocol RECOMMENDED to be used between client and AS that provides the features required above.  Profiles MUST specify for introspection a communication security protocol RECOMMENDED to be used between RS and AS that provides the features required above.  These recommendations enable interoperability between different implementations without the need to define a new profile if the communication between C and AS, or between RS and AS, is protected with a different security protocol complying with the security requirements above.</p>
 <p id="rfc.section.5.p.5">In OAuth 2.0 the communication with the Token and the Introspection endpoints at the AS is assumed to be via HTTP and may use Uri-query parameters.  When profiles of this framework use CoAP instead, it is REQUIRED to use of the following alternative instead of Uri-query parameters: The sender (client or RS) encodes the parameters of its request as a CBOR map and submits that map as the payload  of the POST request.</p>
 <p id="rfc.section.5.p.6">Profiles that use CBOR encoding of protocol message parameters at the outermost encoding layer MUST use the media format 'application/ace+cbor'.  If CoAP is used for communication, the Content-Format MUST be abbreviated with the ID: 19 (see <a href="#IANAcoapContentFormat" class="xref">Section 8.16</a>).</p>
 <p id="rfc.section.5.p.7">The OAuth 2.0 AS uses a JSON structure in the payload of its responses both to client and RS.  If CoAP is used, it is REQUIRED to use CBOR <a href="#RFC7049" class="xref">[RFC7049]</a> instead of JSON.  Depending on the profile, the CBOR payload MAY be enclosed in a non-CBOR cryptographic wrapper.</p>
@@ -1464,7 +1464,7 @@ Payload:
 <p id="rfc.section.5.10.1.p.2">This section defines a method for transporting the access token to the RS using a RESTful protocol such as CoAP. Profiles of this framework MAY define other methods for token transport.  </p>
 <p id="rfc.section.5.10.1.p.3">The method consists of an authz-info endpoint, implemented by the RS.  A client using this method MUST make a POST request to the authz-info endpoint at the RS with the access token in the payload. The RS receiving the token MUST verify the validity of the token.  If the token is valid, the RS MUST respond to the POST request with 2.01 (Created).  Section <a href="#verifyToken" class="xref">Section 5.10.1.1</a> outlines how an RS MUST proceed to verify the validity of an access token.</p>
 <p id="rfc.section.5.10.1.p.4">The RS MUST be prepared to store at least one access token for future use. This is a difference to how access tokens are handled in OAuth 2.0, where the access token is typically sent along with each request, and therefore not stored at the RS.</p>
-<p id="rfc.section.5.10.1.p.5">This specification RECOMMENDS that an RS stores only one token per proof-of-possession key, meaning that an additional token linked to the same key will overwrite any existing token at the RS.  The reason is that this greatly simplifies (constrained) implementations, with respect to required storage and resolving a request to the applicable token.</p>
+<p id="rfc.section.5.10.1.p.5">This specification RECOMMENDS that an RS stores only one token per proof-of-possession key.  This means that an additional token linked to the same key will supersede any existing token at the RS, by replacing the corresponding authorization information.  The reason is that this greatly simplifies (constrained) implementations, with respect to required storage and resolving a request to the applicable token.</p>
 <p id="rfc.section.5.10.1.p.6">If the payload sent to the authz-info endpoint does not parse to a token, the RS MUST respond with a response code equivalent to the CoAP code 4.00 (Bad Request).</p>
 <p id="rfc.section.5.10.1.p.7">The RS MAY make an introspection request to validate the token before responding to the POST request to the authz-info endpoint, e.g. if the token is an opaque reference.  Some transport protocols may provide a way to indicate that the RS is busy and the client should retry after an interval; this type of status update would be appropriate while the RS is waiting for an introspection response.  </p>
 <p id="rfc.section.5.10.1.p.8">Profiles MUST specify whether the authz-info endpoint is protected, including whether error responses from this endpoint are protected.  Note that since the token contains information that allow the client and the RS to establish a security context in the first place, mutual authentication may not be possible at this point.</p>
@@ -1567,7 +1567,7 @@ Payload:
 <h1 id="rfc.section.6.2">
 <a href="#rfc.section.6.2">6.2.</a> <a href="#commSec" id="commSec">Communication Security</a>
 </h1>
-<p id="rfc.section.6.2.p.1">Communication with the authorization server MUST use confidentiality protection.  This step is extremely important since the client or the RS may obtain the proof-of-possession key from the authorization server for use with a specific access token.  Not using confidentiality protection exposes this secret (and the access token) to an eavesdropper thereby completely negating proof-of-possession security.  Profiles MUST specify how communication security according to the requirements in <a href="#oauthProfile" class="xref">Section 5</a> is provided.</p>
+<p id="rfc.section.6.2.p.1">Communication with the authorization server MUST use confidentiality protection.  This step is extremely important since the client or the RS may obtain the proof-of-possession key from the authorization server for use with a specific access token.  Not using confidentiality protection exposes this secret (and the access token) to an eavesdropper thereby completely negating proof-of-possession security.  The requirements for communication security of profiles are specified in <a href="#oauthProfile" class="xref">Section 5</a>.</p>
 <p id="rfc.section.6.2.p.2">Additional protection for the access token can be applied by encrypting it, for example encryption of CWTs is specified in Section 5.1 of <a href="#RFC8392" class="xref">[RFC8392]</a>.  Such additional protection can be necessary if the token is later transferred over an insecure connection (e.g. when it is sent to the authz-info endpoint).</p>
 <p id="rfc.section.6.2.p.3">Developers MUST ensure that the ephemeral credentials (i.e., the private key or the session key) are not leaked to third parties.  An adversary in possession of the ephemeral credentials bound to the access token will be able to impersonate the client.  Be aware that this is a real risk with many constrained environments, since adversaries can often easily get physical access to the devices.  This risk can also be mitigated to some extent by making sure that keys are refreshed more frequently.</p>
 <h1 id="rfc.section.6.3">
@@ -2172,12 +2172,12 @@ Payload:
 <tr>
 <td class="reference"><b id="I-D.ietf-quic-transport">[I-D.ietf-quic-transport]</b></td>
 <td class="top">
-<a>Iyengar, J.</a> and <a>M. Thomson</a>, "<a href="https://tools.ietf.org/html/draft-ietf-quic-transport-32">QUIC: A UDP-Based Multiplexed and Secure Transport</a>", Internet-Draft draft-ietf-quic-transport-32, October 2020.</td>
+<a>Iyengar, J.</a> and <a>M. Thomson</a>, "<a href="https://tools.ietf.org/html/draft-ietf-quic-transport-34">QUIC: A UDP-Based Multiplexed and Secure Transport</a>", Internet-Draft draft-ietf-quic-transport-34, January 2021.</td>
 </tr>
 <tr>
 <td class="reference"><b id="I-D.ietf-tls-dtls13">[I-D.ietf-tls-dtls13]</b></td>
 <td class="top">
-<a>Rescorla, E.</a>, <a>Tschofenig, H.</a> and <a>N. Modadugu</a>, "<a href="https://tools.ietf.org/html/draft-ietf-tls-dtls13-39">The Datagram Transport Layer Security (DTLS) Protocol Version 1.3</a>", Internet-Draft draft-ietf-tls-dtls13-39, November 2020.</td>
+<a>Rescorla, E.</a>, <a>Tschofenig, H.</a> and <a>N. Modadugu</a>, "<a href="https://tools.ietf.org/html/draft-ietf-tls-dtls13-40">The Datagram Transport Layer Security (DTLS) Protocol Version 1.3</a>", Internet-Draft draft-ietf-tls-dtls13-40, January 2021.</td>
 </tr>
 <tr>
 <td class="reference"><b id="Margi10impact">[Margi10impact]</b></td>
