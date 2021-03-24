@@ -949,7 +949,7 @@ mechanism that addresses both problems at once.</t>
     <t>In the example above, the response parameter "AS" points the receiver of
     this message to the URI "coaps://as.example.com/token" to request access
     tokens.  The RS sending this response (i.e., RS) uses an internal clock
-    that is only loosely synchronized with the clock of the AS.  Therefore it
+    that is not synchronized with the clock of the AS.  Therefore it
     can not reliably verify the expiration time of access tokens it receives.
     To ensure a certain level of access token freshness nevetheless, the RS has
     included a <spanx style="verb">cnonce</spanx> parameter (see <xref
@@ -2177,8 +2177,9 @@ Payload:
       adversary in possession of the ephemeral credentials bound to the access
       token will be able to impersonate the client.  Be aware that this is a
       real risk with many constrained environments, since adversaries can
-      often easily get physical access to the devices.  This risk can also
-      be mitigated to some extent by making sure that keys are refreshed
+      often easily get physical access to the devices and therefore use phyical
+      extraction techniques to gain access to memory contents.  This risk can 
+      also be mitigated to some extent by making sure that keys are refreshed
       more frequently.</t>
     </section><!--communication security-->
 
@@ -2213,7 +2214,8 @@ Payload:
 	<t>Initially, no secure channel exists to protect the communication
 	between C and RS. Thus, C cannot determine if the AS Request
 	Creation Hints contained in an unprotected response from RS to an
-	unauthorized request (see <xref target="asInfo"/>) are authentic. C therefore MUST determine if an AS is authorized to provide access tokens for a certain RS.</t>
+	unauthorized request (see <xref target="asInfo"/>) are authentic. C therefore MUST determine if an AS is authorized to provide access tokens for a certain RS. How this determination is implemented is out of scope for this
+document and left to the applications.</t>
 
 	<t>A compromised RS may use the hints for attempting to trick a client into contacting an AS that is not supposed to be in charge of that RS. Therefore, C must not communicate with an AS if it cannot determine that this AS has the authority to issue access tokens for this RS. Otherwise, a compromised RS may use this to perform a denial of service attack against a specific AS, by redirecting a large number of client requests to that AS.</t>
 	
@@ -3026,7 +3028,10 @@ Payload:
 
   <t>Thanks to Carsten Bormann for contributing the text for the CoRE Resource
   Type registry.</t>
-  
+
+  <t>Thanks to Roman Danyliw for suggesting the <xref target="app:diffOAuth"/>
+  (including its contents).</t>
+
   <t>Ludwig Seitz and Goeran Selander worked on this document as part of
   the CelticPlus project CyberWI, with funding from Vinnova. Ludwig Seitz
   was also received further funding for this work by Vinnova in the context of
@@ -3611,8 +3616,44 @@ Payload:
  </t>
 </section>
 
+<section anchor="app:diffOAuth" title="Differences to OAuth 2.0">
+  <t>This document adapts OAuth 2.0 to be suitable for constrained environments.  
+  This sections lists the main differences from the normative requirements of
+  OAuth 2.0.
+
+      <list style="symbols">
+	<t>Use of TLS -- OAuth 2.0 requires the use of TLS both to protect the
+	communication between AS and client when requesting an access token;
+	between client and RS when accessing a resource and between AS and RS if
+	introspection is used.  This framework requires similar security
+	properties, but does not require that they be realized with TLS.  
+	See <xref target="oauthProfile"/>.</t>
+
+	<t>Cardinality of "grant_type" parameter -- In client-to-AS requests 
+	using OAuth 2.0, the "grant_type" parameter is required (per 
+	<xref target="RFC6749"/>).  In this framework, this parameter is
+	optional.  See <xref target="tokenRequest"/>.</t>
+
+	<t>Encoding of "scope" parameter -- In client-to-AS requests using OAuth
+	2.0, the "scope" parameter is string encoded (per 
+	<xref target="RFC6749"/>).  In this framework, this parameter may also be
+	encoded as a byte string.  See <xref target="tokenRequest"/>.</t>
+
+	<t>Cardinality of "token_type" parameter -- in AS-to-client responses
+	using OAuth 2.0, the token_type parameter is required (per 
+	<xref target="RFC6749"/>).  In this framework, this parameter is
+	optional.  See <xref target="tokenResponse"/>.</t>
+	
+	<t>Access token retention -- in OAuth 2.0, the access token is sent with
+	each request to the RS.  In this framework, the RS must be able to store
+	these tokens for later use.  See
+        <xref target="tokenAuthInfoEndpoint"/>.</t> 
+      </list>
+   </t>
+</section>
+
 <!-- ***************************************************** -->
-      <section anchor="options" title="Deployment Examples">
+      <section anchor="app:options" title="Deployment Examples">
         <t>There is a large variety of IoT deployments, as is indicated in
         <xref target="constraints"/>, and this section highlights a few common
         variants.  This section is not normative but illustrates how the
