@@ -77,7 +77,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-38" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-39" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -224,8 +224,9 @@
    environment also applies to the Internet of Things (IoT) environment, many
    IoT devices are constrained, for example, in terms of processing
    capabilities, available memory, etc. For web applications on constrained
-   nodes, this specification RECOMMENDS the use of the Constrained Application
-   Protocol (CoAP) <xref target="RFC7252"/> as replacement for HTTP.</t>
+   nodes it is RECOMMENDED to use of the Constrained Application
+   Protocol (CoAP) <xref target="RFC7252"/> as replacement for HTTP when
+   implementing this specification.</t>
 
    <t><xref target="constraints"/> gives an overview of the constraints
    considered in this design, and a more detailed treatment of constraints can
@@ -295,10 +296,10 @@ define the use of this specification with concrete transport and communication
 security protocols (e.g., CoAP over DTLS).
 </t>
 
-<t>We use the term "Access Information" for parameters other than the access token provided to the client by the AS to enable it to access the RS
+<t>The term "Access Information" is used for parameters, other than the access token, provided to the client by the AS to enable it to access the RS
 (e.g. public key of the RS, profile supported by RS).</t>
 
-<t>We use the term "Authorization Information" to denote all information,
+<t>The term "Authorization Information" is used to denote all information,
 including the claims of relevant access tokens, that an RS uses to determine whether an access request should be granted.</t>
 
 </section>
@@ -380,11 +381,11 @@ including the claims of relevant access tokens, that an RS uses to determine whe
           receives the access token in the response (if the request was successful).
           <vspace blankLines="0"/>
           In some deployments, a token introspection endpoint is provided by
-	  the AS, which can be used by the RS if it needs to request additional
-	  information regarding a received access token.  The RS makes a POST
-	  request to the introspection endpoint on the AS and receives
-	  information about the access token in the response. (See
-	  "Introspection" below.)
+	  the AS, which can be used by the RS and potentially the client, if they
+	  need to request additional information regarding a received access
+	  token.  The requesting entity makes a POST request to the introspection
+	  endpoint on the AS and receives information about the access token in
+	  the response. (See "Introspection" below.)
           <vspace blankLines="1"/>
         </t>
 
@@ -517,13 +518,13 @@ including the claims of relevant access tokens, that an RS uses to determine whe
       </t>
 
       <t hangText="Introspection:"><vspace blankLines="0"/>
-        Introspection is a method for a resource server to query the
-        authorization server for the active state and content of a received
-        access token.  This is particularly useful in those cases where the
-        authorization decisions are very dynamic and/or where the received
-        access token itself is an opaque reference rather than a self-contained
-        token.   More information about introspection in OAuth 2.0 can be
-        found in <xref target="RFC7662"/>.
+      Introspection is a method for a resource server or potentially a client,
+      to query the authorization server for the active state and content of a
+      received access token.  This is particularly useful in those cases where
+      the authorization decisions are very dynamic and/or where the received
+      access token itself is an opaque reference rather than a self-contained
+      token.   More information about introspection in OAuth 2.0 can be
+      found in <xref target="RFC7662"/>.
       </t>
     </list>
   </t>
@@ -566,13 +567,14 @@ including the claims of relevant access tokens, that an RS uses to determine whe
     objects and sent using CoAP.
   </t>
 
-  <t>This framework RECOMMENDS the use of CoAP as replacement for HTTP for use
-  in constrained environments.  For communication security this framework does
-  not make an explicit protocol recommendation, since the choice depends on
-  the requirements of the specific application.  DTLS <xref target="RFC6347"/>,
-  <xref target="I-D.ietf-tls-dtls13"/> and OSCORE <xref target="RFC8613"/> are
-  mentioned as examples, other protocols fulfilling the requirements
-  from <xref target="minimalCommSecReq"/> are also applicable.</t>
+  <t>In this framework the use of CoAP as replacement for HTTP is RECOMMENDED
+  for use in constrained environments.  For communication security this
+  framework does not make an explicit protocol recommendation, since the choice
+  depends on the requirements of the specific application.  DTLS
+  <xref target="RFC6347"/>, <xref target="I-D.ietf-tls-dtls13"/> and OSCORE
+  <xref target="RFC8613"/> are mentioned as examples, other protocols fulfilling
+  the requirements from <xref target="minimalCommSecReq"/> are also
+  applicable.</t>
 
 </section>
 </section>
@@ -652,9 +654,9 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
 |        |    + Refresh Token (optional) +---------------+
 |        |                                      ^ |
 |        |            Introspection Request  (D)| |
-| Client |                  (optional)          | |
-|        |                         Response     | |(E)
-|        |                         (optional)   | v
+| Client |                         Response     | |(E)
+|        |            (optional exchange)       | |
+|        |                                      | v
 |        |                               +--------------+
 |        |---(C)-- Token + Request ----->|              |
 |        |                               |   Resource   |
@@ -853,7 +855,8 @@ mechanism that addresses both problems at once.</t>
     Request message when any of the following hold:
 
       <list style="symbols">
-	<t>The request has been received on an unprotected channel.</t>
+	<t>The request has been received on an unprotected (i.e. non-secure)
+	channel.</t>
 	<t>The RS has no valid access token for the sender of the request
 	regarding the requested action on that resource.</t>
 	<t>The RS has a valid access token for the sender of the request, but
@@ -1771,8 +1774,8 @@ Payload:
 </section><!-- introspection endpoint -->
 
 <section anchor="accessToken" title="The Access Token">
-  <t>This framework RECOMMENDS the use of CBOR web token (CWT) as
-    specified in <xref target="RFC8392"/>.
+  <t>In this framework the use of CBOR web token (CWT) as
+    specified in <xref target="RFC8392"/> is RECOMMENDED.
   </t>
 
   <t>In order to facilitate offline processing of access tokens,
@@ -1811,7 +1814,7 @@ Payload:
   RS.  A client using this method MUST make a POST request to the authz-info
   endpoint at the RS with the access token in the payload. The RS receiving the
   token MUST verify the validity of the token.  If the token is valid, the RS
-  MUST respond to the POST request with 2.01 (Created).  Section <xref
+  MUST respond to the POST request with 2.01 (Created).  <xref
   target="verifyToken"/> outlines how an RS MUST proceed to verify the validity
   of an access token.</t>
   
@@ -1820,10 +1823,10 @@ Payload:
   where the access token is typically sent along with each request, and
   therefore not stored at the RS.</t>
 
-  <t>This specification RECOMMENDS that an RS stores only one token per
-  proof-of-possession key.  This means that an additional token linked to
-the same key will supersede any existing token at the RS, by replacing
-the corresponding authorization information.  The reason is that
+  <t>When using this framework it is RECOMMENDED that an RS stores only one
+  token per proof-of-possession key.  This means that an additional token linked
+  to the same key will supersede any existing token at the RS, by replacing
+  the corresponding authorization information.  The reason is that
   this greatly simplifies (constrained) implementations, with respect to
   required storage and resolving a request to the applicable token.</t>
   
@@ -2329,7 +2332,7 @@ the corresponding authorization information.  The reason is that
 	<t>In some scenarios it may be possible to protect the
 	communication with the authz-info endpoint (e.g. through
 	DTLS with only server-side authentication). In cases where
-	this is not possible this framework RECOMMENDS to use encrypted
+	this is not possible, it is RECOMMENDED to use encrypted
 	CWTs or tokens that are opaque references and need to be subjected to
 	introspection by the RS.</t>
 
@@ -2363,7 +2366,7 @@ the corresponding authorization information.  The reason is that
 	switch networks and thus be associated with new URLs.  If the
 	audience represents a single RS, and asymmetric keys are used,
 	the RS can be uniquely identified by a hash of its public key.
-	If this approach is used this framework RECOMMENDS to apply the
+	If this approach is used it is RECOMMENDED to apply the
 	procedure from section 3 of <xref target="RFC6920"/>.</t>
 
 	<t>If the audience addresses a group of resource servers, the mapping
@@ -3297,24 +3300,24 @@ the corresponding authorization information.  The reason is that
         <list style="hanging">
 
           <t hangText="CBOR, COSE, CWT:"><vspace blankLines="1"/>
-	  This framework RECOMMENDS the use of CBOR <xref target="RFC8949"/> as
-	  data format.  Where CBOR data needs to be protected, the use of COSE
-	  <xref target="RFC8152"/> is RECOMMENDED.  Furthermore, where
-	  self-contained tokens are needed, this framework RECOMMENDS the
-	  use of CWT <xref target="RFC8392"/>.  These measures aim at reducing
+	  When using this framework, it is RECOMMENDED to use CBOR 
+	  <xref target="RFC8949"/> as data format.  Where CBOR data needs to be
+	  protected, the use of COSE <xref target="RFC8152"/> is RECOMMENDED. 
+	  Furthermore, where self-contained tokens are needed, it is RECOMMENDED
+	  to use of CWT <xref target="RFC8392"/>.  These measures aim at reducing
 	  the size of messages sent over the wire, the RAM size of data objects
 	  that need to be kept in memory and the size of libraries that devices
 	  need to support.
 	  <vspace blankLines="1"/></t>
 
 	  <t hangText="CoAP:"><vspace blankLines="1"/>
-	  This framework RECOMMENDS the use of CoAP <xref target="RFC7252"/>
-	  instead of HTTP.  This does not preclude the use of other protocols
-	  specifically aimed at constrained devices, like, e.g., Bluetooth Low
-	  Energy (see <xref target="coap"/>).  This aims again at reducing the
-	  size of messages sent over the wire, the RAM size of data objects
-	  that need to be kept in memory and the size of libraries that devices
-	  need to support.
+	  When using this framework, it is RECOMMENDED to use of CoAP 
+	  <xref target="RFC7252"/> instead of HTTP.  This does not preclude the
+	  use of other protocols specifically aimed at constrained devices, like,
+	  e.g., Bluetooth Low Energy (see <xref target="coap"/>).  This aims
+	  again at reducing the size of messages sent over the wire, the RAM size
+	  of data objects that need to be kept in memory and the size of 
+	  libraries that devices need to support.
 	  <vspace blankLines="1"/></t>
 	  
 	  <t hangText="Access Information:"><vspace blankLines="1"/>
@@ -3353,22 +3356,22 @@ the corresponding authorization information.  The reason is that
 	  <vspace blankLines="1"/></t>
 	  
 	  <t hangText="Client Credentials Grant:"><vspace blankLines="1"/>
-	  This framework RECOMMENDS the use of the client credentials grant
-	  for machine-to-machine communication use cases, where manual
-	  intervention of the resource owner to produce a grant token is not
-	  feasible.  The intention is that the resource owner would instead
+	  In this framework the use of the client credentials grant is
+	  RECOMMENDED for machine-to-machine communication use cases, where 
+	  manual intervention of the resource owner to produce a grant token is
+	  not feasible.  The intention is that the resource owner would instead
 	  pre-arrange authorization with the AS, based on the client's own
 	  credentials.  The client can then (without manual intervention) obtain
 	  access tokens from the AS.
 	  <vspace blankLines="1"/></t>
 
 	  <t hangText="Introspection:"><vspace blankLines="1"/>
-	  This framework RECOMMENDS the use of access token introspection
+	  In this framework the use of access token introspection is RECOMMENDED
 	  in cases where the client is constrained in a way that it can not
 	  easily obtain new access tokens (i.e. it has connectivity issues
 	  that prevent it from communicating with the AS). In that case
-	  this framework RECOMMENDS the use of a long-term token, that could
-	  be a simple reference.  The RS is assumed to be able to communicate
+	  it is RECOMMENDED to use a long-term token, that could be a simple
+	  reference.  The RS is assumed to be able to communicate
 	  with the AS, and can therefore perform introspection, in order to
 	  learn the claims associated with the token reference.  The advantage
 	  of such an approach is that the resource owner can change the claims
