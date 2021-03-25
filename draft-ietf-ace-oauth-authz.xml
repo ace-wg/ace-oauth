@@ -347,7 +347,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
     which are an extension to the OAuth bearer tokens. The default token format
     is defined in CBOR web token (CWT) <xref target="RFC8392"/>.
-    Application layer security for CoAP using COSE can be provided with OSCORE
+    Application-layer security for CoAP using COSE can be provided with OSCORE
     <xref target="RFC8613"/>.</t>
 
   <t>With the building blocks listed above, solutions satisfying various
@@ -426,7 +426,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 	to bind the token to a request authorized by the token.  Such tokens
 	are called proof-of-possession tokens (or PoP tokens).
         <vspace blankLines="1"/>
-        The proof-of-possession (PoP) security concept used here assumes that
+        The proof-of-possession security concept used here assumes that
 	the AS acts as a trusted third party that binds keys to tokens.
 	In the case of access tokens, these so called PoP keys are then used by
 	the client to demonstrate the possession of the secret to the RS when
@@ -510,8 +510,8 @@ including the claims of relevant access tokens, that an RS uses to determine whe
         While the structure and encoding of the access token varies throughout
         deployments, a standardized format has been defined with the JSON Web
         Token (JWT) <xref target="RFC7519"/> where claims are encoded as a
-	JSON object.  In <xref target="RFC8392"/>, an
-	equivalent format using CBOR encoding (CWT) has been defined.
+	JSON object.  In <xref target="RFC8392"/> the CBOR Web Token (CWT)
+	has been defined as an equivalent format using CBOR encoding.
 	<vspace blankLines="1"/>
       </t>
       
@@ -538,7 +538,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 <section anchor="coap" title="CoAP">
 
     <t>
-    CoAP is an application layer protocol similar to HTTP, but specifically
+    CoAP is an application-layer protocol similar to HTTP, but specifically
     designed for constrained environments.  CoAP typically uses
     datagram-oriented transport, such as UDP, where reordering and loss
     of packets can occur.  A security solution needs to take the latter aspects
@@ -631,20 +631,21 @@ including the claims of relevant access tokens, that an RS uses to determine whe
       This framework assumes the use of PoP access tokens (see <xref
       target="oauth2Overview"/> for a short description) wherein the AS binds a
       key to an access token.  The client may include permissions it seeks to
-      obtain, and information about the credentials it wants to use (e.g.,
-      symmetric/asymmetric cryptography or a reference to a specific credential).<vspace blankLines="1"/>
+      obtain, and information about the credentials it wants to use for
+      proof-of-possession (e.g., symmetric/asymmetric cryptography or a
+      reference to a specific credential) of the access token.<vspace blankLines="1"/>
     </t>
 
     <t hangText="Access Token Response (B):"><vspace blankLines="0"/>
-      If the AS successfully processes the request from the client, it returns
-      an access token and optionally a refresh token (note that only certain
-      grant types support refresh tokens).  It can also return additional
-      parameters, referred to as "Access Information".  In addition to the
-      response parameters defined by OAuth 2.0 and the PoP access token
-      extension, this framework defines parameters that can be used to inform
-      the client about capabilities of the RS, e.g. the profiles the RS
-      supports.  More information about these parameters can be found in <xref
-      target="tokenParams"/>.
+      If the request from the client is successful (i.e. correct and
+      authorized), the AS returns an access token and optionally a refresh
+      token (note that only certain grant types support refresh tokens).  It
+      can also return additional parameters, referred to as "Access
+      Information".  In addition to the response parameters defined by OAuth
+      2.0 and the PoP access token extension, this framework defines parameters
+      that can be used to inform the client about capabilities of the RS, e.g.
+      the profiles the RS supports.  More information about these parameters
+      can be found in <xref target="tokenParams"/>.
       <vspace blankLines="1"/>
     </t>
 
@@ -668,7 +669,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 </list>
 
       <vspace blankLines="1"/>
-      The Client and the RS mutually authenticate using the security protocol
+      The client and the RS mutually authenticate using the security protocol
       specified in the profile (see step B) and the keys obtained in the access
       token or the Access Information.  The RS verifies that the token is
       integrity protected and originated by the AS. It then compares the claims
@@ -766,10 +767,10 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
   <t>
     <list style="hanging">
       <t hangText="Credential Provisioning"><vspace blankLines="0"/>
-        For IoT, it cannot be assumed that the client and RS are part of a
-	common key infrastructure, so the AS provisions credentials or
-	associated information to allow mutual authentication between
-	client and RS. The resulting security association between client
+        In constrained environments it cannot be assumed that the client and RS
+        are part of a common key infrastructure. Therefore the AS provisions
+	credentials or associated information to allow mutual authentication
+	between client and RS. The resulting security association between client
 	and RS may then also be used to bind these credentials to the
 	access tokens the client uses.
         <vspace blankLines="1"/>
@@ -881,7 +882,7 @@ mechanism that addresses both problems at once.</t>
 
     <t>Unauthorized Resource Request messages MUST be denied with an "unauthorized_client"
     error response. In this response, the Resource Server SHOULD provide proper
-    AS Request Creation Hints to enable the Client to request an access token
+    AS Request Creation Hints to enable the client to request an access token
     from RS's AS as described in <xref target="asInfo"/>.</t>
 
     <t>The handling of all client requests (including unauthorized ones)
@@ -899,7 +900,8 @@ mechanism that addresses both problems at once.</t>
     <t>The message can also contain the following OPTIONAL parameters:
     <list style="symbols">
       <t>A "audience" element containing a suggested audience that the client
-      should request at the AS.</t>
+      should request at the AS (see  <xref target="audience"/> for a discussion
+      of this parameter).</t>
       <t>A "kid" element containing the key identifier of a key used in
       an existing security association between the client and the RS.
       The RS expects the client to request an access token bound to this
@@ -1092,7 +1094,7 @@ a4                                   # map(4)
 
   <t>The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports. 
   A profile MUST define the details of the mapping between the fields described below, and these transports.
-  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Section 4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described below MUST be followed.</t> 
+  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Section 4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described in this section MUST be followed.</t> 
 
    <t>For the AS to be able to issue a token, the client MUST be authenticated
   and present a valid grant for the scopes requested.  Profiles of this
@@ -1443,10 +1445,10 @@ Payload:
         /--------------------+------------+------------------------\
         | Name               | CBOR Value | Original Specification |
         |--------------------+------------+------------------------|
-        | password           |      0     |      [RFC6749]         |
-        | authorization_code |      1     |      [RFC6749]         |
-        | client_credentials |      2     |      [RFC6749]         |
-        | refresh_token      |      3     |      [RFC6749]         |
+        | password           |      0     |  s. 4.3.2 of [RFC6749] |
+        | authorization_code |      1     |  s. 4.1.3 of [RFC6749] |
+        | client_credentials |      2     |  s. 4.4.2 of [RFC6749] |
+        | refresh_token      |      3     |  s. 6 of [RFC6749]     |
         \--------------------+------------+------------------------/
         ]]></artwork>
       </figure></t>
@@ -1649,7 +1651,9 @@ Payload:
         <t hangText="ace_profile">
 	OPTIONAL.  This indicates the profile that the RS MUST use with the
 	client.  See <xref target="paramProfile"/> for more details on the
-	formatting of this parameter.</t>
+	formatting of this parameter. If this parameter is absent, the AS
+	assumes that the RS implicitly knows which profile to use towards
+	the client.</t>
 	<t hangText="cnonce">
 	  OPTIONAL.  A client-nonce provided to the AS by the client.
 	  The RS MUST verify that this corresponds to the client-nonce
@@ -1988,11 +1992,11 @@ Payload:
   reject the request with a 4.05 (Method Not Allowed).</t>
 
   <t>Note: The use of the response codes 4.03 and 4.05 is intended to prevent
-  infinite loops where a dumb Client optimistically tries to access a
+  infinite loops where a dumb client optimistically tries to access a
   requested resource with any access token received from AS. As malicious
   clients could pretend to be C to determine C's privileges, these detailed
   response codes must be used only when a certain level of security is
-  already available which can be achieved only when the Client is
+  already available which can be achieved only when the client is
   authenticated.</t>
 
   <t>Note: The RS MAY use introspection for timely validation of an
@@ -3246,7 +3250,7 @@ document and left to the applications.</t>
 	  cases, be optimized.  For example, authentication and key
 	  establishment may, in certain cases where security requirements
 	  allow, be replaced by provisioning of security context by a trusted
-	  third party, using transport or application layer security.
+	  third party, using transport or application-layer security.
 	  <vspace blankLines="0"/>
           </t>
 
@@ -3302,7 +3306,7 @@ document and left to the applications.</t>
           limited to them.  Other protocols such as HTTP, or even protocols
           such as Bluetooth Smart communication that do not
           necessarily use IP, could also be used.  The latter raises the need
-          for application layer security over the various interfaces.</t>
+          for application-layer security over the various interfaces.</t>
         </list>
       </t>
 
@@ -3794,7 +3798,7 @@ Response-Payload :
 
     <t><figure align="center"
                anchor="fig:BothcborMappingValueAsymmetricCWT"
-               title="Access Token including Public Key of the Client.">
+               title="Access Token including Public Key of the client.">
         <artwork align="left"><![CDATA[
 {
   "aud" : "tempSensorInLivingRoom",
@@ -3820,8 +3824,7 @@ Response-Payload :
 
     <list style="hanging">
       <t>C: The client then sends the PoP access token to the authz-info endpoint at
-      the RS.  This is a plain CoAP POST request, i.e., no transport or application
-      layer security is used between client and RS since the token is integrity protected
+      the RS.  This is a plain CoAP POST request, i.e., no transport or application-layer security is used between client and RS since the token is integrity protected
       between the AS and RS.  The RS verifies that the PoP access token was created by a
       known and trusted AS, that it applies to this RS, and that it is valid.  The RS caches
       the security context together with authorization information about this client
