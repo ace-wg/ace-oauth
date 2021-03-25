@@ -376,18 +376,6 @@ including the claims of relevant access tokens, that an RS uses to determine whe
     <t>A number of OAuth 2.0 terms are used within this specification:
 
       <list style="hanging">
-        <t hangText="The token and introspection Endpoints:"><vspace blankLines="0"/>
-          The AS hosts the token endpoint that allows a client to request access tokens. The client makes a POST request to the token endpoint on the AS and
-          receives the access token in the response (if the request was successful).
-          <vspace blankLines="0"/>
-          In some deployments, a token introspection endpoint is provided by
-	  the AS, which can be used by the RS and potentially the client, if they
-	  need to request additional information regarding a received access
-	  token.  The requesting entity makes a POST request to the introspection
-	  endpoint on the AS and receives information about the access token in
-	  the response. (See "Introspection" below.)
-          <vspace blankLines="1"/>
-        </t>
 
         <t hangText="Access Tokens:"><vspace blankLines="0"/>
         Access tokens are credentials needed to access protected resources.  An
@@ -400,6 +388,16 @@ including the claims of relevant access tokens, that an RS uses to determine whe
         of utilization e.g., cryptographic properties) based on the security
         requirements of the given deployment.
         <vspace blankLines="1"/>
+	</t>
+
+	<t hangText="Introspection:"><vspace blankLines="0"/>
+	Introspection is a method for a resource server or potentially a client,
+	to query the authorization server for the active state and content of a
+	received access token.  This is particularly useful in those cases where
+	the authorization decisions are very dynamic and/or where the received
+	access token itself is an opaque reference rather than a self-contained
+	token.  More information about introspection in OAuth 2.0 can be
+	found in <xref target="RFC7662"/>.
 	</t>
 	
 	<t hangText="Refresh Tokens:"><vspace blankLines="0"/>
@@ -435,7 +433,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 	accessing the resource.  The RS, when receiving an access token, needs
 	to verify that the key used by the client matches the one bound to the
 	access token.  When this specification uses the term "access token" it
-	is assumed to be a PoP access token token unless specifically stated
+	is assumed to be a PoP access token unless specifically stated
 	otherwise.
 
         <vspace blankLines="1"/>
@@ -516,16 +514,23 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 	equivalent format using CBOR encoding (CWT) has been defined.
 	<vspace blankLines="1"/>
       </t>
+      
+      <t hangText="The token and introspection Endpoints:"><vspace blankLines="0"/>
+      The AS hosts the token endpoint that allows a client to request access
+      tokens. The client makes a POST request to the token endpoint on the AS
+      and receives the access token in the response (if the request was
+      successful).
+      <vspace blankLines="0"/>
+      In some deployments, a token introspection endpoint is provided by
+      the AS, which can be used by the RS and potentially the client, if they
+      need to request additional information regarding a received access
+      token.  The requesting entity makes a POST request to the introspection
+      endpoint on the AS and receives information about the access token in
+      the response. (See "Introspection" above.)
+      <vspace blankLines="1"/>
+        </t>
 
-      <t hangText="Introspection:"><vspace blankLines="0"/>
-      Introspection is a method for a resource server or potentially a client,
-      to query the authorization server for the active state and content of a
-      received access token.  This is particularly useful in those cases where
-      the authorization decisions are very dynamic and/or where the received
-      access token itself is an opaque reference rather than a self-contained
-      token.   More information about introspection in OAuth 2.0 can be
-      found in <xref target="RFC7662"/>.
-      </t>
+      
     </list>
   </t>
 </section>
@@ -596,53 +601,6 @@ including the claims of relevant access tokens, that an RS uses to determine whe
     target="oauth2Overview"/>.
 </t>
 
-<t>The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended
-further with extensions to OAuth 2.0 (such as <xref target="RFC7521"/> and <xref target="RFC8628"/>).
-What grant types works best depends on the usage scenario and <xref target="RFC7744"/> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="RFC8252"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
-
-<t>
-    The consent of the resource owner, for giving a client access to a protected
-    resource, can be provided dynamically as in the traditional OAuth flows, or it
-    could be pre-configured by the resource owner as authorization policies at
-    the AS, which the AS evaluates when a token request arrives.  The resource
-    owner and the requesting party (i.e., client owner) are not shown in <xref
-    target="fig:protocolFlow"/>.
-</t>
-
-<t>
-  This framework supports a wide variety of communication security mechanisms
-  between the ACE entities, such as client,
-  AS, and RS. It is assumed that the client has been
-  registered (also called enrolled or onboarded) to an AS using a mechanism defined outside the scope of this document.
-  In practice, various techniques for onboarding have been used, such as factory-based provisioning or the use of
-  commissioning tools. Regardless of the onboarding technique, this provisioning procedure implies that the client and the AS exchange credentials and
-  configuration parameters.  These credentials are used to mutually authenticate each other and to protect messages exchanged between the client and the AS.</t>
-
- <t>It is also assumed that the RS has been registered with the AS, potentially in a similar way as the client has been registered with the AS.
- Established keying material between the AS and the RS allows the AS to apply
- cryptographic protection to the access token to ensure that its content cannot
- be modified, and if needed, that the content is confidentiality protected.</t>
-
-<t>The keying material necessary for establishing communication security
-  between C and RS is dynamically established as part of the protocol described
-  in this document.
-</t>
-
-<t>
-    At the start of the protocol, there is an optional discovery step where the
-    client discovers the resource server and the resources this server hosts.
-    In this step, the client might also determine what permissions are needed to
-    access the protected resource.  A generic procedure is described in <xref
-    target="asDiscovery"/>; profiles MAY define other procedures for
-    discovery.</t>
-
-    <t>In Bluetooth Low Energy, for example, advertisements are broadcasted by
-    a peripheral, including information about the primary services.  In CoAP,
-    as a second example, a client can make a request to "/.well-known/core" to
-    obtain information about available resources, which are returned in a
-    standardized format as described in <xref target="RFC6690"/>.
-</t>
-
 <t><figure align="center" anchor="fig:protocolFlow"
            title="Basic Protocol Flow.">
   <artwork align="left"><![CDATA[
@@ -693,8 +651,10 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
     <t hangText="Resource Request (C):"><vspace blankLines="0"/>
       The client interacts with the RS to request access to the protected
       resource and provides the access token.  The protocol to use
-      between the client and the RS is not restricted to CoAP. HTTP, HTTP/2,
-      QUIC, MQTT, Bluetooth Low Energy, etc., are also viable candidates.
+      between the client and the RS is not restricted to CoAP. HTTP, HTTP/2
+      <xref target="RFC7540"/>, QUIC <xref target="I-D.ietf-quic-transport"/>,
+      MQTT <xref target="MQTT5.0"/>, Bluetooth Low Energy <xref target="BLE"/>,
+      etc., are also viable candidates.
       <vspace blankLines="1"/>
       Depending on the device limitations and the selected protocol, this
       exchange may be split up into two parts:
@@ -743,7 +703,54 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
       the communication security protocol used.
     </t>
   </list>
-  </t>
+</t>
+
+<t>The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended
+further with extensions to OAuth 2.0 (such as <xref target="RFC7521"/> and <xref target="RFC8628"/>).
+What grant types works best depends on the usage scenario and <xref target="RFC7744"/> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="RFC8252"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
+
+<t>
+    The consent of the resource owner, for giving a client access to a protected
+    resource, can be provided dynamically as in the traditional OAuth flows, or it
+    could be pre-configured by the resource owner as authorization policies at
+    the AS, which the AS evaluates when a token request arrives.  The resource
+    owner and the requesting party (i.e., client owner) are not shown in <xref
+    target="fig:protocolFlow"/>.
+</t>
+
+<t>
+  This framework supports a wide variety of communication security mechanisms
+  between the ACE entities, such as client,
+  AS, and RS. It is assumed that the client has been
+  registered (also called enrolled or onboarded) to an AS using a mechanism defined outside the scope of this document.
+  In practice, various techniques for onboarding have been used, such as factory-based provisioning or the use of
+  commissioning tools. Regardless of the onboarding technique, this provisioning procedure implies that the client and the AS exchange credentials and
+  configuration parameters.  These credentials are used to mutually authenticate each other and to protect messages exchanged between the client and the AS.</t>
+
+ <t>It is also assumed that the RS has been registered with the AS, potentially in a similar way as the client has been registered with the AS.
+ Established keying material between the AS and the RS allows the AS to apply
+ cryptographic protection to the access token to ensure that its content cannot
+ be modified, and if needed, that the content is confidentiality protected.</t>
+
+<t>The keying material necessary for establishing communication security
+  between C and RS is dynamically established as part of the protocol described
+  in this document.
+</t>
+
+<t>
+    At the start of the protocol, there is an optional discovery step where the
+    client discovers the resource server and the resources this server hosts.
+    In this step, the client might also determine what permissions are needed to
+    access the protected resource.  A generic procedure is described in <xref
+    target="asDiscovery"/>; profiles MAY define other procedures for
+    discovery.</t>
+
+    <t>In Bluetooth Low Energy, for example, advertisements are broadcasted by
+    a peripheral, including information about the primary services.  In CoAP,
+    as a second example, a client can make a request to "/.well-known/core" to
+    obtain information about available resources, which are returned in a
+    standardized format as described in <xref target="RFC6690"/>.
+</t>
 </section>
 
 
@@ -951,7 +958,7 @@ mechanism that addresses both problems at once.</t>
     tokens.  The RS sending this response (i.e., RS) uses an internal clock
     that is not synchronized with the clock of the AS.  Therefore it
     can not reliably verify the expiration time of access tokens it receives.
-    To ensure a certain level of access token freshness nevetheless, the RS has
+    To ensure a certain level of access token freshness nevertheless, the RS has
     included a <spanx style="verb">cnonce</spanx> parameter (see <xref
     target="cnonceParam"/>) in the response.</t>
 
@@ -2298,11 +2305,11 @@ document and left to the applications.</t>
 	  <t>A malicious client may hold back tokens with the "exi" claim in
 	  order to prolong their lifespan.</t>
 	  <t>If an RS loses state (e.g. due to an unscheduled reboot), it
-	  may loose the current values of counters tracking the "exi" claims of
+	  may lose the current values of counters tracking the "exi" claims of
 	  tokens it is storing.</t>
 	</list>
 	The first drawback is inherent to the deployment scenario and the "exi"
-	solution.  It can therefore not be mitigated without requiring the the
+	solution.  It can therefore not be mitigated without requiring the
 	RS be online at times.  The second drawback can be mitigated by
 	regularly storing the value of "exi" counters to persistent memory.</t>
       </section>
@@ -3694,7 +3701,7 @@ This access procedure involves steps A, B, C, and F of <xref target="fig:protoco
 
       <t>The client sends a CoAP POST request to the token endpoint at the AS.  The security
         of this request can be transport or application layer. It is up the
-        the communication security profile to define. In the example it is
+        communication security profile to define. In the example it is
 	assumed that both client and AS have performed mutual authentication
 	e.g. via DTLS.  The request contains the public key of the client and
 	the Audience parameter set to "tempSensorInLivingRoom", a value that
@@ -3900,7 +3907,7 @@ F:  |<--------+ Header: 2.05 Content
     wants to use with the car.  To authorize the key fob he connects it
     to his computer that then provides the UI for the device.  After
     that OAuth 2.0 implicit flow can used to authorize the key for
-    his car at the the car manufacturers AS.</t>
+    his car at the car manufacturers AS.</t>
 
     <t>Note: In this example the client does not know the exact door it
     will be used to access since the token request is not send at the
