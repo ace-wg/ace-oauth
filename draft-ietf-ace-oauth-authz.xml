@@ -223,10 +223,10 @@
    <t>While prior work on authorization solutions for the Web and for the mobile
    environment also applies to the Internet of Things (IoT) environment, many
    IoT devices are constrained, for example, in terms of processing
-   capabilities, available memory, etc. For web applications on constrained
-   nodes it is RECOMMENDED to use of the Constrained Application
-   Protocol (CoAP) <xref target="RFC7252"/> as replacement for HTTP when
-   implementing this specification.</t>
+   capabilities, available memory, etc. For such devices the Constrained
+   Application Protocol (CoAP) <xref target="RFC7252"/> can alleviate some
+   resource concerns when used instead of HTTP to implement the communication
+   flows of this specification.</t>
 
    <t><xref target="constraints"/> gives an overview of the constraints
    considered in this design, and a more detailed treatment of constraints can
@@ -248,14 +248,16 @@
    for adjusting OAuth 2.0 to IoT environments.</t>
 
    <t>More detailed, interoperable specifications can be found in separate
-   profile specifications.  Implementations may claim conformance with a
-   specific profile, whereby implementations utilizing the same profile
-   interoperate while implementations of different profiles are not expected to
-   be interoperable.  Some devices, such as mobile phones and tablets, may
-   implement multiple profiles and will therefore be able to interact with a
-   wider range of low end devices.  Requirements on profiles are described at
-   contextually appropriate places throughout this specification, and also
-   summarized in <xref target="app:profileRequirements"/>.
+   profile specifications, which specify different deployment options of
+   this framework (e.g. with respect to communication security).
+   Implementations may claim conformance with a specific profile, whereby
+   implementations utilizing the same profile interoperate, while
+   implementations of different profiles are not expected to be interoperable.
+   Some devices, such as mobile phones and tablets, may implement multiple
+   profiles and will therefore be able to interact with a wider range of low
+   end devices.  Requirements on profiles are described at contextually
+   appropriate places throughout this specification, and also summarized in
+   <xref target="app:profileRequirements"/>.
    </t>
 
 
@@ -404,13 +406,13 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 	Refresh tokens are credentials used to obtain access tokens.
 	Refresh tokens are issued to the client by the authorization
 	server and are used to obtain a new access token when the current
-	access token becomes invalid or expires, or to obtain additional
-	access tokens with identical or narrower scope (such access tokens may
-	have a shorter lifetime and fewer permissions than authorized by
-	the resource owner).  Issuing a refresh token is optional at the
-	discretion of the authorization server.  If the authorization
-	server issues a refresh token, it is included when issuing an
-	access token (i.e., step (B) in <xref target="fig:protocolFlow"/>).
+	access token expires, or to obtain additional access tokens with
+	identical or narrower scope (such access tokens may have a shorter
+	lifetime and fewer permissions than authorized by the resource owner).
+	Issuing a refresh token is optional at the discretion of the
+	authorization server.  If the authorization server issues a refresh
+	token, it is included when issuing an access token (i.e., step (B) in
+	<xref target="fig:protocolFlow"/>).
 	<vspace blankLines="1"/>
 	A refresh token in OAuth 2.0 is a string representing the authorization
 	granted	to the client by the resource owner.  The string is usually
@@ -448,19 +450,18 @@ including the claims of relevant access tokens, that an RS uses to determine whe
               The AS generates a random symmetric PoP key.  The key is either
               stored to be returned on introspection calls or encrypted and
               included in the token.  The PoP key is also encrypted for the
-	      token recipient and sent to the recipient together with the
-	      token.<vspace blankLines="1"/>
+	      client and sent to the it together with the token.<vspace blankLines="1"/>
 
           </t>
           <t hangText="Asymmetric PoP key:"><vspace blankLines="0"/>
-          An asymmetric key pair is generated on the token's recipient
-	  and the public key is sent to the AS (if it does not already have
-	  knowledge of the recipient's public key).  Information about the
-	  public key, which is the PoP key in this case, is either stored to be
-	  returned on introspection calls or included inside the token and sent
-	  back to the requesting party.  The consumer of the token can identify
-	  the public key from the information in the token, which allows the
-	  recipient of the token to use the corresponding private key for the
+          An asymmetric key pair is generated by the client and the public key
+	  is sent to the AS (if it does not already have knowledge of the
+	  client's public key).  Information about the public key, which is the
+	  PoP key in this case, is either stored to be returned on 
+	  introspection calls or included inside the token and sent
+	  back to the client.  The resource server consuming the token can
+	  identify the public key from the information in the token, which
+	  allows the client to use the corresponding private key for the
 	  proof of possession.
           </t>
         </list>
@@ -644,7 +645,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
       Information".  In addition to the response parameters defined by OAuth
       2.0 and the PoP access token extension, this framework defines parameters
       that can be used to inform the client about capabilities of the RS, e.g.
-      the profiles the RS supports.  More information about these parameters
+      the profile the RS supports.  More information about these parameters
       can be found in <xref target="tokenParams"/>.
       <vspace blankLines="1"/>
     </t>
@@ -661,11 +662,12 @@ including the claims of relevant access tokens, that an RS uses to determine whe
       exchange may be split up into two parts:
 
 <list style="empty">
-<t>(1) the client sends the access token containing, or referencing, the authorization information
-      to the RS, that may be used for
-      subsequent resource requests by the client, and </t>
-<t>(2) the client makes the resource access request, using the communication security protocol and other
-    Access Information obtained from the AS.</t>
+  <t>(1) the client sends the access token containing, or referencing, the
+  authorization information to the RS, that will be used for subsequent
+  resource requests by the client, and </t>
+
+  <t>(2) the client makes the resource access request, using the communication
+  security protocol and other Access Information obtained from the AS.</t>
 </list>
 
       <vspace blankLines="1"/>
@@ -708,7 +710,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 
 <t>The OAuth 2.0 framework defines a number of "protocol flows" via grant types, which have been extended
 further with extensions to OAuth 2.0 (such as <xref target="RFC7521"/> and <xref target="RFC8628"/>).
-What grant types works best depends on the usage scenario and <xref target="RFC7744"/> describes many different IoT use cases but there are two preferred grant types, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="RFC8252"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
+What grant type works best depends on the usage scenario and <xref target="RFC7744"/> describes many different IoT use cases but there are two grant types that cover a majority of these scenarios, namely the Authorization Code Grant (described in Section 4.1 of <xref target="RFC7521"/>) and the Client Credentials Grant (described in Section 4.4 of <xref target="RFC7521"/>). The Authorization Code Grant is a good fit for use with apps running on smart phones and tablets that request access to IoT devices, a common scenario in the smart home environment, where users need to go through an authentication and authorization phase (at least during the initial setup phase). The native apps guidelines described in <xref target="RFC8252"/> are applicable to this use case. The Client Credential Grant is a good fit for use with IoT devices where the OAuth client itself is constrained. In such a case, the resource owner has pre-arranged access rights for the client with the authorization server, which is often accomplished using a commissioning tool.</t>
 
 <t>
     The consent of the resource owner, for giving a client access to a protected
@@ -828,7 +830,7 @@ What grant types works best depends on the usage scenario and <xref target="RFC7
   parameters.  When profiles of this framework use CoAP instead, it is 
   REQUIRED to use of the following alternative instead of Uri-query
   parameters: The sender (client or RS) encodes the parameters of its request
-  as a CBOR map and submits that map as the payload  of the POST request.</t>
+  as a CBOR map and submits that map as the payload of the POST request.</t>
 
   <t>Profiles that use CBOR encoding of protocol message parameters at the
   outermost encoding layer MUST use the media format 'application/ace+cbor'.
@@ -851,8 +853,8 @@ URI is authorized to provide access tokens for this RS.
 Resource Request message to RS.  RS then denies the request and sends
 the address of its AS back to C (see <xref target="rreq"/>). How C validates the
 AS authorization is not in scope for this document. C may, e.g., ask
-it's owner if this AS is authorized for this RS. C may also use a
-mechanism that addresses both problems at once.</t>
+its owner if this AS is authorized for this RS. C may also use a
+mechanism that addresses both problems at once (e.g. by querying a dedicated secure service provided by the client owner) .</t>
 
 </section><!--AS Discovery -->
 
@@ -889,12 +891,13 @@ mechanism that addresses both problems at once.</t>
   </section><!-- Unauthorized Request -->
 
   <section anchor="asInfo" title="AS Request Creation Hints">
-    <t>The AS Request Creation Hints message is sent by an RS as a response to an
-    Unauthorized Resource Request message (see <xref target="rreq"/>) to help
+    <t>The AS Request Creation Hints message is sent by an RS as a response to
+    an Unauthorized Resource Request message (see <xref target="rreq"/>) to help
     the sender of the Unauthorized Resource Request message acquire a valid
-    access token. The AS Request Creation Hints message is a CBOR map, with an
-    OPTIONAL element "AS" specifying an absolute URI (see Section 4.3 of <xref
-    target="RFC3986"/>) that identifies the appropriate AS for the RS.</t>
+    access token. The AS Request Creation Hints message is a CBOR or JSON map,
+    with an OPTIONAL element "AS" specifying an absolute URI (see Section 4.3
+    of <xref target="RFC3986"/>) that identifies the appropriate AS for the
+    RS.</t>
     
     <t>The message can also contain the following OPTIONAL parameters:
     <list style="symbols">
@@ -1014,8 +1017,8 @@ a4                                   # map(4)
 	access token MUST verify that this token contains a cnonce claim, with
 	a client-nonce value that is fresh according to the information stored
 	at the first step above.  If the cnonce claim is not present or if the
-	cnonce claim value is not fresh, the RS MUST discard the access token. If
-	this was an interaction with the authz-info endpoint the RS MUST also
+	cnonce claim value is not fresh, the RS MUST discard the access token.  
+	If this was an interaction with the authz-info endpoint the RS MUST also
 	respond with an error message using a response code equivalent to the
 	CoAP code 4.01 (Unauthorized).</t>	
       </list>
@@ -1093,7 +1096,7 @@ a4                                   # map(4)
 
   <t>The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports. 
   A profile MUST define the details of the mapping between the fields described below, and these transports.
-  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Section 4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described in this section MUST be followed.</t> 
+  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Sections 4.1.3 and 4.1.4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described in this section MUST be followed.</t> 
 
    <t>For the AS to be able to issue a token, the client MUST be authenticated
   and present a valid grant for the scopes requested.  Profiles of this
@@ -1150,7 +1153,8 @@ a4                                   # map(4)
     target="I-D.ietf-ace-oauth-params"/>.
     </t>
     
-    <t>If CBOR is used then these parameters MUST be provided as a CBOR map.</t>
+    <t>If CBOR is used then these parameters MUST be provided in a CBOR map,
+    see <xref target="fig:cborTokenParameters"/>.</t>
 
     <t>When HTTP is used as a transport then the client makes a 
     request to the token endpoint by sending the
@@ -2945,7 +2949,7 @@ document and left to the applications.</t>
       
     <t>Applications that use this media type: The type is used by
     authorization servers, clients and resource servers that support the ACE
-    framework as specified in [this document].</t>
+    framework with CBOR encoding as specified in [this document].</t>
 
     <t>Fragment identifier considerations: N/A </t>
 
