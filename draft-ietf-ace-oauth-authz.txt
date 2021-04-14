@@ -319,8 +319,8 @@ Internet-Draft                  ACE-OAuth                     April 2021
    alternative or complement to transport layer security (DTLS [RFC6347]
    or TLS [RFC8446]).  COSE is used to secure self-contained tokens such
    as proof-of-possession (PoP) tokens, which are an extension to the
-   OAuth bearer tokens.  The default token format is defined in CBOR web
-   token (CWT) [RFC8392].  Application-layer security for CoAP using
+   OAuth bearer tokens.  The default token format is defined in CBOR Web
+   Token (CWT) [RFC8392].  Application-layer security for CoAP using
    COSE can be provided with OSCORE [RFC8613].
 
    With the building blocks listed above, solutions satisfying various
@@ -621,7 +621,7 @@ Internet-Draft                  ACE-OAuth                     April 2021
       an access token.  The client may include permissions it seeks to
       obtain, and information about the credentials it wants to use for
       proof-of-possession (e.g., symmetric/asymmetric cryptography or a
-      reference to a specific credential) of the access token.
+      reference to a specific key) of the access token.
 
 
 
@@ -916,8 +916,8 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    Unauthorized Resource Request messages MUST be denied with an
    "unauthorized_client" error response.  In this response, the Resource
-   Server SHOULD provide proper AS Request Creation Hints to enable the
-   client to request an access token from RS's AS as described in
+   Server SHOULD provide proper "AS Request Creation Hints" to enable
+   the client to request an access token from RS's AS as described in
    Section 5.3.
 
    The handling of all client requests (including unauthorized ones) by
@@ -925,13 +925,13 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
 5.3.  AS Request Creation Hints
 
-   The AS Request Creation Hints message is sent by an RS as a response
-   to an Unauthorized Resource Request message (see Section 5.2) to help
-   the sender of the Unauthorized Resource Request message acquire a
-   valid access token.  The AS Request Creation Hints message is a CBOR
-   or JSON map, with an OPTIONAL element "AS" specifying an absolute URI
-   (see Section 4.3 of [RFC3986]) that identifies the appropriate AS for
-   the RS.
+   The "AS Request Creation Hints" message is sent by an RS as a
+   response to an Unauthorized Resource Request message (see
+   Section 5.2) to help the sender of the Unauthorized Resource Request
+   message acquire a valid access token.  The "AS Request Creation
+   Hints" message is a CBOR or JSON map, with an OPTIONAL element "AS"
+   specifying an absolute URI (see Section 4.3 of [RFC3986]) that
+   identifies the appropriate AS for the RS.
 
    The message can also contain the following OPTIONAL parameters:
 
@@ -957,8 +957,8 @@ Internet-Draft                  ACE-OAuth                     April 2021
    o  A "scope" element containing the suggested scope that the client
       should request towards the AS.
 
-   Figure 2 summarizes the parameters that may be part of the AS Request
-   Creation Hints.
+   Figure 2 summarizes the parameters that may be part of the "AS
+   Request Creation Hints".
 
            /-----------+----------+---------------------\
            | Name      | CBOR Key | Value Type          |
@@ -979,7 +979,7 @@ Internet-Draft                  ACE-OAuth                     April 2021
    the client can determine the correct schema part on its own depending
    on the way it communicates with the AS.
 
-   Figure 3 shows an example for an AS Request Creation Hints message
+   Figure 3 shows an example for an "AS Request Creation Hints" message
    payload using CBOR [RFC8949] diagnostic notation, using the parameter
    names instead of the CBOR keys for better human readability.
 
@@ -1043,16 +1043,16 @@ Internet-Draft                  ACE-OAuth                     April 2021
    parameter.  The processing requirements for this parameter are as
    follows:
 
-   o  An RS sending a "cnonce" parameter in an AS Request Creation Hints
-      message MUST store information to validate that a given cnonce is
-      fresh.  How this is implemented internally is out of scope for
-      this specification.  Expiration of client-nonces should be based
-      roughly on the time it would take a client to obtain an access
-      token after receiving the AS Request Creation Hints message, with
-      some allowance for unexpected delays.
+   o  An RS sending a "cnonce" parameter in an "AS Request Creation
+      Hints" message MUST store information to validate that a given
+      cnonce is fresh.  How this is implemented internally is out of
+      scope for this specification.  Expiration of client-nonces should
+      be based roughly on the time it would take a client to obtain an
+      access token after receiving the "AS Request Creation Hints"
+      message, with some allowance for unexpected delays.
 
-   o  A client receiving a "cnonce" parameter in an AS Request Creation
-      Hints message MUST include this in the parameters when requesting
+   o  A client receiving a "cnonce" parameter in an "AS Request Creation
+      Hints" message MUST include this in the parameters when requesting
       an access token at the AS, using the "cnonce" parameter from
       Section 5.8.4.4.
 
@@ -1635,11 +1635,11 @@ Internet-Draft                  ACE-OAuth                     April 2021
 5.8.4.4.  Client-Nonce
 
    This parameter MUST be sent from the client to the AS, if it
-   previously received a "cnonce" parameter in the AS Request Creation
-   Hints Section 5.3.  The parameter is encoded as a byte string for
+   previously received a "cnonce" parameter in the "AS Request Creation
+   Hints" Section 5.3.  The parameter is encoded as a byte string for
    CBOR-based interactions, and as a string (Base64 encoded binary) for
    JSON-based interactions.  It MUST copy the value from the cnonce
-   parameter in the AS Request Creation Hints.
+   parameter in the "AS Request Creation Hints".
 
 5.8.5.  Mapping Parameters to CBOR
 
@@ -1821,8 +1821,8 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    cnonce  OPTIONAL.  A client-nonce provided to the AS by the client.
       The RS MUST verify that this corresponds to the client-nonce
-      previously provided to the client in the AS Request Creation
-      Hints.  See Section 5.3 and Section 5.8.4.4.
+      previously provided to the client in the "AS Request Creation
+      Hints".  See Section 5.3 and Section 5.8.4.4.
 
    exi  OPTIONAL.  The "expires-in" claim associated to this access
       token.  See Section 5.10.3.
@@ -1951,7 +1951,7 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
 5.10.  The Access Token
 
-   In this framework the use of CBOR web token (CWT) as specified in
+   In this framework the use of CBOR Web Token (CWT) as specified in
    [RFC8392] is RECOMMENDED.
 
 
@@ -2448,8 +2448,8 @@ Internet-Draft                  ACE-OAuth                     April 2021
 6.4.  Unprotected AS Request Creation Hints
 
    Initially, no secure channel exists to protect the communication
-   between C and RS.  Thus, C cannot determine if the AS Request
-   Creation Hints contained in an unprotected response from RS to an
+   between C and RS.  Thus, C cannot determine if the "AS Request
+   Creation Hints" contained in an unprotected response from RS to an
    unauthorized request (see Section 5.3) are authentic.  C therefore
    MUST determine if an AS is authorized to provide access tokens for a
    certain RS.  How this determination is implemented is out of scope
@@ -2736,8 +2736,8 @@ Internet-Draft                  ACE-OAuth                     April 2021
    in an unencrypted response.  Even the absolute URI of the AS may
    reveal sensitive information about the service that RS provides.
    Developers must ensure that the RS does not disclose information that
-   has an impact on the privacy of the stakeholders in the AS Request
-   Creation Hints.  They may choose to use a different mechanism for the
+   has an impact on the privacy of the stakeholders in the "AS Request
+   Creation Hints".  They may choose to use a different mechanism for
 
 
 
@@ -2746,7 +2746,7 @@ Seitz, et al.           Expires October 16, 2021               [Page 49]
 Internet-Draft                  ACE-OAuth                     April 2021
 
 
-   discovery of the AS if necessary.  If means of encrypting
+   the discovery of the AS if necessary.  If means of encrypting
    communication between C and RS already exist, more detailed
    information may be included with an error response to provide C with
    sufficient information to react on that particular error.

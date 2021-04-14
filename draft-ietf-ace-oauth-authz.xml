@@ -348,7 +348,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
     <xref target="RFC6347"/> or TLS <xref target="RFC8446"/>). COSE is used to
     secure self-contained tokens such as proof-of-possession (PoP) tokens,
     which are an extension to the OAuth bearer tokens. The default token format
-    is defined in CBOR web token (CWT) <xref target="RFC8392"/>.
+    is defined in CBOR Web Token (CWT) <xref target="RFC8392"/>.
     Application-layer security for CoAP using COSE can be provided with OSCORE
     <xref target="RFC8613"/>.</t>
 
@@ -634,7 +634,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
       key to an access token.  The client may include permissions it seeks to
       obtain, and information about the credentials it wants to use for
       proof-of-possession (e.g., symmetric/asymmetric cryptography or a
-      reference to a specific credential) of the access token.<vspace blankLines="1"/>
+      reference to a specific key) of the access token.<vspace blankLines="1"/>
     </t>
 
     <t hangText="Access Token Response (B):"><vspace blankLines="0"/>
@@ -883,7 +883,7 @@ mechanism that addresses both problems at once (e.g. by querying a dedicated sec
 
     <t>Unauthorized Resource Request messages MUST be denied with an "unauthorized_client"
     error response. In this response, the Resource Server SHOULD provide proper
-    AS Request Creation Hints to enable the client to request an access token
+    "AS Request Creation Hints" to enable the client to request an access token
     from RS's AS as described in <xref target="asInfo"/>.</t>
 
     <t>The handling of all client requests (including unauthorized ones)
@@ -891,10 +891,10 @@ mechanism that addresses both problems at once (e.g. by querying a dedicated sec
   </section><!-- Unauthorized Request -->
 
   <section anchor="asInfo" title="AS Request Creation Hints">
-    <t>The AS Request Creation Hints message is sent by an RS as a response to
+    <t>The "AS Request Creation Hints" message is sent by an RS as a response to
     an Unauthorized Resource Request message (see <xref target="rreq"/>) to help
     the sender of the Unauthorized Resource Request message acquire a valid
-    access token. The AS Request Creation Hints message is a CBOR or JSON map,
+    access token. The "AS Request Creation Hints" message is a CBOR or JSON map,
     with an OPTIONAL element "AS" specifying an absolute URI (see Section 4.3
     of <xref target="RFC3986"/>) that identifies the appropriate AS for the
     RS.</t>
@@ -916,7 +916,7 @@ mechanism that addresses both problems at once (e.g. by querying a dedicated sec
     </list></t>
     
     <t><xref target="fig:asinfo"/> summarizes the parameters that may be
-    part of the AS Request Creation Hints.
+    part of the "AS Request Creation Hints".
 
       <figure align="center" anchor="fig:asinfo"
 	      title="AS Request Creation Hints">
@@ -939,8 +939,8 @@ mechanism that addresses both problems at once (e.g. by querying a dedicated sec
     It is assumed that the client can determine the correct schema part on
     its own depending on the way it communicates with the AS.</t>      
       
-    <t><xref target="fig:as-info-payload"/> shows an example for an AS
-    Request Creation Hints message payload using CBOR <xref target="RFC8949"/>
+    <t><xref target="fig:as-info-payload"/> shows an example for an "AS
+    Request Creation Hints" message payload using CBOR <xref target="RFC8949"/>
     diagnostic notation, using the parameter names instead of the CBOR keys for
     better human readability.</t>
 
@@ -996,16 +996,16 @@ a4                                   # map(4)
       in that case, the RS can use the "cnonce" (client-nonce) parameter.
       The processing requirements for this parameter are as follows:
       <list style="symbols">
-	<t>An RS sending a "cnonce" parameter in an AS Request Creation
-	Hints message MUST store information to validate that a given
+	<t>An RS sending a "cnonce" parameter in an "AS Request Creation
+	Hints" message MUST store information to validate that a given
 	cnonce is fresh.  How this is implemented internally is out of scope
 	for this specification.  Expiration of client-nonces should be based
 	roughly on the time it would take a client to obtain an access token
-	after receiving the AS Request Creation Hints message, with some
+	after receiving the "AS Request Creation Hints" message, with some
 	allowance for unexpected delays.</t>
 	
-	<t>A client receiving a "cnonce" parameter in an AS Request Creation
-	Hints message MUST include this in the parameters when requesting
+	<t>A client receiving a "cnonce" parameter in an "AS Request Creation
+	Hints" message MUST include this in the parameters when requesting
 	an access token at the AS, using the "cnonce" parameter from
 	<xref target="cnonceParamToken"/>.</t>
 	
@@ -1507,12 +1507,12 @@ Payload:
 
     <section anchor="cnonceParamToken" title="Client-Nonce">
       <t>This parameter MUST be sent from the client to the AS,
-      if it previously received a "cnonce" parameter in the AS Request
-      Creation Hints <xref target="asInfo"/>.  The parameter
+      if it previously received a "cnonce" parameter in the "AS Request
+      Creation Hints" <xref target="asInfo"/>.  The parameter
       is encoded as a byte string for CBOR-based interactions, and as a
       string (Base64 encoded binary) for JSON-based interactions.
-      It MUST copy the value from the cnonce parameter in the AS Request
-      Creation Hints.</t>
+      It MUST copy the value from the cnonce parameter in the "AS Request
+      Creation Hints".</t>
     </section>
   </section> <!--Parameters -->
 
@@ -1661,8 +1661,8 @@ Payload:
 	<t hangText="cnonce">
 	  OPTIONAL.  A client-nonce provided to the AS by the client.
 	  The RS MUST verify that this corresponds to the client-nonce
-	  previously provided to the client in the AS Request Creation
-	  Hints. See <xref target="asInfo"/> and
+	  previously provided to the client in the "AS Request Creation
+	  Hints". See <xref target="asInfo"/> and
 	  <xref target="cnonceParamToken"/>.
 	</t>
 	<t hangText="exi">
@@ -1789,7 +1789,7 @@ Payload:
 </section><!-- introspection endpoint -->
 
 <section anchor="accessToken" title="The Access Token">
-  <t>In this framework the use of CBOR web token (CWT) as
+  <t>In this framework the use of CBOR Web Token (CWT) as
     specified in <xref target="RFC8392"/> is RECOMMENDED.
   </t>
 
@@ -2227,8 +2227,8 @@ Payload:
 	       title="Unprotected AS Request Creation Hints">
 
 	<t>Initially, no secure channel exists to protect the communication
-	between C and RS. Thus, C cannot determine if the AS Request
-	Creation Hints contained in an unprotected response from RS to an
+	between C and RS. Thus, C cannot determine if the "AS Request
+	Creation Hints" contained in an unprotected response from RS to an
 	unauthorized request (see <xref target="asInfo"/>) are authentic. C therefore MUST determine if an AS is authorized to provide access tokens for a certain RS. How this determination is implemented is out of scope for this
 document and left to the applications.</t>
 
@@ -2474,7 +2474,7 @@ document and left to the applications.</t>
       <t>An unprotected response to an unauthorized request (see 
       <xref target="asInfo"/>) may disclose information about RS and/or its
       existing relationship with C. It is advisable to include as little
-      information as possible in an unencrypted response. Even the absolute URI of the AS may reveal sensitive information about the service that RS provides. Developers must ensure that the RS does not disclose information that has an impact on the privacy of the stakeholders in the AS Request Creation Hints. They may choose to use a different mechanism for the discovery of the AS if necessary. If means of encrypting
+      information as possible in an unencrypted response. Even the absolute URI of the AS may reveal sensitive information about the service that RS provides. Developers must ensure that the RS does not disclose information that has an impact on the privacy of the stakeholders in the "AS Request Creation Hints". They may choose to use a different mechanism for the discovery of the AS if necessary. If means of encrypting
       communication between C and RS already exist, more detailed information
       may be included with an error response to provide C with sufficient
       information to react on that particular error.</t>
