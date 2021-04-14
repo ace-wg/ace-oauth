@@ -1249,7 +1249,7 @@ Internet-Draft                  ACE-OAuth                     April 2021
    client is supposed to use the "req_cnf" parameter from
    [I-D.ietf-ace-oauth-params].
 
-   If CBOR is used then these parameters MUST be provided in a CBOR map,
+   If CoAP is used then these parameters MUST be provided in a CBOR map,
    see Figure 12.
 
    When HTTP is used as a transport then the client makes a request to
@@ -1391,9 +1391,9 @@ Internet-Draft                  ACE-OAuth                     April 2021
    use of the key type requested the client.
 
    The content of the successful reply is the Access Information.  When
-   using CBOR payloads, the content MUST be encoded as a CBOR map,
-   containing parameters as specified in Section 5.1 of [RFC6749], with
-   the following additions and changes:
+   using CoAP, the payload MUST be encoded as a CBOR map, containing
+   parameters as specified in Section 5.1 of [RFC6749], with the
+   following additions and changes:
 
 
 
@@ -1485,7 +1485,7 @@ Internet-Draft                  ACE-OAuth                     April 2021
    generally equivalent to the ones for HTTP-based interactions as
    defined in Section 5.2 of [RFC6749], with the following exceptions:
 
-   o  When using CBOR the raw payload before being processed by the
+   o  When using CoAP the raw payload before being processed by the
       communication security protocol MUST be encoded as a CBOR map.
 
    o  A response code equivalent to the CoAP code 4.00 (Bad Request)
@@ -1753,14 +1753,14 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    The requesting entity sends a POST request to the introspection
    endpoint at the AS.  The profile MUST specify how the communication
-   is protected.  If CBOR is used, the payload MUST be encoded as a CBOR
+   is protected.  If CoAP is used, the payload MUST be encoded as a CBOR
    map with a "token" entry containing the access token.  Further
    optional parameters representing additional context that is known by
    the requesting entity to aid the AS in its response MAY be included.
 
    For CoAP-based interaction, all messages MUST use the content type
-   "application/ace+cbor", while for HTTP-based interactions the
-   equivalent media type "application/ace+cbor" MUST be used.
+   "application/ace+cbor", while for HTTP-based interactions using CBOR,
+   the equivalent media type "application/ace+cbor" MUST be used.
 
    The same parameters are required and optional as in Section 2.1 of
    [RFC7662].
@@ -1810,8 +1810,9 @@ Internet-Draft                  ACE-OAuth                     April 2021
    error response as described in Section 5.9.3.
 
    In a successful response, the AS encodes the response parameters in a
-   map including with the same required and optional parameters as in
-   Section 2.2 of [RFC7662] with the following addition:
+   map.  If CoAP is used, this MUST be encoded as a CBOR map.  This map
+   includes the same required and optional parameters as in Section 2.2
+   of [RFC7662] with the following additions:
 
    ace_profile  OPTIONAL.  This indicates the profile that the RS MUST
       use with the client.  See Section 5.8.4.3 for more details on the
@@ -1834,7 +1835,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    For example, Figure 15 shows an AS response to the introspection
    request in Figure 13.  Note that this example contains the "cnf"
    parameter defined in [I-D.ietf-ace-oauth-params].
-
 
 
 
@@ -1874,7 +1874,7 @@ Internet-Draft                  ACE-OAuth                     April 2021
    equivalent to the ones for HTTP-based interactions as defined in
    Section 2.3 of [RFC7662], with the following differences:
 
-   o  If content is sent and CBOR is used the payload MUST be encoded as
+   o  If content is sent and CoAP is used the payload MUST be encoded as
       a CBOR map and the Content-Format "application/ace+cbor" MUST be
       used.
 

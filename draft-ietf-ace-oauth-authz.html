@@ -1017,7 +1017,7 @@ a4                                   # map(4)
 <li>A client MUST be able to use the parameters from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a> in an access token request to the token endpoint and the AS MUST be able to process these additional parameters.</li>
 </ul>
 <p id="rfc.section.5.8.1.p.2">The default behavior, is that the AS generates a symmetric proof-of-possession key for the client. In order to use an asymmetric key pair or to re-use a key previously established with the RS, the client is supposed to use the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>.  </p>
-<p id="rfc.section.5.8.1.p.3">If CBOR is used then these parameters MUST be provided in a CBOR map, see <a href="#fig:cborTokenParameters" class="xref">Figure 12</a>.</p>
+<p id="rfc.section.5.8.1.p.3">If CoAP is used then these parameters MUST be provided in a CBOR map, see <a href="#fig:cborTokenParameters" class="xref">Figure 12</a>.</p>
 <p id="rfc.section.5.8.1.p.4">When HTTP is used as a transport then the client makes a request to the token endpoint by sending the parameters using the "application/x-www-form-urlencoded" format with a character encoding of UTF-8 in the HTTP request entity-body, as defined in section 3.2 of <a href="#RFC6749" class="xref">[RFC6749]</a>.</p>
 <p id="rfc.section.5.8.1.p.5">The following examples illustrate different types of requests for proof-of-possession tokens. </p>
 <div id="rfc.figure.5"></div>
@@ -1088,7 +1088,7 @@ Payload:
 </h1>
 <p id="rfc.section.5.8.2.p.1">If the access token request has been successfully verified by the AS and the client is authorized to obtain an access token corresponding to its access token request, the AS sends a response with the response code equivalent to the CoAP response code 2.01 (Created).  If client request was invalid, or not authorized, the AS returns an error response as described in <a href="#errorsToken" class="xref">Section 5.8.3</a>.</p>
 <p id="rfc.section.5.8.2.p.2">Note that the AS decides which token type and profile to use when issuing a successful response.  It is assumed that the AS has prior knowledge of the capabilities of the client and the RS (see <a href="#app:registration" class="xref">Appendix D</a>).  This prior knowledge may, for example, be set by the use of a dynamic client registration protocol exchange <a href="#RFC7591" class="xref">[RFC7591]</a>.  If the client has requested a specific proof-of-possession key using the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>, this may also influence which profile the AS selects, as it needs to support the use of the key type requested the client.</p>
-<p id="rfc.section.5.8.2.p.3">The content of the successful reply is the Access Information.  When using CBOR payloads, the content MUST be encoded as a CBOR map, containing parameters as specified in Section 5.1 of <a href="#RFC6749" class="xref">[RFC6749]</a>, with the following additions and changes: </p>
+<p id="rfc.section.5.8.2.p.3">The content of the successful reply is the Access Information.  When using CoAP, the payload MUST be encoded as a CBOR map, containing parameters as specified in Section 5.1 of <a href="#RFC6749" class="xref">[RFC6749]</a>, with the following additions and changes: </p>
 
 <dl>
 <dt>ace_profile:</dt>
@@ -1169,7 +1169,7 @@ Payload:
 <p id="rfc.section.5.8.3.p.1">The error responses for CoAP-based interactions with the AS are generally equivalent to the ones for HTTP-based interactions as defined in Section 5.2 of <a href="#RFC6749" class="xref">[RFC6749]</a>, with the following exceptions: </p>
 
 <ul>
-<li>When using CBOR the raw payload before being processed by the communication security protocol MUST be	encoded as a CBOR map.</li>
+<li>When using CoAP the raw payload before being processed by the communication security protocol MUST be	encoded as a CBOR map.</li>
 <li>A response code equivalent to the CoAP code 4.00 (Bad Request) MUST be used for all error responses, except for invalid_client where a response code equivalent to the CoAP code 4.01 (Unauthorized) MAY be used under the same conditions as specified in Section 5.2 of <a href="#RFC6749" class="xref">[RFC6749]</a>.</li>
 <li>The Content-Format (for CoAP-based interactions) or media type (for HTTP-based interactions) "application/ace+cbor" MUST be used for the error response.</li>
 <li>The parameters "error", "error_description" and "error_uri" MUST be abbreviated using the codes specified in <a href="#fig:cborTokenParameters" class="xref">Figure 12</a>, when a CBOR encoding is used.</li>
@@ -1269,8 +1269,8 @@ Payload:
 <h1 id="rfc.section.5.9.1">
 <a href="#rfc.section.5.9.1">5.9.1.</a> <a href="#introReq" id="introReq">Introspection Request</a>
 </h1>
-<p id="rfc.section.5.9.1.p.1">The requesting entity sends a POST request to the introspection endpoint at the AS.  The profile MUST specify how the communication is protected.  If CBOR is used, the payload MUST be encoded as a CBOR map with a "token" entry containing the access token.  Further optional parameters representing additional context that is known by the requesting entity to aid the AS in its response MAY be included.</p>
-<p id="rfc.section.5.9.1.p.2">For CoAP-based interaction, all messages MUST use the content type "application/ace+cbor", while for HTTP-based interactions the equivalent media type "application/ace+cbor" MUST be used.</p>
+<p id="rfc.section.5.9.1.p.1">The requesting entity sends a POST request to the introspection endpoint at the AS.  The profile MUST specify how the communication is protected.  If CoAP is used, the payload MUST be encoded as a CBOR map with a "token" entry containing the access token.  Further optional parameters representing additional context that is known by the requesting entity to aid the AS in its response MAY be included.</p>
+<p id="rfc.section.5.9.1.p.2">For CoAP-based interaction, all messages MUST use the content type "application/ace+cbor", while for HTTP-based interactions using CBOR, the equivalent media type "application/ace+cbor" MUST be used.</p>
 <p id="rfc.section.5.9.1.p.3">The same parameters are required and optional as in Section 2.1 of <a href="#RFC7662" class="xref">[RFC7662]</a>.</p>
 <div id="rfc.figure.13"></div>
 <div id="fig:introReq"></div>
@@ -1298,7 +1298,7 @@ Payload:
 <a href="#rfc.section.5.9.2">5.9.2.</a> <a href="#introRes" id="introRes">Introspection Response</a>
 </h1>
 <p id="rfc.section.5.9.2.p.1">If the introspection request is authorized and successfully processed, the AS sends a response with the response code equivalent to the CoAP code 2.01 (Created).  If the introspection request was invalid, not authorized or couldn't be processed the AS returns an error response as described in <a href="#errorsIntro" class="xref">Section 5.9.3</a>.</p>
-<p id="rfc.section.5.9.2.p.2">In a successful response, the AS encodes the response parameters in a map including with the same required and optional parameters as in Section 2.2 of <a href="#RFC7662" class="xref">[RFC7662]</a> with the following addition: </p>
+<p id="rfc.section.5.9.2.p.2">In a successful response, the AS encodes the response parameters in a map.  If CoAP is used, this MUST be encoded as a CBOR map.  This map includes the same required and optional parameters as in Section 2.2 of <a href="#RFC7662" class="xref">[RFC7662]</a> with the following additions: </p>
 
 <dl>
 <dt>ace_profile</dt>
@@ -1338,7 +1338,7 @@ Payload:
 <p id="rfc.section.5.9.3.p.1">The error responses for CoAP-based interactions with the AS are equivalent to the ones for HTTP-based interactions as defined in Section 2.3 of <a href="#RFC7662" class="xref">[RFC7662]</a>, with the following differences: </p>
 
 <ul>
-<li>If content is sent and CBOR is used the payload MUST be encoded as a CBOR map and the Content-Format "application/ace+cbor" MUST be used.</li>
+<li>If content is sent and CoAP is used the payload MUST be encoded as a CBOR map and the Content-Format "application/ace+cbor" MUST be used.</li>
 <li>If the credentials used by the requesting entity (usually the RS) are invalid the AS MUST respond with the response code equivalent to the CoAP code 4.01 (Unauthorized) and use the required and optional parameters from Section 5.2 in <a href="#RFC6749" class="xref">[RFC6749]</a>.</li>
 <li>If the requesting entity does not have the right to perform this introspection request, the AS MUST respond with a response code equivalent to the CoAP code 4.03 (Forbidden).  In this case no payload is returned.</li>
 <li>The parameters "error", "error_description" and "error_uri" MUST be abbreviated using the codes specified in <a href="#fig:cborTokenParameters" class="xref">Figure 12</a>.</li>
