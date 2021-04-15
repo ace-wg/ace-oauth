@@ -639,9 +639,9 @@ including the claims of relevant access tokens, that an RS uses to determine whe
     </t>
 
     <t hangText="Access Token Response (B):"><vspace blankLines="0"/>
-      If the request from the client is successful (i.e. correct and
-      authorized), the AS returns an access token and optionally a refresh
-      token (note that only certain grant types support refresh tokens).  It
+      If the request from the client has been successfully verified, 
+      authenticated, and authorized, the AS returns an access token and optionally a refresh
+      token. Note that only certain grant types support refresh tokens.  The AS
       can also return additional parameters, referred to as "Access
       Information".  In addition to the response parameters defined by OAuth
       2.0 and the PoP access token extension, this framework defines parameters
@@ -734,7 +734,8 @@ What grant type works best depends on the usage scenario and <xref target="RFC77
  <t>It is also assumed that the RS has been registered with the AS, potentially in a similar way as the client has been registered with the AS.
  Established keying material between the AS and the RS allows the AS to apply
  cryptographic protection to the access token to ensure that its content cannot
- be modified, and if needed, that the content is confidentiality protected.</t>
+ be modified, and if needed, that the content is confidentiality protected. Confidentiality protection of the access token content would be provided on top of 
+ confidentiality protection via a communication security protocol. </t>
 
 <t>The keying material necessary for establishing communication security
   between C and RS is dynamically established as part of the protocol described
@@ -770,11 +771,11 @@ What grant type works best depends on the usage scenario and <xref target="RFC77
   <t>
     <list style="hanging">
       <t hangText="Credential Provisioning"><vspace blankLines="0"/>
-        In constrained environments it cannot be assumed that the client and RS
-        are part of a common key infrastructure. Therefore the AS provisions
-	credentials or associated information to allow mutual authentication
-	between client and RS. The resulting security association between client
-	and RS may then also be used to bind these credentials to the
+        In constrained environments it cannot be assumed that the client and the RS
+        are part of a common key infrastructure. Therefore, the AS provisions
+	credentials and associated information to allow mutual authentication
+	between the client and the RS. The resulting security association between the client
+	and the RS may then also be used to bind these credentials to the
 	access tokens the client uses.
         <vspace blankLines="1"/>
       </t>
@@ -902,9 +903,11 @@ mechanism that addresses both problems at once (e.g. by querying a dedicated sec
     
     <t>The message can also contain the following OPTIONAL parameters:
     <list style="symbols">
-      <t>A "audience" element containing a suggested audience that the client
-      should request at the AS (see  <xref target="audience"/> for a discussion
-      of this parameter).</t>
+      <t>A "audience" element contains an identifier the client
+      should request at the AS, as suggested by the RS. With this parameter,
+      when included in the access token request to the AS, the AS is able to 
+      restrict the use of access token to specific RSs. See 
+      <xref target="audience"/> for a discussion of this parameter.</t>
       <t>A "kid" element containing the key identifier of a key used in
       an existing security association between the client and the RS.
       The RS expects the client to request an access token bound to this
@@ -960,12 +963,13 @@ mechanism that addresses both problems at once (e.g. by querying a dedicated sec
 
     <t>In the example above, the response parameter "AS" points the receiver of
     this message to the URI "coaps://as.example.com/token" to request access
-    tokens.  The RS sending this response (i.e., RS) uses an internal clock
-    that is not synchronized with the clock of the AS.  Therefore it
+    tokens.  The RS sending this response uses an internal clock
+    that is not synchronized with the clock of the AS.  Therefore, it
     can not reliably verify the expiration time of access tokens it receives.
     To ensure a certain level of access token freshness nevertheless, the RS has
     included a <spanx style="verb">cnonce</spanx> parameter (see <xref
-    target="cnonceParam"/>) in the response.</t>
+    target="cnonceParam"/>) in the response. (The hex-sequence of the cnonce parameter 
+    is encoded in CBOR-based notation in this example.)</t>
 
     <t><xref target="fig:as-info-cbor"/> illustrates the mandatory to use
     binary encoding of the message payload shown in
@@ -1097,7 +1101,7 @@ a4                                   # map(4)
 
   <t>The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports. 
   A profile MUST define the details of the mapping between the fields described below, and these transports.
-  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Sections 4.1.3 and 4.1.4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If CBOR payload is supported, the semantics described in this section MUST be followed.</t> 
+  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Sections 4.1.3 and 4.1.4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If the CBOR payload formaat is supported, the semantics described in this section MUST be followed.</t> 
 
    <t>For the AS to be able to issue a token, the client MUST be authenticated
   and present a valid grant for the scopes requested.  Profiles of this
@@ -1105,8 +1109,8 @@ a4                                   # map(4)
   communication between client and AS is protected, fulfilling the
   requirements specified in <xref target="oauthProfile"/>.</t>
 
-  <t>The default name of this endpoint in an url-path is '/token',
-  however implementations are not required to use this name and can define
+  <t>The default name of this endpoint in an url-path SHOULD be '/token'.
+  However, implementations are not required to use this name and can define
   their own instead.</t>
 
   <t>The figures of this section use CBOR diagnostic
