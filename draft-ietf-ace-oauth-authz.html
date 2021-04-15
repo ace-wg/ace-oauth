@@ -462,7 +462,7 @@
 
   <meta name="dct.creator" content="Seitz, L., Selander, G., Wahlstroem, E., Erdtman, S., and H. Tschofenig" />
   <meta name="dct.identifier" content="urn:ietf:id:draft-ietf-ace-oauth-authz-39" />
-  <meta name="dct.issued" scheme="ISO8601" content="2021-14" />
+  <meta name="dct.issued" scheme="ISO8601" content="2021-15" />
   <meta name="dct.abstract" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth.  The framework is based on a set of building blocks including OAuth 2.0 and the Constrained Application Protocol (CoAP), thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
   <meta name="description" content="This specification defines a framework for authentication and authorization in Internet of Things (IoT) environments called ACE-OAuth.  The framework is based on a set of building blocks including OAuth 2.0 and the Constrained Application Protocol (CoAP), thus transforming a well-known and widely used authorization solution into a form suitable for IoT devices.  Existing specifications are used where possible, but extensions are added and profiles are defined to better serve the IoT use cases.  " />
 
@@ -486,7 +486,7 @@
 <td class="right">G. Selander</td>
 </tr>
 <tr>
-<td class="left">Expires: October 16, 2021</td>
+<td class="left">Expires: October 17, 2021</td>
 <td class="right">Ericsson</td>
 </tr>
 <tr>
@@ -515,7 +515,7 @@
 </tr>
 <tr>
 <td class="left"></td>
-<td class="right">April 14, 2021</td>
+<td class="right">April 15, 2021</td>
 </tr>
 
     	
@@ -531,7 +531,7 @@
 <p>This Internet-Draft is submitted in full conformance with the provisions of BCP 78 and BCP 79.</p>
 <p>Internet-Drafts are working documents of the Internet Engineering Task Force (IETF).  Note that other groups may also distribute working documents as Internet-Drafts.  The list of current Internet-Drafts is at https://datatracker.ietf.org/drafts/current/.</p>
 <p>Internet-Drafts are draft documents valid for a maximum of six months and may be updated, replaced, or obsoleted by other documents at any time.  It is inappropriate to use Internet-Drafts as reference material or to cite them other than as "work in progress."</p>
-<p>This Internet-Draft will expire on October 16, 2021.</p>
+<p>This Internet-Draft will expire on October 17, 2021.</p>
 <h1 id="rfc.copyrightnotice"><a href="#rfc.copyrightnotice">Copyright Notice</a></h1>
 <p>Copyright (c) 2021 IETF Trust and the persons identified as the document authors.  All rights reserved.</p>
 <p>This document is subject to BCP 78 and the IETF Trust's Legal Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info) in effect on the date of publication of this document.  Please review these documents carefully, as they describe your rights and restrictions with respect to this document.  Code Components extracted from this document must include Simplified BSD License text as described in Section 4.e of the Trust Legal Provisions and are provided without warranty as described in the Simplified BSD License.</p>
@@ -759,7 +759,7 @@
 <br> A token may be bound to a cryptographic key,  which is then used to bind the token to a request authorized by the token.  Such tokens are called proof-of-possession tokens (or PoP tokens).  <br><br> The proof-of-possession security concept used here assumes that the AS acts as a trusted third party that binds keys to tokens.  In the case of access tokens, these so called PoP keys are then used by the client to demonstrate the possession of the secret to the RS when accessing the resource.  The RS, when receiving an access token, needs to verify that the key used by the client matches the one bound to the access token.  When this specification uses the term "access token" it is assumed to be a PoP access token unless specifically stated otherwise.  <br><br> The key bound to the token (the PoP key) may use either symmetric or asymmetric cryptography.  The appropriate choice of the kind of cryptography depends on the constraints of the IoT devices as well as on the security requirements of the use case.  <br><br> <dl>
 <dt>Symmetric PoP key:</dt>
 <dd style="margin-left: 8">
-<br> The AS generates a random symmetric PoP key.  The key is either stored to be returned on introspection calls or encrypted and included in the token.  The PoP key is also encrypted for the client and sent to the it together with the token.<br><br> </dd>
+<br> The AS generates a random symmetric PoP key.  The key is either stored to be returned on introspection calls or included in the token.  Either the whole token or only the key MUST be encrypted in the latter case.  The PoP key is also returned to client together with the token.<br><br> </dd>
 <dt>Asymmetric PoP key:</dt>
 <dd style="margin-left: 8">
 <br> An asymmetric key pair is generated by the client and the public key is sent to the AS (if it does not already have knowledge of the client's public key).  Information about the public key, which is the PoP key in this case, is either stored to be returned on introspection calls or included inside the token and sent back to the client.  The resource server consuming the token can identify the public key from the information in the token, which allows the client to use the corresponding private key for the proof of possession.  </dd>
@@ -1018,7 +1018,7 @@ a4                                   # map(4)
 </ul>
 <p id="rfc.section.5.8.1.p.2">The default behavior, is that the AS generates a symmetric proof-of-possession key for the client. In order to use an asymmetric key pair or to re-use a key previously established with the RS, the client is supposed to use the "req_cnf" parameter from <a href="#I-D.ietf-ace-oauth-params" class="xref">[I-D.ietf-ace-oauth-params]</a>.  </p>
 <p id="rfc.section.5.8.1.p.3">If CoAP is used then these parameters MUST be provided in a CBOR map, see <a href="#fig:cborTokenParameters" class="xref">Figure 12</a>.</p>
-<p id="rfc.section.5.8.1.p.4">When HTTP is used as a transport then the client makes a request to the token endpoint by sending the parameters using the "application/x-www-form-urlencoded" format with a character encoding of UTF-8 in the HTTP request entity-body, as defined in section 3.2 of <a href="#RFC6749" class="xref">[RFC6749]</a>.</p>
+<p id="rfc.section.5.8.1.p.4">When HTTP is used as a transport then the client makes a request to the token endpoint by sending the parameters using the "application/x-www-form-urlencoded" format with a character encoding of UTF-8 in the HTTP request entity-body, as defined in Appendix B of <a href="#RFC6749" class="xref">[RFC6749]</a>.</p>
 <p id="rfc.section.5.8.1.p.5">The following examples illustrate different types of requests for proof-of-possession tokens. </p>
 <div id="rfc.figure.5"></div>
 <div id="fig:symmATreq"></div>
@@ -1171,7 +1171,7 @@ Payload:
 <ul>
 <li>When using CoAP the raw payload before being processed by the communication security protocol MUST be	encoded as a CBOR map.</li>
 <li>A response code equivalent to the CoAP code 4.00 (Bad Request) MUST be used for all error responses, except for invalid_client where a response code equivalent to the CoAP code 4.01 (Unauthorized) MAY be used under the same conditions as specified in Section 5.2 of <a href="#RFC6749" class="xref">[RFC6749]</a>.</li>
-<li>The Content-Format (for CoAP-based interactions) or media type (for HTTP-based interactions) "application/ace+cbor" MUST be used for the error response.</li>
+<li>The Content-Format (for CoAP-based interactions) or media type (for HTTP-based interactions) "application/ace+cbor" MUST be used for the error response if CBOR is used as encoding.</li>
 <li>The parameters "error", "error_description" and "error_uri" MUST be abbreviated using the codes specified in <a href="#fig:cborTokenParameters" class="xref">Figure 12</a>, when a CBOR encoding is used.</li>
 <li>The error code (i.e., value of the "error" parameter) MUST be abbreviated as specified in <a href="#fig:cborErrorCodes" class="xref">Figure 10</a>, when a CBOR encoding is used.</li>
 </ul>
@@ -1210,7 +1210,7 @@ Payload:
 <p id="rfc.section.5.8.4.2.p.1">The "token_type" parameter, defined in section 5.1 of <a href="#RFC6749" class="xref">[RFC6749]</a>, allows the AS to indicate to the client which type of access token it is receiving (e.g., a bearer token). </p>
 <p id="rfc.section.5.8.4.2.p.2">This document registers the new value "PoP" for the OAuth Access Token Types registry,  specifying a proof-of-possession token.  How the proof-of-possession by the client to the RS is performed MUST be specified by the profiles.</p>
 <p id="rfc.section.5.8.4.2.p.3">The values in the "token_type" parameter MUST use the CBOR abbreviations defined in the registry specified by <a href="#IANATokenTypeMappings" class="xref">Section 8.7</a>, if a CBOR encoding is used. </p>
-<p id="rfc.section.5.8.4.2.p.4">In this framework the "pop" value for the "token_type" parameter is the default. The AS may, however, provide a different value.</p>
+<p id="rfc.section.5.8.4.2.p.4">In this framework the "pop" value for the "token_type" parameter is the default. The AS may, however, provide a different value from those registered in <a href="#IANA.OAuthAccessTokenTypes" class="xref">[IANA.OAuthAccessTokenTypes]</a>.</p>
 <h1 id="rfc.section.5.8.4.3">
 <a href="#rfc.section.5.8.4.3">5.8.4.3.</a> <a href="#paramProfile" id="paramProfile">Profile</a>
 </h1>
@@ -1437,7 +1437,7 @@ Payload:
 <a href="#rfc.section.5.10.1.2">5.10.1.2.</a> <a href="#protAuthzInfo" id="protAuthzInfo">Protecting the Authorization       Information Endpoint</a>
 </h1>
 <p id="rfc.section.5.10.1.2.p.1">As this framework can be used in RESTful environments, it is important to make sure that attackers cannot perform unauthorized requests on the authz-info endpoints, other than submitting access tokens.</p>
-<p id="rfc.section.5.10.1.2.p.2">Specifically it SHOULD NOT be possible to perform GET, DELETE or PUT on the authz-info endpoint and on it's children (if any).</p>
+<p id="rfc.section.5.10.1.2.p.2">Specifically it SHOULD NOT be possible to perform GET, DELETE or PUT on the authz-info endpoint and on its children (if any).</p>
 <p id="rfc.section.5.10.1.2.p.3">The POST method SHOULD NOT be allowed on children of the authz-info endpoint.</p>
 <p id="rfc.section.5.10.1.2.p.4">The RS SHOULD implement rate limiting measures to mitigate attacks aiming to overload the processing capacity of the RS by repeatedly submitting tokens. For CoAP-based communication the RS could use the mechanisms from <a href="#RFC8516" class="xref">[RFC8516]</a> to indicate that it is overloaded.</p>
 <h1 id="rfc.section.5.10.2">

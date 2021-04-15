@@ -448,9 +448,10 @@ including the claims of relevant access tokens, that an RS uses to determine whe
 
           <t hangText="Symmetric PoP key:"><vspace blankLines="0"/>
               The AS generates a random symmetric PoP key.  The key is either
-              stored to be returned on introspection calls or encrypted and
-              included in the token.  The PoP key is also encrypted for the
-	      client and sent to the it together with the token.<vspace blankLines="1"/>
+              stored to be returned on introspection calls or included in the
+	      token.  Either the whole token or only the key MUST be encrypted
+	      in the latter case.  The PoP key is also returned to
+	      client together with the token.<vspace blankLines="1"/>
 
           </t>
           <t hangText="Asymmetric PoP key:"><vspace blankLines="0"/>
@@ -1160,7 +1161,7 @@ a4                                   # map(4)
     request to the token endpoint by sending the
     parameters using the "application/x-www-form-urlencoded"
     format with a character encoding of UTF-8 in the HTTP
-    request entity-body, as defined in section 3.2 of <xref
+    request entity-body, as defined in Appendix B of <xref
     target="RFC6749"/>.</t>
 
     <t>The following examples illustrate different types of requests
@@ -1382,7 +1383,7 @@ Payload:
 
 	<t>The Content-Format (for CoAP-based interactions) or media type
 	(for HTTP-based interactions) "application/ace+cbor" MUST be used
-	for the error response.</t>
+	for the error response if CBOR is used as encoding.</t>
 
 	<t>The parameters "error", "error_description" and "error_uri" MUST
 	be abbreviated using the codes specified in <xref
@@ -1472,7 +1473,8 @@ Payload:
       <xref target="IANATokenTypeMappings"/>, if a CBOR encoding is used. </t>
 
       <t>In this framework the "pop" value for the "token_type" parameter is
-      the default. The AS may, however, provide a different value.</t>
+      the default. The AS may, however, provide a different value from those
+      registered in <xref target="IANA.OAuthAccessTokenTypes"/>.</t>
     </section>
 
     <section anchor="paramProfile" title="Profile">
@@ -1965,7 +1967,7 @@ Payload:
     authz-info endpoints, other than submitting access tokens.</t>
 
     <t>Specifically it SHOULD NOT be possible to perform GET, DELETE or
-    PUT on the authz-info endpoint and on it's children (if any).</t>
+    PUT on the authz-info endpoint and on its children (if any).</t>
 
     <t>The POST method SHOULD NOT be allowed on children of the authz-info
     endpoint.</t>
