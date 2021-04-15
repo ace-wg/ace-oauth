@@ -51,7 +51,7 @@
 <!ENTITY I-D.ietf-tls-dtls13 SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-tls-dtls13.xml">
 <!ENTITY I-D.ietf-quic-transport SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-quic-transport.xml">
 <!ENTITY I-D.ietf-ace-dtls-authorize SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-dtls-authorize.xml">
-<!ENTITY I-D.ietf-ace-oscore-profilet SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-oscore-profile.xml">
+<!ENTITY I-D.ietf-ace-oscore-profile SYSTEM "http://xml.resource.org/public/rfc/bibxml3/reference.I-D.ietf-ace-oscore-profile.xml">
 ]>
 
 <?xml-stylesheet type='text/xsl' href='rfc2629.xslt' ?>
@@ -838,7 +838,7 @@ What grant type works best depends on the usage scenario and <xref target="RFC77
   as a CBOR map and submits that map as the payload of the POST request.</t>
 
   <t>Profiles that use CBOR encoding of protocol message parameters at the
-  outermost encoding layer MUST use the media format 'application/ace+cbor'.
+  outermost encoding layer MUST use the content format 'application/ace+cbor'.
   If CoAP is used for communication, the Content-Format MUST be abbreviated
   with the ID: 19 (see <xref target="IANAcoapContentFormat"/>).</t>
 
@@ -1102,9 +1102,13 @@ a4                                   # map(4)
   establish shared keys or to exchange their public keys.  Furthermore,
   this framework defines encodings using CBOR, as a substitute for JSON.</t>
 
-  <t>The endpoint may, however, be exposed over HTTPS as in classical OAuth or even other transports. 
-  A profile MUST define the details of the mapping between the fields described below, and these transports.
-  If HTTPS is used, JSON or CBOR payloads may be supported. If JSON payloads are used, the semantics of Sections 4.1.3 and 4.1.4 of the OAuth 2.0 specification MUST be followed (with additions as described below). If the CBOR payload formaat is supported, the semantics described in this section MUST be followed.</t> 
+  <t>The endpoint may also be exposed over HTTPS as in classical OAuth or
+  even other transports.  A profile MUST define the details of the mapping
+  between the fields described below, and these transports.  If HTTPS is used,
+  the semantics of Sections 4.1.3 and 4.1.4 of the OAuth 2.0 specification MUST
+  be followed (with additions as described below). If the CoAP is some other
+  transport with CBOR payload format is supported, the semantics described in
+  this section MUST be followed.</t> 
 
    <t>For the AS to be able to issue a token, the client MUST be authenticated
   and present a valid grant for the scopes requested.  Profiles of this
@@ -1165,11 +1169,8 @@ a4                                   # map(4)
     see <xref target="fig:cborTokenParameters"/>.</t>
 
     <t>When HTTP is used as a transport then the client makes a 
-    request to the token endpoint by sending the
-    parameters using the "application/x-www-form-urlencoded"
-    format with a character encoding of UTF-8 in the HTTP
-    request entity-body, as defined in Appendix B of <xref
-    target="RFC6749"/>.</t>
+    request to the token endpoint, the parameters MUST be encoded as defined 
+    in Appendix B of <xref target="RFC6749"/>.</t>
 
     <t>The following examples illustrate different types of requests
     for proof-of-possession tokens. </t>
@@ -1287,9 +1288,11 @@ Payload:
    requested the client.</t>
 
     <t>The content of the successful reply is the Access Information. 
-    When using CoAP, the payload MUST be encoded as a CBOR map, containing
-    parameters as specified in Section 5.1 of <xref target="RFC6749"/>, with
-    the following additions and changes:
+    When using CoAP, the payload MUST be encoded as a CBOR map, when using
+    HTTP the encoding is a JSON map as specified in seciton 5.1 of <xref
+    target="RFC6749"/>.  In both cases the parameters specified in Section 5.1
+    of <xref target="RFC6749"/> are used, with the following additions and
+    changes:
 
     <list style="hanging">
 	<t hangText="ace_profile:"><vspace blankLines="0"/>
@@ -1379,7 +1382,10 @@ Payload:
     with the following exceptions:
 
       <list style="symbols">
-        <t>When using CoAP the payload MUST be encoded as a CBOR map.</t>
+        <t>When using CoAP the payload MUST be encoded as a CBOR map, with
+	the Content-Format "application/ace+cbor".  When using HTTP the
+        payload is encoded in JSON as specified in section 5.2 of <xref
+        target="RFC6749"/>.</t>
 
         <t>A response code equivalent to the CoAP code 4.00 (Bad Request) MUST
 	be used for all error responses, except for invalid_client where a
@@ -1387,9 +1393,7 @@ Payload:
 	used under the same conditions as specified in Section 5.2 of
 	<xref target="RFC6749"/>.</t>
 
-	<t>The Content-Format (for CoAP-based interactions) or media type
-	(for HTTP-based interactions) "application/ace+cbor" MUST be used
-	for the error response if CBOR is used as encoding.</t>
+
 
 	<t>The parameters "error", "error_description" and "error_uri" MUST
 	be abbreviated using the codes specified in <xref
@@ -1607,8 +1611,8 @@ Payload:
     aid the AS in its response MAY be included.</t>
 
     <t>For CoAP-based interaction, all messages MUST use the content type
-    "application/ace+cbor", while for HTTP-based interactions using CBOR, the
-    equivalent media type "application/ace+cbor" MUST be used.</t>
+    "application/ace+cbor". For HTTP the encoding defined in section 2.1
+    of <xref target="RFC7662"/> is used.</t>
     
     <t>The same parameters are required and optional as in Section 2.1
     of <xref target="RFC7662"/>.</t>
@@ -1652,8 +1656,10 @@ Payload:
     <xref target="errorsIntro"/>.</t>
 
     <t>In a successful response, the AS encodes the response parameters in
-    a map.  If CoAP is used, this MUST be encoded as a CBOR map.  This map
-    includes the same required and optional parameters as in Section 2.2 of
+    a map.  If CoAP is used, this MUST be encoded as a CBOR map, if HTTP is
+    used the JSON encoding specified in section 2.2 of <xref target="RFC7662"/>
+    is used.  The map containing the response payload  includes the same
+    required and optional parameters as in Section 2.2 of
     <xref target="RFC7662"/> with the following additions:
 
     <list style="hanging">
@@ -1717,12 +1723,14 @@ Payload:
 
     <list style="symbols">
       <t>If content is sent and CoAP is used the payload MUST be encoded as a
-      CBOR map and the Content-Format "application/ace+cbor" MUST be used.</t>
+      CBOR map and the Content-Format "application/ace+cbor" MUST be used.
+      For HTTP the encoding defined in section 2.3 of <xref target="RFC6749"/>
+      is used.</t>
 
       <t>If the credentials used by the requesting entity (usually the RS)
       are invalid the AS MUST respond with the response code equivalent to the
       CoAP code 4.01 (Unauthorized) and use the required and optional
-      parameters from Section 5.2 in <xref target="RFC6749"/>.</t>
+      parameters from Section 2.3 in <xref target="RFC7662"/>.</t>
 
       <t>If the requesting entity does not have the right to perform this
       introspection request, the AS MUST respond with a response code
@@ -3199,6 +3207,8 @@ document and left to the applications.</t>
       &I-D.ietf-tls-dtls13;
       &I-D.erdtman-ace-rpcc;
       &I-D.ietf-quic-transport;
+      &I-D.ietf-ace-oscore-profile;
+      &I-D.ietf-ace-dtls-authorize;
       <reference anchor="Margi10impact">
         <front>
           <title>Impact of Operating Systems on Wireless Sensor Networks
