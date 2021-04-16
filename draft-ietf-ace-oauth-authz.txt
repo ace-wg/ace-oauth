@@ -120,22 +120,22 @@ Internet-Draft                  ACE-OAuth                     April 2021
                     Endpoint . . . . . . . . . . . . . . . . . . . .  39
        5.10.2.  Client Requests to the RS  . . . . . . . . . . . . .  39
        5.10.3.  Token Expiration . . . . . . . . . . . . . . . . . .  40
-       5.10.4.  Key Expiration . . . . . . . . . . . . . . . . . . .  41
+       5.10.4.  Key Expiration . . . . . . . . . . . . . . . . . . .  42
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  42
      6.1.  Protecting Tokens . . . . . . . . . . . . . . . . . . . .  42
      6.2.  Communication Security  . . . . . . . . . . . . . . . . .  43
      6.3.  Long-Term Credentials . . . . . . . . . . . . . . . . . .  44
-     6.4.  Unprotected AS Request Creation Hints . . . . . . . . . .  44
+     6.4.  Unprotected AS Request Creation Hints . . . . . . . . . .  45
      6.5.  Minimal Security Requirements        for Communication  .  45
      6.6.  Token Freshness and Expiration  . . . . . . . . . . . . .  46
-     6.7.  Combining Profiles  . . . . . . . . . . . . . . . . . . .  46
+     6.7.  Combining Profiles  . . . . . . . . . . . . . . . . . . .  47
      6.8.  Unprotected Information . . . . . . . . . . . . . . . . .  47
-     6.9.  Identifying Audiences . . . . . . . . . . . . . . . . . .  47
+     6.9.  Identifying Audiences . . . . . . . . . . . . . . . . . .  48
      6.10. Denial of Service Against or with      Introspection  . .  48
    7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  49
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  50
      8.1.  ACE Authorization Server Request Creation Hints . . . . .  50
-     8.2.  CoRE Resource Type Registry . . . . . . . . . . . . . . .  50
+     8.2.  CoRE Resource Type Registry . . . . . . . . . . . . . . .  51
      8.3.  OAuth Extensions Error Registration . . . . . . . . . . .  51
      8.4.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  51
      8.5.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  52
@@ -1632,17 +1632,17 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    Clients that want the AS to provide them with the "ace_profile"
    parameter in the access token response can indicate that by sending a
-   ace_profile parameter with a null value (for CBOR-based interactions)
-   or an empty string (when using ) in the access token request.
+   ace_profile parameter with a null value for CBOR-based interactions,
+   or an empty string if CBOR is not used, in the access token request.
 
 5.8.4.4.  Client-Nonce
 
    This parameter MUST be sent from the client to the AS, if it
    previously received a "cnonce" parameter in the "AS Request Creation
    Hints" Section 5.3.  The parameter is encoded as a byte string for
-   CBOR-based interactions, and as a string (Base64 encoded binary) for
-   JSON-based interactions.  It MUST copy the value from the cnonce
-   parameter in the "AS Request Creation Hints".
+   CBOR-based interactions, and as a string (Base64 encoded binary) if
+   CBOR is not used.  It MUST copy the value from the cnonce parameter
+   in the "AS Request Creation Hints".
 
 5.8.5.  Mapping Parameters to CBOR
 
@@ -1994,22 +1994,22 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    The method consists of an authz-info endpoint, implemented by the RS.
    A client using this method MUST make a POST request to the authz-info
-   endpoint at the RS with the access token in the payload.  The RS
-   receiving the token MUST verify the validity of the token.  If the
-   token is valid, the RS MUST respond to the POST request with 2.01
-   (Created).  Section 5.10.1.1 outlines how an RS MUST proceed to
-   verify the validity of an access token.
+   endpoint at the RS with the access token in the payload.  The CoAP
+   Content-Format or HTTP Media Type MUST reflect the format of the
+   token, e.g. application/cwt for CBOR Web Tokens, if no Content-Format
+   or Media Type is defined for the token format, application/octet-
+   stream MUST be used.
+
+   The RS receiving the token MUST verify the validity of the token.  If
+   the token is valid, the RS MUST respond to the POST request with a
+   response code equivalent to CoAP's 2.01 (Created).  Section 5.10.1.1
+   outlines how an RS MUST proceed to verify the validity of an access
+   token.
 
    The RS MUST be prepared to store at least one access token for future
    use.  This is a difference to how access tokens are handled in OAuth
    2.0, where the access token is typically sent along with each
    request, and therefore not stored at the RS.
-
-   When using this framework it is RECOMMENDED that an RS stores only
-   one token per proof-of-possession key.  This means that an additional
-   token linked to the same key will supersede any existing token at the
-   RS, by replacing the corresponding authorization information.  The
-   reason is that this greatly simplifies (constrained) implementations,
 
 
 
@@ -2018,6 +2018,11 @@ Seitz, et al.           Expires October 17, 2021               [Page 36]
 Internet-Draft                  ACE-OAuth                     April 2021
 
 
+   When using this framework it is RECOMMENDED that an RS stores only
+   one token per proof-of-possession key.  This means that an additional
+   token linked to the same key will supersede any existing token at the
+   RS, by replacing the corresponding authorization information.  The
+   reason is that this greatly simplifies (constrained) implementations,
    with respect to required storage and resolving a request to the
    applicable token.
 
@@ -2048,24 +2053,19 @@ Internet-Draft                  ACE-OAuth                     April 2021
    it.  The details of token verification depends on various aspects,
    including the token encoding, the type of token, the security
    protection applied to the token, and the claims.  The token encoding
-   matters since the security wrapper differs between the token
+   matters since the security protection differs between the token
    encodings.  For example, a CWT token uses COSE while a JWT token uses
    JOSE.  The type of token also has an influence on the verification
    procedure since tokens may be self-contained whereby token
    verification may happen locally at the RS while a token-by-reference
    requires further interaction with the authorization server, for
    example using token introspection, to obtain the claims associated
-   with the token reference.  Self-contained tokens MUST, at a minimum,
-   be integrity protected but they MAY also be encrypted.
+   with the token reference.  Self-contained tokens MUST, at least be
+   integrity protected but they MAY also be encrypted.
 
    For self-contained tokens the RS MUST process the security protection
    of the token first, as specified by the respective token format.  For
    CWT the description can be found in [RFC8392] and for JWT the
-   relevant specification is [RFC7519].  This MUST include a
-   verification that security protection (and thus the token) was
-   generated by an AS that has the right to issue access tokens for this
-   RS.
-
 
 
 
@@ -2074,6 +2074,11 @@ Seitz, et al.           Expires October 17, 2021               [Page 37]
 Internet-Draft                  ACE-OAuth                     April 2021
 
 
+   relevant specification is [RFC7519].  This MUST include a
+   verification that security protection (and thus the token) was
+   generated by an AS that has the right to issue access tokens for this
+   RS.
+
    In case the token is communicated by reference the RS needs to obtain
    the claims first.  When the RS uses token introspection the relevant
    specification is [RFC7662] with CoAP transport specified in
@@ -2081,10 +2086,11 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    Errors may happen during this initial processing stage:
 
-   o  If token or claim verification fails, the RS MUST discard the
-      token and, if this was an interaction with authz-info, return an
-      error message with a response code equivalent to the CoAP code
-      4.01 (Unauthorized).
+   o  If the verification of the security wrapper fails, or the token
+      was issued by an AS that does not have the right to issue tokens
+      for the receiving RS, the RS MUST discard the token and, if this
+      was an interaction with authz-info, return an error message with a
+      response code equivalent to the CoAP code 4.01 (Unauthorized).
 
    o  If the claims cannot be obtained the RS MUST discard the token
       and, in case of an interaction via the authz-info endpoint, return
@@ -2095,11 +2101,11 @@ Internet-Draft                  ACE-OAuth                     April 2021
    token.  Errors are returned when claim checks fail, in the order of
    priority of this list:
 
-   iss  The issuer claim must identify an AS that has the authority to
-      issue access tokens for the receiving RS.  If that is not the case
-      the RS MUST discard the token.  If this was an interaction with
-      authz-info, the RS MUST also respond with a response code
-      equivalent to the CoAP code 4.01 (Unauthorized).
+   iss  The issuer claim (if present) must identify the AS that has
+      produced the security protection for the access token.  If that is
+      not the case the RS MUST discard the token.  If this was an
+      interaction with authz-info, the RS MUST also respond with a
+      response code equivalent to the CoAP code 4.01 (Unauthorized).
 
    exp  The expiration date must be in the future.  If that is not the
       case the RS MUST discard the token.  If this was an interaction
@@ -2116,12 +2122,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    scope  The RS must recognize value of the scope claim.  If that is
       not the case the RS MUST discard the token.  If this was an
-      interaction with authz-info, the RS MUST also respond with a
-      response code equivalent to the CoAP code 4.00 (Bad Request).  The
-      RS MAY provide additional information in the error response, to
-      clarify what went wrong.
-
-
 
 
 
@@ -2129,6 +2129,11 @@ Seitz, et al.           Expires October 17, 2021               [Page 38]
 
 Internet-Draft                  ACE-OAuth                     April 2021
 
+
+      interaction with authz-info, the RS MUST also respond with a
+      response code equivalent to the CoAP code 4.00 (Bad Request).  The
+      RS MAY provide additional information in the error response, to
+      clarify what went wrong.
 
    Additional processing may be needed for other claims in a way
    specific to a profile or the underlying application.
@@ -2172,11 +2177,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    Section 5.10.4 for details on how the client determines the validity
    of the keys used.
 
-   If an RS receives a request from a client, and the target resource
-   requires authorization, the RS MUST first verify that it has an
-   access token that authorizes this request, and that the client has
-   performed the proof-of-possession binding that token to the request.
-
 
 
 
@@ -2185,6 +2185,11 @@ Seitz, et al.           Expires October 17, 2021               [Page 39]
 
 Internet-Draft                  ACE-OAuth                     April 2021
 
+
+   If an RS receives a request from a client, and the target resource
+   requires authorization, the RS MUST first verify that it has an
+   access token that authorizes this request, and that the client has
+   performed the proof-of-possession binding that token to the request.
 
    The response code MUST be 4.01 (Unauthorized) in case the client has
    not performed the proof-of-possession, or if RS has no valid access
@@ -2228,11 +2233,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
       synchronization would be performed is out of scope for this
       specification.
 
-   o  The RS verifies the validity of the token by performing an
-      introspection request as specified in Section 5.9.  This requires
-      the RS to have a reliable network connection to the AS and to be
-      able to handle two secure sessions in parallel (C to RS and RS to
-      AS).
 
 
 
@@ -2241,6 +2241,12 @@ Seitz, et al.           Expires October 17, 2021               [Page 40]
 
 Internet-Draft                  ACE-OAuth                     April 2021
 
+
+   o  The RS verifies the validity of the token by performing an
+      introspection request as specified in Section 5.9.  This requires
+      the RS to have a reliable network connection to the AS and to be
+      able to handle two secure sessions in parallel (C to RS and RS to
+      AS).
 
    o  In order to support token expiration for devices that have no
       reliable way of synchronizing their internal clocks, this
@@ -2272,12 +2278,25 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
          +  The RS MUST store the highest sequence number of an expired
             token containing the "exi" claim that it has seen, and treat
-            tokens with lower sequence numbers as expired.
+            tokens with lower sequence numbers as expired.  Note that
+            this could lead to discarding valid tokens with lower
+            sequence numbers, if the AS where to issue tokens of
+            different validity time for the same RS.  The assumption is
+            that typically tokens in such a scenario would all have the
+            same validity time.
 
    If a token that authorizes a long running request such as a CoAP
    Observe [RFC7641] expires, the RS MUST send an error response with
    the response code equivalent to the CoAP code 4.01 (Unauthorized) to
    the client and then terminate processing the long running request.
+
+
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 41]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
 
 5.10.4.  Key Expiration
 
@@ -2289,15 +2308,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    to situations where the client sends requests containing sensitive
    information to the RS using a key that is expired and possibly in the
    hands of an attacker, or accepts responses from the RS that are not
-
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 41]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
-
    properly protected and could possibly have been forged by an
    attacker.
 
@@ -2336,6 +2346,14 @@ Internet-Draft                  ACE-OAuth                     April 2021
    of the access token by using a digital signature or a keyed message
    digest (MAC) or an Authenticated Encryption with Associated Data
    (AEAD) algorithm.  Consequently, the token integrity protection MUST
+
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 42]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
+
    be applied to prevent the token from being modified, particularly
    since it contains a reference to the symmetric key or the asymmetric
    key used for proof-of-possession.  If the access token contains the
@@ -2346,14 +2364,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    If the token is intended for multiple recipients (i.e. an audience
    that is a group), integrity protection of the token with a symmetric
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 42]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
-
    key, shared between the AS and the recipients, is not sufficient,
    since any of the recipients could modify the token undetected by the
    other recipients.  Therefore a token with a multi-recipient audience
@@ -2392,6 +2402,14 @@ Internet-Draft                  ACE-OAuth                     April 2021
    RS may obtain the proof-of-possession key from the authorization
    server for use with a specific access token.  Not using
    confidentiality protection exposes this secret (and the access token)
+
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 43]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
+
    to an eavesdropper thereby completely negating proof-of-possession
    security.  The requirements for communication security of profiles
    are specified in Section 5.
@@ -2401,14 +2419,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    Section 5.1 of [RFC8392].  Such additional protection can be
    necessary if the token is later transferred over an insecure
    connection (e.g. when it is sent to the authz-info endpoint).
-
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 43]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
 
    Developers MUST ensure that the ephemeral credentials (i.e., the
    private key or the session key) are not leaked to third parties.  An
@@ -2445,6 +2455,17 @@ Internet-Draft                  ACE-OAuth                     April 2021
    that include securely erasing credentials and other security critical
    material in the devices being decommissioned.
 
+
+
+
+
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 44]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
+
 6.4.  Unprotected AS Request Creation Hints
 
    Initially, no secure channel exists to protect the communication
@@ -2454,22 +2475,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    MUST determine if an AS is authorized to provide access tokens for a
    certain RS.  How this determination is implemented is out of scope
    for this document and left to the applications.
-
-   A compromised RS may use the hints for attempting to trick a client
-   into contacting an AS that is not supposed to be in charge of that
-   RS.  Therefore, C must not communicate with an AS if it cannot
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 44]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
-
-   determine that this AS has the authority to issue access tokens for
-   this RS.  Otherwise, a compromised RS may use this to perform a
-   denial of service attack against a specific AS, by redirecting a
-   large number of client requests to that AS.
 
 6.5.  Minimal Security Requirements for Communication
 
@@ -2509,11 +2514,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
       protecting the initial communication.  After the client has
       successfully transmitted the access token to the RS, a secure
       communication protocol MUST be established between client and RS
-      for the actual resource request.  This protocol MUST provide
-      confidentiality, integrity and replay protection as well as a
-      binding between requests and responses.  This requires that the
-      client learned either the RS's public key or received a symmetric
-      proof-of-possession key bound to the access token from the AS.
 
 
 
@@ -2522,6 +2522,11 @@ Seitz, et al.           Expires October 17, 2021               [Page 45]
 Internet-Draft                  ACE-OAuth                     April 2021
 
 
+      for the actual resource request.  This protocol MUST provide
+      confidentiality, integrity and replay protection as well as a
+      binding between requests and responses.  This requires that the
+      client learned either the RS's public key or received a symmetric
+      proof-of-possession key bound to the access token from the AS.
       The RS must have learned either the client's public key or a
       shared symmetric key from the claims in the token or an
       introspection request.  Since ACE does not provide profile
@@ -2562,6 +2567,17 @@ Internet-Draft                  ACE-OAuth                     April 2021
    the RS be online at times.  The second drawback can be mitigated by
    regularly storing the value of "exi" counters to persistent memory.
 
+
+
+
+
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 46]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
+
 6.7.  Combining Profiles
 
    There may be use cases were different profiles of this framework are
@@ -2570,13 +2586,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    interactions between the client and the AS.  The security of a
    profile MUST NOT depend on the assumption that the profile is used
    for all the different types of interactions in this framework.
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 46]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
 
 6.8.  Unprotected Information
 
@@ -2617,6 +2626,14 @@ Internet-Draft                  ACE-OAuth                     April 2021
    configuration of their RS's to prevent them from using such obsolete
    profiles.
 
+
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 47]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
+
 6.9.  Identifying Audiences
 
    The audience claim as defined in [RFC7519] and the equivalent
@@ -2625,14 +2642,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    application specific semantics to be used.  This section attempts to
    give some general guidance for the use of audiences in constrained
    environments.
-
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 47]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
 
    URLs are not a good way of identifying mobile devices that can switch
    networks and thus be associated with new URLs.  If the audience
@@ -2673,6 +2682,14 @@ Internet-Draft                  ACE-OAuth                     April 2021
    First, an attacker could perform a denial of service attack against
    the introspection endpoint at the AS in order to prevent validation
    of access tokens.  To maintain the security of the system, an RS that
+
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 48]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
+
    is configured to use introspection MUST NOT allow access based on a
    token for which it couldn't reach the introspection endpoint.
 
@@ -2682,14 +2699,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    an introspection call.  RS can mitigate such attacks by implementing
    rate limits on how many introspection requests they perform in a
    given time interval for a certain client IP address submitting tokens
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 48]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
-
    to /authz-info.  When that limit has been reached, incoming requests
    from that address are rejected for a certain amount of time.  A
    general rate limit on the introspection requests should also be
@@ -2730,6 +2739,13 @@ Internet-Draft                  ACE-OAuth                     April 2021
    attacker able to obtain the access tokens will be able to link the
    requests, or even to determine the client's identity.
 
+
+
+Seitz, et al.           Expires October 17, 2021               [Page 49]
+
+Internet-Draft                  ACE-OAuth                     April 2021
+
+
    An unprotected response to an unauthorized request (see Section 5.3)
    may disclose information about RS and/or its existing relationship
    with C.  It is advisable to include as little information as possible
@@ -2738,14 +2754,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    Developers must ensure that the RS does not disclose information that
    has an impact on the privacy of the stakeholders in the "AS Request
    Creation Hints".  They may choose to use a different mechanism for
-
-
-
-Seitz, et al.           Expires October 17, 2021               [Page 49]
-
-Internet-Draft                  ACE-OAuth                     April 2021
-
-
    the discovery of the AS if necessary.  If means of encrypting
    communication between C and RS already exist, more detailed
    information may be included with an error response to provide C with
@@ -2787,20 +2795,19 @@ Internet-Draft                  ACE-OAuth                     April 2021
    This registry will be initially populated by the values in Figure 2.
    The Reference column for all of these entries will be this document.
 
-8.2.  CoRE Resource Type Registry
-
-   IANA is requested to register a new Resource Type (rt=) Link Target
-   Attribute in the "Resource Type (rt=) Link Target Attribute Values"
-   subregistry under the "Constrained RESTful Environments (CoRE)
-   Parameters" [IANA.CoreParameters] registry:
-
-
 
 
 Seitz, et al.           Expires October 17, 2021               [Page 50]
 
 Internet-Draft                  ACE-OAuth                     April 2021
 
+
+8.2.  CoRE Resource Type Registry
+
+   IANA is requested to register a new Resource Type (rt=) Link Target
+   Attribute in the "Resource Type (rt=) Link Target Attribute Values"
+   subregistry under the "Constrained RESTful Environments (CoRE)
+   Parameters" [IANA.CoreParameters] registry:
 
    o  Value: "ace.ai"
    o  Description: ACE-OAuth authz-info endpoint resource.
@@ -2843,13 +2850,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
    Reference  This contains a pointer to the public specification of the
       error code abbreviation, if one exists.
 
-   This registry will be initially populated by the values in Figure 10.
-   The Reference column for all of these entries will be this document.
-
-
-
-
-
 
 
 
@@ -2857,6 +2857,9 @@ Seitz, et al.           Expires October 17, 2021               [Page 51]
 
 Internet-Draft                  ACE-OAuth                     April 2021
 
+
+   This registry will be initially populated by the values in Figure 10.
+   The Reference column for all of these entries will be this document.
 
 8.5.  OAuth Grant Type CBOR Mappings
 
@@ -2903,9 +2906,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    Name  The name of token type as registered in the OAuth Access Token
       Types registry, e.g., "Bearer".
-   CBOR Value  CBOR abbreviation for this token type.  Integer values
-      less than -65536 are marked as "Private Use", all other values use
-      the registration policy "Expert Review" [RFC8126].
 
 
 
@@ -2914,6 +2914,9 @@ Seitz, et al.           Expires October 17, 2021               [Page 52]
 Internet-Draft                  ACE-OAuth                     April 2021
 
 
+   CBOR Value  CBOR abbreviation for this token type.  Integer values
+      less than -65536 are marked as "Private Use", all other values use
+      the registration policy "Expert Review" [RFC8126].
    Reference  This contains a pointer to the public specification of the
       OAuth token type abbreviation, if one exists.
    Original Specification  This contains a pointer to the public
@@ -2957,9 +2960,6 @@ Internet-Draft                  ACE-OAuth                     April 2021
 
    This registry will be initially empty and will be populated by the
    registrations from the ACE framework profiles.
-
-
-
 
 
 

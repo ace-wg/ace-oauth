@@ -1512,8 +1512,8 @@ Payload:
 
       <t>Clients that want the AS to provide them with the "ace_profile"
       parameter in the access token response can indicate that by sending a
-      ace_profile parameter with a null value (for CBOR-based interactions)
-      or an empty string (when using ) in the access token
+      ace_profile parameter with a null value for CBOR-based interactions, 
+      or an empty string if CBOR is not used, in the access token
       request.</t>
     </section>
 
@@ -1522,7 +1522,7 @@ Payload:
       if it previously received a "cnonce" parameter in the "AS Request
       Creation Hints" <xref target="asInfo"/>.  The parameter
       is encoded as a byte string for CBOR-based interactions, and as a
-      string (Base64 encoded binary) for JSON-based interactions.
+      string (Base64 encoded binary) if CBOR is not used.
       It MUST copy the value from the cnonce parameter in the "AS Request
       Creation Hints".</t>
     </section>
@@ -1842,11 +1842,17 @@ Payload:
 
   <t>The method consists of an authz-info endpoint, implemented by the
   RS.  A client using this method MUST make a POST request to the authz-info
-  endpoint at the RS with the access token in the payload. The RS receiving the
-  token MUST verify the validity of the token.  If the token is valid, the RS
-  MUST respond to the POST request with 2.01 (Created).  <xref
-  target="verifyToken"/> outlines how an RS MUST proceed to verify the validity
-  of an access token.</t>
+  endpoint at the RS with the access token in the payload.  The CoAP 
+  Content-Format or HTTP Media Type MUST reflect the format of the token,
+  e.g. application/cwt for CBOR Web Tokens, if no Content-Format or Media
+  Type is defined for the token format, application/octet-stream MUST be
+  used.</t>
+
+  <t>The RS receiving the token MUST verify the validity of the token.  If the
+  token is valid, the RS MUST respond to the POST request with a response code
+  equivalent to CoAP's 2.01 (Created).
+  <xref target="verifyToken"/> outlines how an RS MUST proceed to verify the
+  validity of an access token.</t>
   
   <t>The RS MUST be prepared to store at least one access token for future
   use. This is a difference to how access tokens are handled in OAuth 2.0,
@@ -1887,14 +1893,14 @@ Payload:
     it. The details of token verification depends on various aspects, including 
     the token encoding, the type of token, the security protection applied to
     the token, and the claims.  The token encoding matters since the security
-    wrapper differs between the token encodings. For example, a CWT token uses
-    COSE while a JWT token uses JOSE.  The type of token also has an influence
-    on the verification procedure since tokens may be self-contained whereby
-    token verification may happen locally at the RS while a token-by-reference
-    requires further interaction with the authorization server, for example
-    using token introspection, to obtain the claims associated with the token
-    reference. 	Self-contained tokens MUST, at a minimum, be integrity protected
-    but they MAY also be encrypted.</t> 
+    protection differs between the token encodings. For example, a CWT token
+    uses COSE while a JWT token uses JOSE.  The type of token also has an
+    influence on the verification procedure since tokens may be self-contained
+    whereby token verification may happen locally at the RS while a 
+    token-by-reference requires further interaction with the authorization
+    server, for example using token introspection, to obtain the claims
+    associated with the token reference.  Self-contained tokens MUST, at 
+    least be integrity protected but they MAY also be encrypted.</t> 
 	
     <t>For self-contained tokens the RS MUST process the security
     protection of the token first, as specified by the respective token format.
@@ -1912,7 +1918,9 @@ Payload:
 	<t>Errors may happen during this initial processing stage:
 	<list style="symbols">
 	
-	  <t>If token or claim verification fails, the RS MUST discard the token
+	  <t>If the verification of the security wrapper fails, or the token
+	  was issued by an AS that does not have the right to issue tokens
+	  for the receiving RS, the RS MUST discard the token
 	  and, if this was an interaction with authz-info, return an error
 	  message with a response code equivalent to the CoAP code 4.01
 	  (Unauthorized).</t>
@@ -1929,11 +1937,11 @@ Payload:
 	priority of this list:
 
     <list style="hanging">
-      <t hangText="iss">The issuer claim must identify an AS that
-      has the authority to issue access tokens for the receiving RS.
-      If that is not the case the RS MUST discard the token.  If this was an
-      interaction with authz-info, the RS MUST also respond with a response code
-      equivalent to the CoAP code 4.01 (Unauthorized).</t>
+      <t hangText="iss">The issuer claim (if present) must identify the AS that
+      has produced the security protection for the access token.  If that is
+      not the case the RS MUST discard the token.  If this was an interaction
+      with authz-info, the RS MUST also respond with a response code equivalent
+      to the CoAP code 4.01 (Unauthorized).</t>
       <t hangText="exp">The expiration date must be in the future.  
       If that is not the case the RS MUST discard the token.  If this was an
       interaction with authz-info the RS MUST also respond with a response code
@@ -2076,7 +2084,11 @@ Payload:
 	RS.</t>
 	<t>The RS MUST store the highest sequence number of an expired
 	token containing the "exi" claim that it has seen, and treat
-	tokens with lower sequence numbers as expired.</t>
+	tokens with lower sequence numbers as expired.  Note that
+        this could lead to discarding valid tokens with lower sequence numbers,
+        if the AS where to issue tokens of different validity time for the same
+	RS.  The assumption is that typically tokens in such a scenario would
+	all have the same validity time.</t>
       </list></t>
     </list></t>
   </list></t>
@@ -2135,8 +2147,7 @@ Payload:
   <t>The following subsections address issues specific to this document and
   it's use in constrained environments.</t>
   
-      <section anchor="tokenProtection"
-	       title="Protecting Tokens">
+   <section anchor="tokenProtection" title="Protecting Tokens">
       <t>A large range of threats can be mitigated by protecting the contents
       of the access token by using a digital signature or a keyed message
       digest (MAC) or an Authenticated Encryption with Associated Data (AEAD)
@@ -2244,22 +2255,13 @@ Payload:
 	<t>Initially, no secure channel exists to protect the communication
 	between C and RS. Thus, C cannot determine if the "AS Request
 	Creation Hints" contained in an unprotected response from RS to an
-	unauthorized request (see <xref target="asInfo"/>) are authentic.
-	C therefore MUST determine if an AS is authorized to provide access
-        tokens for a certain RS. How this determination is implemented is 
-        out of scope for this document and left to the applications.</t>
+	unauthorized request (see <xref target="asInfo"/>) are authentic. C
+	therefore MUST determine if an AS is authorized to provide access
+	tokens for a certain RS. How this determination is implemented is out
+	of scope for this document and left to the applications.</t>
+    </section>
 
-	<t>A compromised RS may use the hints for attempting to trick a client 
-        into contacting an AS that is not supposed to be in charge of that RS. 
-        Therefore, C must not communicate with an AS if it cannot determine 
-        that this AS has the authority to issue access tokens for this RS. 
-        Otherwise, a compromised RS may use this to perform a denial of 
-        service attack against a specific AS, by redirecting a large number of 
-        client requests to that AS.</t>
-	
-      </section>
-
-      <section anchor="minimalCommSecReq" title="Minimal Security Requirements
+    <section anchor="minimalCommSecReq" title="Minimal Security Requirements
 						 for Communication">
 	<t>This section summarizes the minimal requirements for the
 	communication security of the different protocol interactions.
@@ -2311,8 +2313,8 @@ Payload:
 	  supports (e.g. from the AS or pre-configured) and initiate the
 	  communication accordingly.</t>
 	</list></t>
-      </section>
-      <section anchor="nonce" title="Token Freshness and Expiration">
+    </section>
+    <section anchor="nonce" title="Token Freshness and Expiration">
 	<t>An RS that is offline faces the problem of clock drift. Since it
 	cannot synchronize its clock with the AS, it may be tricked
 	into accepting old access tokens that are no longer valid or have been
@@ -2343,17 +2345,18 @@ Payload:
 	solution.  It can therefore not be mitigated without requiring the
 	RS be online at times.  The second drawback can be mitigated by
 	regularly storing the value of "exi" counters to persistent memory.</t>
-      </section>
+    </section>
 
-      <section anchor="mixnmatch" title="Combining Profiles">
+    <section anchor="mixnmatch" title="Combining Profiles">
 	<t>There may be use cases were different profiles of this framework are
 	combined.  For example, an MQTT-TLS profile is used between the client
 	and the RS in combination with a CoAP-DTLS profile for interactions
 	between the client and the AS.  The security of a profile MUST NOT
 	depend on the assumption that the profile is used for all the different
 	types of interactions in this framework.</t>
-      </section>
-      <section anchor="infoLeak" title="Unprotected Information">
+    </section>
+    
+    <section anchor="infoLeak" title="Unprotected Information">
 	<t>Communication with the authz-info endpoint, as well as the
 	various error responses defined in this framework, all potentially
 	include sending information over an unprotected channel.
@@ -2391,9 +2394,9 @@ Payload:
 	claim requesting the use of said obsolete profile.  Resource Owners
 	should update the configuration of their RS's to prevent them from
 	using such obsolete profiles.</t>
-      </section>
+    </section>
 
-      <section anchor="audience" title="Identifying Audiences">
+    <section anchor="audience" title="Identifying Audiences">
 	<t>The audience claim as defined in <xref target="RFC7519"/>
 	and the equivalent "audience" parameter from
 	<xref target="RFC8693"/> are intentionally vague
@@ -2431,9 +2434,9 @@ Payload:
 	provided by the RS as part of the "AS Request Creation Hints" <xref
 	target="asInfo"/> is not typically source authenticated and integrity
 	protected, and should therefore not be treated a trusted value.</t>
-      </section>
+    </section>
      
-      <section anchor="introDos" title="Denial of Service Against or with
+    <section anchor="introDos" title="Denial of Service Against or with
 					Introspection">
 	<t>
 	The optional introspection mechanism provided by OAuth and supported
@@ -2457,7 +2460,7 @@ Payload:
 	limit on the introspection requests should also be considered, to
 	mitigate distributed attacks.</t>
 	
-      </section>
+    </section>
 </section>
 
 <section anchor="privacy" title="Privacy Considerations">
