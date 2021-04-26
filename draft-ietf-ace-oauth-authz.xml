@@ -79,7 +79,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-39" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-40" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -1289,7 +1289,7 @@ Payload:
 
     <t>The content of the successful reply is the Access Information. 
     When using CoAP, the payload MUST be encoded as a CBOR map, when using
-    HTTP the encoding is a JSON map as specified in seciton 5.1 of <xref
+    HTTP the encoding is a JSON map as specified in section 5.1 of <xref
     target="RFC6749"/>.  In both cases the parameters specified in Section 5.1
     of <xref target="RFC6749"/> are used, with the following additions and
     changes:
@@ -1864,7 +1864,14 @@ Payload:
   to the same key will supersede any existing token at the RS, by replacing
   the corresponding authorization information.  The reason is that
   this greatly simplifies (constrained) implementations, with respect to
-  required storage and resolving a request to the applicable token.</t>
+  required storage and resolving a request to the applicable token.  The use of
+  multiple access tokens for a single client increases the strain on the
+  resource server as it must consider every access token and calculate the
+  actual permissions of the client.  Also, tokens may contradict each other
+  which may lead the server to enforce wrong permissions.  If one of the access
+  tokens expires earlier than others, the resulting permissions may offer
+  insufficient protection.
+  </t>
   
   <t>If the payload sent to the authz-info endpoint does not parse
   to a token, the RS MUST respond with a response code equivalent to the CoAP
@@ -2218,7 +2225,7 @@ Payload:
       adversary in possession of the PoP credentials bound to the access
       token will be able to impersonate the client.  Be aware that this is a
       real risk with many constrained environments, since adversaries may
-      get physical access to the devices and can therefore use phyical
+      get physical access to the devices and can therefore use physical
       extraction techniques to gain access to memory contents.  This risk can 
       be mitigated to some extent by making sure that keys are refreshed
       frequently, by using software isolation techniques and by using hardware security.</t>
@@ -3057,11 +3064,12 @@ Payload:
   proposal.</t>
   
   <t>Thanks to the authors of draft-ietf-oauth-pop-key-distribution, from where
-  large parts of the security considerations where copied.</t>
+  parts of the security considerations where copied.</t>
   
   <t>Thanks to Stefanie Gerdes, Olaf Bergmann, and Carsten
   Bormann for contributing their work on AS discovery from
-  draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>).</t>
+  draft-gerdes-ace-dcaf-authorize (see <xref target="asDiscovery"/>) and
+  the considerations on multiple access tokens.</t>
 
   <t>Thanks to Jim Schaad and Mike Jones for their comprehensive reviews.</t>
 
