@@ -340,9 +340,8 @@ including the claims of relevant access tokens, that an RS uses to determine whe
   <t>A third building block is the Concise Binary Object Representation
   (CBOR) <xref target="RFC8949"/>, for encodings where JSON
   <xref target="RFC8259"/> is not sufficiently compact.  CBOR is a binary
-  encoding designed for small code and message size, which may be used
-  for encoding of self contained tokens, and also for encoding payloads
-  transferred in protocol messages.
+  encoding designed for small code and message size. Self-contained tokens
+  and protocol message payloads are encoded in CBOR when CoAP is used.
   </t>
 
   <t>A fourth building block is CBOR Object Signing and Encryption (COSE)
@@ -835,8 +834,11 @@ What grant type works best depends on the usage scenario and <xref target="RFC77
   parameters.  When profiles of this framework use CoAP instead, it is 
   REQUIRED to use of the following alternative instead of Uri-query
   parameters: The sender (client or RS) encodes the parameters of its request
-  as a CBOR map and submits that map as the payload of the POST request.</t>
-
+  as a CBOR map and submits that map as the payload of the POST request.
+  The CBOR encoding for a number of  OAuth 2.0 parameters is specified in this
+  document, if a profile needs to use other OAuth 2.0 parameters with CoAP it
+  MUST specify their CBOR encoding.</t>
+  
   <t>Profiles that use CBOR encoding of protocol message parameters at the
   outermost encoding layer MUST use the content format 'application/ace+cbor'.
   If CoAP is used for communication, the Content-Format MUST be abbreviated
@@ -1993,10 +1995,7 @@ Payload:
     authz-info endpoints, other than submitting access tokens.</t>
 
     <t>Specifically it SHOULD NOT be possible to perform GET, DELETE or
-    PUT on the authz-info endpoint and on its children (if any).</t>
-
-    <t>The POST method SHOULD NOT be allowed on children of the authz-info
-    endpoint.</t>
+    PUT on the authz-info endpoint.</t>
 
     <t>The RS SHOULD implement rate limiting measures to mitigate attacks aiming
     to overload the processing capacity of the RS by repeatedly submitting
