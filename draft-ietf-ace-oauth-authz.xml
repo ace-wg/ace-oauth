@@ -454,7 +454,7 @@ including the claims of relevant access tokens, that an RS uses to determine whe
               stored to be returned on introspection calls or included in the
 	      token.  Either the whole token or only the key MUST be encrypted
 	      in the latter case.  The PoP key is also returned to
-	      client together with the token.<vspace blankLines="1"/>
+	      client together with the token, protected by the secure channel.<vspace blankLines="1"/>
 
           </t>
           <t hangText="Asymmetric PoP key:"><vspace blankLines="0"/>
@@ -909,7 +909,7 @@ mechanism that addresses both problems at once (e.g. by querying a dedicated sec
     
     <t>The message can also contain the following OPTIONAL parameters:
     <list style="symbols">
-      <t>A "audience" element contains an identifier the client
+      <t>A "audience" element containing an identifier the client
       should request at the AS, as suggested by the RS. With this parameter,
       when included in the access token request to the AS, the AS is able to 
       restrict the use of access token to specific RSs. See 
@@ -1109,7 +1109,7 @@ a4                                   # map(4)
   even other transports.  A profile MUST define the details of the mapping
   between the fields described below, and these transports.  If HTTPS is used,
   the semantics of Sections 4.1.3 and 4.1.4 of the OAuth 2.0 specification MUST
-  be followed (with additions as described below). If the CoAP is some other
+  be followed (with additions as described below). If CoAP or some other
   transport with CBOR payload format is supported, the semantics described in
   this section MUST be followed.</t> 
 
@@ -1579,12 +1579,14 @@ Payload:
 </section><!-- Token endpoint -->
 
 <section anchor="introspectionEndpoint" title="The Introspection Endpoint">
-  <t>Token introspection <xref target="RFC7662"/> MAY be implemented by the AS,
+  <t>Token introspection <xref target="RFC7662"/> MAY be implemented by the AS
   and the RS. When implemented, it MAY be used by the RS and to query the AS
   for metadata about a given token, e.g., validity or scope. Analogous to the
   protocol defined in <xref target="RFC7662"/> for HTTP and JSON, this
   section defines adaptations to more constrained  environments using CBOR and
-  leaving the choice of the application protocol to the profile.</t>
+  leaving the choice of the application protocol to the profile.  The client
+  MAY also implement and use introspection analogously to the RS, to obtain
+  information about a given token.</t>
 
   <t>Communication between the requesting entity and the introspection endpoint
   at the AS MUST be integrity protected and encrypted.  The communication
@@ -2363,7 +2365,7 @@ Payload:
       the client and the RS in combination with a previously-defined
       CoAP-DTLS profile for interactions between the client and the AS. The
       new profile that combines existing profiles MUST specify how the
-      existing profiles' security properties are achieved. Any profile
+      existing profiles' security properties continue to be achieved. Any profile
       therefore MUST clearly specify its security requirements and MUST
       document if its security depends on the combination of various
       protocol interactions.</t>
