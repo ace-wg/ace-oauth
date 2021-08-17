@@ -1341,7 +1341,7 @@ Payload:
         | error_uri         |  RFC 6749                     |
         | ace_profile       | [this document]               |
         | cnf               | [I-D.ietf-ace-oauth-params]   |
-        | rs_cnf           | [I-D.ietf-ace-oauth-params]   |
+        | rs_cnf            | [I-D.ietf-ace-oauth-params]   |
         \-------------------+-------------------------------/
       ]]></artwork></figure>
 
@@ -1410,18 +1410,19 @@ Payload:
       <figure align="center" anchor="fig:cborErrorCodes"
               title="CBOR abbreviations for common error codes">
         <artwork align="left"><![CDATA[
-        /---------------------------+-------------\
-        | Name                      | CBOR Values |
-        |---------------------------+-------------|
-        | invalid_request           |      1      |
-        | invalid_client            |      2      |
-        | invalid_grant             |      3      |
-        | unauthorized_client       |      4      |
-        | unsupported_grant_type    |      5      |
-        | invalid_scope             |      6      |
-        | unsupported_pop_key       |      7      |
-        | incompatible_ace_profiles |      8      |
-        \---------------------------+-------------/
+     /---------------------------+--------+--------------------------\
+     |                           | CBOR   | Original                 |
+     | Name                      | Values | Specification            |
+     |---------------------------+--------+--------------------------|
+     | invalid_request           |    1   | section 5.2 of [RFC6749] |
+     | invalid_client            |    2   | section 5.2 of [RFC6749] |
+     | invalid_grant             |    3   | section 5.2 of [RFC6749] |
+     | unauthorized_client       |    4   | section 5.2 of [RFC6749] |
+     | unsupported_grant_type    |    5   | section 5.2 of [RFC6749] |
+     | invalid_scope             |    6   | section 5.2 of [RFC6749] |
+     | unsupported_pop_key       |    7   | [this document]          |
+     | incompatible_ace_profiles |    8   | [this document]          |
+     \---------------------------+--------+--------------------------/
         ]]></artwork>
       </figure>
     </t>
@@ -1548,30 +1549,31 @@ Payload:
       <figure align="center" anchor="fig:cborTokenParameters"
               title="CBOR mappings used in token requests and responses">
         <artwork align="left"><![CDATA[
-        /-------------------+----------+---------------------\
-        | Name              | CBOR Key | Value Type          |
-        |-------------------+----------+---------------------|
-        | access_token      | 1        | byte string         |
-        | expires_in        | 2        | unsigned integer    |
-        | audience          | 5        | text string         |
-        | scope             | 9        | text or byte string |
-        | client_id         | 24       | text string         |
-        | client_secret     | 25       | byte string         |
-        | response_type     | 26       | text string         |
-        | redirect_uri      | 27       | text string         |
-        | state             | 28       | text string         |
-        | code              | 29       | byte string         |
-        | error             | 30       | integer             |
-        | error_description | 31       | text string         |
-        | error_uri         | 32       | text string         |
-        | grant_type        | 33       | unsigned integer    |
-        | token_type        | 34       | integer             |
-        | username          | 35       | text string         |
-        | password          | 36       | text string         |
-        | refresh_token     | 37       | byte string         | 
-        | ace_profile       | 38       | integer             |
-        | cnonce            | 39       | byte string         |
-        \-------------------+----------+---------------------/
+  /-------------------+----------+---------------------+---------------\
+  |                   |          |                     | Original      |
+  | Name              | CBOR Key | Value Type          | Specification |
+  |-------------------+----------+---------------------+---------------|
+  | access_token      | 1        | byte string         | [RFC6749]     |
+  | expires_in        | 2        | unsigned integer    | [RFC6749]     |
+  | audience          | 5        | text string         | [RFC8693]     |
+  | scope             | 9        | text or byte string | [RFC6749]     |
+  | client_id         | 24       | text string         | [RFC6749]     |
+  | client_secret     | 25       | byte string         | [RFC6749]     |
+  | response_type     | 26       | text string         | [RFC6749]     |
+  | redirect_uri      | 27       | text string         | [RFC6749]     |
+  | state             | 28       | text string         | [RFC6749]     |
+  | code              | 29       | byte string         | [RFC6749]     |
+  | error             | 30       | integer             | [RFC6749]     |
+  | error_description | 31       | text string         | [RFC6749]     |
+  | error_uri         | 32       | text string         | [RFC6749]     |
+  | grant_type        | 33       | unsigned integer    | [RFC6749]     |
+  | token_type        | 34       | integer             | [RFC6749]     |
+  | username          | 35       | text string         | [RFC6749]     |
+  | password          | 36       | text string         | [RFC6749]     |
+  | refresh_token     | 37       | byte string         | [RFC6749]     |
+  | ace_profile       | 38       | integer             |[this document]|
+  | cnonce            | 39       | byte string         |[this document]|
+  \-------------------+----------+---------------------+---------------/
       ]]></artwork>
     </figure>
   </t>
@@ -1772,33 +1774,37 @@ Payload:
     <figure align="center" anchor="fig:cborIntrospectionParameters"
             title="CBOR Mappings to Token Introspection Parameters.">
       <artwork align="left"><![CDATA[
-    /-------------------+----------+-------------------------\
-    | Parameter name    | CBOR Key | Value Type              |
-    |-------------------+----------+-------------------------|
-    | iss               | 1        | text string             |
-    | sub               | 2        | text string             |
-    | aud               | 3        | text string             |
-    | exp               | 4        | integer or              |
-    |                   |          |   floating-point number |
-    | nbf               | 5        | integer or              |
-    |                   |          |   floating-point number |
-    | iat               | 6        | integer or              |
-    |                   |          |   floating-point number |
-    | cti               | 7        | byte string             |
-    | scope             | 9        | text or byte string     |
-    | active            | 10       | True or False           |
-    | token             | 11       | byte string             |  
-    | client_id         | 24       | text string             |
-    | error             | 30       | integer                 |
-    | error_description | 31       | text string             |
-    | error_uri         | 32       | text string             |
-    | token_type_hint   | 33       | text string             |
-    | token_type        | 34       | integer                 |
-    | username          | 35       | text string             |    
-    | ace_profile       | 38       | integer                 |
-    | cnonce            | 39       | byte string             |
-    | exi               | 40       | unsigned integer        |
-    \-------------------+----------+-------------------------/
+    /-------------------+----------+-------------------+---------------\
+    |                   |          |                   | Original      |
+    | Parameter name    | CBOR Key | Value Type        | Specification |
+    |-------------------+----------+-------------------+---------------|
+    | iss               | 1        | text string       | [RFC7662]     |
+    | sub               | 2        | text string       | [RFC7662]     |
+    | aud               | 3        | text string       | [RFC7662]     |
+    | exp               | 4        | integer or        | [RFC7662]     |
+    |                   |          |   floating-point  |               |
+    |                   |          |   number          |               |
+    | nbf               | 5        | integer or        | [RFC7662]     |
+    |                   |          |   floating-point  |               |
+    |                   |          |   number          |               |
+    | iat               | 6        | integer or        | [RFC7662]     |
+    |                   |          |   floating-point  |               |
+    |                   |          |   number          |               |
+    | scope             | 9        | text or           |               |
+    |                   |          |   byte string     | [RFC7662]     |
+    | active            | 10       | True or False     | [RFC7662]     |
+    | token             | 11       | byte string       | [RFC7662]     |
+    | client_id         | 24       | text string       | [RFC7662]     |
+    | error             | 30       | integer           | [RFC7662]     |
+    | error_description | 31       | text string       | [RFC7662]     |
+    | error_uri         | 32       | text string       | [RFC7662]     |
+    | token_type_hint   | 33       | text string       | [RFC7662]     |
+    | token_type        | 34       | integer           | [RFC7662]     |
+    | username          | 35       | text string       | [RFC7662]     |
+    | ace_profile       | 38       | integer           |[this document]|
+    | cnonce            | 39       | byte string       |[this document]| 
+    | exi               | 40       | unsigned integer  |[this document]|
+    \-------------------+----------+-------------------+---------------/
         ]]></artwork>
       </figure>
     </t>
@@ -2587,7 +2593,7 @@ Payload:
       <t>Error name: <spanx style="verb">unsupported_pop_key</spanx></t>
       <t>Error usage location: token error response</t>
       <t>Related protocol extension: [this document]</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Specification document(s): <xref target="errorsToken"/> of
       [this document]</t>
     </list></t>
@@ -2597,7 +2603,7 @@ Payload:
       <t>Error name: <spanx style="verb">incompatible_ace_profiles</spanx></t>
       <t>Error usage location: token error response</t>
       <t>Related protocol extension: [this document]</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Specification document(s): <xref target="errorsToken"/> of
       [this document]</t>
     </list></t>
@@ -2621,6 +2627,9 @@ Payload:
       
       <t hangText='Reference'>This contains a pointer to the public
       specification of the error code abbreviation, if one exists.</t>
+
+      <t hangText='Original Specification'>This contains a pointer to
+      the public specification of the error code, if one exists.</t>
     </list></t>
     
     <t>This registry will be initially populated by the values in
@@ -2665,7 +2674,8 @@ Payload:
     <list style='symbols'>
       <t>Type name: <spanx style="verb">PoP</spanx></t>
       <t>Additional Token Endpoint Response Parameters: "cnf", "rs_cnf"
-      see section 3.3 of <xref target="I-D.ietf-ace-oauth-params"/>.</t>
+      see section 3.1 of <xref target="RFC8747"/> and section 3.1 of 
+      <xref target="I-D.ietf-ace-oauth-params"/>.</t>
       <t>HTTP Authentication Scheme(s): N/A</t>
       <t>Change Controller: IETF</t>
       <t>Specification document(s): [this document]</t>
@@ -2759,7 +2769,7 @@ Payload:
     <list style='symbols'>
       <t>Name: <spanx style="verb">ace_profile</spanx></t>
       <t>Parameter Usage Location: token response</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Reference: <xref target="tokenResponse"/> and
       <xref target="paramProfile"/> of [this document]</t>
     </list></t>  
@@ -2787,6 +2797,9 @@ Payload:
       
       <t hangText='Reference'>This contains a pointer to the public
       specification of the OAuth parameter abbreviation, if one exists.</t>
+     
+      <t hangText='Original Specification'>This contains a pointer to
+      the public specification of the OAuth parameter, if one exists.</t>
     </list></t>
     
     <t>This registry will be initially populated by the values in
@@ -2804,7 +2817,7 @@ Payload:
       <list style='symbols'>
         <t>Name: <spanx style="verb">ace_profile</spanx></t>
         <t>Description: The ACE profile used between client and RS.</t>
-        <t>Change Controller: IESG</t>
+        <t>Change Controller: IETF</t>
         <t>Reference: <xref target="introRes"/> of [this document]</t>
       </list>
     </t>
@@ -2815,7 +2828,7 @@ Payload:
         <t>Description: "client-nonce". A nonce previously provided
 	to the AS by the RS via the client.  Used to verify token freshness
 	when the RS cannot synchronize its clock with the AS.</t>
-        <t>Change Controller: IESG</t>
+        <t>Change Controller: IETF</t>
         <t>Reference: <xref target="introRes"/> of [this document]</t>
       </list>
     </t>
@@ -2827,7 +2840,7 @@ Payload:
 	from the time the RS first sees it.  Used to implement a weaker from of
 	token expiration for devices that cannot synchronize their internal
 	clocks.</t>
-        <t>Change Controller: IESG</t>
+        <t>Change Controller: IETF</t>
         <t>Reference: <xref target="introRes"/> of [this document]</t>
       </list>
     </t>
@@ -2856,6 +2869,10 @@ Payload:
       <t hangText='Reference'>This contains a pointer to the public
       specification of the introspection response parameter abbreviation, if
       one exists.</t>
+
+      <t hangText='Original Specification'>This contains a pointer to
+      the public specification of OAuth Token Introspection parameter, 
+      if one exists.</t>
     </list></t>
     
     <t>This registry will be initially populated by the values in
@@ -2877,7 +2894,7 @@ Payload:
       <t>Claim Name: <spanx style="verb">ace_profile</spanx></t>
       <t>Claim Description: The ACE profile a token is supposed to be used
       with.</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Reference: <xref target="accessToken"/> of [this document]</t>
     </list></t>
 
@@ -2887,7 +2904,7 @@ Payload:
       <t>Claim Description: "client-nonce". A nonce previously provided
       to the AS by the RS via the client.  Used to verify token freshness
       when the RS cannot synchronize its clock with the AS.</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Reference: <xref target="accessToken"/> of [this document]</t>
     </list></t>
     
@@ -2898,7 +2915,7 @@ Payload:
       from the time the RS first sees it.  Used to implement a weaker from of
       token expiration for devices that cannot synchronize their internal
       clocks.</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Reference: <xref target="tokenExpiration"/> of [this document]</t>
     </list></t>
  
@@ -2917,7 +2934,7 @@ Payload:
       <t>JWT Claim Name: ace_profile</t>
       <t>Claim Key: TBD (suggested: 38)</t>
       <t>Claim Value Type(s): integer</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Specification Document(s): <xref target="accessToken"/> of [this
       document]</t>
     </list></t>
@@ -2930,7 +2947,7 @@ Payload:
       <t>JWT Claim Name: cnonce</t>
       <t>Claim Key: TBD (suggested: 39)</t>
       <t>Claim Value Type(s): byte string</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Specification Document(s): <xref target="accessToken"/> of [this
       document]</t>
     </list></t>
@@ -2943,7 +2960,7 @@ Payload:
       <t>JWT Claim Name: exi</t>
       <t>Claim Key: TBD (suggested: 40)</t>
       <t>Claim Value Type(s): integer</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Specification Document(s): <xref target="tokenExpiration"/> of [this
       document]</t>
     </list></t>
@@ -2956,7 +2973,7 @@ Payload:
       <t>JWT Claim Name: scope</t>
       <t>Claim Key: TBD (suggested: 9)</t>
       <t>Claim Value Type(s): byte string or text string</t>
-      <t>Change Controller: IESG</t>
+      <t>Change Controller: IETF</t>
       <t>Specification Document(s): Section 4.2 of
       <xref target="RFC8693"/></t>
      </list></t>
@@ -3004,7 +3021,7 @@ Payload:
     
     <t>Author: Ludwig Seitz &lt;ludwig.seitz@combitech.se&gt;</t>
     
-    <t>Change controller: IESG</t>
+    <t>Change controller: IETF</t>
   </section>
     
   <section anchor="IANAcoapContentFormat" title="CoAP Content-Format Registry">

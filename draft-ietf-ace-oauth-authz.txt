@@ -5,19 +5,19 @@
 ACE Working Group                                               L. Seitz
 Internet-Draft                                                 Combitech
 Intended status: Standards Track                             G. Selander
-Expires: December 11, 2021                                      Ericsson
+Expires: February 18, 2022                                      Ericsson
                                                            E. Wahlstroem
 
                                                               S. Erdtman
                                                               Spotify AB
                                                            H. Tschofenig
                                                                 Arm Ltd.
-                                                            June 9, 2021
+                                                         August 17, 2021
 
 
   Authentication and Authorization for Constrained Environments (ACE)
                using the OAuth 2.0 Framework (ACE-OAuth)
-                     draft-ietf-ace-oauth-authz-42
+                     draft-ietf-ace-oauth-authz-43
 
 Abstract
 
@@ -45,7 +45,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on December 11, 2021.
+   This Internet-Draft will expire on February 18, 2022.
 
 
 
@@ -53,9 +53,9 @@ Status of This Memo
 
 
 
-Seitz, et al.           Expires December 11, 2021               [Page 1]
+Seitz, et al.           Expires February 18, 2022               [Page 1]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 Copyright Notice
@@ -105,20 +105,20 @@ Table of Contents
        5.9.2.  Introspection Response  . . . . . . . . . . . . . . .  33
        5.9.3.  Error Response  . . . . . . . . . . . . . . . . . . .  34
        5.9.4.  Mapping Introspection Parameters to CBOR  . . . . . .  35
-     5.10. The Access Token  . . . . . . . . . . . . . . . . . . . .  35
+     5.10. The Access Token  . . . . . . . . . . . . . . . . . . . .  36
 
 
 
-Seitz, et al.           Expires December 11, 2021               [Page 2]
+Seitz, et al.           Expires February 18, 2022               [Page 2]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
        5.10.1.  The Authorization Information Endpoint . . . . . . .  36
          5.10.1.1.  Verifying an Access Token  . . . . . . . . . . .  37
          5.10.1.2.  Protecting the Authorization       Information
                     Endpoint . . . . . . . . . . . . . . . . . . . .  39
-       5.10.2.  Client Requests to the RS  . . . . . . . . . . . . .  39
+       5.10.2.  Client Requests to the RS  . . . . . . . . . . . . .  40
        5.10.3.  Token Expiration . . . . . . . . . . . . . . . . . .  40
        5.10.4.  Key Expiration . . . . . . . . . . . . . . . . . . .  42
    6.  Security Considerations . . . . . . . . . . . . . . . . . . .  42
@@ -131,7 +131,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
      6.7.  Combining Profiles  . . . . . . . . . . . . . . . . . . .  47
      6.8.  Unprotected Information . . . . . . . . . . . . . . . . .  47
      6.9.  Identifying Audiences . . . . . . . . . . . . . . . . . .  48
-     6.10. Denial of Service Against or with      Introspection  . .  48
+     6.10. Denial of Service Against or with      Introspection  . .  49
    7.  Privacy Considerations  . . . . . . . . . . . . . . . . . . .  49
    8.  IANA Considerations . . . . . . . . . . . . . . . . . . . . .  50
      8.1.  ACE Authorization Server Request Creation Hints . . . . .  50
@@ -140,39 +140,39 @@ Internet-Draft                  ACE-OAuth                      June 2021
      8.4.  OAuth Error Code CBOR Mappings Registry . . . . . . . . .  51
      8.5.  OAuth Grant Type CBOR Mappings  . . . . . . . . . . . . .  52
      8.6.  OAuth Access Token Types  . . . . . . . . . . . . . . . .  52
-     8.7.  OAuth Access Token Type CBOR Mappings . . . . . . . . . .  52
+     8.7.  OAuth Access Token Type CBOR Mappings . . . . . . . . . .  53
        8.7.1.  Initial Registry Contents . . . . . . . . . . . . . .  53
      8.8.  ACE Profile Registry  . . . . . . . . . . . . . . . . . .  53
      8.9.  OAuth Parameter Registration  . . . . . . . . . . . . . .  54
      8.10. OAuth Parameters CBOR Mappings Registry . . . . . . . . .  54
-     8.11. OAuth Introspection Response Parameter Registration . . .  54
+     8.11. OAuth Introspection Response Parameter Registration . . .  55
      8.12. OAuth Token Introspection Response CBOR Mappings Registry  55
-     8.13. JSON Web Token Claims . . . . . . . . . . . . . . . . . .  55
+     8.13. JSON Web Token Claims . . . . . . . . . . . . . . . . . .  56
      8.14. CBOR Web Token Claims . . . . . . . . . . . . . . . . . .  56
      8.15. Media Type Registrations  . . . . . . . . . . . . . . . .  57
      8.16. CoAP Content-Format Registry  . . . . . . . . . . . . . .  58
      8.17. Expert Review Instructions  . . . . . . . . . . . . . . .  58
    9.  Acknowledgments . . . . . . . . . . . . . . . . . . . . . . .  59
-   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  59
-     10.1.  Normative References . . . . . . . . . . . . . . . . . .  59
+   10. References  . . . . . . . . . . . . . . . . . . . . . . . . .  60
+     10.1.  Normative References . . . . . . . . . . . . . . . . . .  60
      10.2.  Informative References . . . . . . . . . . . . . . . . .  62
    Appendix A.  Design Justification . . . . . . . . . . . . . . . .  65
-   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  68
+   Appendix B.  Roles and Responsibilities . . . . . . . . . . . . .  69
    Appendix C.  Requirements on Profiles . . . . . . . . . . . . . .  71
    Appendix D.  Assumptions on AS Knowledge about C and RS . . . . .  72
-   Appendix E.  Differences to OAuth 2.0 . . . . . . . . . . . . . .  72
+   Appendix E.  Differences to OAuth 2.0 . . . . . . . . . . . . . .  73
    Appendix F.  Deployment Examples  . . . . . . . . . . . . . . . .  73
 
 
 
-Seitz, et al.           Expires December 11, 2021               [Page 3]
+Seitz, et al.           Expires February 18, 2022               [Page 3]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
-     F.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  73
-     F.2.  Introspection Aided Token Validation  . . . . . . . . . .  77
-   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  81
+     F.1.  Local Token Validation  . . . . . . . . . . . . . . . . .  74
+     F.2.  Introspection Aided Token Validation  . . . . . . . . . .  78
+   Authors' Addresses  . . . . . . . . . . . . . . . . . . . . . . .  82
 
 1.  Introduction
 
@@ -221,9 +221,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021               [Page 4]
+Seitz, et al.           Expires February 18, 2022               [Page 4]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    interoperate, while implementations of different profiles are not
@@ -277,9 +277,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021               [Page 5]
+Seitz, et al.           Expires February 18, 2022               [Page 5]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 3.  Overview
@@ -311,7 +311,8 @@ Internet-Draft                  ACE-OAuth                      June 2021
    (CBOR) [RFC8949], for encodings where JSON [RFC8259] is not
    sufficiently compact.  CBOR is a binary encoding designed for small
    code and message size.  Self-contained tokens and protocol message
-   payloads are encoded in CBOR when CoAP is used.
+   payloads are encoded in CBOR when CoAP is used.  When CoAP is not
+   used, the use of CBOR remains RECOMMENDED.
 
    A fourth building block is CBOR Object Signing and Encryption (COSE)
    [RFC8152], which enables object-level layer security as an
@@ -328,16 +329,17 @@ Internet-Draft                  ACE-OAuth                      June 2021
    how the building blocks mentioned above relate to the various
    constraints can be found in Appendix A.
 
+
+
+
+
+Seitz, et al.           Expires February 18, 2022               [Page 6]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    Luckily, not every IoT device suffers from all constraints.  The ACE
    framework nevertheless takes all these aspects into account and
-
-
-
-Seitz, et al.           Expires December 11, 2021               [Page 6]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    allows several different deployment variants to co-exist, rather than
    mandating a one-size-fits-all solution.  It is important to cover the
    wide range of possible interworking use cases and the different
@@ -384,16 +386,16 @@ Internet-Draft                  ACE-OAuth                      June 2021
       Refresh tokens are issued to the client by the authorization
       server and are used to obtain a new access token when the current
       access token expires, or to obtain additional access tokens with
+
+
+
+Seitz, et al.           Expires February 18, 2022               [Page 7]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
       identical or narrower scope (such access tokens may have a shorter
       lifetime and fewer permissions than authorized by the resource
-
-
-
-Seitz, et al.           Expires December 11, 2021               [Page 7]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       owner).  Issuing a refresh token is optional at the discretion of
       the authorization server.  If the authorization server issues a
       refresh token, it is included when issuing an access token (i.e.,
@@ -440,16 +442,15 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-      Asymmetric PoP key:
 
 
 
-
-Seitz, et al.           Expires December 11, 2021               [Page 8]
+Seitz, et al.           Expires February 18, 2022               [Page 8]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
+      Asymmetric PoP key:
          An asymmetric key pair is generated by the client and the
          public key is sent to the AS (if it does not already have
          knowledge of the client's public key).  Information about the
@@ -500,10 +501,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-
-Seitz, et al.           Expires December 11, 2021               [Page 9]
+Seitz, et al.           Expires February 18, 2022               [Page 9]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
       as a JSON object.  In [RFC8392] the CBOR Web Token (CWT) has been
@@ -557,9 +557,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 10]
+Seitz, et al.           Expires February 18, 2022              [Page 10]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    binding between CoAP request and response messages.  In OSCORE, the
@@ -613,9 +613,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 11]
+Seitz, et al.           Expires February 18, 2022              [Page 11]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
       an access token.  The client may include permissions it seeks to
@@ -669,9 +669,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 12]
+Seitz, et al.           Expires February 18, 2022              [Page 12]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Token Introspection Request (D):
@@ -725,9 +725,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 13]
+Seitz, et al.           Expires February 18, 2022              [Page 13]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    authorization policies at the AS, which the AS evaluates when a token
@@ -781,9 +781,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 14]
+Seitz, et al.           Expires February 18, 2022              [Page 14]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Credential Provisioning
@@ -837,9 +837,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 15]
+Seitz, et al.           Expires February 18, 2022              [Page 15]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    MUST specify a communication security protocol RECOMMENDED to be used
@@ -893,9 +893,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 16]
+Seitz, et al.           Expires February 18, 2022              [Page 16]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 5.2.  Unauthorized Resource Request Message
@@ -949,9 +949,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 17]
+Seitz, et al.           Expires February 18, 2022              [Page 17]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
       able to restrict the use of access token to specific RSs.  See
@@ -1005,9 +1005,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 18]
+Seitz, et al.           Expires February 18, 2022              [Page 18]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
        4.01 Unauthorized
@@ -1061,9 +1061,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 19]
+Seitz, et al.           Expires February 18, 2022              [Page 19]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    freshness in that case, the RS can use the "cnonce" (client-nonce)
@@ -1117,9 +1117,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 20]
+Seitz, et al.           Expires February 18, 2022              [Page 20]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    interaction possibilities, it is recommended to use the device code
@@ -1173,9 +1173,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 21]
+Seitz, et al.           Expires February 18, 2022              [Page 21]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 5.8.  The Token Endpoint
@@ -1229,9 +1229,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 22]
+Seitz, et al.           Expires February 18, 2022              [Page 22]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    o  The "audience" parameter from [RFC8693] is OPTIONAL to request an
@@ -1285,9 +1285,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 23]
+Seitz, et al.           Expires February 18, 2022              [Page 23]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Header: POST (Code=0.02)
@@ -1341,9 +1341,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 24]
+Seitz, et al.           Expires February 18, 2022              [Page 24]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Figure 7 shows a request for a token where a previously communicated
@@ -1397,9 +1397,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 25]
+Seitz, et al.           Expires February 18, 2022              [Page 25]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    The content of the successful reply is the Access Information.  When
@@ -1445,7 +1445,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
            | error_uri         |  RFC 6749                     |
            | ace_profile       | [this document]               |
            | cnf               | [I-D.ietf-ace-oauth-params]   |
-           | rs_cnf           | [I-D.ietf-ace-oauth-params]   |
+           | rs_cnf            | [I-D.ietf-ace-oauth-params]   |
            \-------------------+-------------------------------/
 
                   Figure 8: Access Information parameters
@@ -1453,9 +1453,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 26]
+Seitz, et al.           Expires February 18, 2022              [Page 26]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Figure 9 shows a response containing a token and a "cnf" parameter
@@ -1509,27 +1509,28 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 27]
+Seitz, et al.           Expires February 18, 2022              [Page 27]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    o  The error code (i.e., value of the "error" parameter) MUST be
       abbreviated as specified in Figure 10, when a CBOR encoding is
       used.
 
-           /---------------------------+-------------\
-           | Name                      | CBOR Values |
-           |---------------------------+-------------|
-           | invalid_request           |      1      |
-           | invalid_client            |      2      |
-           | invalid_grant             |      3      |
-           | unauthorized_client       |      4      |
-           | unsupported_grant_type    |      5      |
-           | invalid_scope             |      6      |
-           | unsupported_pop_key       |      7      |
-           | incompatible_ace_profiles |      8      |
-           \---------------------------+-------------/
+       /---------------------------+--------+--------------------------\
+       |                           | CBOR   | Original                 |
+       | Name                      | Values | Specification            |
+       |---------------------------+--------+--------------------------|
+       | invalid_request           |    1   | section 5.2 of [RFC6749] |
+       | invalid_client            |    2   | section 5.2 of [RFC6749] |
+       | invalid_grant             |    3   | section 5.2 of [RFC6749] |
+       | unauthorized_client       |    4   | section 5.2 of [RFC6749] |
+       | unsupported_grant_type    |    5   | section 5.2 of [RFC6749] |
+       | invalid_scope             |    6   | section 5.2 of [RFC6749] |
+       | unsupported_pop_key       |    7   | [this document]          |
+       | incompatible_ace_profiles |    8   | [this document]          |
+       \---------------------------+--------+--------------------------/
 
            Figure 10: CBOR abbreviations for common error codes
 
@@ -1564,10 +1565,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-
-Seitz, et al.           Expires December 11, 2021              [Page 28]
+Seitz, et al.           Expires February 18, 2022              [Page 28]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
            /--------------------+------------+------------------------\
@@ -1621,9 +1621,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 29]
+Seitz, et al.           Expires February 18, 2022              [Page 29]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Profiles MAY define additional parameters for both the token request
@@ -1677,35 +1677,36 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 30]
+Seitz, et al.           Expires February 18, 2022              [Page 30]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
-           /-------------------+----------+---------------------\
-           | Name              | CBOR Key | Value Type          |
-           |-------------------+----------+---------------------|
-           | access_token      | 1        | byte string         |
-           | expires_in        | 2        | unsigned integer    |
-           | audience          | 5        | text string         |
-           | scope             | 9        | text or byte string |
-           | client_id         | 24       | text string         |
-           | client_secret     | 25       | byte string         |
-           | response_type     | 26       | text string         |
-           | redirect_uri      | 27       | text string         |
-           | state             | 28       | text string         |
-           | code              | 29       | byte string         |
-           | error             | 30       | integer             |
-           | error_description | 31       | text string         |
-           | error_uri         | 32       | text string         |
-           | grant_type        | 33       | unsigned integer    |
-           | token_type        | 34       | integer             |
-           | username          | 35       | text string         |
-           | password          | 36       | text string         |
-           | refresh_token     | 37       | byte string         |
-           | ace_profile       | 38       | integer             |
-           | cnonce            | 39       | byte string         |
-           \-------------------+----------+---------------------/
+  /-------------------+----------+---------------------+---------------\
+  |                   |          |                     | Original      |
+  | Name              | CBOR Key | Value Type          | Specification |
+  |-------------------+----------+---------------------+---------------|
+  | access_token      | 1        | byte string         | [RFC6749]     |
+  | expires_in        | 2        | unsigned integer    | [RFC6749]     |
+  | audience          | 5        | text string         | [RFC8693]     |
+  | scope             | 9        | text or byte string | [RFC6749]     |
+  | client_id         | 24       | text string         | [RFC6749]     |
+  | client_secret     | 25       | byte string         | [RFC6749]     |
+  | response_type     | 26       | text string         | [RFC6749]     |
+  | redirect_uri      | 27       | text string         | [RFC6749]     |
+  | state             | 28       | text string         | [RFC6749]     |
+  | code              | 29       | byte string         | [RFC6749]     |
+  | error             | 30       | integer             | [RFC6749]     |
+  | error_description | 31       | text string         | [RFC6749]     |
+  | error_uri         | 32       | text string         | [RFC6749]     |
+  | grant_type        | 33       | unsigned integer    | [RFC6749]     |
+  | token_type        | 34       | integer             | [RFC6749]     |
+  | username          | 35       | text string         | [RFC6749]     |
+  | password          | 36       | text string         | [RFC6749]     |
+  | refresh_token     | 37       | byte string         | [RFC6749]     |
+  | ace_profile       | 38       | integer             |[this document]|
+  | cnonce            | 39       | byte string         |[this document]|
+  \-------------------+----------+---------------------+---------------/
 
        Figure 12: CBOR mappings used in token requests and responses
 
@@ -1732,10 +1733,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-
-Seitz, et al.           Expires December 11, 2021              [Page 31]
+Seitz, et al.           Expires February 18, 2022              [Page 31]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    The default name of this endpoint in an url-path SHOULD be
@@ -1789,9 +1789,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 32]
+Seitz, et al.           Expires February 18, 2022              [Page 32]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 5.9.2.  Introspection Response
@@ -1845,9 +1845,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 33]
+Seitz, et al.           Expires February 18, 2022              [Page 33]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Header: Created (Code=2.01)
@@ -1901,9 +1901,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 34]
+Seitz, et al.           Expires February 18, 2022              [Page 34]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    respond with an introspection response with the "active" field set to
@@ -1919,48 +1919,53 @@ Internet-Draft                  ACE-OAuth                      June 2021
    with the abbreviations defined in [RFC8392] and the abbreviations of
    parameters with the same name from Section 5.8.5.
 
-       /-------------------+----------+-------------------------\
-       | Parameter name    | CBOR Key | Value Type              |
-       |-------------------+----------+-------------------------|
-       | iss               | 1        | text string             |
-       | sub               | 2        | text string             |
-       | aud               | 3        | text string             |
-       | exp               | 4        | integer or              |
-       |                   |          |   floating-point number |
-       | nbf               | 5        | integer or              |
-       |                   |          |   floating-point number |
-       | iat               | 6        | integer or              |
-       |                   |          |   floating-point number |
-       | cti               | 7        | byte string             |
-       | scope             | 9        | text or byte string     |
-       | active            | 10       | True or False           |
-       | token             | 11       | byte string             |
-       | client_id         | 24       | text string             |
-       | error             | 30       | integer                 |
-       | error_description | 31       | text string             |
-       | error_uri         | 32       | text string             |
-       | token_type_hint   | 33       | text string             |
-       | token_type        | 34       | integer                 |
-       | username          | 35       | text string             |
-       | ace_profile       | 38       | integer                 |
-       | cnonce            | 39       | byte string             |
-       | exi               | 40       | unsigned integer        |
-       \-------------------+----------+-------------------------/
+    /-------------------+----------+-------------------+---------------\
+    |                   |          |                   | Original      |
+    | Parameter name    | CBOR Key | Value Type        | Specification |
+    |-------------------+----------+-------------------+---------------|
+    | iss               | 1        | text string       | [RFC7662]     |
+    | sub               | 2        | text string       | [RFC7662]     |
+    | aud               | 3        | text string       | [RFC7662]     |
+    | exp               | 4        | integer or        | [RFC7662]     |
+    |                   |          |   floating-point  |               |
+    |                   |          |   number          |               |
+    | nbf               | 5        | integer or        | [RFC7662]     |
+    |                   |          |   floating-point  |               |
+    |                   |          |   number          |               |
+    | iat               | 6        | integer or        | [RFC7662]     |
+    |                   |          |   floating-point  |               |
+    |                   |          |   number          |               |
+    | scope             | 9        | text or           |               |
+    |                   |          |   byte string     | [RFC7662]     |
+    | active            | 10       | True or False     | [RFC7662]     |
+    | token             | 11       | byte string       | [RFC7662]     |
+    | client_id         | 24       | text string       | [RFC7662]     |
+    | error             | 30       | integer           | [RFC7662]     |
+    | error_description | 31       | text string       | [RFC7662]     |
+    | error_uri         | 32       | text string       | [RFC7662]     |
+    | token_type_hint   | 33       | text string       | [RFC7662]     |
+    | token_type        | 34       | integer           | [RFC7662]     |
+    | username          | 35       | text string       | [RFC7662]     |
+    | ace_profile       | 38       | integer           |[this document]|
+    | cnonce            | 39       | byte string       |[this document]|
+    | exi               | 40       | unsigned integer  |[this document]|
+    \-------------------+----------+-------------------+---------------/
 
         Figure 16: CBOR Mappings to Token Introspection Parameters.
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 35]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
 
 5.10.  The Access Token
 
    In this framework the use of CBOR Web Token (CWT) as specified in
    [RFC8392] is RECOMMENDED.
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 35]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
    In order to facilitate offline processing of access tokens, this
    document uses the "cnf" claim from [RFC8747] and the "scope" claim
@@ -2006,17 +2011,17 @@ Internet-Draft                  ACE-OAuth                      June 2021
    outlines how an RS MUST proceed to verify the validity of an access
    token.
 
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 36]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    The RS MUST be prepared to store at least one access token for future
    use.  This is a difference to how access tokens are handled in OAuth
    2.0, where the access token is typically sent along with each
    request, and therefore not stored at the RS.
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 36]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
    When using this framework it is RECOMMENDED that an RS stores only
    one token per proof-of-possession key.  This means that an additional
@@ -2061,19 +2066,19 @@ Internet-Draft                  ACE-OAuth                      June 2021
    protection applied to the token, and the claims.  The token encoding
    matters since the security protection differs between the token
    encodings.  For example, a CWT token uses COSE while a JWT token uses
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 37]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    JOSE.  The type of token also has an influence on the verification
    procedure since tokens may be self-contained whereby token
    verification may happen locally at the RS while a token-by-reference
    requires further interaction with the authorization server, for
    example using token introspection, to obtain the claims associated
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 37]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    with the token reference.  Self-contained tokens MUST, at least be
    integrity protected but they MAY also be encrypted.
 
@@ -2117,19 +2122,19 @@ Internet-Draft                  ACE-OAuth                      June 2021
       case the RS MUST discard the token.  If this was an interaction
       with authz-info the RS MUST also respond with a response code
       equivalent to the CoAP code 4.01 (Unauthorized).  Note that the RS
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 38]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
       has to terminate access rights to the protected resources at the
       time when the tokens expire.
 
    aud  The audience claim must refer to an audience that the RS
       identifies with.  If that is not the case the RS MUST discard the
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 38]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       token.  If this was an interaction with authz-info, the RS MUST
       also respond with a response code equivalent to the CoAP code 4.03
       (Forbidden).
@@ -2173,19 +2178,18 @@ Internet-Draft                  ACE-OAuth                      June 2021
    submitting tokens.  For CoAP-based communication the RS could use the
    mechanisms from [RFC8516] to indicate that it is overloaded.
 
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 39]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
 5.10.2.  Client Requests to the RS
 
    Before sending a request to an RS, the client MUST verify that the
    keys used to protect this communication are still valid.  See
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 39]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    Section 5.10.4 for details on how the client determines the validity
    of the keys used.
 
@@ -2230,18 +2234,17 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    o  The token is a CWT and includes an "exp" claim and possibly the
       "nbf" claim.  The RS verifies these by comparing them to values
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 40]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
       from its internal clock as defined in [RFC7519].  In this case the
       RS's internal clock must reflect the current date and time, or at
       least be synchronized with the AS's clock.  How this clock
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 40]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       synchronization would be performed is out of scope for this
       specification.
 
@@ -2288,16 +2291,15 @@ Internet-Draft                  ACE-OAuth                      June 2021
             that typically tokens in such a scenario would all have the
             same validity time.
 
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 41]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    If a token that authorizes a long running request such as a CoAP
    Observe [RFC7641] expires, the RS MUST send an error response with
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 41]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    the response code equivalent to the CoAP code 4.01 (Unauthorized) to
    the client and then terminate processing the long running request.
 
@@ -2347,11 +2349,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 42]
+Seitz, et al.           Expires February 18, 2022              [Page 42]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 6.1.  Protecting Tokens
@@ -2405,9 +2405,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 43]
+Seitz, et al.           Expires February 18, 2022              [Page 43]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 6.2.  Communication Security
@@ -2461,9 +2461,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 44]
+Seitz, et al.           Expires February 18, 2022              [Page 44]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Operators also SHOULD have procedures for decommissioning devices,
@@ -2517,9 +2517,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 45]
+Seitz, et al.           Expires February 18, 2022              [Page 45]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
       client authentication it is RECOMMEND to use this mechanism for
@@ -2573,19 +2573,25 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 46]
+Seitz, et al.           Expires February 18, 2022              [Page 46]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
 6.7.  Combining Profiles
 
-   There may be use cases were different profiles of this framework are
-   combined.  For example, an MQTT-TLS profile is used between the
-   client and the RS in combination with a CoAP-DTLS profile for
-   interactions between the client and the AS.  The security of a
-   profile MUST NOT depend on the assumption that the profile is used
-   for all the different types of interactions in this framework.
+   There may be use cases where different transport and security
+   protocols are allowed for the different interactions, and, if that is
+   not explicitly covered by an existing profile, it corresponds to
+   combining profiles into a new one.  For example, a new profile could
+   specify that a previously-defined MQTT-TLS profile is used between
+   the client and the RS in combination with a previously-defined CoAP-
+   DTLS profile for interactions between the client and the AS.  The new
+   profile that combines existing profiles MUST specify how the existing
+   profiles' security properties are achieved.  Any profile therefore
+   MUST clearly specify its security requirements and MUST document if
+   its security depends on the combination of various protocol
+   interactions.
 
 6.8.  Unprotected Information
 
@@ -2620,19 +2626,19 @@ Internet-Draft                  ACE-OAuth                      June 2021
    submitting an access token to the authz-info endpoint, attackers may
    be pretending to be a client and trying to trick an RS to use an
    obsolete profile that in turn specifies a vulnerable security
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 47]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    mechanism via the authz-info endpoint.  Such an attack would require
    a valid access token containing an "ace_profile" claim requesting the
    use of said obsolete profile.  Resource Owners should update the
    configuration of their RS's to prevent them from using such obsolete
    profiles.
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 47]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
 6.9.  Identifying Audiences
 
@@ -2673,6 +2679,17 @@ Internet-Draft                  ACE-OAuth                      June 2021
    Section 5.3 is not typically source authenticated and integrity
    protected, and should therefore not be treated a trusted value.
 
+
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 48]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
 6.10.  Denial of Service Against or with Introspection
 
    The optional introspection mechanism provided by OAuth and supported
@@ -2682,14 +2699,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
    First, an attacker could perform a denial of service attack against
    the introspection endpoint at the AS in order to prevent validation
    of access tokens.  To maintain the security of the system, an RS that
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 48]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    is configured to use introspection MUST NOT allow access based on a
    token for which it couldn't reach the introspection endpoint.
 
@@ -2729,6 +2738,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
    acquire the access tokens in some other way.  In the case of CWTs the
    token may, e.g., reveal the audience, the scope and the confirmation
    method used by the client.  The latter may reveal the identity of the
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 49]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    device or application running the client.  This may be linkable to
    the identity of the person using the client (if there is a person and
    not a machine-to-machine interaction).
@@ -2738,13 +2755,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
    possession towards different RSs.  A set of colluding RSs or an
    attacker able to obtain the access tokens will be able to link the
    requests, or even to determine the client's identity.
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 49]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
    An unprotected response to an unauthorized request (see Section 5.3)
    may disclose information about RS and/or its existing relationship
@@ -2783,6 +2793,15 @@ Internet-Draft                  ACE-OAuth                      June 2021
       from -256 to 255 are designated as Standards Action.  Integer
       values from -65536 to -257 and from 256 to 65535 are designated as
       Specification Required.  Integer values greater than 65535 are
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 50]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
       designated as Expert Review.  Integer values less than -65536 are
       marked as Private Use.
 
@@ -2794,13 +2813,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    This registry will be initially populated by the values in Figure 2.
    The Reference column for all of these entries will be this document.
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 50]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
 8.2.  CoRE Resource Type Registry
 
@@ -2824,19 +2836,28 @@ Internet-Draft                  ACE-OAuth                      June 2021
    o  Error name: "unsupported_pop_key"
    o  Error usage location: token error response
    o  Related protocol extension: [this document]
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Specification document(s): Section 5.8.3 of [this document]
 
    o  Error name: "incompatible_ace_profiles"
    o  Error usage location: token error response
    o  Related protocol extension: [this document]
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Specification document(s): Section 5.8.3 of [this document]
 
 8.4.  OAuth Error Code CBOR Mappings Registry
 
    This specification establishes the IANA "OAuth Error Code CBOR
    Mappings" registry.  The registry has been created to use the "Expert
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 51]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    Review" registration procedure [RFC8126], except for the value range
    designated for private use.
 
@@ -2849,14 +2870,8 @@ Internet-Draft                  ACE-OAuth                      June 2021
       the registration policy "Expert Review" [RFC8126].
    Reference  This contains a pointer to the public specification of the
       error code abbreviation, if one exists.
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 51]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
+   Original Specification  This contains a pointer to the public
+      specification of the error code, if one exists.
 
    This registry will be initially populated by the values in Figure 10.
    The Reference column for all of these entries will be this document.
@@ -2889,8 +2904,19 @@ Internet-Draft                  ACE-OAuth                      June 2021
    Access Token Types" registry [IANA.OAuthAccessTokenTypes].
 
    o  Type name: "PoP"
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 52]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    o  Additional Token Endpoint Response Parameters: "cnf", "rs_cnf" see
-      section 3.3 of [I-D.ietf-ace-oauth-params].
+      section 3.1 of [RFC8747] and section 3.1 of
+      [I-D.ietf-ace-oauth-params].
    o  HTTP Authentication Scheme(s): N/A
    o  Change Controller: IETF
    o  Specification document(s): [this document]
@@ -2906,14 +2932,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    Name  The name of token type as registered in the OAuth Access Token
       Types registry, e.g., "Bearer".
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 52]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    CBOR Value  CBOR abbreviation for this token type.  Integer values
       less than -65536 are marked as "Private Use", all other values use
       the registration policy "Expert Review" [RFC8126].
@@ -2944,6 +2962,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    The columns of this registry are:
 
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 53]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    Name  The name of the profile, to be used as value of the profile
       attribute.
    Description  Text giving an overview of the profile and the context
@@ -2961,15 +2987,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
    This registry will be initially empty and will be populated by the
    registrations from the ACE framework profiles.
 
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 53]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
 8.9.  OAuth Parameter Registration
 
    This specification registers the following parameter in the "OAuth
@@ -2977,7 +2994,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    o  Name: "ace_profile"
    o  Parameter Usage Location: token response
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Reference: Section 5.8.2 and Section 5.8.4.3 of [this document]
 
 8.10.  OAuth Parameters CBOR Mappings Registry
@@ -2998,6 +3015,16 @@ Internet-Draft                  ACE-OAuth                      June 2021
       parameter.
    Reference  This contains a pointer to the public specification of the
       OAuth parameter abbreviation, if one exists.
+   Original Specification  This contains a pointer to the public
+      specification of the OAuth parameter, if one exists.
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 54]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
 
    This registry will be initially populated by the values in Figure 12.
    The Reference column for all of these entries will be this document.
@@ -3010,22 +3037,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    o  Name: "ace_profile"
    o  Description: The ACE profile used between client and RS.
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Reference: Section 5.9.2 of [this document]
 
    o  Name: "cnonce"
    o  Description: "client-nonce".  A nonce previously provided to the
       AS by the RS via the client.  Used to verify token freshness when
       the RS cannot synchronize its clock with the AS.
-   o  Change Controller: IESG
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 54]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
+   o  Change Controller: IETF
    o  Reference: Section 5.9.2 of [this document]
 
    o  Name: "exi"
@@ -3033,7 +3052,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
       the time the RS first sees it.  Used to implement a weaker from of
       token expiration for devices that cannot synchronize their
       internal clocks.
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Reference: Section 5.9.2 of [this document]
 
 8.12.  OAuth Token Introspection Response CBOR Mappings Registry
@@ -3055,6 +3074,18 @@ Internet-Draft                  ACE-OAuth                      June 2021
    Reference  This contains a pointer to the public specification of the
       introspection response parameter abbreviation, if one exists.
 
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 55]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
+   Original Specification  This contains a pointer to the public
+      specification of OAuth Token Introspection parameter, if one
+      exists.
+
    This registry will be initially populated by the values in Figure 16.
    The Reference column for all of these entries will be this document.
 
@@ -3071,22 +3102,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
    o  Claim Name: "ace_profile"
    o  Claim Description: The ACE profile a token is supposed to be used
       with.
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Reference: Section 5.10 of [this document]
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 55]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
    o  Claim Name: "cnonce"
    o  Claim Description: "client-nonce".  A nonce previously provided to
       the AS by the RS via the client.  Used to verify token freshness
       when the RS cannot synchronize its clock with the AS.
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Reference: Section 5.10 of [this document]
 
    o  Claim Name: "exi"
@@ -3094,7 +3117,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
       from the time the RS first sees it.  Used to implement a weaker
       from of token expiration for devices that cannot synchronize their
       internal clocks.
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Reference: Section 5.10.3 of [this document]
 
 8.14.  CBOR Web Token Claims
@@ -3107,8 +3130,16 @@ Internet-Draft                  ACE-OAuth                      June 2021
       with.
    o  JWT Claim Name: ace_profile
    o  Claim Key: TBD (suggested: 38)
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 56]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    o  Claim Value Type(s): integer
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Specification Document(s): Section 5.10 of [this document]
 
    o  Claim Name: "cnonce"
@@ -3117,7 +3148,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
    o  JWT Claim Name: cnonce
    o  Claim Key: TBD (suggested: 39)
    o  Claim Value Type(s): byte string
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Specification Document(s): Section 5.10 of [this document]
 
    o  Claim Name: "exi"
@@ -3126,24 +3157,16 @@ Internet-Draft                  ACE-OAuth                      June 2021
    o  JWT Claim Name: exi
    o  Claim Key: TBD (suggested: 40)
    o  Claim Value Type(s): integer
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Specification Document(s): Section 5.10.3 of [this document]
 
    o  Claim Name: "scope"
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 56]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    o  Claim Description: The scope of an access token as defined in
       [RFC6749].
    o  JWT Claim Name: scope
    o  Claim Key: TBD (suggested: 9)
    o  Claim Value Type(s): byte string or text string
-   o  Change Controller: IESG
+   o  Change Controller: IETF
    o  Specification Document(s): Section 4.2 of [RFC8693]
 
 8.15.  Media Type Registrations
@@ -3163,6 +3186,13 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    Encoding considerations: Must be encoded as CBOR map containing the
    protocol parameters defined in [this document].
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 57]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
 
    Security considerations: See Section 6 of [this document]
 
@@ -3187,14 +3217,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    Author: Ludwig Seitz <ludwig.seitz@combitech.se>
 
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 57]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
-   Change controller: IESG
+   Change controller: IETF
 
 8.16.  CoAP Content-Format Registry
 
@@ -3219,6 +3242,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
    Expert reviewers should take into consideration the following points:
 
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 58]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    o  Point squatting should be discouraged.  Reviewers are encouraged
       to get sufficient information for registration requests to ensure
       that the usage is not going to duplicate one that is already
@@ -3242,14 +3273,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
       registries and the contents of the OAuth parameters
       [IANA.OAuthParameters] registries, experts should require new
       registrations to maintain alignment with parameters from OAuth
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 58]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       that have comparable functionality.  Deviation from this alignment
       should only be allowed if there are functional differences, that
       are motivated by the use case and that cannot be easily or
@@ -3276,6 +3299,13 @@ Internet-Draft                  ACE-OAuth                      June 2021
    Thanks to Benjamin Kaduk for his input on various questions related
    to this work.
 
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 59]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    Thanks to Cigdem Sengul for some very useful review comments.
 
    Thanks to Carsten Bormann for contributing the text for the CoRE
@@ -3296,15 +3326,7 @@ Internet-Draft                  ACE-OAuth                      June 2021
    [I-D.ietf-ace-oauth-params]
               Seitz, L., "Additional OAuth Parameters for Authorization
               in Constrained Environments (ACE)", draft-ietf-ace-oauth-
-              params-14 (work in progress), March 2021.
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 59]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
+              params-15 (work in progress), May 2021.
 
    [IANA.CborWebTokenClaims]
               IANA, "CBOR Web Token (CWT) Claims",
@@ -3330,6 +3352,16 @@ Internet-Draft                  ACE-OAuth                      June 2021
               <https://www.iana.org/assignments/oauth-parameters/oauth-
               parameters.xhtml#extensions-error>.
 
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 60]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    [IANA.OAuthParameters]
               IANA, "OAuth Parameters",
               <https://www.iana.org/assignments/oauth-parameters/oauth-
@@ -3354,14 +3386,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
               Security Version 1.2", RFC 6347, DOI 10.17487/RFC6347,
               January 2012, <https://www.rfc-editor.org/info/rfc6347>.
 
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 60]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    [RFC6749]  Hardt, D., Ed., "The OAuth 2.0 Authorization Framework",
               RFC 6749, DOI 10.17487/RFC6749, October 2012,
               <https://www.rfc-editor.org/info/rfc6749>.
@@ -3385,6 +3409,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
               Application Protocol (CoAP)", RFC 7252,
               DOI 10.17487/RFC7252, June 2014,
               <https://www.rfc-editor.org/info/rfc7252>.
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 61]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
 
    [RFC7519]  Jones, M., Bradley, J., and N. Sakimura, "JSON Web Token
               (JWT)", RFC 7519, DOI 10.17487/RFC7519, May 2015,
@@ -3411,13 +3443,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
               "CBOR Web Token (CWT)", RFC 8392, DOI 10.17487/RFC8392,
               May 2018, <https://www.rfc-editor.org/info/rfc8392>.
 
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 61]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
    [RFC8693]  Jones, M., Nadalin, A., Campbell, B., Ed., Bradley, J.,
               and C. Mortimore, "OAuth 2.0 Token Exchange", RFC 8693,
               DOI 10.17487/RFC8693, January 2020,
@@ -3440,6 +3465,15 @@ Internet-Draft                  ACE-OAuth                      June 2021
               <https://www.bluetooth.com/specifications/bluetooth-core-
               specification/>.
 
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 62]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    [I-D.erdtman-ace-rpcc]
               Seitz, L. and S. Erdtman, "Raw-Public-Key and Pre-Shared-
               Key as OAuth client credentials", draft-erdtman-ace-
@@ -3450,29 +3484,18 @@ Internet-Draft                  ACE-OAuth                      June 2021
               L. Seitz, "Datagram Transport Layer Security (DTLS)
               Profile for Authentication and Authorization for
               Constrained Environments (ACE)", draft-ietf-ace-dtls-
-              authorize-16 (work in progress), March 2021.
+              authorize-18 (work in progress), June 2021.
 
    [I-D.ietf-ace-oscore-profile]
               Palombini, F., Seitz, L., Selander, G., and M. Gunnarsson,
               "OSCORE Profile of the Authentication and Authorization
               for Constrained Environments Framework", draft-ietf-ace-
-              oscore-profile-18 (work in progress), April 2021.
+              oscore-profile-19 (work in progress), May 2021.
 
    [I-D.ietf-quic-transport]
               Iyengar, J. and M. Thomson, "QUIC: A UDP-Based Multiplexed
               and Secure Transport", draft-ietf-quic-transport-34 (work
               in progress), January 2021.
-
-
-
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 62]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
    [I-D.ietf-tls-dtls13]
               Rescorla, E., Tschofenig, H., and N. Modadugu, "The
@@ -3497,6 +3520,16 @@ Internet-Draft                  ACE-OAuth                      June 2021
               FYI 36, RFC 4949, DOI 10.17487/RFC4949, August 2007,
               <https://www.rfc-editor.org/info/rfc4949>.
 
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 63]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    [RFC6690]  Shelby, Z., "Constrained RESTful Environments (CoRE) Link
               Format", RFC 6690, DOI 10.17487/RFC6690, August 2012,
               <https://www.rfc-editor.org/info/rfc6690>.
@@ -3519,16 +3552,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
               Protocol (HTTP/1.1): Semantics and Content", RFC 7231,
               DOI 10.17487/RFC7231, June 2014,
               <https://www.rfc-editor.org/info/rfc7231>.
-
-
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 63]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
    [RFC7521]  Campbell, B., Mortimore, C., Jones, M., and Y. Goland,
               "Assertion Framework for OAuth 2.0 Client Authentication
@@ -3556,6 +3579,13 @@ Internet-Draft                  ACE-OAuth                      June 2021
               DOI 10.17487/RFC7744, January 2016,
               <https://www.rfc-editor.org/info/rfc7744>.
 
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 64]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    [RFC7959]  Bormann, C. and Z. Shelby, Ed., "Block-Wise Transfers in
               the Constrained Application Protocol (CoAP)", RFC 7959,
               DOI 10.17487/RFC7959, August 2016,
@@ -3578,13 +3608,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
    [RFC8446]  Rescorla, E., "The Transport Layer Security (TLS) Protocol
               Version 1.3", RFC 8446, DOI 10.17487/RFC8446, August 2018,
               <https://www.rfc-editor.org/info/rfc8446>.
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 64]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
    [RFC8516]  Keranen, A., ""Too Many Requests" Response Code for the
               Constrained Application Protocol", RFC 8516,
@@ -3611,6 +3634,14 @@ Appendix A.  Design Justification
 
    Common IoT constraints are:
 
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 65]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    Low Power Radio:
 
       Many IoT devices are equipped with a small battery which needs to
@@ -3634,14 +3665,6 @@ Appendix A.  Design Justification
       Some IoT devices are equipped with processors that are
       significantly slower than those found in most current devices on
       the Internet.  This typically has implications on what timely
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 65]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       cryptographic operations a device is capable of performing, which
       in turn impacts, e.g., protocol latency.  Symmetric key
       cryptography may be used instead of the computationally more
@@ -3667,6 +3690,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
       Protecting access to resources is both an important security as
       well as privacy feature.  End users and enterprise customers may
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 66]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
       not want to give access to the data collected by their IoT device
       or to functions it may offer to third parties.  Since the
       classical approach of requesting permissions from end users via a
@@ -3690,14 +3721,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
       used in all applications due to the communication constraints.
       Deployments making use of CoAP are expected, but this framework is
       not limited to them.  Other protocols such as HTTP, or even
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 66]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       protocols such as Bluetooth Smart communication that do not
       necessarily use IP, could also be used.  The latter raises the
       need for application-layer security over the various interfaces.
@@ -3722,6 +3745,15 @@ Internet-Draft                  ACE-OAuth                      June 2021
       other protocols specifically aimed at constrained devices, like,
       e.g., Bluetooth Low Energy (see Section 3.2).  This aims again at
       reducing the size of messages sent over the wire, the RAM size of
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 67]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
       data objects that need to be kept in memory and the size of
       libraries that devices need to support.
 
@@ -3745,13 +3777,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
       specifically relevant in constrained use cases, as communication
       often passes through middle-boxes, which could be able to steal
       bearer tokens and use them to gain unauthorized access.
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 67]
-
-Internet-Draft                  ACE-OAuth                      June 2021
 
 
    Authz-Info endpoint:
@@ -3778,6 +3803,13 @@ Internet-Draft                  ACE-OAuth                      June 2021
       client's own credentials.  The client can then (without manual
       intervention) obtain access tokens from the AS.
 
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 68]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    Introspection:
 
       In this framework the use of access token introspection is
@@ -3801,15 +3833,6 @@ Appendix B.  Roles and Responsibilities
       *  Make sure that the RS is registered at the AS.  This includes
          making known to the AS which profiles, token_type, scopes, and
          key types (symmetric/asymmetric) the RS supports.  Also making
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 68]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
          it known to the AS which audience(s) the RS identifies itself
          with.
       *  Make sure that clients can discover the AS that is in charge of
@@ -3834,6 +3857,15 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
       *  Register the RS and manage corresponding security contexts.
       *  Register clients and authentication credentials.
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 69]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
       *  Allow Resource Owners to configure and update access control
          policies related to their registered RSs.
       *  Expose the token endpoint to allow clients to request tokens.
@@ -3857,15 +3889,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
       *  Submit the token request (see step (A) of Figure 1).
 
          +  Authenticate to the AS.
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 69]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
          +  Optionally (if not pre-configured): Specify which RS, which
             resource(s), and which action(s) the request(s) will target.
          +  If raw public keys (rpk) or certificates are used, make sure
@@ -3891,6 +3914,14 @@ Internet-Draft                  ACE-OAuth                      June 2021
             through the authentication procedure).
       *  Process the RS response (see step (F) of Figure 1) of the RS.
 
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 70]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    Resource Server
 
       *  Expose a way to submit access tokens.  By default this is the
@@ -3913,14 +3944,6 @@ Internet-Draft                  ACE-OAuth                      June 2021
          expiration check before verifying a signature).
 
       *  Process a request.
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 70]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
          +  Set up communication security with the client.
          +  Authenticate the client.
@@ -3946,6 +3969,15 @@ Appendix C.  Requirements on Profiles
    o  Optionally specify new grant types.  Section 5.4
    o  Optionally define the use of client certificates as client
       credential type.  Section 5.5
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 71]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
    o  Specify the communication protocol the client and RS the must use
       (e.g., CoAP).  Section 5 and Section 5.8.4.3
    o  Specify the security protocol the client and RS must use to
@@ -3969,14 +4001,6 @@ Appendix C.  Requirements on Profiles
       error responses are protected.  Section 5.10.1
    o  Optionally define other methods of token transport than the authz-
       info endpoint.  Section 5.10.1
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 71]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
 
 Appendix D.  Assumptions on AS Knowledge about C and RS
 
@@ -4003,6 +4027,13 @@ Appendix D.  Assumptions on AS Knowledge about C and RS
    o  Whether the RS has synchronized time (and thus is able to use the
       'exp' claim) or not.
 
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 72]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
+
 Appendix E.  Differences to OAuth 2.0
 
    This document adapts OAuth 2.0 to be suitable for constrained
@@ -4025,19 +4056,12 @@ Appendix E.  Differences to OAuth 2.0
       as a byte string.  See Section 5.8.1.
    o  Cardinality of "token_type" parameter -- in AS-to-client responses
       using OAuth 2.0, the token_type parameter is required (per
-
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 72]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       [RFC6749]).  In this framework, this parameter is optional.  See
       Section 5.8.2.
-   o  Access token retention -- in OAuth 2.0, the access token is sent
-      with each request to the RS.  In this framework, the RS must be
+   o  Access token retention -- in OAuth 2.0, the access token may be
+      sent with every request to the RS.  The exact use of access tokens
+      depends on the semantics of the application and the session
+      management concept it uses.  In this framework, the RS must be
       able to store these tokens for later use.  See Section 5.10.1.
 
 Appendix F.  Deployment Examples
@@ -4056,6 +4080,15 @@ Appendix F.  Deployment Examples
 
    Note: CBOR diagnostic notation is used for examples of requests and
    responses.
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 73]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
 
 F.1.  Local Token Validation
 
@@ -4082,14 +4115,6 @@ F.1.  Local Token Validation
       "tempSensorInLivingRoom", a value that the temperature sensor
       identifies itself with.  The AS evaluates the request and
       authorizes the client to access the resource.
-
-
-
-Seitz, et al.           Expires December 11, 2021              [Page 73]
-
-Internet-Draft                  ACE-OAuth                      June 2021
-
-
       B: The AS responds with a 2.05 Content response containing the
       Access Information, including the access token.  The PoP access
       token contains the public key of the client, and the Access
@@ -4108,6 +4133,18 @@ Internet-Draft                  ACE-OAuth                      June 2021
       Note: In this example it is assumed that the client knows what
       resource it wants to access, and is therefore able to request
       specific audience and scope claims for the access token.
+
+
+
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 74]
+
+Internet-Draft                  ACE-OAuth                    August 2021
+
 
             Authorization
      Client    Server
@@ -4141,9 +4178,28 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 74]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Seitz, et al.           Expires February 18, 2022              [Page 75]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Request-Payload :
@@ -4197,9 +4253,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 75]
+Seitz, et al.           Expires February 18, 2022              [Page 76]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    {
@@ -4253,9 +4309,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 76]
+Seitz, et al.           Expires February 18, 2022              [Page 77]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
       F: The RS responds over the same DTLS channel with a CoAP 2.05
@@ -4309,9 +4365,9 @@ F.2.  Introspection Aided Token Validation
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 77]
+Seitz, et al.           Expires February 18, 2022              [Page 78]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    to his computer that then provides the UI for the device.  After that
@@ -4365,9 +4421,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 78]
+Seitz, et al.           Expires February 18, 2022              [Page 79]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
             Authorization
@@ -4421,9 +4477,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 79]
+Seitz, et al.           Expires February 18, 2022              [Page 80]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
       RS cannot verify it on its own, and thus defers to respond the
@@ -4477,9 +4533,9 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 80]
+Seitz, et al.           Expires February 18, 2022              [Page 81]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Request-Payload:
@@ -4533,9 +4589,9 @@ Authors' Addresses
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 81]
+Seitz, et al.           Expires February 18, 2022              [Page 82]
 
-Internet-Draft                  ACE-OAuth                      June 2021
+Internet-Draft                  ACE-OAuth                    August 2021
 
 
    Ludwig Seitz
@@ -4589,4 +4645,4 @@ Internet-Draft                  ACE-OAuth                      June 2021
 
 
 
-Seitz, et al.           Expires December 11, 2021              [Page 82]
+Seitz, et al.           Expires February 18, 2022              [Page 83]
