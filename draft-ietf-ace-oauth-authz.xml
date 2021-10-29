@@ -9,6 +9,8 @@
 <!ENTITY RFC2119 SYSTEM
 "http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml">
 <!ENTITY RFC3986 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.3986.xml">
+<!ENTITY RFC4648 SYSTEM
+"http://xml.resource.org/public/rfc/bibxml/reference.RFC.4648.xml">
 <!ENTITY RFC4949 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.4949.xml">
 <!ENTITY RFC6347 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6347.xml">
 <!ENTITY RFC6690 SYSTEM "http://xml.resource.org/public/rfc/bibxml/reference.RFC.6690.xml">
@@ -79,7 +81,7 @@
 <?rfc subcompact="no" ?>
 <!-- keep one blank line between list items -->
 <!-- end of list of popular I-D processing instructions -->
-<rfc category="std" docName="draft-ietf-ace-oauth-authz-45" ipr="trust200902">
+<rfc category="std" docName="draft-ietf-ace-oauth-authz-46" ipr="trust200902">
   <!-- category values: std, bcp, info, exp, and historic
      ipr values: full3667, noModification3667, noDerivatives3667
      you can add the attributes updates="NNNN" and obsoletes="NNNN"
@@ -1526,7 +1528,8 @@ Payload:
       if it previously received a "cnonce" parameter in the "AS Request
       Creation Hints" <xref target="asInfo"/>.  The parameter
       is encoded as a byte string for CBOR-based interactions, and as a
-      string (Base64 encoded binary) if CBOR is not used.
+      string (base64url without padding encoded binary <xref
+      target="RFC4648"/>) if CBOR is not used.
       It MUST copy the value from the cnonce parameter in the "AS Request
       Creation Hints".</t>
     </section>
@@ -1679,13 +1682,17 @@ Payload:
 	  The RS MUST verify that this corresponds to the client-nonce
 	  previously provided to the client in the "AS Request Creation
 	  Hints". See <xref target="asInfo"/> and
-	  <xref target="cnonceParamToken"/>.
+	  <xref target="cnonceParamToken"/>. Its value is a byte string when
+	  encoded in CBOR and the base64url encoding of this byte string
+	  without padding when encoded in JSON <xref target="RFC4648"/>.
 	</t>
 	<t hangText="cti">
 	  OPTIONAL. The "cti" claim associated to this access token. This
 	  parameter has the same meaning and processing rules as the "jti"
 	  parameter defined in section 3.1.2 of <xref target="RFC7662"/> 
-	  except that the value is a byte string.
+	  except that its value is a byte string when encoded in CBOR and the
+	  base64url encoding of this byte string without padding when encoded
+	  in JSON <xref target="RFC4648"/>.
 	</t>
 	<t hangText="exi">
 	  OPTIONAL. The "expires-in" claim associated to this access token.
@@ -3153,6 +3160,7 @@ Payload:
       <!--?rfc include="http://xml.resource.org/public/rfc/bibxml/reference.RFC.2119.xml"?-->
       &RFC2119;
       &RFC3986;
+      &RFC4648;
       &RFC6347;
       &RFC6749;    
       &RFC6750;
