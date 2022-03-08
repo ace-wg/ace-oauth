@@ -610,7 +610,7 @@ and can also be deleted
         <dd>
           <t>
       The AS validates the token and returns the most recent parameters, such
-      as scope, audience, validity, etc., associated with it back to the RS.  The
+      as <tt>scope</tt>, <tt>audience</tt>, validity, etc., associated with it back to the RS.  The
       RS then uses the received parameters to process the request to either
       accept or to deny it.</t>
         </dd>
@@ -959,7 +959,7 @@ Ludwig: Done. Corrected one from json -> cbor-diag
     that is not synchronized with the clock of the AS.  Therefore, it
     cannot reliably verify the expiration time of access tokens it receives.
     Nevertheless, to ensure a certain level of access token freshness, the RS has
-    included a <tt>cnonce</tt> parameter (see <xref target="cnonceParam" format="default"/>) in the response. (The hex sequence of the cnonce parameter 
+    included a <tt>cnonce</tt> parameter (see <xref target="cnonceParam" format="default"/>) in the response. (The hex sequence of the <tt>cnonce</tt> parameter 
     is encoded in CBOR-based notation in this example.)</t>
         <t><xref target="fig_as-info-cbor" format="default"/> illustrates the mandatory use
 	of binary encoding of the message payload shown in
@@ -1320,14 +1320,14 @@ Current:
 		 
 Ludwig: Agreed.
 -->
-            <dt>token_type:</dt>
+            <dt><tt>token_type</tt>:</dt>
             <dd>This parameter is <bcp14>OPTIONAL</bcp14>, as opposed to
 	    <bcp14>REQUIRED</bcp14> in
 	    <xref target="RFC6749" format="default"/>. By default, implementations of
 	    this framework
-	    <bcp14>SHOULD</bcp14> assume that the token_type is "PoP".  If a specific
+	    <bcp14>SHOULD</bcp14> assume that the <tt>token_type</tt> is "PoP".  If a specific
 	    use case
-	    requires another token_type (e.g., "Bearer") to be used, then this
+	    requires another <tt>token_type</tt> (e.g., "Bearer") to be used, then this
 	    parameter is <bcp14>REQUIRED</bcp14>.
 	    </dd>
           </dl>
@@ -1415,7 +1415,7 @@ Payload:
    (remainder of CWT omitted for brevity;
    CWT contains COSE_Key in the cnf claim)',
   "ace_profile" : "coap_dtls",
-  "expires_in" : "3600",
+  "expires_in" : 3600,
   "cnf" : {
     "COSE_Key" : {
       "kty" : "Symmetric",
@@ -1914,7 +1914,7 @@ Payload:
 	    format="default"/>.</dd>
             <dt>exi:</dt>
             <dd>This parameter is <bcp14>OPTIONAL</bcp14>. This is the
-	    <tt>expires-in</tt> claim associated to this access token.
+	    <tt>expires_in</tt> claim associated to this access token.
 	    See <xref target="tokenExpiration" format="default"/>.
 	    </dd>
           </dl>
@@ -2373,7 +2373,7 @@ Original:
   authenticated.</t>
           <t>Note: The RS <bcp14>MAY</bcp14> use introspection for timely validation of an
   access token at the time when a request is presented.</t>
-          <t>Note: Matching the claims of the access token (e.g., scope) to a specific
+          <t>Note: Matching the claims of the access token (e.g., <tt>scope</tt>) to a specific
   request is application specific.</t>
           <t>If the request matches a valid token and the client has performed the
   proof of possession for that token, the RS continues to process the request
@@ -2467,7 +2467,7 @@ Original:
     information could be provisioned to the client when it is registered at the
     AS or published by the AS in a way that the client can query.</li>
             <li>The AS informs the client about the token validity using the
-    "expires_in" parameter in the Access Information.</li>
+    <tt>expires_in</tt> parameter in the Access Information.</li>
           </ul>
           <t>A client that is not able to obtain information about the expiration of a
   token <bcp14>MUST NOT</bcp14> use this token.</t>
@@ -2661,7 +2661,7 @@ Original:
 	cannot synchronize its clock with the AS, it may be tricked
 	into accepting old access tokens that are no longer valid or have been
 	compromised.  In order to prevent this, an RS may use the nonce-based
-	mechanism (cnonce) defined in <xref target="asInfo" format="default"/> to ensure
+	mechanism (<tt>cnonce</tt>) defined in <xref target="asInfo" format="default"/> to ensure
 	freshness of an	Access Token subsequently presented to this RS.</t>
         <t>Another problem with clock drift is that evaluating the
 	standard token expiration claim <tt>exp</tt> can give unpredictable results.
@@ -3135,7 +3135,7 @@ the registration policy Expert Review <xref target="RFC8126" format="default"/>.
         <dl newline="false">
           <dt>Name:</dt>
           <dd>The OAuth Parameter name, refers to the name in
-      the OAuth parameter registry, e.g., "client_id".</dd>
+      the OAuth parameter registry, e.g., <tt>client_id</tt>.</dd>
           <dt>CBOR Key:</dt>
           <dd>CBOR map key for this parameter.  Integer
       values less than -65536 are marked as Private Use; all other values use
@@ -3213,7 +3213,7 @@ the registration policy Expert Review <xref target="RFC8126" format="default"/>.
         <dl newline="false">
           <dt>Name:</dt>
           <dd>The OAuth Parameter name, refers to the name in
-      the OAuth parameter registry, e.g., "client_id".</dd>
+      the OAuth parameter registry, e.g., <tt>client_id</tt>.</dd>
           <dt>CBOR Key:</dt>
           <dd>CBOR map key for this parameter.  Integer
       values less than -65536 are marked as Private Use; all other values use
@@ -3866,7 +3866,7 @@ href="https://datatracker.ietf.org/doc/bibxml3/reference.I-D.gerdes-ace-dcaf-aut
         <dd>
 	  This framework makes use of proof-of-possession tokens, using
 	  the <tt>cnf</tt> claim <xref target="RFC8747" format="default"/>.  A request
-	  parameter "cnf" and a Response parameter <tt>cnf</tt>, both having a
+	  parameter <tt>cnf</tt> and a Response parameter <tt>cnf</tt>, both having a
 	  value space semantically and syntactically identical to the <tt>cnf</tt>
 	  claim, are defined for the token endpoint to allow requesting and
 	  stating confirmation keys.  This aims at making token theft harder.
@@ -4327,8 +4327,8 @@ Response-Payload :
           <sourcecode name="" type="cbor-diag"><![CDATA[
 {
   "aud" : "tempSensorInLivingRoom",
-  "iat" : "1563451500",
-  "exp" : "1563453000",
+  "iat" : 1563451500,
+  "exp" : 1563453000,
   "scope" :  "temperature_g firmware_p",
   "cnf" : {
     "COSE_Key" : {
